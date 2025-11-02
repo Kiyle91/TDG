@@ -1,9 +1,4 @@
-// ============================================================
-// 🧠 game.js — Core Game Controller
-// ------------------------------------------------------------
-// Handles game loop integration and orchestration of all systems
-// (grid, path, enemies, towers, projectiles, UI, etc.)
-// ============================================================
+// game.js — core game controller and system orchestration
 
 import { drawGrid, initGrid } from "./grid.js";
 import { drawPath } from "./path.js";
@@ -25,7 +20,7 @@ export function initGame() {
   initProjectiles();
   initUI();
 
-  console.log("🚀 Tower Defense initialized successfully!");
+  console.log("Tower Defense initialized successfully");
 }
 
 export function updateGame(delta) {
@@ -37,8 +32,6 @@ export function updateGame(delta) {
 
 export function renderGame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Draw world
   drawGrid(ctx);
   drawPath(ctx);
   drawEnemies(ctx);

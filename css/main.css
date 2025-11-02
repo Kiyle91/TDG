@@ -1,3 +1,5 @@
+/* main.css — base layout and game container styling */
+
 body {
   background: radial-gradient(circle at center, #02081f 0%, #01040d 100%);
   color: #0ff;
@@ -15,6 +17,6 @@ body {
 #game-canvas {
   border: 2px solid #0ff;
   background: #060c1f;
-  box-shadow: 0 0 30px rgba(0,255,255,0.3);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
   border-radius: 10px;
 }

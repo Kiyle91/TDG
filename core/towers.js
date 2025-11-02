@@ -1,8 +1,4 @@
-// ============================================================
-// 🛰 towers.js — Tower Management System
-// ------------------------------------------------------------
-// Handles tower placement, targeting, and projectile firing
-// ============================================================
+// towers.js — manages tower placement, targeting, and firing
 
 import { TOWER_RANGE } from "../utils/constants.js";
 import { spawnProjectile } from "./projectiles.js";
@@ -12,8 +8,7 @@ let towers = [];
 
 export function initTowers() {
   towers = [];
-  // Temporary test tower in the middle
-  towers.push({ x: 5 * 64 + 32, y: 4 * 64 + 32, cooldown: 0 });
+  towers.push({ x: 5 * 64 + 32, y: 4 * 64 + 32, cooldown: 0 }); // test tower
 }
 
 export function updateTowers(delta) {
@@ -22,6 +17,7 @@ export function updateTowers(delta) {
 
   towers.forEach((tower) => {
     tower.cooldown -= dt;
+
     if (tower.cooldown <= 0) {
       const target = enemies.find((e) => {
         const dist = Math.hypot(e.x - tower.x, e.y - tower.y);
@@ -30,7 +26,7 @@ export function updateTowers(delta) {
 
       if (target) {
         spawnProjectile(tower.x, tower.y, target);
-        tower.cooldown = 0.8; // seconds between shots
+        tower.cooldown = 0.8;
       }
     }
   });

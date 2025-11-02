@@ -1,8 +1,4 @@
-// ============================================================
-// 💥 projectiles.js — Tower Defense Projectiles System
-// ------------------------------------------------------------
-// Handles bullets/lasers fired from towers, enemy collision, and cleanup
-// ============================================================
+// projectiles.js — handles tower projectiles, movement, and impact
 
 import { PROJECTILE_SPEED } from "../utils/constants.js";
 
@@ -13,12 +9,7 @@ export function initProjectiles() {
 }
 
 export function spawnProjectile(x, y, target) {
-  projectiles.push({
-    x,
-    y,
-    target,
-    radius: 4
-  });
+  projectiles.push({ x, y, target, radius: 4 });
 }
 
 export function updateProjectiles(delta) {
@@ -32,8 +23,7 @@ export function updateProjectiles(delta) {
     const dist = Math.hypot(dx, dy);
 
     if (dist < 8) {
-      // Impact
-      p.target.hp -= 20;
+      p.target.hp -= 20; // hit
       projectiles.splice(i, 1);
       return;
     }

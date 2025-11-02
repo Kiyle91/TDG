@@ -1,3 +1,5 @@
+// enemies.js — handles enemy spawning, movement, and drawing
+
 import { pathPoints } from "./path.js";
 import { TILE_SIZE, ENEMY_SPEED } from "../utils/constants.js";
 
@@ -20,13 +22,13 @@ function spawnEnemy() {
 
 export function updateEnemies(delta) {
   const dt = delta / 1000;
+
   enemies.forEach((e, index) => {
     const target = pathPoints[e.targetIndex];
-    if (!target) return; // done
+    if (!target) return; // reached end of path
 
     const targetX = target.x * TILE_SIZE + TILE_SIZE / 2;
     const targetY = target.y * TILE_SIZE + TILE_SIZE / 2;
-
     const dx = targetX - e.x;
     const dy = targetY - e.y;
     const dist = Math.hypot(dx, dy);
@@ -35,7 +37,7 @@ export function updateEnemies(delta) {
       e.targetIndex++;
       if (e.targetIndex >= pathPoints.length) {
         enemies.splice(index, 1);
-        console.log("⚠️ Enemy reached base!");
+        console.log("Enemy reached base");
       }
       return;
     }
@@ -59,8 +61,6 @@ export function drawEnemies(ctx) {
   });
 }
 
-
 export function getEnemies() {
   return enemies;
 }
-

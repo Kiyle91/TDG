@@ -1,3 +1,5 @@
+// path.js — defines and draws enemy movement path
+
 import { TILE_SIZE } from "../utils/constants.js";
 
 export const pathPoints = [
@@ -10,7 +12,7 @@ export const pathPoints = [
 ];
 
 export function drawPath(ctx) {
-  ctx.strokeStyle = "rgba(255, 255, 0, 0.4)";
+  ctx.strokeStyle = "rgba(255,255,0,0.4)";
   ctx.lineWidth = 8;
   ctx.beginPath();
 

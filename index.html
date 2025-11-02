@@ -3,19 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🛰️ Tower Defense: Neural Front</title>
-
+  <title>Tower Defense: Neural Front</title>
   <link rel="stylesheet" href="./css/main.css" />
-  <link rel="stylesheet" href="./css/hud.css" />
+  <link rel="stylesheet" href="./css/landing.css" />
 </head>
+
 <body>
-  <div id="game-container">
+  <section id="landing-screen" class="screen active">
+    <div id="landing-container">
+      <h2 class="landing-title">Tower Defense: Neural Front</h2>
+      <button id="start-button" class="landing-btn">Start</button>
+      <p class="landing-footer">© 2025 Neural Systems</p>
+    </div>
+  </section>
+
+  <div id="game-container" style="display: none;">
     <canvas id="game-canvas" width="960" height="640"></canvas>
     <div id="hud">
-      <button id="start-btn">▶ Start Wave</button>
+      <button id="start-btn">Start Wave</button>
       <span id="wave-display">Wave 1</span>
-      <span id="money-display">💰 100</span>
-      <span id="lives-display">❤️ 10</span>
+      <span id="money-display">100</span>
+      <span id="lives-display">10</span>
     </div>
   </div>
 

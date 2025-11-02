@@ -1,6 +1,4 @@
-// ============================================================
-// 💻 ui.js — Basic HUD Controls
-// ============================================================
+// ui.js — basic HUD display and stat management
 
 let waveDisplay, moneyDisplay, livesDisplay;
 
@@ -19,8 +17,8 @@ export function initUI() {
 
 export function updateHUD() {
   waveDisplay.textContent = `Wave ${gameStats.wave}`;
-  moneyDisplay.textContent = `💰 ${gameStats.money}`;
-  livesDisplay.textContent = `❤️ ${gameStats.lives}`;
+  moneyDisplay.textContent = `Money ${gameStats.money}`;
+  livesDisplay.textContent = `Lives ${gameStats.lives}`;
 }
 
 export function getStats() {

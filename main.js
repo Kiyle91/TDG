@@ -1,4 +1,9 @@
+// main.js — entry point and main game loop
+
+
 import { initGame, updateGame, renderGame } from "./core/game.js";
+import { initLanding } from "./core/landing.js";
+
 
 let lastTime = 0;
 const FPS = 60;
@@ -14,7 +19,10 @@ function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 }
 
+initLanding();
+
 window.addEventListener("DOMContentLoaded", () => {
+  initLanding();
   initGame();
   requestAnimationFrame(gameLoop);
 });

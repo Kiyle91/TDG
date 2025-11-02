@@ -1,3 +1,5 @@
+// grid.js — creates and renders the game grid
+
 import { TILE_SIZE, GRID_COLS, GRID_ROWS } from "../utils/constants.js";
 
 let grid = [];
