@@ -1,0 +1,49 @@
+/* ============================================================
+   📊 OLIVIA’S WORLD: CRYSTAL KEEP — stats.css
+   ------------------------------------------------------------
+   ✦ Player stats overlay
+   ✦ Pastel crystal panel with glowing values
+============================================================ */
+
+.stats-container {
+  width: 600px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-title {
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
+  font-family: "Princess Sofia", cursive;
+  color: #ffffff;
+}
+
+/* ✨ Stat layout grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+  padding: 30px 50px;
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.6),
+    inset 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.stat-item {
+  color: #ffffff;
+  font-family: "Comic Sans MS", cursive;
+  font-size: 1rem;
+  text-shadow: 0 0 6px rgba(224, 187, 255, 0.7);
+}
+
+.stat-item strong {
+  color: #b5e2ff;
+  font-weight: bold;
+}

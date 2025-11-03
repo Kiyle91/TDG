@@ -24,14 +24,14 @@ export function initHub() {
   const mapsBtn = document.getElementById("maps-btn");
   const turretsBtn = document.getElementById("turrets-btn");
   const skinsBtn = document.getElementById("skins-btn");
-  const questsBtn = document.getElementById("quests-btn");
+  const statsBtn = document.getElementById("stats-btn");
   const settingsBtn = document.getElementById("settings-btn");
   const exitBtn = document.getElementById("exit-hub-btn");
 
   // 🩵 Safety check
   if (
     !newStoryBtn || !loadGameBtn || !mapsBtn ||
-    !turretsBtn || !skinsBtn || !questsBtn ||
+    !turretsBtn || !skinsBtn || !statsBtn ||
     !settingsBtn || !exitBtn
   ) {
     console.warn("⚠️ Hub buttons missing!");
@@ -75,10 +75,10 @@ export function initHub() {
     showOverlay("overlay-skins");
   });
 
-  // 📜 Quests — open quest log
-  questsBtn.addEventListener("click", () => {
-    console.log("📜 Quests overlay");
-    showOverlay("overlay-quests");
+  // 📜 Stats — open stats
+  statsBtn.addEventListener("click", () => {
+    console.log("📜 stats overlay");
+    showOverlay("overlay-stats");
   });
 
   // ⚙️ Settings — open settings overlay

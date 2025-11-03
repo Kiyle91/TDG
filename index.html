@@ -23,6 +23,8 @@
   <link rel="stylesheet" href="./css/animations.css" />
   <link rel="stylesheet" href="./css/story.css" />
   <link rel="stylesheet" href="./css/maps.css" />
+  <link rel="stylesheet" href="./css/turrets.css" />
+  <link rel="stylesheet" href="./css/stats.css" />
 </head>
 
 <body>
@@ -94,7 +96,7 @@
           <button id="maps-btn">Maps</button>
           <button id="turrets-btn">Turrets</button>
           <button id="skins-btn">Skins</button>
-          <button id="quests-btn">Quests</button>
+          <button id="stats-btn">Stats</button>
           <button id="settings-btn">Settings</button>
           <button id="exit-hub-btn">Exit</button>
         </div>
@@ -131,9 +133,60 @@
       </div>
 
       <div id="overlay-turrets" class="overlay hidden">
-        <div class="overlay-box">
-          <h3>Turrets</h3>
-          <p>Manage your towers and upgrades.</p>
+        <div class="overlay-box turret-grid-container">
+          <h3 class="turret-title">Turrets</h3>
+
+          <div class="turret-grid">
+            <!-- 6 turret cards (all locked for now) -->
+            <div class="turret-card locked" data-turret="1">
+              <img src="./assets/images/turrets/basic_turret.png" alt="Basic Turret" class="turret-image" />
+              <div class="turret-info">
+                <h4>Crystal Defender</h4>
+                <p>Fires slow but powerful crystal bolts at enemies.</p>
+              </div>
+            </div>
+
+            <div class="turret-card locked" data-turret="2">
+              <img src="./assets/images/turrets/frost_turret.png" alt="Frost Turret" class="turret-image" />
+              <div class="turret-info">
+                <h4>Frost Sentinel</h4>
+                <p>Slows enemies with shards of enchanted ice.</p>
+              </div>
+            </div>
+
+            <div class="turret-card locked" data-turret="3">
+              <img src="./assets/images/turrets/flame_turret.png" alt="Flame Turret" class="turret-image" />
+              <div class="turret-info">
+                <h4>Flameheart</h4>
+                <p>Unleashes bursts of fire, dealing area damage.</p>
+              </div>
+            </div>
+
+            <div class="turret-card locked" data-turret="4">
+              <img src="./assets/images/turrets/light_turret.png" alt="Light Turret" class="turret-image" />
+              <div class="turret-info">
+                <h4>Beacon of Light</h4>
+                <p>Increases nearby tower attack speed with radiant energy.</p>
+              </div>
+            </div>
+
+            <div class="turret-card locked" data-turret="5">
+              <img src="./assets/images/turrets/arcane_turret.png" alt="Arcane Turret" class="turret-image" />
+              <div class="turret-info">
+                <h4>Arcane Spire</h4>
+                <p>Fires bolts of mana that chain between enemies.</p>
+              </div>
+            </div>
+
+            <div class="turret-card locked" data-turret="6">
+              <img src="./assets/images/turrets/moon_turret.png" alt="Moonlight Turret" class="turret-image" />
+              <div class="turret-info">
+                <h4>Moonlight Aegis</h4>
+                <p>Summons a protective aura that regenerates ally health.</p>
+              </div>
+            </div>
+          </div>
+
           <button class="overlay-close">Close</button>
         </div>
       </div>
@@ -146,13 +199,23 @@
         </div>
       </div>
 
-      <div id="overlay-quests" class="overlay hidden">
-        <div class="overlay-box">
-          <h3>Quests</h3>
-          <p>View your active and completed quests.</p>
+      <div id="overlay-stats" class="overlay hidden">
+        <div class="overlay-box stats-container">
+          <h3 class="stats-title">Player Stats</h3>
+
+          <div class="stats-grid">
+            <div class="stat-item"><strong>Level:</strong> <span id="stat-level">1</span></div>
+            <div class="stat-item"><strong>XP:</strong> <span id="stat-xp">0 / 100</span></div>
+            <div class="stat-item"><strong>HP:</strong> <span id="stat-hp">100 / 100</span></div>
+            <div class="stat-item"><strong>Mana:</strong> <span id="stat-mana">50 / 50</span></div>
+            <div class="stat-item"><strong>Gold:</strong> <span id="stat-gold">0</span></div>
+            <div class="stat-item"><strong>Enemies Defeated:</strong> <span id="stat-kills">0</span></div>
+          </div>
+
           <button class="overlay-close">Close</button>
         </div>
       </div>
+
 
       <div id="overlay-settings" class="overlay hidden">
         <div class="overlay-box">
