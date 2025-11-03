@@ -1,9 +1,9 @@
 /* ============================================================
-   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — main.css
+   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — main.css (Updated Palette)
    ------------------------------------------------------------
-   ✦ Global base + animated pastel background
+   ✦ Global base + animated crystal gradient
    ✦ Centers active screens (landing, profile, hub)
-   ✦ Includes 1920×1080 fixed game container styling
+   ✦ Matches new blue–lilac–magenta theme
 ============================================================ */
 
 /* ============================================================
@@ -21,22 +21,24 @@ body {
   height: 100%;
   overflow: hidden;
   font-family: "Comic Sans MS", "Princess Sofia", cursive;
-  color: #d63384;
+  color: #ffffff;
 }
 
 /* ============================================================
-   🌈 BACKGROUND — animated pastel gradient
+   🌈 BACKGROUND — animated crystal gradient
 ============================================================ */
 body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(270deg, #ffd6eb, #e0bbff, #b5e2ff, #ffd6eb);
+
+  /* 💎 soft blue–lilac–magenta gradient */
+  background: linear-gradient(270deg, #8cd5ff, #d4b5ff, #ffbde3, #8cd5ff);
   background-size: 800% 800%;
-  animation: rainbowBG 24s ease infinite;
+  animation: crystalBG 24s ease infinite;
 }
 
-@keyframes rainbowBG {
+@keyframes crystalBG {
   0% {
     background-position: 0% 50%;
   }
@@ -73,7 +75,7 @@ body {
 }
 
 /* ============================================================
-   🏰 GAME CONTAINER — 1920×1080 centered frame
+   🏰 GAME CONTAINER — 1920×1080 crystal frame
 ============================================================ */
 #game-container {
   position: relative;
@@ -82,11 +84,12 @@ body {
   border-radius: 20px;
   overflow: hidden;
 
-  /* 🌸 Soft pastel glowing frame */
-  border: 4px solid rgba(255, 182, 224, 0.9);
+  /* 💠 Soft glowing blue–lilac frame */
+  border: 4px solid rgba(91, 139, 230, 0.8);
   box-shadow:
-    0 0 25px rgba(255, 182, 224, 0.8),
-    inset 0 0 25px rgba(255, 182, 224, 0.4);
+    0 0 30px rgba(181, 226, 255, 0.8),
+    inset 0 0 25px rgba(224, 187, 255, 0.4),
+    0 0 50px rgba(255, 182, 224, 0.5);
 
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(8px);
@@ -99,26 +102,26 @@ body {
   width: 100%;
   height: 100%;
   border-radius: 20px;
-  border: 2px solid rgba(255, 153, 204, 0.8);
-  background: radial-gradient(circle at center, #fff0fa 0%, #ffe6f7 100%);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  background: radial-gradient(circle at center, #f0f8ff 0%, #e0ccff 100%);
   box-shadow:
-    0 0 40px rgba(255, 204, 238, 0.6),
+    0 0 40px rgba(181, 226, 255, 0.6),
     inset 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
 /* ============================================================
-   💖 GLOW UTILITY CLASSES
+   💖 GLOW UTILITY CLASSES (Updated Tones)
 ============================================================ */
-.glow-pink {
-  box-shadow: 0 0 20px rgba(255, 192, 230, 0.9);
+.glow-blue {
+  box-shadow: 0 0 20px rgba(91, 139, 230, 0.9);
 }
 
 .glow-lilac {
   box-shadow: 0 0 20px rgba(224, 187, 255, 0.9);
 }
 
-.glow-blue {
-  box-shadow: 0 0 20px rgba(181, 226, 255, 0.9);
+.glow-magenta {
+  box-shadow: 0 0 20px rgba(255, 182, 224, 0.9);
 }
 
 /* ============================================================

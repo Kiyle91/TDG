@@ -15,7 +15,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(255, 182, 224, 0.25);
+  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
   backdrop-filter: blur(4px);
   display: none;
   justify-content: center;
@@ -33,12 +33,12 @@
    💎 ALERT BOX
 ============================================================ */
 .ow-alert-box {
-  background: rgba(255, 255, 255, 0.9);
-  border: 2px solid rgba(255, 182, 224, 0.9);
+  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
+  border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
   padding: 40px 60px;
   text-align: center;
-  color: #d63384;
+  color: #ffffff;
   font-family: "Princess Sofia", "Comic Sans MS", cursive;
   box-shadow:
     0 0 30px rgba(255, 204, 238, 0.8),
@@ -66,12 +66,12 @@
   margin-top: 10px;
   padding: 10px 14px;
   border-radius: 10px;
-  border: 2px solid rgba(255, 182, 224, 0.8);
+  border: 2px solid rgba(91, 139, 230, 0.6);
   outline: none;
   font-family: "Comic Sans MS", "Princess Sofia", cursive;
   font-size: 1rem;
-  color: #d63384;
-  background: rgba(255, 255, 255, 0.85);
+  color: #ffffff;
+  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
   box-shadow:
     inset 0 0 8px rgba(255, 255, 255, 0.4),
     0 0 8px rgba(255, 204, 238, 0.5);
@@ -97,7 +97,7 @@
 .ow-alert-btn {
   padding: 10px 28px;
   border-radius: 12px;
-  border: 2px solid rgba(255, 182, 224, 0.8);
+  border: 2px solid rgba(91, 139, 230, 0.6);
   cursor: pointer;
   font-size: 1rem;
   font-family: inherit;
@@ -105,16 +105,16 @@
 }
 
 .ow-alert-btn.ok {
-  background: linear-gradient(90deg, #ffd6eb, #ffbde3, #e0bbff);
-  color: #d63384;
+  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
+  color: #ffffff;
   box-shadow:
     0 0 15px rgba(255, 204, 238, 0.6),
     inset 0 0 10px rgba(255, 255, 255, 0.4);
 }
 
 .ow-alert-btn.cancel {
-  background: rgba(255, 255, 255, 0.75);
-  color: #d63384;
+  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
+  color: #ffffff;
   box-shadow:
     0 0 10px rgba(255, 204, 238, 0.4),
     inset 0 0 6px rgba(255, 255, 255, 0.3);

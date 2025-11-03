@@ -1,8 +1,8 @@
 /* ============================================================
-   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — hub.css
+   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — hub.css (Updated Palette)
    ------------------------------------------------------------
    ✦ Main hub / map selection screen
-   ✦ Pastel pink & lilac fantasy theme with glowing buttons
+   ✦ Crystal blue–lilac theme with glowing buttons
    ✦ Centered layout and smooth fade transitions
 ============================================================ */
 
@@ -21,19 +21,19 @@
   overflow: hidden;
   transition: opacity 0.8s ease;
 
-  /* 🌈 Pastel gradient background */
-  background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 40%, #e0bbff 100%);
+  /* 💎 Crystal pastel gradient background */
+  background: radial-gradient(circle at center, #8cd5ff 0%, #d4b5ff 40%, #ffbde3 100%);
   animation: hubGlow 20s ease-in-out infinite alternate;
-  color: #d63384;
+  color: #ffffff;
   font-family: "Princess Sofia", "Comic Sans MS", cursive;
 }
 
 @keyframes hubGlow {
   0% {
-    background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 40%, #e0bbff 100%);
+    background: radial-gradient(circle at center, #8cd5ff 0%, #d4b5ff 40%, #ffbde3 100%);
   }
   100% {
-    background: radial-gradient(circle at center, #ffd6eb 0%, #e0bbff 35%, #b5e2ff 100%);
+    background: radial-gradient(circle at center, #d4b5ff 0%, #8cd5ff 35%, #ffbde3 100%);
   }
 }
 
@@ -48,13 +48,13 @@
   backdrop-filter: blur(8px);
   padding: 40px 80px;
   border-radius: 20px;
-  border: 2px solid rgba(255, 182, 224, 0.8);
+
+  border: 2px solid rgba(91, 139, 230, 0.6);
   box-shadow:
-    0 0 25px rgba(255, 182, 224, 0.8),
+    0 0 25px rgba(181, 226, 255, 0.8),
+    0 0 40px rgba(224, 187, 255, 0.6),
     inset 0 0 20px rgba(255, 255, 255, 0.4);
 }
-
-
 
 /* ============================================================
    💖 BUTTON CONTAINER
@@ -62,7 +62,7 @@
 .hub-buttons {
   display: grid;
   grid-template-columns: repeat(4, 1fr); /* 4 buttons per row */
-  gap: 10px 10px;                        
+  gap: 10px 10px;
   justify-items: center;
   align-items: center;
 }
@@ -72,15 +72,15 @@
 ============================================================ */
 .hub-buttons button {
   width: 240px;
-  background: linear-gradient(90deg, #ffd6eb, #ffbde3, #e0bbff);
-  border: 2px solid rgba(255, 182, 224, 0.8);
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 12px;
-  color: #d63384;
+  color: #ffffff;
   font-size: 1.1rem;
   padding: 12px 0;
   cursor: pointer;
   box-shadow:
-    0 0 15px rgba(255, 204, 238, 0.6),
+    0 0 15px rgba(181, 226, 255, 0.6),
     inset 0 0 10px rgba(255, 255, 255, 0.4);
   transition: all 0.3s ease;
 }
@@ -88,7 +88,7 @@
 .hub-buttons button:hover {
   transform: scale(1.05);
   box-shadow:
-    0 0 25px rgba(255, 204, 238, 0.9),
+    0 0 25px rgba(224, 187, 255, 0.9),
     inset 0 0 15px rgba(255, 255, 255, 0.5);
   filter: brightness(1.05);
 }

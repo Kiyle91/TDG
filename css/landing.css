@@ -27,7 +27,7 @@
   position: relative;
   width: 95vw;
   height: 95vh;
-  border: 4px solid rgba(255, 182, 224, 0.8);
+  border: 8px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
   overflow: hidden;
   box-shadow:
@@ -67,12 +67,16 @@
   align-items: center;
 }
 
+
+
+
+
 /* ============================================================
    🌷 START BUTTON
 ============================================================ */
 .landing-btn {
-  background: linear-gradient(90deg, #8cd5ff, #e0bbff, #8cd5ff);
-  border: 2px solid rgba(255, 182, 224, 0.8);
+  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
+  border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 16px;
   color: #ffffff;
   font-size: clamp(1.1rem, 1.8vw, 1.6rem);
@@ -83,6 +87,8 @@
     0 0 20px rgba(255, 204, 238, 0.6),
     inset 0 0 12px rgba(255, 255, 255, 0.4);
   transition: all 0.3s ease;
+  margin-top: 10%;
+  margin-bottom: 5%;
 }
 
 .landing-btn:hover {
