@@ -1,0 +1,125 @@
+/* ============================================================
+   🗺️ OLIVIA’S WORLD: CRYSTAL KEEP — maps.css
+   ------------------------------------------------------------
+   ✦ Map selection overlay (3×3 grid)
+   ✦ Locked/unlocked visual states
+   ✦ Pastel crystal aesthetic
+============================================================ */
+
+/* ============================================================
+   🌸 CONTAINER
+============================================================ */
+.map-grid-container {
+  width: 700px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-title {
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
+  font-family: "Princess Sofia", cursive;
+  color: #ffffff;
+}
+
+/* ============================================================
+   🌈 GRID LAYOUT (3×3)
+============================================================ */
+.map-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* ============================================================
+   💎 MAP TILE BASE
+============================================================ */
+.map-tile {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #fff;
+  border-radius: 16px;
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  background: linear-gradient(145deg, rgba(140, 213, 255, 0.25), rgba(212, 181, 255, 0.25));
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================================
+   🔒 LOCKED STATE (default)
+============================================================ */
+.map-tile.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: radial-gradient(circle, rgba(100, 100, 100, 0.3), rgba(40, 40, 40, 0.4));
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.1),
+    inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.map-tile.locked::after {
+  content: "🔒";
+  position: absolute;
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 0 10px rgba(224, 187, 255, 0.7);
+}
+
+/* ============================================================
+   ✅ UNLOCKED STATE (future)
+============================================================ */
+.map-tile.unlocked {
+  opacity: 1;
+  cursor: pointer;
+  background: linear-gradient(145deg, #8cd5ff, #d4b5ff, #ffbde3);
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.map-tile.unlocked:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 35px rgba(224, 187, 255, 1),
+    inset 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================================
+   🌟 TILE CONTENT
+============================================================ */
+.map-tile span {
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.8);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ============================================================
+   💫 SMALL ANIMATION (hover glow pulse)
+============================================================ */
+@keyframes tilePulse {
+  0% { box-shadow: 0 0 20px rgba(181, 226, 255, 0.6); }
+  50% { box-shadow: 0 0 35px rgba(224, 187, 255, 0.9); }
+  100% { box-shadow: 0 0 20px rgba(181, 226, 255, 0.6); }
+}
+
+.map-tile.unlocked:hover {
+  animation: tilePulse 1.8s infinite ease-in-out;
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

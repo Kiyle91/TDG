@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="./css/alert.css" />
   <link rel="stylesheet" href="./css/animations.css" />
   <link rel="stylesheet" href="./css/story.css" />
+  <link rel="stylesheet" href="./css/maps.css" />
 </head>
 
 <body>
@@ -109,9 +110,22 @@
       </div>
 
       <div id="overlay-maps" class="overlay hidden">
-        <div class="overlay-box">
-          <h3>Maps</h3>
-          <p>Select a map to explore.</p>
+        <div class="overlay-box map-grid-container">
+          <h3 class="map-title">Choose a Map</h3>
+
+          <div class="map-grid">
+            <!-- 9 map tiles -->
+            <div class="map-tile locked" data-level="1"><span>1</span></div>
+            <div class="map-tile locked" data-level="2"><span>2</span></div>
+            <div class="map-tile locked" data-level="3"><span>3</span></div>
+            <div class="map-tile locked" data-level="4"><span>4</span></div>
+            <div class="map-tile locked" data-level="5"><span>5</span></div>
+            <div class="map-tile locked" data-level="6"><span>6</span></div>
+            <div class="map-tile locked" data-level="7"><span>7</span></div>
+            <div class="map-tile locked" data-level="8"><span>8</span></div>
+            <div class="map-tile locked" data-level="9"><span>9</span></div>
+          </div>
+
           <button class="overlay-close">Close</button>
         </div>
       </div>
