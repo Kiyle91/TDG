@@ -6,27 +6,50 @@
   <title>Tower Defense: Neural Front</title>
   <link rel="stylesheet" href="./css/main.css" />
   <link rel="stylesheet" href="./css/landing.css" />
+  <link rel="stylesheet" href="./css/profile.css"/>
+  <link rel="stylesheer" href="./css/hub.css"/>
 </head>
 
 <body>
-  <section id="landing-screen" class="screen active">
-    <div id="landing-container">
-      <h2 class="landing-title">Tower Defense: Neural Front</h2>
-      <button id="start-button" class="landing-btn">Start</button>
-      <p class="landing-footer">© 2025 Neural Systems</p>
-    </div>
-  </section>
+    <section id="landing-screen" class="screen active">
+        <div id="landing-container">
+        <h2 class="landing-title">Tower Defense: Neural Front</h2>
+        <button id="start-button" class="landing-btn">Start</button>
+        <p class="landing-footer">© 2025 Neural Systems</p>
+        </div>
+    </section>
 
-  <div id="game-container" style="display: none;">
-    <canvas id="game-canvas" width="960" height="640"></canvas>
-    <div id="hud">
-      <button id="start-btn">Start Wave</button>
-      <span id="wave-display">Wave 1</span>
-      <span id="money-display">100</span>
-      <span id="lives-display">10</span>
-    </div>
-  </div>
+    <section id="profile-screen" class="screen" style="display:none;">
+        <div id="profile-container">
+            <h2 class="profile-title">Select Player Profile</h2>
+            <div class="profile-slots">
+            <div class="profile-slot">Profile 1</div>
+            <div class="profile-slot">Profile 2</div>
+            <div class="profile-slot">Profile 3</div>
+            <div class="profile-slot">Profile 4</div>
+            <div class="profile-slot">Profile 5</div>
+            </div>
+            <button id="create-profile-btn" class="profile-btn">Create New Profile</button>
+        </div>
+    </section>
 
-  <script type="module" src="./main.js"></script>
+        <!-- MAIN HUB SCREEN -->
+    <section id="hub-screen" class="screen" style="display:none;">
+        <div id="hub-container">
+            <h2 class="hub-title">Main Hub</h2>
+            <div class="hub-buttons">
+                <button id="new-story-btn">New Story</button>
+                <button id="load-game-btn">Load Game</button>
+                <button id="maps-btn">Maps</button>
+                <button id="turrets-btn">Turrets</button>
+                <button id="skins-btn">Skins</button>
+                <button id="settings-btn">Settings</button>
+                <button id="exit-hub-btn">Exit</button>
+            </div>
+        </div>
+    </section>
+
+    <script type="module" src="./main.js"></script>
+
 </body>
 </html>

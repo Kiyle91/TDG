@@ -3,7 +3,7 @@
 export function initLanding() {
   const startBtn = document.getElementById("start-button");
   const landing = document.getElementById("landing-screen");
-  const gameContainer = document.getElementById("game-container");
+  const gameContainer = document.getElementById("profile-screen");
 
   if (!startBtn || !landing || !gameContainer) return;
 

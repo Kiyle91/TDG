@@ -1,0 +1,48 @@
+/* hub.css — main hub screen styling */
+
+#hub-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background: radial-gradient(circle at center, #0a0a14 0%, #01020a 100%);
+  color: #00ffc3;
+  font-family: "Orbitron", sans-serif;
+  transition: opacity 0.8s ease;
+}
+
+#hub-container {
+  text-align: center;
+}
+
+.hub-title {
+  font-size: 1.6rem;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
+.hub-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.hub-buttons button {
+  width: 220px;
+  background: #00ffc3;
+  border: none;
+  border-radius: 4px;
+  color: #0a0a14;
+  font-size: 1rem;
+  padding: 12px 0;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(0, 255, 195, 0.3);
+  transition: all 0.3s ease;
+}
+
+.hub-buttons button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 20px rgba(0, 255, 195, 0.6);
+}

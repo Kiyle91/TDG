@@ -3,7 +3,8 @@
 
 import { initGame, updateGame, renderGame } from "./core/game.js";
 import { initLanding } from "./core/landing.js";
-
+import { initProfiles } from "./core/profile.js";
+import { initHub } from "./core/hub.js";
 
 let lastTime = 0;
 const FPS = 60;
@@ -23,6 +24,7 @@ initLanding();
 
 window.addEventListener("DOMContentLoaded", () => {
   initLanding();
-  initGame();
-  requestAnimationFrame(gameLoop);
+  initProfiles();
+  initHub();
+  
 });
