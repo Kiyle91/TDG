@@ -1,0 +1,130 @@
+/* ============================================================
+   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — story.css
+   ------------------------------------------------------------
+   ✦ Fixed-size cinematic story overlay
+   ✦ Left-side portrait (Princess Ariana)
+   ✦ Pastel crystal styling with glowing button
+============================================================ */
+
+/* ============================================================
+   📜 STORY BOX — fixed-size cinematic container
+============================================================ */
+.story-box {
+  position: relative;
+  width: 900px;       /* fixed width for consistent layout */
+  height: 400px;      /* fixed height for portrait + text */
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+  padding: 40px 50px;
+  color: #fff;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+  animation: overlayPop 0.5s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* ============================================================
+   🖼️ STORY CONTENT — portrait + text row
+============================================================ */
+.story-content {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  display: grid;
+  grid-template-columns: 200px 1fr; /* fixed portrait, flexible text */
+  align-items: center;
+  gap: 30px;
+  padding-right: 10px;
+}
+
+/* 👑 Fixed left portrait (Princess Ariana) */
+.story-portrait {
+  width: 180px;
+  height: 240px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid rgba(181, 226, 255, 0.6);
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.6),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+  justify-self: start;
+  align-self: center;
+}
+
+/* 💬 Dialogue text beside portrait */
+.story-text {
+  flex: 1;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
+  font-family: "Comic Sans MS", cursive;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow: hidden;
+  padding-left: 10px;
+}
+
+/* ============================================================
+   💫 CONTINUE BUTTON — pastel crystal glow
+============================================================ */
+.story-next-btn {
+  display: inline-block;
+  margin-top: 25px;
+  padding: 12px 36px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ffffff;
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 16px;
+  cursor: pointer;
+  font-family: "Comic Sans MS", cursive;
+  letter-spacing: 0.5px;
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.6),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.story-next-btn:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 30px rgba(224, 187, 255, 0.9),
+    inset 0 0 18px rgba(255, 255, 255, 0.5);
+  filter: brightness(1.05);
+}
+
+.story-next-btn:active {
+  transform: scale(0.97);
+  box-shadow:
+    0 0 18px rgba(181, 226, 255, 0.8),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   ✨ ANIMATION
+============================================================ */
+@keyframes overlayPop {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

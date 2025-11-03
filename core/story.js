@@ -9,9 +9,9 @@ import { showScreen } from "./screens.js";
 import { startGameplay } from "../main.js";
 
 let lines = [
-  "In the heart of the Unicorn Isles stands the Crystal Keep — a tower woven from dreams and light.",
-  "For centuries it has guarded the realm’s balance, until a shadow crept through the veil...",
-  "Now, as the crystals fade, Olivia must rise to defend her world once more."
+  "🌸 Princess Ariana: Welcome, brave soul. I am Ariana, keeper of the Crystal Keep.",
+  "Long have I watched over the Unicorn Isles, but the crystals are dimming...",
+  "You have been chosen to defend our realm — your journey begins now."
 ];
 
 let currentLine = 0;
