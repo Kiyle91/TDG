@@ -58,10 +58,11 @@
    🎀 LANDING CONTAINER (Button + Footer)
 ============================================================ */
 #landing-container {
+  bottom: 5%;
   position: relative;
   z-index: 1;
   width: 100%;
-  padding-bottom: 0.5vh; /* consistent gap from bottom */
+  padding-bottom: 0.vh; /* consistent gap from bottom */
   text-align: center;
   display: flex;
   flex-direction: column;

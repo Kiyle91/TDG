@@ -119,3 +119,11 @@ function updateLabels() {
   if (musicLabel) musicLabel.textContent = `${Math.round(settings.musicVolume * 100)}%`;
   if (sfxLabel) sfxLabel.textContent = `${Math.round(settings.sfxVolume * 100)}%`;
 }
+
+
+// ------------------------------------------------------------
+// 🔮 Expose tooltip setting for other systems
+// ------------------------------------------------------------
+export function getTooltipSetting() {
+  return settings.tooltipsEnabled;
+}

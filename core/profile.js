@@ -5,6 +5,7 @@
 // ✦ Each profile includes its own Glitter Guardian data
 // ✦ Uses custom pastel alert, confirm, and input modals
 // ✦ Handles smooth fade transitions to the hub screen
+// ✦ Integrated with tooltip hover system
 // ============================================================
 
 import {
@@ -17,6 +18,7 @@ import {
 
 import { createPlayer, restorePlayer } from "../core/player.js";
 import { showAlert, showConfirm, showInput } from "../core/alert.js";
+import { attachTooltip, hideTooltip } from "./tooltip.js"; // ✅ fixed missing import
 
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
@@ -47,7 +49,6 @@ export function initProfiles() {
         return;
       }
 
-      // Attach a fresh player (Glitter Guardian)
       profile.player = createPlayer();
       saveProfiles();
 
@@ -55,6 +56,13 @@ export function initProfiles() {
       showAlert(`Profile "${name}" created successfully!`);
     });
   });
+
+  // ------------------------------------------------------------
+  // 💫 Tooltip hover — delayed, offset, and toggle-aware
+  // ------------------------------------------------------------
+  attachTooltip(createBtn, "✨ Create a new player profile", 700);
+
+  console.log("👑 Profile screen initialized");
 
   // ------------------------------------------------------------
   // ✨ PROFILE SLOT INTERACTIONS

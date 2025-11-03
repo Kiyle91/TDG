@@ -12,7 +12,7 @@ import { initHub } from "./core/hub.js";
 import { initSparkles } from "./core/sparkles.js";
 import { initSettings } from "./core/settings.js";
 import { initMusic } from "./core/soundtrack.js";
-
+import { initTooltipSystem } from "./core/tooltip.js";
 
 let lastTime = 0;
 const FPS = 60;
@@ -57,5 +57,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initSparkles();
   initMusic();
   initSettings();
+  initTooltipSystem();
   console.log("🌸 Olivia’s World loaded — menu systems active");
 });
