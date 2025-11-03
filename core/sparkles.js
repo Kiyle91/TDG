@@ -7,7 +7,7 @@
 
 export function initSparkles() {
   document.querySelectorAll(".magic-sparkle").forEach((container) => {
-    const count = 80; // ✨ how many sparkles per screen
+    const count = 30; // ✨ how many sparkles per screen
     for (let i = 0; i < count; i++) {
       const sparkle = document.createElement("div");
       sparkle.classList.add("magic-particle");

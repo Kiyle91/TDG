@@ -73,3 +73,34 @@
   0%, 100% { filter: blur(3px) brightness(1.5); }
   50% { filter: blur(2px) brightness(3); }
 }
+
+/* ============================================================
+   🪽 PEGASUS GLIDE — Continuous Flight Across the Screen
+============================================================ */
+.pegasus-fly {
+  position: absolute;
+  top: -5%;              /* start slightly above view */
+  left: -250px;          /* off-screen to the left */
+  width: 150px;
+  height: auto;
+  z-index: 2;
+  opacity: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 0 18px rgba(224, 187, 255, 0.8))
+          brightness(1.15);
+
+  /* ✨ One smooth continuous glide */
+  animation: pegasusGlide 4s linear ;
+  animation-delay: 0.5s;
+}
+
+/* 🌈 Simple diagonal flight path */
+@keyframes pegasusGlide {
+  0% {
+    transform: translate(-250px, -100px);  /* start off top-left */
+  }
+  100% {
+    transform: translate(120vw, 300px);   /* end off middle-right */
+  }
+}
+
