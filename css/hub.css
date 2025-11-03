@@ -41,6 +41,8 @@
    💎 HUB CONTAINER
 ============================================================ */
 #hub-container {
+  bottom: 5%;
+  position: fixed;
   text-align: center;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(8px);
@@ -52,28 +54,17 @@
     inset 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
-/* ============================================================
-   🌷 TITLE
-============================================================ */
-.hub-title {
-  font-size: 2.2rem;
-  font-weight: 500;
-  margin-bottom: 28px;
-  color: #ff80bf;
-  text-shadow:
-    0 0 12px rgba(255, 192, 230, 0.8),
-    0 0 30px rgba(224, 187, 255, 0.6);
-  letter-spacing: 1px;
-}
+
 
 /* ============================================================
    💖 BUTTON CONTAINER
 ============================================================ */
 .hub-buttons {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 buttons per row */
+  gap: 10px 10px;                        
+  justify-items: center;
   align-items: center;
-  gap: 16px;
 }
 
 /* ============================================================

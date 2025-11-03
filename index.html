@@ -15,11 +15,11 @@
   <title>🌸 Olivia’s World: Crystal Keep</title>
 
   <!-- 🎨 Styles -->
-  <link rel="stylesheet" href="./css/main.css" />
-  <link rel="stylesheet" href="./css/landing.css" />
-  <link rel="stylesheet" href="./css/profile.css" />
-  <link rel="stylesheet" href="./css/hub.css" />
-  <link rel="stylesheet" href="./css/alert.css" />
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/landing.css" />
+    <link rel="stylesheet" href="./css/profile.css" />
+    <link rel="stylesheet" href="./css/hub.css" />
+    <link rel="stylesheet" href="./css/alert.css" />
 </head>
 
 <body>
@@ -27,10 +27,16 @@
        🩰 LANDING SCREEN
   ============================================================= -->
   <section id="landing-screen" class="screen active">
-    <div id="landing-container">
-      <h2 class="landing-title">🌸 Olivia’s World: Crystal Keep</h2>
-      <button id="start-button" class="landing-btn">Start</button>
-      <p class="landing-footer">© 2025 The Unicorn Isles</p>
+    <div class="landing-frame">
+      <img
+        src="./assets/images/backgrounds/landing_bg.png"
+        class="landing-bg"
+        alt="A fantasy castle scene of Olivia’s World"
+      />
+      <div id="landing-container">
+        <button id="start-button" class="landing-btn">Start Game</button>
+        <p class="landing-footer">© 2025 Olivia’s World: The Unicorn Isles</p>
+      </div>
     </div>
   </section>
 
@@ -54,13 +60,13 @@
   ============================================================= -->
   <section id="hub-screen" class="screen" style="display:none;">
     <div id="hub-container">
-      <h2 class="hub-title">Main Hub</h2>
       <div class="hub-buttons">
         <button id="new-story-btn">New Story</button>
         <button id="load-game-btn">Load Game</button>
         <button id="maps-btn">Maps</button>
         <button id="turrets-btn">Turrets</button>
         <button id="skins-btn">Skins</button>
+        <button id="quests-btn">Quests</button>
         <button id="settings-btn">Settings</button>
         <button id="exit-hub-btn">Exit</button>
       </div>

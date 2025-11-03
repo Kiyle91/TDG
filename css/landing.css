@@ -1,90 +1,128 @@
 /* ============================================================
-   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — landing.css
+   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — landing.css (Responsive Final)
    ------------------------------------------------------------
-   ✦ Landing screen with pastel fantasy glow
-   ✦ Centered title, start button & footer
-   ✦ Magical pink/lilac gradients and gentle animations
+   ✦ Fully responsive crystal frame landing screen
+   ✦ Start button stays centered inside frame bottom area
+   ✦ Footer anchored neatly in the lower-right corner
 ============================================================ */
 
 /* ============================================================
    🩰 LANDING SCREEN BASE
 ============================================================ */
 #landing-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
-  text-align: center;
-
-  width: 100vw;
-  height: 100vh;
   overflow: hidden;
-  transition: opacity 0.8s ease;
-
-  /* 🌈 Pastel radial background */
-  background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 35%, #e0bbff 100%);
-  animation: softPulse 14s ease-in-out infinite alternate;
-  color: #d63384;
-  font-family: "Princess Sofia", "Comic Sans MS", cursive;
-}
-
-@keyframes softPulse {
-  0% {
-    background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 35%, #e0bbff 100%);
-  }
-  100% {
-    background: radial-gradient(circle at center, #ffd6eb 0%, #e0bbff 35%, #b5e2ff 100%);
-  }
+  background: radial-gradient(circle at center, #ffe6f7 0%, #e0bbff 100%);
 }
 
 /* ============================================================
-   💖 TITLE
+   💎 CRYSTAL FRAME
 ============================================================ */
-.landing-title {
-  font-size: 2.6rem;
-  font-weight: 500;
-  margin-bottom: 20px;
-  color: #ff80bf;
-  text-shadow:
-    0 0 10px rgba(255, 192, 230, 0.8),
-    0 0 25px rgba(224, 187, 255, 0.6);
-  letter-spacing: 1px;
+.landing-frame {
+  position: relative;
+  width: 95vw;
+  height: 95vh;
+  border: 4px solid rgba(255, 182, 224, 0.8);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow:
+    0 0 25px rgba(255, 182, 224, 0.8),
+    0 0 50px rgba(224, 187, 255, 0.6),
+    inset 0 0 25px rgba(255, 255, 255, 0.3);
+  animation: frameGlow 6s ease-in-out infinite alternate;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* content sits at the bottom */
+  align-items: center;
 }
 
 /* ============================================================
-   🌷 BUTTON
+   🌄 BACKGROUND IMAGE
+============================================================ */
+.landing-frame .landing-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-position: center;
+  z-index: 0;
+}
+
+/* ============================================================
+   🎀 LANDING CONTAINER (Button + Footer)
+============================================================ */
+#landing-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding-bottom: 5vh; /* consistent gap from bottom */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ============================================================
+   🌷 START BUTTON
 ============================================================ */
 .landing-btn {
-  background: linear-gradient(90deg, #ffd6eb, #ffbde3, #e0bbff);
+  background: linear-gradient(90deg, #8cd5ff, #e0bbff, #8cd5ff);
   border: 2px solid rgba(255, 182, 224, 0.8);
-  border-radius: 12px;
-  color: #d63384;
-  font-size: 1.1rem;
-  padding: 12px 32px;
+  border-radius: 16px;
+  color: #ffffff;
+  font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+  font-weight: 600;
+  padding: 0.8em 2.2em;
   cursor: pointer;
   box-shadow:
-    0 0 15px rgba(255, 204, 238, 0.6),
-    inset 0 0 10px rgba(255, 255, 255, 0.4);
+    0 0 20px rgba(255, 204, 238, 0.6),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
   transition: all 0.3s ease;
 }
 
 .landing-btn:hover {
   transform: scale(1.05);
   box-shadow:
-    0 0 25px rgba(255, 204, 238, 0.9),
-    inset 0 0 15px rgba(255, 255, 255, 0.5);
+    0 0 30px rgba(255, 204, 238, 0.9),
+    inset 0 0 18px rgba(255, 255, 255, 0.5);
   filter: brightness(1.05);
 }
 
 /* ============================================================
-   🌸 FOOTER
+   🌸 FOOTER (Bottom-right inside frame)
 ============================================================ */
 .landing-footer {
-  font-size: 0.9rem;
-  color: rgba(214, 51, 132, 0.8);
-  margin-top: 40px;
+  position: absolute;
+  bottom: 1.5vh;
+  right: 2vw;
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+  color: rgba(255, 255, 255, 0.8);
   text-shadow: 0 0 6px rgba(255, 192, 230, 0.6);
-  opacity: 0.7;
+  opacity: 0.85;
+  z-index: 2;
+}
+
+/* ============================================================
+   ✨ FRAME GLOW ANIMATION
+============================================================ */
+@keyframes frameGlow {
+  0% {
+    box-shadow:
+      0 0 25px rgba(255, 182, 224, 0.8),
+      0 0 50px rgba(224, 187, 255, 0.6),
+      inset 0 0 25px rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    box-shadow:
+      0 0 35px rgba(255, 182, 224, 1),
+      0 0 60px rgba(224, 187, 255, 0.8),
+      inset 0 0 35px rgba(255, 255, 255, 0.4);
+  }
 }
 
 /* ============================================================

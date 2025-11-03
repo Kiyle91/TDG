@@ -3,7 +3,7 @@
 // ------------------------------------------------------------
 // ✦ Manages the main hub navigation screen
 // ✦ Handles transitions between hub, map, and game screens
-// ✦ Soft pastel fade effects for smooth screen flow
+// ✦ Includes new "Quests" button handler
 // ============================================================
 
 // ------------------------------------------------------------
@@ -17,22 +17,24 @@ export function initHub() {
   const turretsBtn = document.getElementById("turrets-btn");
   const skinsBtn = document.getElementById("skins-btn");
   const settingsBtn = document.getElementById("settings-btn");
+  const questsBtn = document.getElementById("quests-btn");
   const exitBtn = document.getElementById("exit-hub-btn");
 
   if (!hub) return;
 
   // 🌸 Navigation Events
   newStoryBtn.addEventListener("click", () => {
-    console.log("New Story selected");
+    console.log("🌸 New Story selected");
     startGameTransition();
   });
 
-  loadGameBtn.addEventListener("click", () => console.log("Load Game selected"));
+  loadGameBtn.addEventListener("click", () => console.log("💾 Load Game selected"));
   mapsBtn.addEventListener("click", () => showMapScreen());
-  turretsBtn.addEventListener("click", () => console.log("Turrets selected"));
-  skinsBtn.addEventListener("click", () => console.log("Skins selected"));
-  settingsBtn.addEventListener("click", () => console.log("Settings selected"));
-  exitBtn.addEventListener("click", () => console.log("Exit hub"));
+  turretsBtn.addEventListener("click", () => console.log("🧱 Turrets selected"));
+  skinsBtn.addEventListener("click", () => console.log("💖 Skins selected"));
+  settingsBtn.addEventListener("click", () => console.log("⚙️ Settings selected"));
+  questsBtn.addEventListener("click", () => showQuestScreen());
+  exitBtn.addEventListener("click", () => console.log("🚪 Exit hub"));
 }
 
 // ------------------------------------------------------------
@@ -67,6 +69,14 @@ function showMapScreen() {
     mapScreen.style.display = "flex";
     fadeIn(mapScreen);
   }, 800);
+}
+
+// ------------------------------------------------------------
+// 📜 SHOW QUEST SCREEN (placeholder for future overlay)
+// ------------------------------------------------------------
+function showQuestScreen() {
+  console.log("📜 Quests selected — screen coming soon!");
+  // later: trigger showOverlay("quests") or questOverlay.js
 }
 
 // ------------------------------------------------------------
