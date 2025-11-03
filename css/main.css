@@ -1,13 +1,13 @@
 /* ============================================================
    🌸 OLIVIA’S WORLD: CRYSTAL KEEP — main.css
    ------------------------------------------------------------
-   ✦ Base layout and game container styling
-   ✦ Pastel pink & lilac fantasy aesthetic
-   ✦ Centered 1920×1080 non-scrollable display
+   ✦ Global base + animated pastel background
+   ✦ Centers active screens (landing, profile, hub)
+   ✦ Includes 1920×1080 fixed game container styling
 ============================================================ */
 
 /* ============================================================
-   🌷 GLOBAL BASE
+   🌷 GLOBAL RESET & BASE
 ============================================================ */
 * {
   margin: 0;
@@ -15,23 +15,23 @@
   box-sizing: border-box;
 }
 
+html,
 body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   font-family: "Comic Sans MS", "Princess Sofia", cursive;
   color: #d63384;
-  height: 100vh;
+}
+
+/* ============================================================
+   🌈 BACKGROUND — animated pastel gradient
+============================================================ */
+body {
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
-
-  /* ✨ Pastel gradient background animation */
-  background: linear-gradient(
-    270deg,
-    #ffd6eb,
-    #e0bbff,
-    #b5e2ff,
-    #ffd6eb
-  );
+  background: linear-gradient(270deg, #ffd6eb, #e0bbff, #b5e2ff, #ffd6eb);
   background-size: 800% 800%;
   animation: rainbowBG 24s ease infinite;
 }
@@ -49,7 +49,31 @@ body {
 }
 
 /* ============================================================
-   🏰 GAME CONTAINER
+   🎬 SCREEN MANAGEMENT — universal layout layer
+   ------------------------------------------------------------
+   ✦ Ensures only one screen is visible at a time
+   ✦ Full viewport, centered flex layout
+============================================================ */
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  transition: opacity 0.8s ease;
+}
+
+.screen.active {
+  display: flex;
+}
+
+/* ============================================================
+   🏰 GAME CONTAINER — 1920×1080 centered frame
 ============================================================ */
 #game-container {
   position: relative;
@@ -58,11 +82,12 @@ body {
   border-radius: 20px;
   overflow: hidden;
 
-  /* 🌈 Soft glowing frame */
+  /* 🌸 Soft pastel glowing frame */
   border: 4px solid rgba(255, 182, 224, 0.9);
   box-shadow:
     0 0 25px rgba(255, 182, 224, 0.8),
     inset 0 0 25px rgba(255, 182, 224, 0.4);
+
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(8px);
 }
@@ -82,7 +107,7 @@ body {
 }
 
 /* ============================================================
-   💖 DECORATIVE GLOWS (optional utility classes)
+   💖 GLOW UTILITY CLASSES
 ============================================================ */
 .glow-pink {
   box-shadow: 0 0 20px rgba(255, 192, 230, 0.9);

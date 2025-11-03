@@ -1,17 +1,20 @@
 // ============================================================
 // 🌸 profile.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Manages player profile creation and selection
-// ✦ Handles up to 5 save slots
-// ✦ Smooth transition from profile selection to main hub
+// ✦ Manages player profile creation, selection, and deletion
+// ✦ Uses consistent screen management via screens.js
+// ✦ Ensures only one screen visible at any time
 // ============================================================
 
 import {
   gameState,
   addProfile,
   setProfile,
+  saveProfiles,
   loadProfiles
 } from "../utils/gameState.js";
+
+import { showScreen } from "../core/screens.js";
 
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
@@ -20,11 +23,10 @@ export function initProfiles() {
   const profileScreen = document.getElementById("profile-screen");
   const slotsContainer = document.querySelector(".profile-slots");
   const createBtn = document.getElementById("create-profile-btn");
-  const hub = document.getElementById("hub-screen");
 
   if (!profileScreen || !slotsContainer) return;
 
-  // 🌸 Load and display profiles
+  // 🌸 Load existing profiles
   loadProfiles();
   renderProfileSlots(slotsContainer);
 
@@ -37,7 +39,7 @@ export function initProfiles() {
 
     const profile = addProfile(name);
     if (!profile) {
-      alert("Maximum of 5 profiles reached.");
+      alert("Maximum of 6 profiles reached.");
       return;
     }
 
@@ -45,24 +47,29 @@ export function initProfiles() {
   });
 
   // ------------------------------------------------------------
-  // ✨ SELECT PROFILE SLOT
+  // ✨ PROFILE SLOT INTERACTIONS
   // ------------------------------------------------------------
   slotsContainer.addEventListener("click", (e) => {
-    if (!e.target.classList.contains("profile-slot")) return;
+    // 🗑️ DELETE PROFILE
+    if (e.target.classList.contains("profile-delete")) {
+      const index = e.target.dataset.index;
+      gameState.profiles.splice(index, 1);
+      saveProfiles();
+      renderProfileSlots(slotsContainer);
+      return;
+    }
 
-    const index = e.target.dataset.index;
+    // 👑 SELECT PROFILE
+    const slot = e.target.closest(".profile-slot");
+    if (!slot || slot.classList.contains("empty")) return;
+
+    const index = slot.dataset.index;
     const profile = gameState.profiles[index];
     if (!profile) return;
 
     setProfile(profile);
     console.log(`👑 Profile selected: ${profile.name}`);
-
-    profileScreen.style.opacity = 0;
-    setTimeout(() => {
-      profileScreen.style.display = "none";
-      hub.style.display = "flex";
-      fadeIn(hub);
-    }, 800);
+    fadeOut(profileScreen, () => showScreen("hub-screen"));
   });
 }
 
@@ -72,7 +79,7 @@ export function initProfiles() {
 function renderProfileSlots(container) {
   container.innerHTML = "";
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 6; i++) {
     const profile = gameState.profiles[i];
     const slot = document.createElement("div");
     slot.classList.add("profile-slot");
@@ -83,10 +90,11 @@ function renderProfileSlots(container) {
       slot.innerHTML = `
         <strong>${profile.name}</strong><br>
         <small>Created: ${date}</small>
+        <button class="profile-delete" data-index="${i}">×</button>
       `;
     } else {
+      slot.classList.add("empty");
       slot.textContent = "Empty Slot";
-      slot.style.opacity = 0.5;
     }
 
     container.appendChild(slot);
@@ -94,12 +102,17 @@ function renderProfileSlots(container) {
 }
 
 // ------------------------------------------------------------
-// 🌈 FADE-IN UTILITY
+// 🌈 FADE HELPERS
 // ------------------------------------------------------------
-function fadeIn(element) {
-  element.style.opacity = 0;
+function fadeOut(element, callback) {
   element.style.transition = "opacity 0.8s ease";
-  requestAnimationFrame(() => (element.style.opacity = 1));
+  element.style.opacity = 0;
+
+  setTimeout(() => {
+    element.classList.remove("active");
+    element.style.display = "none";
+    if (callback) callback();
+  }, 800);
 }
 
 // ============================================================
