@@ -1,0 +1,110 @@
+/* ============================================================
+   💫 OLIVIA’S WORLD: CRYSTAL KEEP — Dynamic Sparkle Field
+============================================================ */
+
+/* 🩵 layering stays the same */
+.landing-frame,
+.profile-frame,
+.hub-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-bg,
+.profile-bg,
+.hub-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.magic-sparkle {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+#landing-container,
+#profile-container,
+#hub-container {
+  position: relative;
+  z-index: 3;
+}
+
+/* ============================================================
+   🌠 PARTICLES — auto-spread across full screen
+============================================================ */
+.magic-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, rgba(173, 216, 255, 0.5) 60%, transparent 90%);
+  filter: blur(2px) brightness(1.5);
+  mix-blend-mode: screen;
+  opacity: 0.7;
+  animation: sparkleMove linear infinite;
+}
+
+/* Randomized placement + motion — 40 total */
+.magic-particle:nth-child(n) {
+  top: calc(100% * var(--randY, 0));
+  left: calc(100% * var(--randX, 0));
+}
+
+/* Use CSS variables to randomize animation timing and direction */
+.magic-particle {
+  --tx: calc((random(200) - 100) * 1px);
+  --ty: calc((random(200) - 100) * 1px);
+  --dur: calc(10s + (random(100) * 0.1s));
+  animation-duration: var(--dur);
+  animation-delay: calc(random(500) * -0.05s);
+}
+
+/* For browsers that don't yet support random() (most): use pattern sets */
+.magic-particle:nth-child(odd)  { animation-duration: 16s; animation-delay: 0s; }
+.magic-particle:nth-child(even) { animation-duration: 20s; animation-delay: 4s; }
+
+/* Spread visually */
+.magic-particle:nth-child(1n)  { top: 5%;  left: 5%;  }
+.magic-particle:nth-child(2n)  { top: 10%; left: 25%; }
+.magic-particle:nth-child(3n)  { top: 20%; left: 50%; }
+.magic-particle:nth-child(4n)  { top: 30%; left: 75%; }
+.magic-particle:nth-child(5n)  { top: 40%; left: 10%; }
+.magic-particle:nth-child(6n)  { top: 50%; left: 40%; }
+.magic-particle:nth-child(7n)  { top: 60%; left: 70%; }
+.magic-particle:nth-child(8n)  { top: 70%; left: 20%; }
+.magic-particle:nth-child(9n)  { top: 80%; left: 55%; }
+.magic-particle:nth-child(10n) { top: 90%; left: 85%; }
+
+
+/* 🩷 ensure sparkles visible from frame 0 */
+.magic-particle {
+  opacity: 1; /* show immediately */
+  animation: sparkleDrift 18s linear infinite, sparkleFlicker 3s ease-in-out infinite;
+  animation-delay: 0s; /* all start right away */
+}
+
+/* remove any existing per-child animation-delay rules */
+.magic-particle:nth-child(n) {
+  animation-delay: 0s;
+}
+
+/* optional small random timing only for variety (no wait) */
+.magic-particle:nth-child(3n)  { animation-duration: 16s; }
+.magic-particle:nth-child(5n)  { animation-duration: 20s; }
+.magic-particle:nth-child(7n)  { animation-duration: 22s; }
+
+/* drift animation starts mid-motion so it doesn’t “warm up” */
+@keyframes sparkleDrift {
+  0%   { transform: translate(40px, -40px) scale(1.1); opacity: 1; }
+  25%  { transform: translate(-30px, -60px) scale(1.2); opacity: 0.9; }
+  50%  { transform: translate(-60px, 20px) scale(1); opacity: 1; }
+  75%  { transform: translate(40px, 40px) scale(1.1); opacity: 1; }
+  100% { transform: translate(0, 0) scale(1); opacity: 1; }
+}
