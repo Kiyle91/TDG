@@ -1,9 +1,8 @@
 // ============================================================
 // 🌸 main.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Entry point and main game loop
-// ✦ Initializes all core screens and systems
-// ✦ Controls update & render cycles at fixed FPS
+// ✦ Entry point and main control flow
+// ✦ Game loop now starts ONLY when player begins gameplay
 // ============================================================
 
 import { initGame, updateGame, renderGame } from "./core/game.js";
@@ -12,19 +11,18 @@ import { initProfiles } from "./core/profile.js";
 import { initHub } from "./core/hub.js";
 import { initSparkles } from "./core/sparkles.js";
 
-// ------------------------------------------------------------
-// ⚙️ LOOP SETTINGS
-// ------------------------------------------------------------
 let lastTime = 0;
 const FPS = 60;
 const FRAME_DURATION = 1000 / FPS;
+let gameActive = false; // 🩵 prevents loop from running during menus
 
 // ------------------------------------------------------------
-// 🕒 MAIN GAME LOOP
+// 🕒 GAME LOOP
 // ------------------------------------------------------------
 function gameLoop(timestamp) {
-  const delta = timestamp - lastTime;
+  if (!gameActive) return; // ⛔ stop updating until gameplay starts
 
+  const delta = timestamp - lastTime;
   if (delta >= FRAME_DURATION) {
     updateGame(delta);
     renderGame();
@@ -35,21 +33,24 @@ function gameLoop(timestamp) {
 }
 
 // ------------------------------------------------------------
+// 🎬 START GAMEPLAY LOOP (called when player begins game)
+// ------------------------------------------------------------
+export function startGameplay() {
+  if (gameActive) return;
+  gameActive = true;
+  lastTime = performance.now();
+  requestAnimationFrame(gameLoop);
+  console.log("🎮 Gameplay loop started!");
+}
+
+// ------------------------------------------------------------
 // 🌷 INITIALIZATION
 // ------------------------------------------------------------
-initLanding();
-
 window.addEventListener("DOMContentLoaded", () => {
   initLanding();
   initProfiles();
   initHub();
-
-  // 🏰 Initialize main game systems
   initGame();
-  initSparkles(); 
-  requestAnimationFrame(gameLoop);
+  initSparkles();
+  console.log("🌸 Olivia’s World loaded — menu systems active");
 });
-
-// ============================================================
-// 🌟 END OF FILE
-// ============================================================

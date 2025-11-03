@@ -3,7 +3,7 @@
 ------------------------------------------------------------
 ✦ Main entry HTML for the Tower Defense game
 ✦ Includes landing, profile, hub, and game screens
-✦ Uses modular sparkle system (sparkles.js)
+✦ Modular sparkle & overlay system (sparkles.js)
 ============================================================ -->
 
 <!DOCTYPE html>
@@ -34,7 +34,6 @@
         class="landing-bg"
         alt="A fantasy castle scene of Olivia’s World"
       />
-
       <div class="magic-sparkle"></div>
 
       <div id="landing-container">
@@ -54,7 +53,6 @@
         class="profile-bg"
         alt="A crystal interior scene of Olivia’s World"
       />
-
       <div class="magic-sparkle"></div>
 
       <div id="profile-container">
@@ -84,9 +82,9 @@
         class="hub-bg"
         alt="Crystal observatory hall – Olivia’s World Hub"
       />
-
       <div class="magic-sparkle"></div>
 
+      <!-- 🌸 HUB BUTTONS -->
       <div id="hub-container">
         <div class="hub-buttons">
           <button id="new-story-btn">New Story</button>
@@ -97,6 +95,55 @@
           <button id="quests-btn">Quests</button>
           <button id="settings-btn">Settings</button>
           <button id="exit-hub-btn">Exit</button>
+        </div>
+      </div>
+
+      <!-- 🌈 HUB OVERLAYS -->
+      <div id="overlay-load" class="overlay hidden">
+        <div class="overlay-box">
+          <h3>Load Game</h3>
+          <p>Saved games will appear here soon.</p>
+          <button class="overlay-close">Close</button>
+        </div>
+      </div>
+
+      <div id="overlay-maps" class="overlay hidden">
+        <div class="overlay-box">
+          <h3>Maps</h3>
+          <p>Select a map to explore.</p>
+          <button class="overlay-close">Close</button>
+        </div>
+      </div>
+
+      <div id="overlay-turrets" class="overlay hidden">
+        <div class="overlay-box">
+          <h3>Turrets</h3>
+          <p>Manage your towers and upgrades.</p>
+          <button class="overlay-close">Close</button>
+        </div>
+      </div>
+
+      <div id="overlay-skins" class="overlay hidden">
+        <div class="overlay-box">
+          <h3>Skins</h3>
+          <p>Customize your hero’s appearance.</p>
+          <button class="overlay-close">Close</button>
+        </div>
+      </div>
+
+      <div id="overlay-quests" class="overlay hidden">
+        <div class="overlay-box">
+          <h3>Quests</h3>
+          <p>View your active and completed quests.</p>
+          <button class="overlay-close">Close</button>
+        </div>
+      </div>
+
+      <div id="overlay-settings" class="overlay hidden">
+        <div class="overlay-box">
+          <h3>Settings</h3>
+          <p>Adjust your audio and preferences.</p>
+          <button class="overlay-close">Close</button>
         </div>
       </div>
     </div>
