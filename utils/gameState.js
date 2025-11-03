@@ -1,4 +1,14 @@
-// gameState.js — central shared game data and utilities
+// ============================================================
+// 🌸 gameState.js — Olivia’s World: Crystal Keep
+// ------------------------------------------------------------
+// ✦ Central shared game data and utility functions
+// ✦ Handles player profiles, resources, maps, and settings
+// ✦ Provides persistence through localStorage
+// ============================================================
+
+// ------------------------------------------------------------
+// ⚙️ GLOBAL GAME STATE
+// ------------------------------------------------------------
 
 export const gameState = {
   profile: null,
@@ -22,7 +32,10 @@ export const gameState = {
   }
 };
 
-// profile management
+// ------------------------------------------------------------
+// 👑 PROFILE MANAGEMENT
+// ------------------------------------------------------------
+
 export function setProfile(profile) {
   gameState.profile = profile;
 }
@@ -33,6 +46,7 @@ export function getProfile() {
 
 export function addProfile(name) {
   if (gameState.profiles.length >= 5) return false;
+
   const newProfile = {
     id: gameState.profiles.length + 1,
     name,
@@ -40,17 +54,21 @@ export function addProfile(name) {
     progress: { ...gameState.progress },
     resources: { ...gameState.resources }
   };
+
   gameState.profiles.push(newProfile);
   saveProfiles();
   return newProfile;
 }
 
-// persistence
+// ------------------------------------------------------------
+// 💾 PERSISTENCE — SAVE / LOAD
+// ------------------------------------------------------------
+
 export function saveProfiles() {
   try {
     localStorage.setItem("td_profiles", JSON.stringify(gameState.profiles));
   } catch (err) {
-    console.error("Error saving profiles:", err);
+    console.error("💔 Error saving profiles:", err);
   }
 }
 
@@ -61,12 +79,15 @@ export function loadProfiles() {
       gameState.profiles = JSON.parse(data);
     }
   } catch (err) {
-    console.error("Error loading profiles:", err);
+    console.error("💔 Error loading profiles:", err);
     gameState.profiles = [];
   }
 }
 
-// map control
+// ------------------------------------------------------------
+// 🗺️ MAP CONTROL
+// ------------------------------------------------------------
+
 export function unlockMap(id) {
   if (!gameState.progress.mapsUnlocked.includes(id)) {
     gameState.progress.mapsUnlocked.push(id);
@@ -79,7 +100,10 @@ export function setCurrentMap(id) {
   }
 }
 
-// resource control
+// ------------------------------------------------------------
+// 💰 RESOURCE CONTROL
+// ------------------------------------------------------------
+
 export function addMoney(amount) {
   gameState.resources.money += amount;
 }
@@ -88,7 +112,10 @@ export function addXP(amount) {
   gameState.resources.xp += amount;
 }
 
-// settings
+// ------------------------------------------------------------
+// 🎵 SETTINGS CONTROL
+// ------------------------------------------------------------
+
 export function setVolume(value) {
   gameState.settings.volume = Math.max(0, Math.min(1, value));
 }
@@ -101,5 +128,12 @@ export function toggleSFX(on) {
   gameState.settings.sfx = on;
 }
 
-// auto-load profiles when script runs
+// ------------------------------------------------------------
+// 🚀 AUTO-LOAD PROFILES ON STARTUP
+// ------------------------------------------------------------
+
 loadProfiles();
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

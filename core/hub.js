@@ -1,5 +1,14 @@
-// hub.js — manages main hub navigation
+// ============================================================
+// 🌸 hub.js — Olivia’s World: Crystal Keep
+// ------------------------------------------------------------
+// ✦ Manages the main hub navigation screen
+// ✦ Handles transitions between hub, map, and game screens
+// ✦ Soft pastel fade effects for smooth screen flow
+// ============================================================
 
+// ------------------------------------------------------------
+// 🌷 INITIALIZATION
+// ------------------------------------------------------------
 export function initHub() {
   const hub = document.getElementById("hub-screen");
   const mapsBtn = document.getElementById("maps-btn");
@@ -12,6 +21,7 @@ export function initHub() {
 
   if (!hub) return;
 
+  // 🌸 Navigation Events
   newStoryBtn.addEventListener("click", () => {
     console.log("New Story selected");
     startGameTransition();
@@ -25,6 +35,9 @@ export function initHub() {
   exitBtn.addEventListener("click", () => console.log("Exit hub"));
 }
 
+// ------------------------------------------------------------
+// 🎬 START GAME TRANSITION
+// ------------------------------------------------------------
 function startGameTransition() {
   const hub = document.getElementById("hub-screen");
   const game = document.getElementById("game-container");
@@ -36,9 +49,13 @@ function startGameTransition() {
   }, 800);
 }
 
+// ------------------------------------------------------------
+// 🗺️ SHOW MAP SCREEN
+// ------------------------------------------------------------
 function showMapScreen() {
   const hub = document.getElementById("hub-screen");
   const mapScreen = document.getElementById("maps-screen");
+
   if (!mapScreen) {
     console.warn("Map screen not yet implemented");
     return;
@@ -52,8 +69,15 @@ function showMapScreen() {
   }, 800);
 }
 
+// ------------------------------------------------------------
+// 🌈 FADE-IN UTILITY
+// ------------------------------------------------------------
 function fadeIn(element) {
   element.style.opacity = 0;
   element.style.transition = "opacity 0.8s ease";
   requestAnimationFrame(() => (element.style.opacity = 1));
 }
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

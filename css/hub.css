@@ -1,48 +1,107 @@
-/* hub.css — main hub screen styling */
+/* ============================================================
+   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — hub.css
+   ------------------------------------------------------------
+   ✦ Main hub / map selection screen
+   ✦ Pastel pink & lilac fantasy theme with glowing buttons
+   ✦ Centered layout and smooth fade transitions
+============================================================ */
 
+/* ============================================================
+   🏰 HUB SCREEN BASE
+============================================================ */
 #hub-screen {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  flex-direction: column;
+  text-align: center;
+
   width: 100vw;
-  background: radial-gradient(circle at center, #0a0a14 0%, #01020a 100%);
-  color: #00ffc3;
-  font-family: "Orbitron", sans-serif;
+  height: 100vh;
+  overflow: hidden;
   transition: opacity 0.8s ease;
+
+  /* 🌈 Pastel gradient background */
+  background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 40%, #e0bbff 100%);
+  animation: hubGlow 20s ease-in-out infinite alternate;
+  color: #d63384;
+  font-family: "Princess Sofia", "Comic Sans MS", cursive;
 }
 
+@keyframes hubGlow {
+  0% {
+    background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 40%, #e0bbff 100%);
+  }
+  100% {
+    background: radial-gradient(circle at center, #ffd6eb 0%, #e0bbff 35%, #b5e2ff 100%);
+  }
+}
+
+/* ============================================================
+   💎 HUB CONTAINER
+============================================================ */
 #hub-container {
   text-align: center;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  padding: 40px 80px;
+  border-radius: 20px;
+  border: 2px solid rgba(255, 182, 224, 0.8);
+  box-shadow:
+    0 0 25px rgba(255, 182, 224, 0.8),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
+/* ============================================================
+   🌷 TITLE
+============================================================ */
 .hub-title {
-  font-size: 1.6rem;
+  font-size: 2.2rem;
   font-weight: 500;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  color: #ff80bf;
+  text-shadow:
+    0 0 12px rgba(255, 192, 230, 0.8),
+    0 0 30px rgba(224, 187, 255, 0.6);
+  letter-spacing: 1px;
 }
 
+/* ============================================================
+   💖 BUTTON CONTAINER
+============================================================ */
 .hub-buttons {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 
+/* ============================================================
+   🌸 BUTTONS
+============================================================ */
 .hub-buttons button {
-  width: 220px;
-  background: #00ffc3;
-  border: none;
-  border-radius: 4px;
-  color: #0a0a14;
-  font-size: 1rem;
+  width: 240px;
+  background: linear-gradient(90deg, #ffd6eb, #ffbde3, #e0bbff);
+  border: 2px solid rgba(255, 182, 224, 0.8);
+  border-radius: 12px;
+  color: #d63384;
+  font-size: 1.1rem;
   padding: 12px 0;
   cursor: pointer;
-  box-shadow: 0 0 12px rgba(0, 255, 195, 0.3);
+  box-shadow:
+    0 0 15px rgba(255, 204, 238, 0.6),
+    inset 0 0 10px rgba(255, 255, 255, 0.4);
   transition: all 0.3s ease;
 }
 
 .hub-buttons button:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 20px rgba(0, 255, 195, 0.6);
+  transform: scale(1.05);
+  box-shadow:
+    0 0 25px rgba(255, 204, 238, 0.9),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+  filter: brightness(1.05);
 }
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

@@ -1,5 +1,14 @@
-// landing.js — handles landing screen and transition to main game
+// ============================================================
+// 🌸 landing.js — Olivia’s World: Crystal Keep
+// ------------------------------------------------------------
+// ✦ Handles landing screen logic and transition to main hub
+// ✦ Adds soft pastel fade between title and profile screen
+// ✦ Entry point for player journey initialization
+// ============================================================
 
+// ------------------------------------------------------------
+// 🌷 INITIALIZATION
+// ------------------------------------------------------------
 export function initLanding() {
   const startBtn = document.getElementById("start-button");
   const landing = document.getElementById("landing-screen");
@@ -7,6 +16,7 @@ export function initLanding() {
 
   if (!startBtn || !landing || !gameContainer) return;
 
+  // 🌸 Start Button Logic
   startBtn.addEventListener("click", () => {
     startBtn.disabled = true;
     startBtn.textContent = "Loading...";
@@ -20,6 +30,9 @@ export function initLanding() {
   });
 }
 
+// ------------------------------------------------------------
+// 🌈 FADE-IN UTILITY
+// ------------------------------------------------------------
 function fadeIn(element) {
   element.style.opacity = 0;
   element.style.transition = "opacity 0.8s ease";
@@ -27,3 +40,7 @@ function fadeIn(element) {
     element.style.opacity = 1;
   });
 }
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

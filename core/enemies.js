@@ -1,16 +1,31 @@
-// enemies.js — handles enemy spawning, movement, and drawing
+// ============================================================
+// 👹 enemies.js — Olivia’s World: Crystal Keep
+// ------------------------------------------------------------
+// ✦ Handles enemy spawning, movement, and drawing
+// ✦ Uses tile-based path data for smooth motion
+// ✦ Integrates with path.js and constants.js
+// ============================================================
 
 import { pathPoints } from "./path.js";
 import { TILE_SIZE, ENEMY_SPEED } from "../utils/constants.js";
 
+// ------------------------------------------------------------
+// ⚙️ STATE
+// ------------------------------------------------------------
 let enemies = [];
 let ctx = null;
 
+// ------------------------------------------------------------
+// 🌱 INITIALIZATION
+// ------------------------------------------------------------
 export function initEnemies() {
   enemies = [];
   spawnEnemy();
 }
 
+// ------------------------------------------------------------
+// 💀 SPAWN ENEMY
+// ------------------------------------------------------------
 function spawnEnemy() {
   enemies.push({
     x: pathPoints[0].x * TILE_SIZE + TILE_SIZE / 2,
@@ -20,6 +35,9 @@ function spawnEnemy() {
   });
 }
 
+// ------------------------------------------------------------
+// 🧭 UPDATE ENEMIES — MOVEMENT + PROGRESSION
+// ------------------------------------------------------------
 export function updateEnemies(delta) {
   const dt = delta / 1000;
 
@@ -47,20 +65,32 @@ export function updateEnemies(delta) {
   });
 }
 
+// ------------------------------------------------------------
+// 🎨 DRAW ENEMIES — VISUAL RENDER
+// ------------------------------------------------------------
 export function drawEnemies(ctx) {
-  ctx.fillStyle = "#ff0055";
+  ctx.fillStyle = "#ff80bf"; // 💖 pastel pink enemy base
   enemies.forEach((e) => {
     ctx.beginPath();
     ctx.arc(e.x, e.y, 14, 0, Math.PI * 2);
     ctx.fill();
 
     // HP bar
-    ctx.fillStyle = "#00ff00";
+    ctx.fillStyle = "#8affc1"; // 🌿 mint green HP
     ctx.fillRect(e.x - 15, e.y - 20, (e.hp / 100) * 30, 4);
-    ctx.fillStyle = "#ff0055";
+
+    // Reset fill color
+    ctx.fillStyle = "#ff80bf";
   });
 }
 
+// ------------------------------------------------------------
+// 🧾 GETTERS
+// ------------------------------------------------------------
 export function getEnemies() {
   return enemies;
 }
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================
