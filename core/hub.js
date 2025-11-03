@@ -9,6 +9,7 @@
 import { showScreen } from "./screens.js";
 import { startGameplay } from "../main.js";
 import { showOverlay } from "./ui.js"; // we’ll use this pattern for overlays later
+import { setupStoryControls, startIntroStory } from "./story.js"; // ✅ add this line
 
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
@@ -42,13 +43,13 @@ export function initHub() {
   // ------------------------------------------------------------
 
   // 🏰 New Story — start fresh game
+
   newStoryBtn.addEventListener("click", () => {
-    console.log("🎮 Starting new story...");
-    fadeOut(hub, () => {
-      showScreen("game-container");
-      startGameplay();
-    });
+    console.log("📖 Opening story intro...");
+    setupStoryControls();
+    startIntroStory();
   });
+
 
   // 💾 Load Game — open save overlay (future overlay system)
   loadGameBtn.addEventListener("click", () => {
@@ -109,3 +110,4 @@ function fadeOut(element, callback) {
     if (callback) callback();
   }, 800);
 }
+

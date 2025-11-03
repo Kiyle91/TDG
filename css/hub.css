@@ -161,17 +161,17 @@
 }
 
 /* ============================================================
-   🌸 HUB OVERLAYS — frosted pastel windows
+   🌸 UNIVERSAL OVERLAY LAYER (applies to story + hub)
 ============================================================ */
 .overlay {
-  position: absolute;
+  position: fixed; /* 👈 crucial: fixed to viewport */
   inset: 0;
-  display: none; /* hidden by default */
+  display: none;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.05);
-  z-index: 5; /* above hub buttons, below alerts */
+  backdrop-filter: blur(14px);
+  background: rgba(0, 0, 0, 0.45); /* subtle dark fade behind */
+  z-index: 999; /* 👈 ensures it's above all screens */
   opacity: 0;
   transition: opacity 0.6s ease;
 }
@@ -222,6 +222,69 @@
     0 0 25px rgba(224, 187, 255, 0.9),
     inset 0 0 15px rgba(255, 255, 255, 0.5);
 }
+
+/* ============================================================
+   📜 STORY INTRO OVERLAY — fixed-size cinematic box
+============================================================ */
+.story-box {
+  position: relative;
+  width: 900px;       /* fixed width for consistent layout */
+  height: 350px;      /* fixed height so it never resizes */
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+  padding: 50px 70px;
+  text-align: center;
+  color: #fff;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+  animation: overlayPop 0.5s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* text on top, button on bottom */
+  align-items: center;
+}
+
+/* 🩵 The text area inside stays centered and constrained */
+.story-text {
+  width: 100%;
+  height: 200px;       /* fixed readable space for text */
+  overflow: hidden;    /* prevent overflow on long lines */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
+  font-family: "Comic Sans MS", cursive;
+  margin-bottom: 15px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+
+
+/* ============================================================
+   💫 STORY CONTINUE BUTTON — pastel crystal style
+============================================================ */
+.story-next-btn {
+  display: inline-block;
+  margin-top: 25px;
+  padding: 12px 36px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ffffff;
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 16px;
+  cursor: pointer;
+  font-family: "Comic Sans MS", cursive;
+  letter-spacing: 0.5px;
+  box-shadow:
+    0 0
+
 
 
 /* ============================================================
