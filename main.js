@@ -10,6 +10,9 @@ import { initLanding } from "./core/landing.js";
 import { initProfiles } from "./core/profile.js";
 import { initHub } from "./core/hub.js";
 import { initSparkles } from "./core/sparkles.js";
+import { initSettings } from "./core/settings.js";
+import { initMusic } from "./core/soundtrack.js";
+
 
 let lastTime = 0;
 const FPS = 60;
@@ -52,5 +55,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initHub();
   initGame();
   initSparkles();
+  initMusic();
+  initSettings();
   console.log("🌸 Olivia’s World loaded — menu systems active");
 });

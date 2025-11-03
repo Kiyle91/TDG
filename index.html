@@ -25,6 +25,9 @@
   <link rel="stylesheet" href="./css/maps.css" />
   <link rel="stylesheet" href="./css/turrets.css" />
   <link rel="stylesheet" href="./css/stats.css" />
+  <link rel="stylesheet" href="./css/skins.css" />
+  <link rel="stylesheet" href="./css/settings.css" />
+
 </head>
 
 <body>
@@ -192,9 +195,37 @@
       </div>
 
       <div id="overlay-skins" class="overlay hidden">
-        <div class="overlay-box">
-          <h3>Skins</h3>
-          <p>Customize your hero’s appearance.</p>
+        <div class="overlay-box skins-container">
+          <h3 class="skins-title">Character Skins</h3>
+
+          <div class="skins-grid">
+            <!-- Placeholder character (Princess Ariana) -->
+            <div class="skin-card unlocked" data-skin="1">
+              <img src="./assets/images/portraits/princess_ariana.png" alt="Princess Ariana" class="skin-image" />
+              <div class="skin-info">
+                <h4>Princess Ariana</h4>
+                <p>The noble guardian of the Crystal Keep.</p>
+              </div>
+            </div>
+
+            <!-- Locked examples (for future unlocks) -->
+            <div class="skin-card locked" data-skin="2">
+              <div class="skin-placeholder">🔒</div>
+              <div class="skin-info">
+                <h4>Celestial Sage</h4>
+                <p>Unlock at Level 10.</p>
+              </div>
+            </div>
+
+            <div class="skin-card locked" data-skin="3">
+              <div class="skin-placeholder">🔒</div>
+              <div class="skin-info">
+                <h4>Shadow Guardian</h4>
+                <p>Unlock at Level 20.</p>
+              </div>
+            </div>
+          </div>
+
           <button class="overlay-close">Close</button>
         </div>
       </div>
@@ -218,13 +249,56 @@
 
 
       <div id="overlay-settings" class="overlay hidden">
-        <div class="overlay-box">
-          <h3>Settings</h3>
-          <p>Adjust your audio and preferences.</p>
+        <div class="overlay-box settings-container">
+          <h3 class="settings-title">Settings</h3>
+
+          <div class="settings-grid">
+            <!-- 🎵 Music Volume -->
+            <div class="setting-item">
+              <label for="music-volume">Music Volume</label>
+              <input
+                type="range"
+                id="music-volume"
+                min="0"
+                max="100"
+                value="80"
+                class="slider"
+              />
+              <span id="music-value">80%</span>
+            </div>
+
+            <!-- 🔊 Sound Effects Volume -->
+            <div class="setting-item">
+              <label for="sfx-volume">Sound Effects</label>
+              <input
+                type="range"
+                id="sfx-volume"
+                min="0"
+                max="100"
+                value="80"
+                class="slider"
+              />
+              <span id="sfx-value">80%</span>
+            </div>
+
+            <!-- 🌈 Visual Effects -->
+            <div class="setting-item toggle">
+              <label for="visuals-toggle">Visual Effects</label>
+              <input type="checkbox" id="visuals-toggle" checked />
+              <span>Enabled</span>
+            </div>
+
+            <!-- 🪄 Tooltips -->
+            <div class="setting-item toggle">
+              <label for="tooltips-toggle">Tooltips</label>
+              <input type="checkbox" id="tooltips-toggle" checked />
+              <span>Enabled</span>
+            </div>
+          </div>
+
           <button class="overlay-close">Close</button>
         </div>
       </div>
-    </div>
   </section>
 
   <!-- ============================================================

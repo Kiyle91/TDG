@@ -69,7 +69,7 @@ export function initHub() {
     showOverlay("overlay-turrets");
   });
 
-  // 🎨 Skins — open skin selector
+    // 🎨 Skins — open skin selector
   skinsBtn.addEventListener("click", () => {
     console.log("🎨 Skins overlay");
     showOverlay("overlay-skins");

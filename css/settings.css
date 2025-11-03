@@ -1,0 +1,135 @@
+/* ============================================================
+   ⚙️ OLIVIA’S WORLD: CRYSTAL KEEP — settings.css
+   ------------------------------------------------------------
+   ✦ Settings overlay for music, sound, visuals, and tooltips
+   ✦ Pastel crystal aesthetic with glowing sliders and toggles
+============================================================ */
+
+.settings-container {
+  width: 700px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-title {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
+  font-family: "Princess Sofia", cursive;
+  color: #ffffff;
+}
+
+/* ============================================================
+   🌸 SETTINGS GRID
+============================================================ */
+.settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+  padding: 30px 40px;
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.5),
+    inset 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================================
+   🎚️ SETTING ITEM
+============================================================ */
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+  font-family: "Comic Sans MS", cursive;
+  font-size: 1rem;
+  text-shadow: 0 0 6px rgba(224, 187, 255, 0.8);
+}
+
+.setting-item label {
+  flex: 1;
+  text-align: left;
+}
+
+.setting-item span {
+  width: 60px;
+  text-align: right;
+  color: #b5e2ff;
+}
+
+/* ============================================================
+   🎵 SLIDER STYLES
+============================================================ */
+.slider {
+  flex: 2;
+  appearance: none;
+  height: 8px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  outline: none;
+  cursor: pointer;
+  margin: 0 15px;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  box-shadow: 0 0 10px rgba(224, 187, 255, 0.8);
+  transition: transform 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* ============================================================
+   🌈 TOGGLE STYLES
+============================================================ */
+.setting-item.toggle input[type="checkbox"] {
+  appearance: none;
+  width: 50px;
+  height: 26px;
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff);
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  transition: all 0.3s ease;
+}
+
+.setting-item.toggle input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.setting-item.toggle input[type="checkbox"]:checked::before {
+  left: 26px;
+}
+
+.setting-item.toggle span {
+  width: 80px;
+  text-align: right;
+  color: #b5e2ff;
+  font-weight: bold;
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */
