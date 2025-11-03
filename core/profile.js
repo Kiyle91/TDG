@@ -2,7 +2,7 @@
 // 🌸 profile.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ Manages player profile creation, selection, and deletion
-// ✦ Supports up to 6 profile slots in a glowing pastel grid
+// ✦ Each profile includes its own Glitter Guardian data
 // ✦ Uses custom pastel alert, confirm, and input modals
 // ✦ Handles smooth fade transitions to the hub screen
 // ============================================================
@@ -15,6 +15,7 @@ import {
   loadProfiles
 } from "../utils/gameState.js";
 
+import { createPlayer, restorePlayer } from "../core/player.js";
 import { showAlert, showConfirm, showInput } from "../core/alert.js";
 
 // ------------------------------------------------------------
@@ -39,11 +40,16 @@ export function initProfiles() {
     showInput("Enter your profile name:", (name) => {
       if (!name) return;
 
+      // ✨ Create new profile and attach a Glitter Guardian
       const profile = addProfile(name);
       if (!profile) {
         showAlert("Maximum of 6 profiles reached.");
         return;
       }
+
+      // Attach a fresh player (Glitter Guardian)
+      profile.player = createPlayer();
+      saveProfiles();
 
       renderProfileSlots(slotsContainer);
       showAlert(`Profile "${name}" created successfully!`);
@@ -73,7 +79,6 @@ export function initProfiles() {
           console.log("❎ Deletion cancelled");
         }
       );
-
       return;
     }
 
@@ -85,7 +90,9 @@ export function initProfiles() {
     const profile = gameState.profiles[index];
     if (!profile) return;
 
+    // 🪞 Restore Glitter Guardian for this profile
     setProfile(profile);
+    restorePlayer(profile.player);
     console.log(`👑 Profile selected: ${profile.name}`);
 
     profileScreen.style.opacity = 0;
