@@ -45,6 +45,7 @@
    🌄 BACKGROUND IMAGE
 ============================================================ */
 .landing-frame .landing-bg {
+  display: flex;
   position: absolute;
   inset: 0;
   width: 100%;
@@ -60,7 +61,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  padding-bottom: 5vh; /* consistent gap from bottom */
+  padding-bottom: 0.5vh; /* consistent gap from bottom */
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -75,6 +76,7 @@
    🌷 START BUTTON
 ============================================================ */
 .landing-btn {
+
   background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 16px;

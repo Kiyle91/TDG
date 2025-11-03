@@ -70,8 +70,8 @@
   outline: none;
   font-family: "Comic Sans MS", "Princess Sofia", cursive;
   font-size: 1rem;
-  color: #ffffff;
-  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
+  color: #000000;
+  background: #ffffff
   box-shadow:
     inset 0 0 8px rgba(255, 255, 255, 0.4),
     0 0 8px rgba(255, 204, 238, 0.5);
