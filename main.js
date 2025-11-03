@@ -10,6 +10,7 @@ import { initGame, updateGame, renderGame } from "./core/game.js";
 import { initLanding } from "./core/landing.js";
 import { initProfiles } from "./core/profile.js";
 import { initHub } from "./core/hub.js";
+import { initSparkles } from "./core/sparkles.js";
 
 // ------------------------------------------------------------
 // ⚙️ LOOP SETTINGS
@@ -45,6 +46,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // 🏰 Initialize main game systems
   initGame();
+  initSparkles(); 
   requestAnimationFrame(gameLoop);
 });
 

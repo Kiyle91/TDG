@@ -3,7 +3,7 @@
 ------------------------------------------------------------
 ✦ Main entry HTML for the Tower Defense game
 ✦ Includes landing, profile, hub, and game screens
-✦ Styled with pastel fantasy CSS and modular JS
+✦ Uses modular sparkle system (sparkles.js)
 ============================================================ -->
 
 <!DOCTYPE html>
@@ -15,12 +15,12 @@
   <title>🌸 Olivia’s World: Crystal Keep</title>
 
   <!-- 🎨 Styles -->
-    <link rel="stylesheet" href="./css/main.css" />
-    <link rel="stylesheet" href="./css/landing.css" />
-    <link rel="stylesheet" href="./css/profile.css" />
-    <link rel="stylesheet" href="./css/hub.css" />
-    <link rel="stylesheet" href="./css/alert.css" />
-    <link rel="stylesheet" href="./css/animations.css" />
+  <link rel="stylesheet" href="./css/main.css" />
+  <link rel="stylesheet" href="./css/landing.css" />
+  <link rel="stylesheet" href="./css/profile.css" />
+  <link rel="stylesheet" href="./css/hub.css" />
+  <link rel="stylesheet" href="./css/alert.css" />
+  <link rel="stylesheet" href="./css/animations.css" />
 </head>
 
 <body>
@@ -34,52 +34,8 @@
         class="landing-bg"
         alt="A fantasy castle scene of Olivia’s World"
       />
-      <div class="magic-sparkle">
-  <!-- 40 sparkles for lush effect -->
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
 
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-      </div>
+      <div class="magic-sparkle"></div>
 
       <div id="landing-container">
         <button id="start-button" class="landing-btn">Start Game</button>
@@ -98,52 +54,8 @@
         class="profile-bg"
         alt="A crystal interior scene of Olivia’s World"
       />
-      <div class="magic-sparkle">
-  <!-- 40 sparkles for lush effect -->
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
 
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-      </div>
+      <div class="magic-sparkle"></div>
 
       <div id="profile-container">
         <h2 class="profile-title">Select Player Profile</h2>
@@ -163,7 +75,7 @@
   </section>
 
   <!-- ============================================================
-       🏰 MAIN HUB SCREEN
+       🏰 HUB SCREEN
   ============================================================= -->
   <section id="hub-screen" class="screen" style="display:none;">
     <div class="hub-frame">
@@ -173,55 +85,9 @@
         alt="Crystal observatory hall – Olivia’s World Hub"
       />
 
-      <div class="magic-sparkle">
-  <!-- 40 sparkles for lush effect -->
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-        <div class="magic-particle"></div>
-      </div>
+      <div class="magic-sparkle"></div>
 
       <div id="hub-container">
-
         <div class="hub-buttons">
           <button id="new-story-btn">New Story</button>
           <button id="load-game-btn">Load Game</button>
@@ -233,12 +99,11 @@
           <button id="exit-hub-btn">Exit</button>
         </div>
       </div>
-
     </div>
   </section>
 
   <!-- ============================================================
-       🗺️ GAME CONTAINER (Canvas for gameplay)
+       🗺️ GAME CONTAINER
   ============================================================= -->
   <section id="game-container" class="screen" style="display:none;">
     <div id="hud">
@@ -250,12 +115,7 @@
   </section>
 
   <!-- ============================================================
-       💖 ALERT MODAL (Created dynamically by alert.js)
-  ============================================================= -->
-  <!-- The pastel modal overlay will be injected automatically -->
-
-  <!-- ============================================================
-       🎮 GAME SCRIPT ENTRY
+       🎮 SCRIPT ENTRY
   ============================================================= -->
   <script type="module" src="./main.js"></script>
 </body>
