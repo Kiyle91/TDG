@@ -1,0 +1,133 @@
+/* ============================================================
+   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — alert.css
+   ------------------------------------------------------------
+   ✦ Custom glowing pastel alert / confirm / input modals
+   ✦ Replaces all browser UI dialogs
+   ✦ Fully responsive with smooth fade transitions
+============================================================ */
+
+/* ============================================================
+   💖 MODAL BACKDROP
+============================================================ */
+#ow-alert-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 182, 224, 0.25);
+  backdrop-filter: blur(4px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================================
+   💎 ALERT BOX
+============================================================ */
+.ow-alert-box {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 182, 224, 0.9);
+  border-radius: 20px;
+  padding: 40px 60px;
+  text-align: center;
+  color: #d63384;
+  font-family: "Princess Sofia", "Comic Sans MS", cursive;
+  box-shadow:
+    0 0 30px rgba(255, 204, 238, 0.8),
+    inset 0 0 10px rgba(255, 255, 255, 0.4);
+  min-width: 360px;
+  max-width: 90vw;
+  animation: popIn 0.25s ease;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   🌷 TEXT + INPUT
+============================================================ */
+#ow-alert-text {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.ow-alert-input {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 182, 224, 0.8);
+  outline: none;
+  font-family: "Comic Sans MS", "Princess Sofia", cursive;
+  font-size: 1rem;
+  color: #d63384;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 0 0 8px rgba(255, 255, 255, 0.4),
+    0 0 8px rgba(255, 204, 238, 0.5);
+  transition: all 0.3s ease;
+}
+
+.ow-alert-input:focus {
+  box-shadow:
+    0 0 12px rgba(255, 204, 238, 0.8),
+    inset 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================================
+   🌸 BUTTONS
+============================================================ */
+.ow-alert-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 25px;
+}
+
+.ow-alert-btn {
+  padding: 10px 28px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 182, 224, 0.8);
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.ow-alert-btn.ok {
+  background: linear-gradient(90deg, #ffd6eb, #ffbde3, #e0bbff);
+  color: #d63384;
+  box-shadow:
+    0 0 15px rgba(255, 204, 238, 0.6),
+    inset 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.ow-alert-btn.cancel {
+  background: rgba(255, 255, 255, 0.75);
+  color: #d63384;
+  box-shadow:
+    0 0 10px rgba(255, 204, 238, 0.4),
+    inset 0 0 6px rgba(255, 255, 255, 0.3);
+}
+
+.ow-alert-btn:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 25px rgba(255, 204, 238, 0.9),
+    inset 0 0 12px rgba(255, 255, 255, 0.5);
+  filter: brightness(1.05);
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

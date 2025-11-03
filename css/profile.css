@@ -3,11 +3,11 @@
    ------------------------------------------------------------
    ✦ Player profile selection & creation screen
    ✦ 2×3 glowing pastel grid with hover animations
-   ✦ Integrated delete buttons and soft transitions
+   ✦ Always-visible delete buttons and soft transitions
 ============================================================ */
 
 /* ============================================================
-   👑 PROFILE SCREEN BASE — perfectly centered
+   👑 PROFILE SCREEN BASE — centered layout
 ============================================================ */
 #profile-screen {
   display: flex;
@@ -17,12 +17,12 @@
 
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
   text-align: center;
+  overflow: hidden;
   transition: opacity 0.8s ease;
 
   /* 🌈 Pastel fantasy gradient */
-  background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 35%, #e0bbff 100%);
+  background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 40%, #e0bbff 100%);
   animation: profileGlow 22s ease-in-out infinite alternate;
   color: #d63384;
   font-family: "Princess Sofia", "Comic Sans MS", cursive;
@@ -30,7 +30,7 @@
 
 @keyframes profileGlow {
   0% {
-    background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 35%, #e0bbff 100%);
+    background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 40%, #e0bbff 100%);
   }
   100% {
     background: radial-gradient(circle at center, #ffd6eb 0%, #e0bbff 35%, #b5e2ff 100%);
@@ -38,7 +38,7 @@
 }
 
 /* ============================================================
-   💎 PROFILE CONTAINER — fixed true centering
+   💎 PROFILE CONTAINER
 ============================================================ */
 #profile-container {
   display: flex;
@@ -50,26 +50,25 @@
   backdrop-filter: blur(8px);
   border: 2px solid rgba(255, 182, 224, 0.8);
   border-radius: 20px;
+  padding: 40px 70px;
+
   box-shadow:
     0 0 25px rgba(255, 182, 224, 0.8),
     inset 0 0 20px rgba(255, 255, 255, 0.4);
-
-  padding: 30px 50px;
-  /* ✅ No margin-top — removes bias */
 }
 
 /* ============================================================
    🌷 TITLE
 ============================================================ */
 .profile-title {
-  font-size: 2.2rem;
+  font-size: 2.4rem;
   font-weight: 500;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
   color: #ff80bf;
+  letter-spacing: 1.2px;
   text-shadow:
     0 0 12px rgba(255, 192, 230, 0.8),
     0 0 30px rgba(224, 187, 255, 0.6);
-  letter-spacing: 1px;
 }
 
 /* ============================================================
@@ -81,7 +80,7 @@
   gap: 24px;
   justify-items: center;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 35px;
 }
 
 /* ============================================================
@@ -89,16 +88,21 @@
 ============================================================ */
 .profile-slot {
   position: relative;
+  overflow: visible;
   width: 220px;
   height: 120px;
-  background: rgba(255, 255, 255, 0.25);
+
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.25), rgba(255, 230, 247, 0.15));
   border: 2px solid rgba(255, 182, 224, 0.8);
   border-radius: 15px;
   backdrop-filter: blur(8px);
   text-align: center;
   padding: 15px;
   color: #d63384;
-  box-shadow: 0 0 20px rgba(255, 204, 238, 0.4);
+
+  box-shadow:
+    0 0 20px rgba(255, 204, 238, 0.4),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -116,37 +120,54 @@
 
 .profile-slot:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 30px rgba(255, 204, 238, 0.8);
+  box-shadow:
+    0 0 35px rgba(255, 204, 238, 0.8),
+    inset 0 0 15px rgba(255, 255, 255, 0.4);
 }
 
 /* Empty slot style */
 .profile-slot.empty {
-  opacity: 0.5;
+  opacity: 0.6;
   color: #d19ad1;
   font-style: italic;
+  border: 2px dashed rgba(255, 182, 224, 0.5);
 }
 
 /* ============================================================
-   🗑️ DELETE BUTTON
+   🗑️ DELETE BUTTON — glowing and clickable
 ============================================================ */
 .profile-delete {
   position: absolute;
   top: 6px;
   right: 6px;
-  background: rgba(255, 105, 180, 0.9);
-  color: white;
+  background: linear-gradient(145deg, #ff8ac9, #ffbde3);
+  color: #fff;
   border: none;
   border-radius: 50%;
-  font-size: 0.8rem;
+  font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
-  width: 24px;
-  height: 24px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  width: 26px;
+  height: 26px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.9;
+  z-index: 10;
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 10px rgba(255, 182, 224, 0.7),
+    inset 0 0 6px rgba(255, 255, 255, 0.4);
 }
 
-.profile-slot:hover .profile-delete {
+.profile-delete:hover {
+  transform: scale(1.15);
   opacity: 1;
+  box-shadow:
+    0 0 20px rgba(255, 182, 224, 1),
+    inset 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
 /* ============================================================
@@ -157,9 +178,10 @@
   border: 2px solid rgba(255, 182, 224, 0.8);
   border-radius: 12px;
   color: #d63384;
-  font-size: 1rem;
-  padding: 10px 30px;
+  font-size: 1.1rem;
+  padding: 12px 32px;
   cursor: pointer;
+
   box-shadow:
     0 0 15px rgba(255, 204, 238, 0.6),
     inset 0 0 10px rgba(255, 255, 255, 0.4);
@@ -167,7 +189,7 @@
 }
 
 .profile-btn:hover {
-  transform: scale(1.05);
+  transform: scale(1.06);
   box-shadow:
     0 0 25px rgba(255, 204, 238, 0.9),
     inset 0 0 15px rgba(255, 255, 255, 0.5);

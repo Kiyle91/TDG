@@ -2,7 +2,7 @@
 🌸 OLIVIA’S WORLD: CRYSTAL KEEP — index.html
 ------------------------------------------------------------
 ✦ Main entry HTML for the Tower Defense game
-✦ Includes landing, profile, and hub screens
+✦ Includes landing, profile, hub, and game screens
 ✦ Styled with pastel fantasy CSS and modular JS
 ============================================================ -->
 
@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="./css/landing.css" />
   <link rel="stylesheet" href="./css/profile.css" />
   <link rel="stylesheet" href="./css/hub.css" />
+  <link rel="stylesheet" href="./css/alert.css" />
 </head>
 
 <body>
@@ -40,11 +41,7 @@
     <div id="profile-container">
       <h2 class="profile-title">Select Player Profile</h2>
       <div class="profile-slots">
-        <div class="profile-slot">Profile 1</div>
-        <div class="profile-slot">Profile 2</div>
-        <div class="profile-slot">Profile 3</div>
-        <div class="profile-slot">Profile 4</div>
-        <div class="profile-slot">Profile 5</div>
+        <!-- Slots generated dynamically via profile.js -->
       </div>
       <button id="create-profile-btn" class="profile-btn">
         Create New Profile
@@ -69,6 +66,23 @@
       </div>
     </div>
   </section>
+
+  <!-- ============================================================
+       🗺️ GAME CONTAINER (Canvas for gameplay)
+  ============================================================= -->
+  <section id="game-container" class="screen" style="display:none;">
+    <div id="hud">
+      <div id="wave-display">Wave 1</div>
+      <div id="money-display">Money 100</div>
+      <div id="lives-display">Lives 10</div>
+    </div>
+    <canvas id="game-canvas" width="1920" height="1080"></canvas>
+  </section>
+
+  <!-- ============================================================
+       💖 ALERT MODAL (Created dynamically by alert.js)
+  ============================================================= -->
+  <!-- The pastel modal overlay will be injected automatically -->
 
   <!-- ============================================================
        🎮 GAME SCRIPT ENTRY
