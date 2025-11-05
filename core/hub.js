@@ -12,6 +12,7 @@ import { getCurrencies, gameState } from "../utils/gameState.js";
 import { showOverlay } from "./ui.js"; // we’ll use this pattern for overlays later
 import { setupStoryControls, startIntroStory } from "./story.js";
 import { initChest } from "./chest.js";
+import { showConfirm } from "./alert.js";
 
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
@@ -46,12 +47,26 @@ export function initHub() {
   // 🎮 HUB ACTIONS
   // ------------------------------------------------------------
 
-  // 🏰 New Story — start fresh game
+  // 🏰 New Story — confirmation before starting
   newStoryBtn.addEventListener("click", () => {
-    console.log("📖 Opening story intro...");
-    setupStoryControls();
-    startIntroStory();
+    console.log("🩷 Prompting story confirmation...");
+
+    // Use the pastel confirm modal
+    import("./alert.js").then(({ showConfirm }) => {
+      showConfirm(
+        "Are you sure you want to start a new story?",
+        () => {
+          console.log("📖 New story confirmed — starting intro...");
+          setupStoryControls();
+          startIntroStory();
+        },
+        () => {
+          console.log("❎ New story cancelled");
+        }
+      );
+    });
   });
+
 
   // 💾 Load Game — open save overlay (future overlay system)
   loadGameBtn.addEventListener("click", () => {
@@ -89,13 +104,24 @@ export function initHub() {
     showOverlay("overlay-settings");
   });
 
-  // 🚪 Exit — return to profile screen
+  // 🚪 Exit — confirmation before leaving the hub
   exitBtn.addEventListener("click", () => {
-    console.log("🚪 Exiting to profile...");
-    fadeOut(hub, () => {
-      showScreen("profile-screen");
-    });
+    console.log("🩷 Prompting exit confirmation...");
+
+    showConfirm(
+      "Are you sure you want to exit to the profile screen?",
+      () => {
+        console.log("🚪 Exit confirmed — returning to profile...");
+        fadeOut(hub, () => {
+          showScreen("profile-screen");
+        });
+      },
+      () => {
+        console.log("❎ Exit cancelled");
+      }
+    );
   });
+
 
   console.log("🏰 Hub ready — all buttons linked");
 }
