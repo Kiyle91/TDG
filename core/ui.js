@@ -8,6 +8,7 @@
 
 import { getCurrencies } from "../utils/gameState.js";
 import { gameState, saveProfiles } from "../utils/gameState.js";
+import { playCancelSound } from "./soundtrack.js";
 
 // ------------------------------------------------------------
 // ⚙️ STATE
@@ -71,13 +72,14 @@ export function showOverlay(id) {
 
   // Add close behavior
   const closeBtn = overlay.querySelector(".overlay-close");
-  if (closeBtn) {
+  if (closeBtn) {;
     closeBtn.onclick = () => closeOverlay(overlay);
   }
 }
 
 export function closeOverlay(overlay) {
   overlay.classList.remove("active");
+  playCancelSound();
   setTimeout(() => (overlay.style.display = "none"), 600);
 }
 

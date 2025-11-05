@@ -19,6 +19,7 @@ import { createPlayer, restorePlayer } from "../core/player.js";
 import { showAlert, showConfirm, showInput } from "../core/alert.js";
 import { updateHubProfile } from "./hub.js";
 import { updateHubCurrencies } from "./hub.js";
+import { playFairySprinkle } from "./soundtrack.js";
 
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
@@ -39,6 +40,7 @@ export function initProfiles() {
   // 💖 CREATE NEW PROFILE (custom input modal)
   // ------------------------------------------------------------
   createBtn.addEventListener("click", () => {
+    playFairySprinkle();
     showInput("Enter your profile name:", (name) => {
       if (!name) return;
 
@@ -47,11 +49,13 @@ export function initProfiles() {
 
       if (profile === false) {
         showAlert("Maximum of 6 profiles reached.");
+        playFairySprinkle();
         return;
       }
 
       if (profile === "duplicate") {
         showAlert(`A profile named "${name}" already exists!`);
+        playFairySprinkle();
         return;
       }
 
@@ -60,6 +64,7 @@ export function initProfiles() {
 
       renderProfileSlots(slotsContainer);
       showAlert(`Profile "${name}" created successfully!`);
+      playFairySprinkle();
     });
   });
 
@@ -69,6 +74,7 @@ export function initProfiles() {
   // ✨ PROFILE SLOT INTERACTIONS
   // ------------------------------------------------------------
   slotsContainer.addEventListener("click", (e) => {
+    playFairySprinkle();
     // 🗑️ DELETE PROFILE (with pastel confirm)
     if (e.target.classList.contains("profile-delete")) {
       const index = e.target.dataset.index;
@@ -84,10 +90,12 @@ export function initProfiles() {
           renderProfileSlots(slotsContainer);
           showAlert(`Profile "${profile.name}" deleted successfully.`);
           console.log(`🗑️ Deleted profile: ${profile.name}`);
+          playFairySprinkle();
         },
         () => {
           // ❎ Cancelled delete
           console.log("❎ Profile deletion cancelled");
+          playFairySprinkle();
         }
       );
       return;
@@ -106,6 +114,7 @@ export function initProfiles() {
     restorePlayer(profile.player);
     gameState.player.name = profile.name; // 🩵 sync profile name to player
     console.log(`👑 Profile selected: ${profile.name}`);
+    playFairySprinkle();
 
     profileScreen.style.opacity = 0;
     setTimeout(() => {

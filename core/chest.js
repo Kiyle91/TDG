@@ -10,6 +10,7 @@
 import { gameState, addGold, addDiamonds, saveProfiles } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
 import { updateHubCurrencies } from "./hub.js";
+import { playChestOpen } from "../core/soundtrack.js";
 
 const COOLDOWN_MS = 60 * 60 * 1000; // 1 hour
 let chestEl, timerEl, imgEl;
@@ -54,6 +55,7 @@ function claimReward() {
 
   // 💥 Visual sparkle burst
   spawnSparkles();
+  playChestOpen();
 
   // 💾 Save claim time inside this profile
   profile.lastChestClaim = Date.now();

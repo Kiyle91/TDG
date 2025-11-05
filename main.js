@@ -50,6 +50,7 @@ export function startGameplay() {
 // 🌷 INITIALIZATION
 // ------------------------------------------------------------
 window.addEventListener("DOMContentLoaded", () => {
+  initMusic();
   initLanding();
   initProfiles();
   initHub();

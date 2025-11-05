@@ -5,7 +5,8 @@
 // ✦ Syncs with soundtrack.js + localStorage
 // ============================================================
 
-import { setMusicVolume, setSfxVolume } from "./soundtrack.js";
+import { playFairySprinkle, setMusicVolume, setSfxVolume } from "./soundtrack.js";
+
 
 // Store key for saving preferences
 const SETTINGS_KEY = "olivia_settings";
@@ -92,6 +93,8 @@ function setupListeners() {
   // Visual toggle
   visualsToggle?.addEventListener("change", e => {
     settings.visualsEnabled = e.target.checked;
+    playFairySprinkle();
+    
     saveSettings();
   });
 
@@ -99,6 +102,7 @@ function setupListeners() {
   tooltipsToggle?.addEventListener("change", e => {
     settings.tooltipsEnabled = e.target.checked;
     saveSettings();
+    playFairySprinkle();
   });
 }
 

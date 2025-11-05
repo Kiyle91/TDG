@@ -15,6 +15,7 @@ import { initChest } from "./chest.js";
 import { showConfirm } from "./alert.js";
 import { updateStatsOverlay } from "./ui.js";
 import { initSettingsMenu } from "./ui.js";
+import { playFairySprinkle } from "./soundtrack.js";
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
 // ------------------------------------------------------------
@@ -52,6 +53,7 @@ export function initHub() {
   // 🏰 New Story — confirmation before starting
   newStoryBtn.addEventListener("click", () => {
     console.log("🩷 Prompting story confirmation...");
+    playFairySprinkle();
 
     // Use the pastel confirm modal
     import("./alert.js").then(({ showConfirm }) => {
@@ -61,6 +63,7 @@ export function initHub() {
           console.log("📖 New story confirmed — starting intro...");
           setupStoryControls();
           startIntroStory();
+          playFairySprinkle();
         },
         () => {
           console.log("❎ New story cancelled");
@@ -73,36 +76,42 @@ export function initHub() {
   // 💾 Load Game — open save overlay (future overlay system)
   loadGameBtn.addEventListener("click", () => {
     console.log("💾 Load Game overlay");
+    playFairySprinkle();
     showOverlay("overlay-load");
   });
 
   // 🗺️ Maps — open map selection overlay
   mapsBtn.addEventListener("click", () => {
     console.log("🗺️ Maps overlay");
+    playFairySprinkle();
     showOverlay("overlay-maps");
   });
 
   // 🏹 Turrets — open tower menu
   turretsBtn.addEventListener("click", () => {
     console.log("🏹 Turrets overlay");
+    playFairySprinkle();
     showOverlay("overlay-turrets");
   });
 
   // 🎨 Skins — open skin selector
   skinsBtn.addEventListener("click", () => {
     console.log("🎨 Skins overlay");
+    playFairySprinkle();
     showOverlay("overlay-skins");
   });
 
   // 📜 Stats — open stats
   statsBtn.addEventListener("click", () => {
     console.log("📜 Stats overlay");
+    playFairySprinkle();
     updateStatsOverlay();
     showOverlay("overlay-stats");
   });
 
   // ⚙️ Settings — open settings overlay
   settingsBtn.addEventListener("click", () => {
+    playFairySprinkle();
     console.log("⚙️ Settings overlay");
     showOverlay("overlay-settings");
   });
@@ -110,17 +119,20 @@ export function initHub() {
   // 🚪 Exit — confirmation before leaving the hub
   exitBtn.addEventListener("click", () => {
     console.log("🩷 Prompting exit confirmation...");
+    playFairySprinkle();
 
     showConfirm(
       "Are you sure you want to exit to the profile screen?",
       () => {
         console.log("🚪 Exit confirmed — returning to profile...");
+        
         fadeOut(hub, () => {
           showScreen("profile-screen");
         });
       },
       () => {
         console.log("❎ Exit cancelled");
+        
       }
     );
   });

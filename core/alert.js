@@ -2,9 +2,10 @@
 // 🌸 alert.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ Custom pastel alert, confirm, and input modals
-// ✦ Replaces all browser alert/prompt/confirm windows
-// ✦ Fully animated glowing UI consistent with the game style
+// ✦ Plays Fairy Sparkle (OK/Yes) and Cancel SFX (No/Cancel)
 // ============================================================
+
+import { playFairySprinkle, playCancelSound } from "./soundtrack.js";
 
 let modal = null;
 
@@ -45,6 +46,7 @@ export function showAlert(message, callback = null) {
 
   modal.style.display = "flex";
   ok.onclick = () => {
+    playFairySprinkle();
     modal.style.display = "none";
     if (callback) callback();
   };
@@ -70,11 +72,13 @@ export function showConfirm(message, onYes, onNo = null) {
   modal.style.display = "flex";
 
   ok.onclick = () => {
+    playFairySprinkle();
     modal.style.display = "none";
     if (onYes) onYes();
   };
 
   cancel.onclick = () => {
+    playCancelSound();
     modal.style.display = "none";
     if (onNo) onNo();
   };
@@ -105,12 +109,14 @@ export function showInput(message, onSubmit, placeholder = "Type here...") {
   input.focus();
 
   ok.onclick = () => {
+    playFairySprinkle();
     const value = input.value.trim();
     modal.style.display = "none";
     if (value && onSubmit) onSubmit(value);
   };
 
   cancel.onclick = () => {
+    playCancelSound();
     modal.style.display = "none";
   };
 }

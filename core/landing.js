@@ -20,6 +20,7 @@ export function initLanding() {
     landing.removeEventListener("click", handleClick); // prevent multiple triggers
     fadeOut(landing, () => showScreen("profile-screen"));
   };
+  
 
   landing.addEventListener("click", handleClick);
 }
