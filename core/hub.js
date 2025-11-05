@@ -14,7 +14,7 @@ import { setupStoryControls, startIntroStory } from "./story.js";
 import { initChest } from "./chest.js";
 import { showConfirm } from "./alert.js";
 import { updateStatsOverlay } from "./ui.js";
-
+import { initSettingsMenu } from "./ui.js";
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
 // ------------------------------------------------------------
@@ -33,6 +33,7 @@ export function initHub() {
   const exitBtn = document.getElementById("exit-hub-btn");
 
   initChest();
+  initSettingsMenu();
 
   // 🩵 Safety check
   if (

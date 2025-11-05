@@ -5,6 +5,9 @@
    ✦ Pastel crystal aesthetic with glowing sliders and toggles
 ============================================================ */
 
+/* ============================================================
+   🌸 CONTAINER + TITLE
+============================================================ */
 .settings-container {
   width: 700px;
   max-width: 90vw;
@@ -12,18 +15,19 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 20px;
 }
 
 .settings-title {
   font-size: 1.8rem;
   margin-bottom: 30px;
-  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
   font-family: "Princess Sofia", cursive;
   color: #ffffff;
+  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
 }
 
 /* ============================================================
-   🌸 SETTINGS GRID
+   🌈 SETTINGS GRID BOX
 ============================================================ */
 .settings-grid {
   display: flex;
@@ -40,13 +44,13 @@
 }
 
 /* ============================================================
-   🎚️ SETTING ITEM
+   🎚️ SETTING ITEM BASE
 ============================================================ */
 .setting-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #fff;
+  color: #ffffff;
   font-family: "Comic Sans MS", cursive;
   font-size: 1rem;
   text-shadow: 0 0 6px rgba(224, 187, 255, 0.8);
@@ -58,13 +62,14 @@
 }
 
 .setting-item span {
-  width: 60px;
+  width: 70px;
   text-align: right;
   color: #b5e2ff;
+  font-weight: bold;
 }
 
 /* ============================================================
-   🎵 SLIDER STYLES
+   🎵 SLIDERS
 ============================================================ */
 .slider {
   flex: 2;
@@ -75,6 +80,7 @@
   outline: none;
   cursor: pointer;
   margin: 0 15px;
+  transition: all 0.3s ease;
 }
 
 .slider::-webkit-slider-thumb {
@@ -85,15 +91,16 @@
   background: #ffffff;
   border: 2px solid rgba(91, 139, 230, 0.6);
   box-shadow: 0 0 10px rgba(224, 187, 255, 0.8);
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .slider::-webkit-slider-thumb:hover {
   transform: scale(1.15);
+  box-shadow: 0 0 15px rgba(255, 204, 238, 0.9);
 }
 
 /* ============================================================
-   🌈 TOGGLE STYLES
+   🌈 TOGGLE SWITCHES
 ============================================================ */
 .setting-item.toggle input[type="checkbox"] {
   appearance: none;
@@ -105,8 +112,12 @@
   cursor: pointer;
   border: 2px solid rgba(91, 139, 230, 0.6);
   transition: all 0.3s ease;
+  box-shadow:
+    0 0 12px rgba(181, 226, 255, 0.6),
+    inset 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
+/* toggle knob */
 .setting-item.toggle input[type="checkbox"]::before {
   content: "";
   position: absolute;
@@ -114,20 +125,51 @@
   left: 3px;
   width: 18px;
   height: 18px;
-  background: white;
+  background: #ffffff;
   border-radius: 50%;
   transition: all 0.3s ease;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* when enabled */
+.setting-item.toggle input[type="checkbox"]:checked {
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff);
+  box-shadow: 0 0 15px rgba(181, 226, 255, 0.7);
 }
 
 .setting-item.toggle input[type="checkbox"]:checked::before {
   left: 26px;
+  box-shadow: 0 0 10px rgba(255, 189, 227, 0.8);
 }
 
-.setting-item.toggle span {
-  width: 80px;
-  text-align: right;
+/* when disabled (unchecked) */
+.setting-item.toggle input[type="checkbox"]:not(:checked) {
+  background: #5b5b66;
+  border-color: rgba(150, 150, 150, 0.5);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.setting-item.toggle input[type="checkbox"]:not(:checked)::before {
+  background: #d8d8d8;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+/* label text color matches toggle state */
+.setting-item.toggle input[type="checkbox"]:checked ~ span {
   color: #b5e2ff;
-  font-weight: bold;
+  text-shadow: 0 0 6px rgba(140, 213, 255, 0.7);
+}
+
+.setting-item.toggle input[type="checkbox"]:not(:checked) ~ span {
+  color: #999999;
+  text-shadow: none;
+}
+
+/* ============================================================
+   ✨ MAGIC SPARKLES FADE
+============================================================ */
+.magic-sparkle {
+  transition: opacity 0.6s ease;
 }
 
 /* ============================================================

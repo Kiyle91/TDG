@@ -7,8 +7,7 @@
 // ============================================================
 
 import { getCurrencies } from "../utils/gameState.js";
-import { gameState } from "../utils/gameState.js";
-
+import { gameState, saveProfiles } from "../utils/gameState.js";
 
 // ------------------------------------------------------------
 // ⚙️ STATE
@@ -88,6 +87,48 @@ export function updateStatsOverlay() {
 
   titleEl.textContent = `Princess ${gameState.profile.name}`;
 }
+
+
+
+// ============================================================
+// ⚙️ SETTINGS MENU INITIALIZATION
+// ============================================================
+export function initSettingsMenu() {
+  const visualsToggle = document.getElementById("visuals-toggle");
+  const visualsLabel = visualsToggle?.nextElementSibling;
+
+  if (!visualsToggle) return;
+
+  // 🩷 Apply saved preference
+  visualsToggle.checked = gameState.settings.visualEffects;
+  visualsLabel.textContent = visualsToggle.checked ? "Enabled" : "Disabled";
+
+  // 🪄 Apply the state immediately when the menu loads
+  toggleMagicSparkles(gameState.settings.visualEffects);
+
+  // 🎧 When player changes the toggle
+  visualsToggle.addEventListener("change", () => {
+    const enabled = visualsToggle.checked;
+    gameState.settings.visualEffects = enabled;
+    visualsLabel.textContent = enabled ? "Enabled" : "Disabled";
+    saveProfiles();                // persist the choice
+    toggleMagicSparkles(enabled);  // apply immediately
+  });
+}
+
+// ============================================================
+// ✨ MAGIC SPARKLES VISIBILITY
+// ============================================================
+export function toggleMagicSparkles(enabled) {
+  const sparkles = document.querySelectorAll(".magic-sparkle");
+  if (!sparkles.length) return;
+
+  sparkles.forEach((el) => {
+    el.style.opacity = enabled ? "1" : "0";
+    el.style.pointerEvents = enabled ? "auto" : "none";
+  });
+}
+
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================
