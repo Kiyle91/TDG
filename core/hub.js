@@ -12,6 +12,7 @@ import { getCurrencies } from "../utils/gameState.js";
 import { showOverlay } from "./ui.js"; // we’ll use this pattern for overlays later
 import { setupStoryControls, startIntroStory } from "./story.js"; // ✅ add this line
 
+
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
 // ------------------------------------------------------------
@@ -28,6 +29,7 @@ export function initHub() {
   const statsBtn = document.getElementById("stats-btn");
   const settingsBtn = document.getElementById("settings-btn");
   const exitBtn = document.getElementById("exit-hub-btn");
+  updateHubProfile
 
   // 🩵 Safety check
   if (
@@ -118,4 +120,16 @@ export function updateHubCurrencies() {
   const { gold, diamonds } = getCurrencies();
   document.getElementById("hub-gold").textContent = `Gold: ${gold}`;
   document.getElementById("hub-diamonds").textContent = `Diamonds: ${diamonds}`;
+}
+
+import { gameState } from "../utils/gameState.js";
+
+export function updateHubProfile() {
+  const nameEl = document.getElementById("hub-profile-name");
+  const levelEl = document.getElementById("hub-profile-level");
+
+  if (!gameState.player) return;
+
+  nameEl.textContent = gameState.player.name || "Unknown Hero";
+  levelEl.textContent = `Level ${gameState.player.level || 1}`;
 }
