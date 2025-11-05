@@ -7,8 +7,27 @@
 ============================================================ */
 
 /* ============================================================
+   🪄 Disable text selection across the entire game UI
+============================================================ */
+* {
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* Old IE */
+}
+
+/* ============================================================
+   🚫 Prevent image dragging across entire game
+============================================================ */
+img {
+  -webkit-user-drag: none;  /* Safari / Chrome */
+  user-drag: none;          /* Standard (future spec) */
+  pointer-events: none;     /* optional: makes images purely visual */
+}
+
+/* ============================================================
    🌷 GLOBAL RESET & BASE
 ============================================================ */
+
 * {
   margin: 0;
   padding: 0;
@@ -123,6 +142,7 @@ body {
 .glow-magenta {
   box-shadow: 0 0 20px rgba(255, 182, 224, 0.9);
 }
+
 
 /* ============================================================
    🌟 END OF FILE
