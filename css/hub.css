@@ -339,6 +339,150 @@
   }
 }
 
+/* ============================================================
+   📰 HUB NEWS FEED — fixed top-left overlay
+============================================================ */
+#hub-news {
+  position: absolute;
+  top: 30vh;
+  right: 1vw;
+  width: clamp(280px, 22vw, 360px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 0 20px rgba(255, 182, 224, 0.5),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+  padding: 16px 20px;
+  color: #ffffff;
+  animation: newsGlow 6s ease-in-out infinite alternate;
+  z-index: 10;               /* stays above background */
+  text-align: right;
+}
+
+.news-title {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: #ffffff;
+  text-align: right;
+  text-shadow:
+    0 0 8px rgba(91, 139, 230, 0.6),
+    0 0 16px rgba(91, 139, 230, 0.6);
+}
+
+.news-feed {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(91, 139, 230, 0.6) transparent;
+}
+
+.news-feed p {
+  margin-bottom: 8px;
+  line-height: 1.45;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-left: 3px solid rgba(224, 187, 255, 0.6);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+@keyframes newsGlow {
+  0% {
+    box-shadow:
+      0 0 18px rgba(255, 182, 224, 0.4),
+      inset 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    box-shadow:
+      0 0 28px rgba(91, 139, 230, 0.6),
+      inset 0 0 14px rgba(255, 255, 255, 0.5);
+  }
+}
+
+.news-feed::-webkit-scrollbar {
+  width: 5px;
+}
+.news-feed::-webkit-scrollbar-thumb {
+  background-color: rgba(91, 139, 230, 0.6);
+  border-radius: 6px;
+}
+
+/* ============================================================
+   📜 HUB JOURNAL FEED — fixed top-left overlay (mirror)
+============================================================ */
+#hub-news-left {
+  position: absolute;
+  top: 30vh;
+  left: 1vw; /* 👈 mirrored to left side */
+  width: clamp(280px, 22vw, 360px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 0 20px rgba(255, 182, 224, 0.5),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+  padding: 16px 20px;
+  color: #ffffff;
+  animation: newsGlowLeft 6s ease-in-out infinite alternate;
+  z-index: 10;
+  text-align: left;
+}
+
+#hub-news-left .news-title {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: #ffffff;
+  text-align: left;
+  text-shadow:
+    0 0 8px rgba(91, 139, 230, 0.6),
+    0 0 16px rgba(91, 139, 230, 0.6);
+}
+
+#hub-news-left .news-feed {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(91, 139, 230, 0.6) transparent;
+  direction: rtl;              /* visually swaps scrollbar side */
+  text-align: left; 
+}
+
+#hub-news-left .news-feed p {
+  margin-bottom: 8px;
+  line-height: 1.45;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-left: 3px solid rgba(91, 139, 230, 0.6);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+@keyframes newsGlowLeft {
+  0% {
+    box-shadow:
+      0 0 18px rgba(91, 139, 230, 0.4),
+      inset 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    box-shadow:
+      0 0 28px rgba(91, 139, 230, 0.7),
+      inset 0 0 14px rgba(255, 255, 255, 0.5);
+  }
+}
+
+#hub-news-left .news-feed::-webkit-scrollbar {
+  width: 5px;
+}
+#hub-news-left .news-feed::-webkit-scrollbar-thumb {
+  background-color: rgba(91, 139, 230, 0.6);
+  border-radius: 6px;
+}
+
 
 /* ============================================================
    🌟 END OF FILE
