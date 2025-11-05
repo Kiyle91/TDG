@@ -3,7 +3,7 @@
 ============================================================ */
 #daily-chest {
   position: absolute;
-  top: 50%;
+  top: 60%;
   left: 50%;
   transform: translate(-50%, -50%); /* center the container */
   display: flex;
@@ -30,7 +30,8 @@
 }
 
 #daily-chest.disabled #chest-img {
-  filter: grayscale(0.6) brightness(0.7);
+  filter: grayscale(0.9) brightness(0.7);
+  opacity: 0.5;
   cursor: default;
   animation: none;
 }
@@ -43,7 +44,7 @@
   letter-spacing: 0.5px;
 }
 
-/* ✅ Only scale — no translate here */
+
 @keyframes chestPulse {
   0%   { transform: scale(1); }
   100% { transform: scale(1.05); }
