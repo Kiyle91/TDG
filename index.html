@@ -290,20 +290,47 @@
 
       <div id="overlay-stats" class="overlay hidden">
         <div class="overlay-box stats-container">
-          <h3 class="stats-title">Player Stats</h3>
+          <h3 id="stats-title" class="stats-title">Princess Olivia</h3>
 
-          <div class="stats-grid">
-            <div class="stat-item"><strong>Level:</strong> <span id="stat-level">1</span></div>
-            <div class="stat-item"><strong>XP:</strong> <span id="stat-xp">0 / 100</span></div>
-            <div class="stat-item"><strong>HP:</strong> <span id="stat-hp">100 / 100</span></div>
-            <div class="stat-item"><strong>Mana:</strong> <span id="stat-mana">50 / 50</span></div>
-            <div class="stat-item"><strong>Gold:</strong> <span id="stat-gold">0</span></div>
-            <div class="stat-item"><strong>Enemies Defeated:</strong> <span id="stat-kills">0</span></div>
+          <div class="stats-content">
+            <!-- 🌸 Portrait -->
+            <div class="stats-portrait">
+              <img src="./assets/images/portraits/portrait_glitter.png" alt="Glitter Guardian" />
+            </div>
+
+            <!-- 📊 Two-column stat layout -->
+            <div class="stats-table">
+              <div class="stat-row">
+                <span class="stat-label">Level:</span>
+                <span id="stat-level">1</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">XP:</span>
+                <span id="stat-xp">0 / 100</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">HP:</span>
+                <span id="stat-hp">100 / 100</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Mana:</span>
+                <span id="stat-mana">50 / 50</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Gold:</span>
+                <span id="stat-gold">0</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-label">Enemies Defeated:</span>
+                <span id="stat-kills">0</span>
+              </div>
+            </div>
           </div>
 
           <button class="overlay-close">Close</button>
         </div>
       </div>
+
 
 
       <div id="overlay-settings" class="overlay hidden">

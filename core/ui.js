@@ -7,6 +7,8 @@
 // ============================================================
 
 import { getCurrencies } from "../utils/gameState.js";
+import { gameState } from "../utils/gameState.js";
+
 
 // ------------------------------------------------------------
 // ⚙️ STATE
@@ -80,6 +82,12 @@ export function closeOverlay(overlay) {
   setTimeout(() => (overlay.style.display = "none"), 600);
 }
 
+export function updateStatsOverlay() {
+  const titleEl = document.getElementById("stats-title");
+  if (!titleEl || !gameState.profile) return;
+
+  titleEl.textContent = `Princess ${gameState.profile.name}`;
+}
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================

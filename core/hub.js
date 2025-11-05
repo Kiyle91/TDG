@@ -13,6 +13,7 @@ import { showOverlay } from "./ui.js"; // we’ll use this pattern for overlays 
 import { setupStoryControls, startIntroStory } from "./story.js";
 import { initChest } from "./chest.js";
 import { showConfirm } from "./alert.js";
+import { updateStatsOverlay } from "./ui.js";
 
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
@@ -95,6 +96,7 @@ export function initHub() {
   // 📜 Stats — open stats
   statsBtn.addEventListener("click", () => {
     console.log("📜 Stats overlay");
+    updateStatsOverlay();
     showOverlay("overlay-stats");
   });
 
