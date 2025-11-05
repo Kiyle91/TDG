@@ -165,7 +165,7 @@
 
 /* Empty slot style */
 .profile-slot.empty {
-  opacity: 0.6;
+  opacity: 0.3;
   color: #ffffff;
   font-style: italic;
   border: 2px dashed  rgba(91, 139, 230, 0.6);

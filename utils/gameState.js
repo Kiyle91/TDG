@@ -4,6 +4,7 @@
 // ✦ Central global state for the entire game
 // ✦ Tracks active player, profiles, and persistent progress
 // ✦ Integrates Glitter Guardian as the default playable hero
+// ✦ Now supports per-profile gold and diamonds
 // ============================================================
 
 import { createPlayer } from "../core/player.js";
@@ -28,11 +29,6 @@ export const gameState = {
     xp: 0
   },
 
-  currenices: {
-    gold: 0,
-    diamonds: 0,
-  },
-
   // 🎧 Settings
   settings: {
     volume: 0.8,
@@ -48,6 +44,12 @@ export const gameState = {
 export function setProfile(profile) {
   gameState.profile = profile;
   gameState.player = profile.player || createPlayer(); // ✅ sync player on select
+
+  // 💎 Ensure this profile has currencies
+  if (!profile.currencies) {
+    profile.currencies = { gold: 0, diamonds: 0 };
+    saveProfiles();
+  }
 }
 
 export function getProfile() {
@@ -57,13 +59,23 @@ export function getProfile() {
 export function addProfile(name) {
   if (gameState.profiles.length >= 6) return false;
 
+  // 🩷 Prevent duplicate names (case-insensitive)
+  const exists = gameState.profiles.some(
+    (p) => p.name.toLowerCase() === name.toLowerCase()
+  );
+  if (exists) {
+    console.warn(`⚠️ Profile name "${name}" already exists.`);
+    return "duplicate"; // we’ll handle this in profile.js
+  }
+
   const newProfile = {
     id: gameState.profiles.length + 1,
     name,
     created: Date.now(),
-    player: createPlayer(), // ✅ attach Glitter Guardian data
+    player: createPlayer(),
     progress: { ...gameState.progress },
-    resources: { ...gameState.resources }
+    resources: { ...gameState.resources },
+    currencies: { gold: 0, diamonds: 0 }
   };
 
   gameState.profiles.push(newProfile);
@@ -88,6 +100,11 @@ export function loadProfiles() {
     const data = localStorage.getItem("td_profiles");
     if (data) {
       gameState.profiles = JSON.parse(data);
+
+      // 💎 Ensure every existing profile has currencies
+      gameState.profiles.forEach((p) => {
+        if (!p.currencies) p.currencies = { gold: 0, diamonds: 0 };
+      });
     }
   } catch (err) {
     console.error("❌ Error loading profiles:", err);
@@ -120,72 +137,61 @@ export function addXP(amount) {
 }
 
 // ============================================================
-// 💰 CURRENCY CONTROL
+// 💰 CURRENCY CONTROL (Per-Profile, Safe + Persistent)
 // ============================================================
 
-// ⚠️ Note: your key is misspelled as "currenices" above; this will still work.
-const CURRENCY_KEY = "ow_currencies";
-
-export function saveCurrencies() {
-  try {
-    localStorage.setItem(CURRENCY_KEY, JSON.stringify(gameState.currencies || gameState.currenices));
-  } catch (err) {
-    console.error("❌ Error saving currencies:", err);
-  }
-}
-
-export function loadCurrencies() {
-  try {
-    const data = localStorage.getItem(CURRENCY_KEY);
-    if (data) {
-      const parsed = JSON.parse(data);
-      const target = gameState.currencies || gameState.currenices;
-      target.gold = parsed.gold || 0;
-      target.diamonds = parsed.diamonds || 0;
-    }
-  } catch (err) {
-    console.error("❌ Error loading currencies:", err);
-  }
-}
-
 export function addGold(amount) {
-  (gameState.currencies || gameState.currenices).gold += amount;
-  saveCurrencies();
+  if (!gameState.profile) return;
+  if (!gameState.profile.currencies)
+    gameState.profile.currencies = { gold: 0, diamonds: 0 };
+
+  gameState.profile.currencies.gold += amount;
+  saveProfiles();
 }
 
 export function spendGold(amount) {
-  const target = gameState.currencies || gameState.currenices;
-  if (target.gold >= amount) {
-    target.gold -= amount;
-    saveCurrencies();
+  if (!gameState.profile) return false;
+  if (!gameState.profile.currencies)
+    gameState.profile.currencies = { gold: 0, diamonds: 0 };
+
+  const c = gameState.profile.currencies;
+  if (c.gold >= amount) {
+    c.gold -= amount;
+    saveProfiles();
     return true;
   }
   return false;
 }
 
 export function addDiamonds(amount) {
-  (gameState.currencies || gameState.currenices).diamonds += amount;
-  saveCurrencies();
+  if (!gameState.profile) return;
+  if (!gameState.profile.currencies)
+    gameState.profile.currencies = { gold: 0, diamonds: 0 };
+
+  gameState.profile.currencies.diamonds += amount;
+  saveProfiles();
 }
 
 export function spendDiamonds(amount) {
-  const target = gameState.currencies || gameState.currenices;
-  if (target.diamonds >= amount) {
-    target.diamonds -= amount;
-    saveCurrencies();
+  if (!gameState.profile) return false;
+  if (!gameState.profile.currencies)
+    gameState.profile.currencies = { gold: 0, diamonds: 0 };
+
+  const c = gameState.profile.currencies;
+  if (c.diamonds >= amount) {
+    c.diamonds -= amount;
+    saveProfiles();
     return true;
   }
   return false;
 }
 
-// ============================================================
-// 💰 SAFE GETTER (prevents undefined)
-// ============================================================
 export function getCurrencies() {
-  if (!gameState.currencies && !gameState.currenices) {
-    gameState.currenices = { gold: 0, diamonds: 0 };
-  }
-  return { ...(gameState.currencies || gameState.currenices) };
+  if (!gameState.profile) return { gold: 0, diamonds: 0 };
+  if (!gameState.profile.currencies)
+    gameState.profile.currencies = { gold: 0, diamonds: 0 };
+
+  return { ...gameState.profile.currencies };
 }
 
 // ============================================================
@@ -209,7 +215,6 @@ export function toggleSFX(on) {
 // ============================================================
 
 loadProfiles();
-loadCurrencies(); // ✅ auto-load currency data too
 
 // ============================================================
 // 🌟 END OF FILE

@@ -15,14 +15,7 @@
   -ms-user-select: none; /* Old IE */
 }
 
-/* ============================================================
-   🚫 Prevent image dragging across entire game
-============================================================ */
-img {
-  -webkit-user-drag: none;  /* Safari / Chrome */
-  user-drag: none;          /* Standard (future spec) */
-  pointer-events: none;     /* optional: makes images purely visual */
-}
+
 
 /* ============================================================
    🌷 GLOBAL RESET & BASE

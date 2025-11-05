@@ -50,19 +50,35 @@
   100% { transform: scale(1.05); }
 }
 
-/* Sparkles */
+/* ============================================================
+   ✨ Sparkles — Enhanced Burst
+============================================================ */
 .sparkle {
   position: fixed;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
   pointer-events: none;
-  animation: sparkleFly 1s ease-out forwards;
-  opacity: 0.9;
-  z-index: 999;
+  opacity: 0.95;
+  mix-blend-mode: screen;
+  transform: translate(-50%, -50%) scale(1);
+  animation: sparkleFly 1.5s ease-out forwards, sparkleFade 1.5s ease-in forwards;
+  z-index: 9999;
 }
 
 @keyframes sparkleFly {
-  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(calc(var(--x) - 50%), calc(var(--y) - 50%)) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(var(--x) - 50%), calc(var(--y) - 50%)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkleFade {
+  0% { filter: blur(0px); }
+  100% { filter: blur(8px); }
 }

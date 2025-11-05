@@ -5,7 +5,6 @@
 // ✦ Each profile includes its own Glitter Guardian data
 // ✦ Uses custom pastel alert, confirm, and input modals
 // ✦ Handles smooth fade transitions to the hub screen
-// ✦ Integrated with tooltip hover system
 // ============================================================
 
 import {
@@ -18,12 +17,6 @@ import {
 
 import { createPlayer, restorePlayer } from "../core/player.js";
 import { showAlert, showConfirm, showInput } from "../core/alert.js";
-import {
-  attachTooltip,
-  hideTooltip,
-  showFixedTooltip,
-  hideFixedTooltip
-} from "./tooltip.js";
 import { updateHubProfile } from "./hub.js";
 import { updateHubCurrencies } from "./hub.js";
 
@@ -51,8 +44,14 @@ export function initProfiles() {
 
       // ✨ Create new profile and attach a Glitter Guardian
       const profile = addProfile(name);
-      if (!profile) {
+
+      if (profile === false) {
         showAlert("Maximum of 6 profiles reached.");
+        return;
+      }
+
+      if (profile === "duplicate") {
+        showAlert(`A profile named "${name}" already exists!`);
         return;
       }
 
@@ -77,7 +76,7 @@ export function initProfiles() {
       if (!profile) return;
 
       showConfirm(
-        `Are you sure you want to delete "<strong>${profile.name}</strong>"?<br><small>This action cannot be undone.</small>`,
+        `Are you sure you want to DELETE this profile?`,
         () => {
           // ✅ Confirmed delete
           gameState.profiles.splice(index, 1);
@@ -146,16 +145,6 @@ function renderProfileSlots(container) {
     container.appendChild(slot);
   }
 
-  // 💬 Attach bottom-right tooltip to empty slots
-  const emptySlots = container.querySelectorAll(".profile-slot.empty");
-  emptySlots.forEach((slot) => {
-    slot.addEventListener("mouseenter", () => {
-      showFixedTooltip("💖 Create a profile to begin!", 0); // stays until mouse leaves
-    });
-    slot.addEventListener("mouseleave", () => {
-      hideFixedTooltip();
-    });
-  });
 }
 
 // ------------------------------------------------------------
