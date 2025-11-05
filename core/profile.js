@@ -19,6 +19,8 @@ import {
 import { createPlayer, restorePlayer } from "../core/player.js";
 import { showAlert, showConfirm, showInput } from "../core/alert.js";
 import { attachTooltip, hideTooltip } from "./tooltip.js"; // ✅ fixed missing import
+import { updateHubProfile } from "./hub.js";
+import { updateHubCurrencies } from "./hub.js";
 
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
@@ -108,6 +110,7 @@ export function initProfiles() {
       profileScreen.style.display = "none";
       hub.style.display = "flex";
       fadeIn(hub);
+      updateHubProfile();
       updateHubCurrencies();
     }, 800);
   });

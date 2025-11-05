@@ -554,6 +554,28 @@
   opacity: 0.9;
 }
 
+.sparkle {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: sparkleFly 1s ease-out forwards;
+  opacity: 0.9;
+  z-index: 999;
+}
+
+@keyframes sparkleFly {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), var(--y)) scale(0);
+    opacity: 0;
+  }
+}
+
 
 /* ============================================================
    🌟 END OF FILE

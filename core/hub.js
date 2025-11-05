@@ -8,10 +8,10 @@
 
 import { showScreen } from "./screens.js";
 import { startGameplay } from "../main.js";
-import { getCurrencies } from "../utils/gameState.js";
+import { getCurrencies, gameState } from "../utils/gameState.js";
 import { showOverlay } from "./ui.js"; // we’ll use this pattern for overlays later
-import { setupStoryControls, startIntroStory } from "./story.js"; // ✅ add this line
-
+import { setupStoryControls, startIntroStory } from "./story.js";
+import { initChest } from "./chest.js";
 
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
@@ -29,7 +29,8 @@ export function initHub() {
   const statsBtn = document.getElementById("stats-btn");
   const settingsBtn = document.getElementById("settings-btn");
   const exitBtn = document.getElementById("exit-hub-btn");
-  updateHubProfile
+
+  initChest();
 
   // 🩵 Safety check
   if (
@@ -46,13 +47,11 @@ export function initHub() {
   // ------------------------------------------------------------
 
   // 🏰 New Story — start fresh game
-
   newStoryBtn.addEventListener("click", () => {
     console.log("📖 Opening story intro...");
     setupStoryControls();
     startIntroStory();
   });
-
 
   // 💾 Load Game — open save overlay (future overlay system)
   loadGameBtn.addEventListener("click", () => {
@@ -72,7 +71,7 @@ export function initHub() {
     showOverlay("overlay-turrets");
   });
 
-    // 🎨 Skins — open skin selector
+  // 🎨 Skins — open skin selector
   skinsBtn.addEventListener("click", () => {
     console.log("🎨 Skins overlay");
     showOverlay("overlay-skins");
@@ -80,7 +79,7 @@ export function initHub() {
 
   // 📜 Stats — open stats
   statsBtn.addEventListener("click", () => {
-    console.log("📜 stats overlay");
+    console.log("📜 Stats overlay");
     showOverlay("overlay-stats");
   });
 
@@ -114,16 +113,18 @@ function fadeOut(element, callback) {
   }, 800);
 }
 
-
-
+// ------------------------------------------------------------
+// 💰 CURRENCY UPDATE
+// ------------------------------------------------------------
 export function updateHubCurrencies() {
   const { gold, diamonds } = getCurrencies();
   document.getElementById("hub-gold").textContent = `Gold: ${gold}`;
   document.getElementById("hub-diamonds").textContent = `Diamonds: ${diamonds}`;
 }
 
-import { gameState } from "../utils/gameState.js";
-
+// ------------------------------------------------------------
+// 👑 PROFILE UPDATE
+// ------------------------------------------------------------
 export function updateHubProfile() {
   const nameEl = document.getElementById("hub-profile-name");
   const levelEl = document.getElementById("hub-profile-level");
@@ -133,3 +134,7 @@ export function updateHubProfile() {
   nameEl.textContent = gameState.player.name || "Unknown Hero";
   levelEl.textContent = `Level ${gameState.player.level || 1}`;
 }
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

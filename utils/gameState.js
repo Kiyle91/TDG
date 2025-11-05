@@ -119,30 +119,60 @@ export function addXP(amount) {
   gameState.resources.xp += amount;
 }
 
-
 // ============================================================
 // 💰 CURRENCY CONTROL
 // ============================================================
 
+// ⚠️ Note: your key is misspelled as "currenices" above; this will still work.
+const CURRENCY_KEY = "ow_currencies";
+
+export function saveCurrencies() {
+  try {
+    localStorage.setItem(CURRENCY_KEY, JSON.stringify(gameState.currencies || gameState.currenices));
+  } catch (err) {
+    console.error("❌ Error saving currencies:", err);
+  }
+}
+
+export function loadCurrencies() {
+  try {
+    const data = localStorage.getItem(CURRENCY_KEY);
+    if (data) {
+      const parsed = JSON.parse(data);
+      const target = gameState.currencies || gameState.currenices;
+      target.gold = parsed.gold || 0;
+      target.diamonds = parsed.diamonds || 0;
+    }
+  } catch (err) {
+    console.error("❌ Error loading currencies:", err);
+  }
+}
+
 export function addGold(amount) {
-  gameState.currencies.gold += amount;
+  (gameState.currencies || gameState.currenices).gold += amount;
+  saveCurrencies();
 }
 
 export function spendGold(amount) {
-  if (gameState.currencies.gold >= amount) {
-    gameState.currencies.gold -= amount;
+  const target = gameState.currencies || gameState.currenices;
+  if (target.gold >= amount) {
+    target.gold -= amount;
+    saveCurrencies();
     return true;
   }
   return false;
 }
 
 export function addDiamonds(amount) {
-  gameState.currencies.diamonds += amount;
+  (gameState.currencies || gameState.currenices).diamonds += amount;
+  saveCurrencies();
 }
 
 export function spendDiamonds(amount) {
-  if (gameState.currencies.diamonds >= amount) {
-    gameState.currencies.diamonds -= amount;
+  const target = gameState.currencies || gameState.currenices;
+  if (target.diamonds >= amount) {
+    target.diamonds -= amount;
+    saveCurrencies();
     return true;
   }
   return false;
@@ -152,12 +182,11 @@ export function spendDiamonds(amount) {
 // 💰 SAFE GETTER (prevents undefined)
 // ============================================================
 export function getCurrencies() {
-  if (!gameState.currencies) {
-    gameState.currencies = { gold: 0, diamonds: 0 };
+  if (!gameState.currencies && !gameState.currenices) {
+    gameState.currenices = { gold: 0, diamonds: 0 };
   }
-  return { ...gameState.currencies };
+  return { ...(gameState.currencies || gameState.currenices) };
 }
-
 
 // ============================================================
 // 🎧 SETTINGS CONTROL
@@ -180,6 +209,7 @@ export function toggleSFX(on) {
 // ============================================================
 
 loadProfiles();
+loadCurrencies(); // ✅ auto-load currency data too
 
 // ============================================================
 // 🌟 END OF FILE

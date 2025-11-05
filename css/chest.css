@@ -1,0 +1,67 @@
+/* ============================================================
+   🎁 DAILY REWARD CHEST — Center Screen
+============================================================ */
+#daily-chest {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* center the container */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 15;
+}
+
+#chest-img {
+  display: block; /* avoids inline-gap quirks */
+  width: clamp(180px, 22vw, 260px);
+  cursor: pointer;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  filter: drop-shadow(0 0 25px rgba(255, 192, 230, 0.7));
+  animation: chestPulse 4s ease-in-out infinite alternate;
+  transform-origin: center;      /* scale from center */
+  will-change: transform, filter;
+}
+
+#chest-img:hover {
+  transform: scale(1.06);        /* simple hover scale */
+  filter: drop-shadow(0 0 40px rgba(255, 192, 230, 0.9));
+}
+
+#daily-chest.disabled #chest-img {
+  filter: grayscale(0.6) brightness(0.7);
+  cursor: default;
+  animation: none;
+}
+
+#chest-timer {
+  margin-top: 12px;
+  color: #ffffff;
+  font-size: 1.1rem;
+  text-shadow: 0 0 6px rgba(255, 192, 230, 0.6);
+  letter-spacing: 0.5px;
+}
+
+/* ✅ Only scale — no translate here */
+@keyframes chestPulse {
+  0%   { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+/* Sparkles */
+.sparkle {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: sparkleFly 1s ease-out forwards;
+  opacity: 0.9;
+  z-index: 999;
+}
+
+@keyframes sparkleFly {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+}
