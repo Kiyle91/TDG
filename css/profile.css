@@ -80,8 +80,9 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  width: 50vw;
 
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
   border: 2px solid  rgba(91, 139, 230, 0.6);
   border-radius: 20px;
@@ -232,6 +233,31 @@
     0 0 25px rgba(255, 204, 238, 0.9),
     inset 0 0 15px rgba(255, 255, 255, 0.5);
   filter: brightness(1.05);
+}
+
+/* ============================================================
+   💎 PROFILE LOGO
+============================================================ */
+.profile-logo {
+  width: clamp(260px, 40vw, 520px);
+  height: auto;
+  margin-bottom: 40px;
+  transform: scale(1.25);
+  transform-origin: center;
+  filter: drop-shadow(0 0 20px rgba(224, 187, 255, 0.6))
+          drop-shadow(0 0 30px rgba(255, 182, 224, 0.4));
+  animation: logoGlow 6s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow {
+  0% {
+    filter: drop-shadow(0 0 20px rgba(224, 187, 255, 0.6))
+            drop-shadow(0 0 30px rgba(255, 182, 224, 0.4));
+  }
+  100% {
+    filter: drop-shadow(0 0 30px rgba(224, 187, 255, 0.9))
+            drop-shadow(0 0 40px rgba(255, 182, 224, 0.6));
+  }
 }
 
 /* ============================================================

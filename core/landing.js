@@ -2,8 +2,7 @@
 // 🌸 landing.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ Handles landing screen logic and transitions
-// ✦ Uses class-based screen management to prevent overlap
-// ✦ Smooth fade to profile screen when player starts
+// ✦ Now transitions to profile screen on first click anywhere
 // ============================================================
 
 import { showScreen } from "../core/screens.js";
@@ -12,17 +11,17 @@ import { showScreen } from "../core/screens.js";
 // 🌷 INITIALIZATION
 // ------------------------------------------------------------
 export function initLanding() {
-  const startBtn = document.getElementById("start-button");
   const landing = document.getElementById("landing-screen");
 
-  if (!startBtn || !landing) return;
+  if (!landing) return;
 
-  // 🌸 Start Button Logic
-  startBtn.addEventListener("click", () => {
-    startBtn.disabled = true;
-    startBtn.textContent = "Loading...";
+  // 🌸 First click anywhere starts the game
+  const handleClick = () => {
+    landing.removeEventListener("click", handleClick); // prevent multiple triggers
     fadeOut(landing, () => showScreen("profile-screen"));
-  });
+  };
+
+  landing.addEventListener("click", handleClick);
 }
 
 // ------------------------------------------------------------
