@@ -313,7 +313,7 @@
   display: block;
   position: fixed;
   top: 5%;
-  width: 25vw;
+  width: 35vw;
   height: auto; 
   margin: 0 auto 40px auto;      
   filter: drop-shadow(0 0 20px rgba(224, 187, 255, 0.6))
@@ -483,6 +483,38 @@
   border-radius: 6px;
 }
 
+/* ============================================================
+   💰 HUB CURRENCY DISPLAY — top-left overlay
+============================================================ */
+#hub-currencies {
+  position: absolute;
+  top: 5vh;
+  right: 2vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(91, 139, 230, 0.4);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(91, 139, 230, 0.4);
+  box-shadow:
+    0 0 15px rgba(91, 139, 230, 0.4),
+    inset 0 0 8px rgba(255, 255, 255, 0.3);
+  z-index: 12;
+  font-size: 1rem;
+}
+
+#hub-gold::before {
+  content: "💰 ";
+}
+
+#hub-diamonds::before {
+  content: "💎 ";
+}
 
 /* ============================================================
    🌟 END OF FILE

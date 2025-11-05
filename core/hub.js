@@ -8,6 +8,7 @@
 
 import { showScreen } from "./screens.js";
 import { startGameplay } from "../main.js";
+import { getCurrencies } from "../utils/gameState.js";
 import { showOverlay } from "./ui.js"; // we’ll use this pattern for overlays later
 import { setupStoryControls, startIntroStory } from "./story.js"; // ✅ add this line
 
@@ -111,3 +112,10 @@ function fadeOut(element, callback) {
   }, 800);
 }
 
+
+
+export function updateHubCurrencies() {
+  const { gold, diamonds } = getCurrencies();
+  document.getElementById("hub-gold").textContent = `Gold: ${gold}`;
+  document.getElementById("hub-diamonds").textContent = `Diamonds: ${diamonds}`;
+}

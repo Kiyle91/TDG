@@ -25,8 +25,12 @@ export const gameState = {
 
   // 💰 Global resources (for the current play session)
   resources: {
-    money: 0,
     xp: 0
+  },
+
+  currenices: {
+    gold: 0,
+    diamonds: 0,
   },
 
   // 🎧 Settings
@@ -111,13 +115,49 @@ export function setCurrentMap(id) {
 // 💰 RESOURCE CONTROL
 // ============================================================
 
-export function addMoney(amount) {
-  gameState.resources.money += amount;
-}
-
 export function addXP(amount) {
   gameState.resources.xp += amount;
 }
+
+
+// ============================================================
+// 💰 CURRENCY CONTROL
+// ============================================================
+
+export function addGold(amount) {
+  gameState.currencies.gold += amount;
+}
+
+export function spendGold(amount) {
+  if (gameState.currencies.gold >= amount) {
+    gameState.currencies.gold -= amount;
+    return true;
+  }
+  return false;
+}
+
+export function addDiamonds(amount) {
+  gameState.currencies.diamonds += amount;
+}
+
+export function spendDiamonds(amount) {
+  if (gameState.currencies.diamonds >= amount) {
+    gameState.currencies.diamonds -= amount;
+    return true;
+  }
+  return false;
+}
+
+// ============================================================
+// 💰 SAFE GETTER (prevents undefined)
+// ============================================================
+export function getCurrencies() {
+  if (!gameState.currencies) {
+    gameState.currencies = { gold: 0, diamonds: 0 };
+  }
+  return { ...gameState.currencies };
+}
+
 
 // ============================================================
 // 🎧 SETTINGS CONTROL

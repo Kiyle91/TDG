@@ -108,6 +108,7 @@ export function initProfiles() {
       profileScreen.style.display = "none";
       hub.style.display = "flex";
       fadeIn(hub);
+      updateHubCurrencies();
     }, 800);
   });
 }

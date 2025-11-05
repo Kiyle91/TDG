@@ -1,0 +1,29 @@
+#hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 60px;
+  height: 60px;
+  background: linear-gradient(90deg, rgba(140,213,255,0.4), rgba(212,181,255,0.35), rgba(255,189,227,0.4));
+  border-bottom: 2px solid rgba(91,139,230,0.6);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-weight: bold;
+}
+
+#gold-display, #diamond-display {
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255, 182, 224, 0.6);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(224, 187, 255, 0.5);
+  font-weight: 600;
+  color: #fff;
+}
+
+#gold-display::before {
+  content: "💰 ";
+}
+#diamond-display::before {
+  content: "💎 ";
+}

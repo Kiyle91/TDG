@@ -2,19 +2,20 @@
 // 🌸 ui.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ Basic HUD display and stat management
-// ✦ Controls wave, money, and life counters
+// ✦ Controls wave, gold, diamond, and life counters
 // ✦ Updates the in-game UI elements dynamically
 // ============================================================
+
+import { getCurrencies } from "../utils/gameState.js";
 
 // ------------------------------------------------------------
 // ⚙️ STATE
 // ------------------------------------------------------------
-let waveDisplay, moneyDisplay, livesDisplay;
+let waveDisplay, goldDisplay, diamondDisplay, livesDisplay;
 
 let gameStats = {
   wave: 1,
-  money: 100,
-  lives: 10
+  lives: 10,
 };
 
 // ------------------------------------------------------------
@@ -22,7 +23,8 @@ let gameStats = {
 // ------------------------------------------------------------
 export function initUI() {
   waveDisplay = document.getElementById("wave-display");
-  moneyDisplay = document.getElementById("money-display");
+  goldDisplay = document.getElementById("gold-display");
+  diamondDisplay = document.getElementById("diamond-display");
   livesDisplay = document.getElementById("lives-display");
 
   updateHUD();
@@ -32,9 +34,11 @@ export function initUI() {
 // 💖 UPDATE HUD
 // ------------------------------------------------------------
 export function updateHUD() {
+  const { gold, diamonds } = getCurrencies();
   waveDisplay.textContent = `Wave ${gameStats.wave}`;
-  moneyDisplay.textContent = `Money ${gameStats.money}`;
-  livesDisplay.textContent = `Lives ${gameStats.lives}`;
+  goldDisplay.textContent = `Gold: ${gold}`;
+  diamondDisplay.textContent = `Diamonds: ${diamonds}`;
+  livesDisplay.textContent = `Lives: ${gameStats.lives}`;
 }
 
 // ------------------------------------------------------------
@@ -45,9 +49,8 @@ export function getStats() {
 }
 
 // ============================================================
-// 🌸 ui.js — basic overlay helpers
+// 🌸 OVERLAY HELPERS
 // ============================================================
-
 export function showOverlay(id) {
   const overlay = document.getElementById(id);
   if (!overlay) {

@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="./css/skins.css" />
   <link rel="stylesheet" href="./css/settings.css" />
   <link rel="stylesheet" href="./css/tooltip.css" />
+  <link rel="stylesheet" href="./css/hud.css" />
 
 </head>
 
@@ -99,6 +100,11 @@
       <div class="magic-sparkle"></div>
 
       <img src="./assets/images/art/logo.png" alt="Olivia’s World: Crystal Keep Logo" class="hub-logo" />
+
+      <div id="hub-currencies">
+        <span id="hub-gold"> Gold: 0</span>
+        <span id="hub-diamonds"> Diamonds: 0</span>
+      </div>
 
       <!-- 🌸 HUB BUTTONS -->
       <div id="hub-container">
@@ -363,8 +369,9 @@
   <section id="game-container" class="screen" style="display:none;">
     <div id="hud">
       <div id="wave-display">Wave 1</div>
-      <div id="money-display">Money 100</div>
       <div id="lives-display">Lives 10</div>
+      <div id="gold-display">Gold: 0</div>
+      <div id="diamond-display">Diamonds: 0</div>
     </div>
     <canvas id="game-canvas" width="1920" height="1080"></canvas>
   </section>
