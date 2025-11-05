@@ -1,27 +1,34 @@
 /* ============================================================
-   💬 OLIVIA’S WORLD: CRYSTAL KEEP — tooltip.css
-   ------------------------------------------------------------
-   ✦ Soft pastel-glow tooltip box
-   ✦ Fades in/out, consistent with crystal theme
+   💎 FIXED TOOLTIP BOX — Pastel crystal style
 ============================================================ */
-
-.tooltip-box {
+.tooltip-fixed {
   position: fixed;
-  transform: translate(-50%, -50%);
+  bottom: 2vh;
+  right: 2vw;
+  max-width: 320px;
+  padding: 14px 20px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.15);
   border: 2px solid rgba(91, 139, 230, 0.6);
-  border-radius: 16px;
-  color: #ffffff;
+  color: #fff;
   font-family: "Comic Sans MS", cursive;
-  font-size: 1rem;
-  padding: 12px 24px;
+  font-size: 0.95rem;
   box-shadow:
-    0 0 20px rgba(181, 226, 255, 0.7),
+    0 0 20px rgba(181, 226, 255, 0.6),
     inset 0 0 10px rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(8px);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-  z-index: 9999;
   text-shadow: 0 0 6px rgba(224, 187, 255, 0.8);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  z-index: 9998;
+}
+
+.tooltip-fixed.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tooltip-fixed.hidden {
+  display: none;
 }

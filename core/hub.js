@@ -157,7 +157,10 @@ export function updateHubProfile() {
 
   if (!gameState.player) return;
 
-  nameEl.textContent = gameState.player.name || "Unknown Hero";
+  const displayName = gameState.player.name
+    ? `Princess ${gameState.player.name}`
+    : "Princess (Unknown)";
+  nameEl.textContent = displayName;
   levelEl.textContent = `Level ${gameState.player.level || 1}`;
 }
 

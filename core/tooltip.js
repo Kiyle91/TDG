@@ -27,11 +27,15 @@ export function initTooltipSystem() {
   // Track cursor globally for smooth follow
   document.addEventListener("mousemove", (e) => {
     if (!visible) return;
-    const offsetX = -20; // left offset
-    const offsetY = -50; // above cursor
-    tooltipEl.style.left = `${e.pageX + offsetX}px`;
-    tooltipEl.style.top = `${e.pageY + offsetY}px`;
+    const offsetX = 12;
+    const offsetY = -24;
+
+    // 🩵 Use clientX/clientY for fixed-position tracking
+    tooltipEl.style.left = `${e.clientX + offsetX}px`;
+    tooltipEl.style.top = `${e.clientY + offsetY}px`;
   });
+
+
 
   console.log("💫 Tooltip system initialized");
 }
@@ -72,15 +76,48 @@ export function showTooltip(text) {
 
   tooltipEl.textContent = text;
   tooltipEl.style.display = "block";
-  tooltipEl.style.opacity = 1;
+
+  requestAnimationFrame(() => {
+    tooltipEl.style.opacity = 1;
+    tooltipEl.style.transform = "scale(1)";
+  });
+
   visible = true;
 }
 
 export function hideTooltip() {
   if (!tooltipEl) return;
+
   tooltipEl.style.opacity = 0;
+  tooltipEl.style.transform = "scale(0.95)";
+
   visible = false;
   setTimeout(() => {
-    tooltipEl.style.display = "none";
+    if (!visible) tooltipEl.style.display = "none";
   }, 250);
+}
+
+// ============================================================
+// 💎 Fixed Tooltip Box Controls
+// ============================================================
+
+export function showFixedTooltip(text, duration = 4000) {
+  const box = document.getElementById("tooltip-box-fixed");
+  const textEl = document.getElementById("tooltip-fixed-text");
+  if (!box || !textEl) return;
+
+  textEl.textContent = text;
+  box.classList.remove("hidden");
+  requestAnimationFrame(() => box.classList.add("visible"));
+
+  if (duration > 0) {
+    setTimeout(() => hideFixedTooltip(), duration);
+  }
+}
+
+export function hideFixedTooltip() {
+  const box = document.getElementById("tooltip-box-fixed");
+  if (!box) return;
+  box.classList.remove("visible");
+  setTimeout(() => box.classList.add("hidden"), 500);
 }

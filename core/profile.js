@@ -18,7 +18,12 @@ import {
 
 import { createPlayer, restorePlayer } from "../core/player.js";
 import { showAlert, showConfirm, showInput } from "../core/alert.js";
-import { attachTooltip, hideTooltip } from "./tooltip.js"; // ✅ fixed missing import
+import {
+  attachTooltip,
+  hideTooltip,
+  showFixedTooltip,
+  hideFixedTooltip
+} from "./tooltip.js";
 import { updateHubProfile } from "./hub.js";
 import { updateHubCurrencies } from "./hub.js";
 
@@ -59,11 +64,6 @@ export function initProfiles() {
     });
   });
 
-  // ------------------------------------------------------------
-  // 💫 Tooltip hover — delayed, offset, and toggle-aware
-  // ------------------------------------------------------------
-  attachTooltip(createBtn, "✨ Create a new player profile", 700);
-
   console.log("👑 Profile screen initialized");
 
   // ------------------------------------------------------------
@@ -77,8 +77,9 @@ export function initProfiles() {
       if (!profile) return;
 
       showConfirm(
-        `Are you sure you want to delete "${profile.name}"?`,
+        `Are you sure you want to delete "<strong>${profile.name}</strong>"?<br><small>This action cannot be undone.</small>`,
         () => {
+          // ✅ Confirmed delete
           gameState.profiles.splice(index, 1);
           saveProfiles();
           renderProfileSlots(slotsContainer);
@@ -86,7 +87,8 @@ export function initProfiles() {
           console.log(`🗑️ Deleted profile: ${profile.name}`);
         },
         () => {
-          console.log("❎ Deletion cancelled");
+          // ❎ Cancelled delete
+          console.log("❎ Profile deletion cancelled");
         }
       );
       return;
@@ -103,6 +105,7 @@ export function initProfiles() {
     // 🪞 Restore Glitter Guardian for this profile
     setProfile(profile);
     restorePlayer(profile.player);
+    gameState.player.name = profile.name; // 🩵 sync profile name to player
     console.log(`👑 Profile selected: ${profile.name}`);
 
     profileScreen.style.opacity = 0;
@@ -142,6 +145,17 @@ function renderProfileSlots(container) {
 
     container.appendChild(slot);
   }
+
+  // 💬 Attach bottom-right tooltip to empty slots
+  const emptySlots = container.querySelectorAll(".profile-slot.empty");
+  emptySlots.forEach((slot) => {
+    slot.addEventListener("mouseenter", () => {
+      showFixedTooltip("💖 Create a profile to begin!", 0); // stays until mouse leaves
+    });
+    slot.addEventListener("mouseleave", () => {
+      hideFixedTooltip();
+    });
+  });
 }
 
 // ------------------------------------------------------------
