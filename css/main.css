@@ -86,40 +86,7 @@ body {
   display: flex;
 }
 
-/* ============================================================
-   🏰 GAME CONTAINER — 1920×1080 crystal frame
-============================================================ */
-#game-container {
-  position: relative;
-  width: 1920px;
-  height: 1080px;
-  border-radius: 20px;
-  overflow: hidden;
 
-  /* 💠 Soft glowing blue–lilac frame */
-  border: 4px solid rgba(91, 139, 230, 0.8);
-  box-shadow:
-    0 0 30px rgba(181, 226, 255, 0.8),
-    inset 0 0 25px rgba(224, 187, 255, 0.4),
-    0 0 50px rgba(255, 182, 224, 0.5);
-
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-}
-
-/* ============================================================
-   🎨 GAME CANVAS
-============================================================ */
-#game-canvas {
-  width: 100%;
-  height: 100%;
-  border-radius: 20px;
-  border: 2px solid rgba(91, 139, 230, 0.6);
-  background: radial-gradient(circle at center, #f0f8ff 0%, #e0ccff 100%);
-  box-shadow:
-    0 0 40px rgba(181, 226, 255, 0.6),
-    inset 0 0 20px rgba(255, 255, 255, 0.4);
-}
 
 /* ============================================================
    💖 GLOW UTILITY CLASSES (Updated Tones)

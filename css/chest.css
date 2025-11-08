@@ -3,7 +3,7 @@
 ============================================================ */
 #daily-chest {
   position: absolute;
-  top: 60%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%); /* center the container */
   display: flex;
@@ -15,7 +15,7 @@
 
 #chest-img {
   display: block; /* avoids inline-gap quirks */
-  width: clamp(180px, 22vw, 260px);
+  width: clamp(140px, 20vw, 220px);
   cursor: pointer;
   transition: transform 0.3s ease, filter 0.3s ease;
   filter: drop-shadow(0 0 25px rgba(255, 192, 230, 0.7));
@@ -37,9 +37,8 @@
 }
 
 #chest-timer {
-  margin-top: 12px;
   color: #df85da;
-  font-size: 1.35rem;
+  font-size: 1rem;
   text-shadow: 0 0 6px rgba(255, 192, 230, 0.6);
   letter-spacing: 0.5px;
 }

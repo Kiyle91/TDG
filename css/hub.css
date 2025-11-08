@@ -313,7 +313,7 @@
   display: block;
   position: fixed;
   top: 1%;
-  width: 40vw;
+  width: 30vw;
   height: auto; 
   margin: 0 auto 40px auto;      
   filter: drop-shadow(0 0 20px rgba(224, 187, 255, 0.6))
@@ -344,9 +344,9 @@
 ============================================================ */
 #hub-news {
   position: absolute;
-  top: 30vh;
-  right: 2.5vw;
-  width: clamp(280px, 22vw, 360px);
+  top: 20vh;
+  right: 1vw;
+  width: clamp(280px, 22vw, 200px);
   background: rgba(255, 255, 255, 0.05);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 16px;
@@ -415,9 +415,9 @@
 ============================================================ */
 #hub-news-left {
   position: absolute;
-  top: 30vh;
-  left: 2.5vw; /* 👈 mirrored to left side */
-  width: clamp(280px, 22vw, 360px);
+  top: 20vh;
+  left: 1vw; /* 👈 mirrored to left side */
+  width: clamp(280px, 22vw, 200px);
   background: rgba(255, 255, 255, 0.05);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 16px;
@@ -488,8 +488,8 @@
 ============================================================ */
 #hub-currencies {
   position: absolute;
-  top: 15vh;
-  right: 2.5vw;
+  top: 3vh;
+  right: 1vw;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -521,8 +521,8 @@
 ============================================================ */
 #hub-profile {
   position: absolute;
-  top: 15vh;
-  left: 2.5vw;
+  top: 3vh;
+  left: 1vw;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
