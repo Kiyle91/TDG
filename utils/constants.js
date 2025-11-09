@@ -11,7 +11,7 @@
 // ------------------------------------------------------------
 export const TILE_SIZE = 32;
 export const GRID_COLS = 60;
-export const GRID_ROWS = 34;
+export const GRID_ROWS = 35;
 
 // ------------------------------------------------------------
 // ⚔️ GAMEPLAY CONSTANTS
