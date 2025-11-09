@@ -6,8 +6,8 @@
 // ✦ Runs update + render loops in main.js
 // ============================================================
 
-import { drawPath } from "./path.js";
-import { initEnemies, updateEnemies, drawEnemies } from "./enemies.js";
+import { extractPathFromMap, loadMap, drawMap } from "./map.js";
+import { initEnemies, updateEnemies, drawEnemies, setEnemyPath } from "./enemies.js";
 import { initTowers, updateTowers, drawTowers } from "./towers.js";
 import {
   updateProjectiles,
@@ -15,7 +15,6 @@ import {
   initProjectiles
 } from "./projectiles.js";
 import { initUI, updateHUD } from "./ui.js";
-import { loadMap, drawMap, getMapPixelSize } from "./map.js";
 
 // ------------------------------------------------------------
 // ⚙️ STATE
@@ -29,7 +28,12 @@ export async function initGame() {
   canvas = document.getElementById("game-canvas");
   ctx = canvas.getContext("2d");
 
-  await loadMap();  // ✅ works fine now
+  // 🗺️ Load real map from data/map_one.json
+  await loadMap();
+
+  // 🛣️ Extract path points from Tiled "path" layer
+  const pathPoints = extractPathFromMap();
+  setEnemyPath(pathPoints);
 
   // Initialize subsystems
   initEnemies();
@@ -58,7 +62,6 @@ export function renderGame() {
 
   // Layered render order
   drawMap(ctx, 0, 0, canvas.width, canvas.height);
-  drawPath(ctx);
   drawEnemies(ctx);
   drawTowers(ctx);
   drawProjectiles(ctx);

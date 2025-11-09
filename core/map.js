@@ -4,6 +4,7 @@
 // ✦ Loads data/map_one.json
 // ✦ Resolves external .tsx tilesets
 // ✦ Draws visible area for current viewport
+// ✦ Extracts enemy path polyline from Tiled "path" layer
 // ============================================================
 
 import { TILE_SIZE, GRID_COLS, GRID_ROWS } from "../utils/constants.js";
@@ -13,11 +14,18 @@ let layers = [];
 let tilesets = [];
 let mapPixelWidth = GRID_COLS * TILE_SIZE;
 let mapPixelHeight = GRID_ROWS * TILE_SIZE;
+let pathPoints = [];
 
+// ------------------------------------------------------------
+// 🔗 PATH UTILITIES
+// ------------------------------------------------------------
 function resolveRelative(pathFromMap) {
   return pathFromMap.replace(/^..\//, "./");
 }
 
+// ------------------------------------------------------------
+// 📦 LOAD TSX FILE
+// ------------------------------------------------------------
 async function loadTSX(tsxUrl) {
   const res = await fetch(tsxUrl);
   const xml = await res.text();
@@ -38,7 +46,7 @@ async function loadTSX(tsxUrl) {
 }
 
 // ------------------------------------------------------------
-// 🌷 LOAD MAP
+// 🌷 LOAD MAP (JSON)
 // ------------------------------------------------------------
 export async function loadMap() {
   const res = await fetch("./data/map_one.json");
@@ -79,6 +87,9 @@ export async function loadMap() {
   );
 }
 
+// ------------------------------------------------------------
+// 🔍 FIND TILESET FOR GID
+// ------------------------------------------------------------
 function getTilesetForGid(gid) {
   let chosen = null;
   for (const ts of tilesets) {
@@ -94,9 +105,15 @@ export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
   if (!mapData) return;
 
   const startCol = Math.floor(cameraX / TILE_SIZE);
-  const endCol = Math.min(mapData.width - 1, Math.floor((cameraX + viewportWidth) / TILE_SIZE));
+  const endCol = Math.min(
+    mapData.width - 1,
+    Math.floor((cameraX + viewportWidth) / TILE_SIZE)
+  );
   const startRow = Math.floor(cameraY / TILE_SIZE);
-  const endRow = Math.min(mapData.height - 1, Math.floor((cameraY + viewportHeight) / TILE_SIZE));
+  const endRow = Math.min(
+    mapData.height - 1,
+    Math.floor((cameraY + viewportHeight) / TILE_SIZE)
+  );
 
   ctx.imageSmoothingEnabled = false;
 
@@ -120,10 +137,52 @@ export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
         const dx = col * TILE_SIZE - cameraX;
         const dy = row * TILE_SIZE - cameraY;
 
-        ctx.drawImage(ts.image, sx, sy, TILE_SIZE, TILE_SIZE, dx, dy, TILE_SIZE, TILE_SIZE);
+        ctx.drawImage(
+          ts.image,
+          sx,
+          sy,
+          TILE_SIZE,
+          TILE_SIZE,
+          dx,
+          dy,
+          TILE_SIZE,
+          TILE_SIZE
+        );
       }
     }
   }
+}
+
+// ------------------------------------------------------------
+// 🛣️ EXTRACT PATH (Polyline Layer "path")
+// ------------------------------------------------------------
+export function extractPathFromMap() {
+  if (!mapData) {
+    console.warn("⚠️ Map not loaded — cannot extract path");
+    return [];
+  }
+
+  const pathLayer = (mapData.layers || []).find(
+    (l) => l.type === "objectgroup" && l.name.toLowerCase() === "path"
+  );
+  if (!pathLayer) {
+    console.warn("⚠️ No 'path' layer found in map JSON");
+    return [];
+  }
+
+  const obj = pathLayer.objects.find((o) => o.polyline);
+  if (!obj || !obj.polyline) {
+    console.warn("⚠️ No polyline object found in path layer");
+    return [];
+  }
+
+  pathPoints = obj.polyline.map((p) => ({
+    x: obj.x + p.x,
+    y: obj.y + p.y,
+  }));
+
+  console.log(`✅ Extracted ${pathPoints.length} path points from map`);
+  return pathPoints;
 }
 
 // ------------------------------------------------------------
@@ -132,3 +191,14 @@ export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
 export function getMapPixelSize() {
   return { width: mapPixelWidth, height: mapPixelHeight };
 }
+
+// ------------------------------------------------------------
+// 🧭 PATH GETTER
+// ------------------------------------------------------------
+export function getPathPoints() {
+  return pathPoints;
+}
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

@@ -2,18 +2,29 @@
 // 👹 enemies.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ Handles enemy spawning, movement, and drawing
-// ✦ Uses tile-based path data for smooth motion
-// ✦ Integrates with path.js and constants.js
+// ✦ Uses path data extracted from map.js (Tiled polyline layer)
+// ✦ Smooth pixel-perfect motion along route
 // ============================================================
 
-import { pathPoints } from "./path.js";
 import { TILE_SIZE, ENEMY_SPEED } from "../utils/constants.js";
 
 // ------------------------------------------------------------
 // ⚙️ STATE
 // ------------------------------------------------------------
 let enemies = [];
-let ctx = null;
+let path = [];
+
+// ------------------------------------------------------------
+// 🛣️ PATH SETUP
+// ------------------------------------------------------------
+export function setEnemyPath(points) {
+  if (!points || !points.length) {
+    console.warn("⚠️ No path points provided for enemies");
+    return;
+  }
+  path = points;
+  console.log(`👣 Enemy path set with ${path.length} points`);
+}
 
 // ------------------------------------------------------------
 // 🌱 INITIALIZATION
@@ -27,11 +38,17 @@ export function initEnemies() {
 // 💀 SPAWN ENEMY
 // ------------------------------------------------------------
 function spawnEnemy() {
+  if (!path.length) {
+    console.warn("⚠️ Cannot spawn enemy — no path defined");
+    return;
+  }
+
   enemies.push({
-    x: pathPoints[0].x * TILE_SIZE + TILE_SIZE / 2,
-    y: pathPoints[0].y * TILE_SIZE + TILE_SIZE / 2,
+    x: path[0].x,
+    y: path[0].y,
+    speed: ENEMY_SPEED || 80, // pixels per second
     hp: 100,
-    targetIndex: 1
+    targetIndex: 1,
   });
 }
 
@@ -41,27 +58,26 @@ function spawnEnemy() {
 export function updateEnemies(delta) {
   const dt = delta / 1000;
 
-  enemies.forEach((e, index) => {
-    const target = pathPoints[e.targetIndex];
-    if (!target) return; // reached end of path
+  enemies.forEach((e, i) => {
+    const target = path[e.targetIndex];
+    if (!target) return;
 
-    const targetX = target.x * TILE_SIZE + TILE_SIZE / 2;
-    const targetY = target.y * TILE_SIZE + TILE_SIZE / 2;
-    const dx = targetX - e.x;
-    const dy = targetY - e.y;
+    const dx = target.x - e.x;
+    const dy = target.y - e.y;
     const dist = Math.hypot(dx, dy);
 
     if (dist < 2) {
       e.targetIndex++;
-      if (e.targetIndex >= pathPoints.length) {
-        enemies.splice(index, 1);
-        console.log("Enemy reached base");
+      if (e.targetIndex >= path.length) {
+        // enemy reached end
+        enemies.splice(i, 1);
+        console.log("💥 Enemy reached end of path!");
+        return;
       }
-      return;
+    } else {
+      e.x += (dx / dist) * e.speed * dt;
+      e.y += (dy / dist) * e.speed * dt;
     }
-
-    e.x += (dx / dist) * ENEMY_SPEED * dt;
-    e.y += (dy / dist) * ENEMY_SPEED * dt;
   });
 }
 
@@ -72,14 +88,13 @@ export function drawEnemies(ctx) {
   ctx.fillStyle = "#ff80bf"; // 💖 pastel pink enemy base
   enemies.forEach((e) => {
     ctx.beginPath();
-    ctx.arc(e.x, e.y, 14, 0, Math.PI * 2);
+    ctx.arc(e.x, e.y, 12, 0, Math.PI * 2);
     ctx.fill();
 
     // HP bar
     ctx.fillStyle = "#8affc1"; // 🌿 mint green HP
     ctx.fillRect(e.x - 15, e.y - 20, (e.hp / 100) * 30, 4);
 
-    // Reset fill color
     ctx.fillStyle = "#ff80bf";
   });
 }
