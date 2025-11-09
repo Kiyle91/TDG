@@ -153,6 +153,8 @@ export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
   }
 }
 
+
+
 // ------------------------------------------------------------
 // 🛣️ EXTRACT PATH (Polyline Layer "path")
 // ------------------------------------------------------------

@@ -16,6 +16,13 @@ import {
 } from "./projectiles.js";
 import { initUI, updateHUD } from "./ui.js";
 
+// 🆕 Player (additive)
+import {
+  initPlayerController,
+  updatePlayer,
+  drawPlayer
+} from "./playerController.js";
+
 // ------------------------------------------------------------
 // ⚙️ STATE
 // ------------------------------------------------------------
@@ -41,17 +48,23 @@ export async function initGame() {
   initProjectiles();
   initUI();
 
+  // 🆕 Initialize player controller (movable dot)
+  initPlayerController(canvas);
+
   console.log("🌸 Tower Defense initialized successfully");
 }
 
 // ------------------------------------------------------------
-// 🕒 UPDATE LOOP
+// 🔁 UPDATE LOOP
 // ------------------------------------------------------------
 export function updateGame(delta) {
   updateEnemies(delta);
   updateTowers(delta);
   updateProjectiles(delta);
   updateHUD();
+
+  // 🆕 Player update
+  updatePlayer(delta);
 }
 
 // ------------------------------------------------------------
@@ -62,6 +75,10 @@ export function renderGame() {
 
   // Layered render order
   drawMap(ctx, 0, 0, canvas.width, canvas.height);
+
+  // 🆕 Draw player (on top of ground/map, under enemies/towers if desired)
+  drawPlayer(ctx);
+
   drawEnemies(ctx);
   drawTowers(ctx);
   drawProjectiles(ctx);
