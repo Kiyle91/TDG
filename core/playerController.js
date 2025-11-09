@@ -1,11 +1,11 @@
 // ============================================================
-// 🧭 playerController.js — Olivia’s World: Crystal Keep
+// 🧭 playerController.js — Olivia’s World: Crystal Keep (Polished)
 // ------------------------------------------------------------
-// ✦ Glitter sprite with proper WASD directions
-// ✦ Idle when standing still
-// ✦ 2-frame walk per direction (A / D / W / S sets)
-// ✦ Horizontal priority on diagonals (WA→left, DS→right, etc.)
-// ✦ Scales 1024px frames to ~64px on-screen
+// ✦ Smooth, pastel-friendly Glitter Guardian controller
+// ✦ 4-directional movement (WASD / Arrow keys)
+// ✦ High-quality sprite rendering (no pixelation)
+// ✦ Soft shadow & smoother animation timing
+// ✦ Consistent visual polish with enemy rendering
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
@@ -15,30 +15,33 @@ import { gameState } from "../utils/gameState.js";
 // ------------------------------------------------------------
 let canvasRef = null;
 const keys = new Set();
-const DEFAULT_SPEED = 220;
 
-const SPRITE_SIZE = 64;
-const WALK_FRAME_INTERVAL = 150; // ms/frame
+const DEFAULT_SPEED = 220;
+const SPRITE_SIZE = 80;             // slightly larger for detail
+const WALK_FRAME_INTERVAL = 220;    // smoother animation pacing
+const SHADOW_OPACITY = 0.25;        // soft shadow tone
 
 let frameTimer = 0;
-let currentFrame = 0;          // 0 or 1
-let currentDir = "down";       // "up" | "down" | "left" | "right"
+let currentFrame = 0;
+let currentDir = "down";
 let isMoving = false;
 
 // ------------------------------------------------------------
-// 🖼️ SPRITES (WASD mapping)
-//  W = UP, A = LEFT, S = DOWN, D = RIGHT
+// 🖼️ SPRITE SETUP (WASD mapping)
 // ------------------------------------------------------------
 const sprites = {
   idle: null,
   walk: {
-    up:    [null, null],  // W1, W2
-    left:  [null, null],  // A1, A2
-    down:  [null, null],  // S1, S2
-    right: [null, null],  // D1, D2
+    up: [null, null],    // W1, W2
+    left: [null, null],  // A1, A2
+    down: [null, null],  // S1, S2
+    right: [null, null], // D1, D2
   },
 };
 
+// ------------------------------------------------------------
+// 🖼️ LOAD SPRITES
+// ------------------------------------------------------------
 function loadSprite(src) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -50,20 +53,19 @@ function loadSprite(src) {
 async function loadPlayerSprites() {
   sprites.idle = await loadSprite("./assets/images/sprites/glitter/glitter_idle.png");
 
-  // Map filenames to WASD directions (as you specified)
-  sprites.walk.up[0]    = await loadSprite("./assets/images/sprites/glitter/glitter_W1.png");
-  sprites.walk.up[1]    = await loadSprite("./assets/images/sprites/glitter/glitter_W2.png");
+  sprites.walk.up[0] = await loadSprite("./assets/images/sprites/glitter/glitter_W1.png");
+  sprites.walk.up[1] = await loadSprite("./assets/images/sprites/glitter/glitter_W2.png");
 
-  sprites.walk.left[0]  = await loadSprite("./assets/images/sprites/glitter/glitter_A1.png");
-  sprites.walk.left[1]  = await loadSprite("./assets/images/sprites/glitter/glitter_A2.png");
+  sprites.walk.left[0] = await loadSprite("./assets/images/sprites/glitter/glitter_A1.png");
+  sprites.walk.left[1] = await loadSprite("./assets/images/sprites/glitter/glitter_A2.png");
 
-  sprites.walk.down[0]  = await loadSprite("./assets/images/sprites/glitter/glitter_S1.png");
-  sprites.walk.down[1]  = await loadSprite("./assets/images/sprites/glitter/glitter_S2.png");
+  sprites.walk.down[0] = await loadSprite("./assets/images/sprites/glitter/glitter_S1.png");
+  sprites.walk.down[1] = await loadSprite("./assets/images/sprites/glitter/glitter_S2.png");
 
   sprites.walk.right[0] = await loadSprite("./assets/images/sprites/glitter/glitter_D1.png");
   sprites.walk.right[1] = await loadSprite("./assets/images/sprites/glitter/glitter_D2.png");
 
-  console.log("✨ Glitter sprite set loaded (WASD mapped).");
+  console.log("🦄 Glitter sprites loaded (polished version).");
 }
 
 // ------------------------------------------------------------
@@ -89,7 +91,7 @@ function ensurePlayerRuntime() {
 }
 
 // ------------------------------------------------------------
-// 🎛️ INPUT
+// 🎛️ INPUT HANDLING
 // ------------------------------------------------------------
 function onKeyDown(e) { keys.add(e.code); }
 function onKeyUp(e)   { keys.delete(e.code); }
@@ -103,7 +105,7 @@ export async function initPlayerController(canvas) {
   window.addEventListener("keydown", onKeyDown);
   window.addEventListener("keyup", onKeyUp);
   await loadPlayerSprites();
-  console.log("🧭 PlayerController ready (idle + 4-dir walk).");
+  console.log("🧭 PlayerController initialized — pastel smooth mode active.");
 }
 
 // ------------------------------------------------------------
@@ -115,52 +117,43 @@ export function updatePlayer(delta) {
   const dt = Math.max(0, delta) / 1000;
   const speed = p.speed ?? DEFAULT_SPEED;
 
-  // Pressed states
-  const leftPressed  = keys.has("KeyA") || keys.has("ArrowLeft");
-  const rightPressed = keys.has("KeyD") || keys.has("ArrowRight");
-  const upPressed    = keys.has("KeyW") || keys.has("ArrowUp");
-  const downPressed  = keys.has("KeyS") || keys.has("ArrowDown");
+  const left  = keys.has("KeyA") || keys.has("ArrowLeft");
+  const right = keys.has("KeyD") || keys.has("ArrowRight");
+  const up    = keys.has("KeyW") || keys.has("ArrowUp");
+  const down  = keys.has("KeyS") || keys.has("ArrowDown");
 
-  // Velocity
   let dx = 0, dy = 0;
-  if (leftPressed)  dx -= 1;
-  if (rightPressed) dx += 1;
-  if (upPressed)    dy -= 1;
-  if (downPressed)  dy += 1;
+  if (left)  dx -= 1;
+  if (right) dx += 1;
+  if (up)    dy -= 1;
+  if (down)  dy += 1;
 
   isMoving = dx !== 0 || dy !== 0;
 
-  // Normalize diagonals
   if (dx !== 0 && dy !== 0) {
     const inv = 1 / Math.sqrt(2);
     dx *= inv; dy *= inv;
   }
 
-  // Apply motion
   p.pos.x += dx * speed * dt;
   p.pos.y += dy * speed * dt;
 
-  // Direction resolution
-  // — Horizontal priority when both pressed (your rule)
-  if (leftPressed || rightPressed) {
-    if (leftPressed && !rightPressed) currentDir = "left";
-    else if (rightPressed && !leftPressed) currentDir = "right";
-    // if both left+right, keep last currentDir (prevents jitter)
-  } else if (upPressed || downPressed) {
-    currentDir = upPressed ? "up" : "down";
+  // Direction logic with horizontal priority (like before)
+  if (left || right) {
+    if (left && !right) currentDir = "left";
+    else if (right && !left) currentDir = "right";
+  } else if (up || down) {
+    currentDir = up ? "up" : "down";
   }
-  // If nothing pressed, keep last dir (used for idle facing)
 
-  // Clamp within canvas
+  // Clamp to canvas
   if (canvasRef) {
     const r = SPRITE_SIZE / 2;
-    if (p.pos.x < r) p.pos.x = r;
-    if (p.pos.y < r) p.pos.y = r;
-    if (p.pos.x > canvasRef.width - r)  p.pos.x = canvasRef.width - r;
-    if (p.pos.y > canvasRef.height - r) p.pos.y = canvasRef.height - r;
+    p.pos.x = Math.max(r, Math.min(canvasRef.width - r, p.pos.x));
+    p.pos.y = Math.max(r, Math.min(canvasRef.height - r, p.pos.y));
   }
 
-  // Animate
+  // Animation timer
   if (isMoving) {
     frameTimer += delta;
     if (frameTimer >= WALK_FRAME_INTERVAL) {
@@ -174,7 +167,7 @@ export function updatePlayer(delta) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW
+// 🎨 DRAW (Polished pastel rendering)
 // ------------------------------------------------------------
 export function drawPlayer(ctx) {
   if (!ctx) return;
@@ -189,9 +182,28 @@ export function drawPlayer(ctx) {
   const drawY = y - SPRITE_SIZE / 2;
 
   ctx.save();
-  ctx.imageSmoothingEnabled = false;
-  // All frames are already direction-specific; no mirroring needed.
+
+  // 🌫️ Soft oval shadow
+  ctx.beginPath();
+  ctx.ellipse(
+    x,
+    y + SPRITE_SIZE / 2.3,
+    SPRITE_SIZE * 0.35,
+    SPRITE_SIZE * 0.15,
+    0,
+    0,
+    Math.PI * 2
+  );
+  ctx.fillStyle = `rgba(0, 0, 0, ${SHADOW_OPACITY})`;
+  ctx.fill();
+
+  // 🦄 Smooth, pastel-friendly rendering
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+
+  // Draw sprite
   ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, SPRITE_SIZE, SPRITE_SIZE);
+
   ctx.restore();
 }
 
