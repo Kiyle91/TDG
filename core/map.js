@@ -5,6 +5,7 @@
 // ✦ Resolves external .tsx tilesets
 // ✦ Draws visible area for current viewport
 // ✦ Extracts enemy path polyline from Tiled "path" layer
+// ✦ Adds safe drawMapLayered() for layer-specific rendering
 // ============================================================
 
 import { TILE_SIZE, GRID_COLS, GRID_ROWS } from "../utils/constants.js";
@@ -99,7 +100,7 @@ function getTilesetForGid(gid) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW MAP
+// 🎨 DRAW MAP (all layers)
 // ------------------------------------------------------------
 export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
   if (!mapData) return;
@@ -153,8 +154,6 @@ export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
   }
 }
 
-
-
 // ------------------------------------------------------------
 // 🛣️ EXTRACT PATH (Polyline Layer "path")
 // ------------------------------------------------------------
@@ -199,6 +198,75 @@ export function getMapPixelSize() {
 // ------------------------------------------------------------
 export function getPathPoints() {
   return pathPoints;
+}
+
+// ------------------------------------------------------------
+// 🪄 drawMapLayered — NEW additive safe helper
+// ------------------------------------------------------------
+export function drawMapLayered(ctx, group = "all", cameraX = 0, cameraY = 0, viewportWidth = 1920, viewportHeight = 1080) {
+  if (!mapData || !ctx) return;
+
+  const startCol = Math.floor(cameraX / TILE_SIZE);
+  const endCol = Math.min(
+    mapData.width - 1,
+    Math.floor((cameraX + viewportWidth) / TILE_SIZE)
+  );
+  const startRow = Math.floor(cameraY / TILE_SIZE);
+  const endRow = Math.min(
+    mapData.height - 1,
+    Math.floor((cameraY + viewportHeight) / TILE_SIZE)
+  );
+
+  ctx.imageSmoothingEnabled = false;
+
+  // Filter by group keywords
+  let filteredLayers = layers;
+  if (group === "ground") {
+    filteredLayers = layers.filter(l => {
+      const n = l.name.toLowerCase();
+      return n.includes("ground") || n.includes("base") || n.includes("floor");
+    });
+  } else if (group === "trees") {
+    filteredLayers = layers.filter(l => {
+      const n = l.name.toLowerCase();
+      return n.includes("tree") || n.includes("foliage") || n.includes("above");
+    });
+  }
+
+  for (const layer of filteredLayers) {
+    if (!layer.visible || layer.type !== "tilelayer") continue;
+    const data = layer.data;
+    const width = layer.width;
+
+    for (let row = startRow; row <= endRow; row++) {
+      for (let col = startCol; col <= endCol; col++) {
+        const idx = row * width + col;
+        const gid = data[idx];
+        if (!gid) continue;
+
+        const ts = getTilesetForGid(gid);
+        if (!ts) continue;
+
+        const localId = gid - ts.firstgid;
+        const sx = (localId % ts.columns) * TILE_SIZE;
+        const sy = Math.floor(localId / ts.columns) * TILE_SIZE;
+        const dx = col * TILE_SIZE - cameraX;
+        const dy = row * TILE_SIZE - cameraY;
+
+        ctx.drawImage(
+          ts.image,
+          sx,
+          sy,
+          TILE_SIZE,
+          TILE_SIZE,
+          dx,
+          dy,
+          TILE_SIZE,
+          TILE_SIZE
+        );
+      }
+    }
+  }
 }
 
 // ============================================================
