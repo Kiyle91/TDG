@@ -3,6 +3,7 @@
 // ------------------------------------------------------------
 // ✦ Directional goblins with smooth animation + shadows
 // ✦ Auto direction detection + death fadeout
+// ✦ Solid hitboxes for player collision (now slightly LOWER)
 // ✦ High-quality smoothing for pastel visuals
 // ✦ Fully compatible with towers/projectiles systems
 // ============================================================
@@ -17,11 +18,12 @@ let goblinSprites = null;
 // ------------------------------------------------------------
 // ⚙️ CONFIGURATION
 // ------------------------------------------------------------
-const ENEMY_SIZE = 80;          // on-screen size (px)
-const SPEED = 80;               // pixels per second
+const ENEMY_SIZE = 80;           // on-screen render size (px)
+const SPEED = 80;                // movement speed (px/s)
 const WALK_FRAME_INTERVAL = 220; // ms per frame
-const FADE_OUT_TIME = 600;      // ms before removal
+const FADE_OUT_TIME = 600;       // ms before removal
 const DEFAULT_HP = 100;
+const HITBOX_OFFSET_Y = 15;      // pixels to shift hitbox lower (toward feet)
 
 // ------------------------------------------------------------
 // 🧩 LOAD GOBLIN SPRITES
@@ -91,6 +93,8 @@ function spawnEnemy() {
   enemies.push({
     x: pathPoints[0].x,
     y: pathPoints[0].y,
+    width: 42,
+    height: 42,
     hp: DEFAULT_HP,
     targetIndex: 1,
     frameTimer: 0,
@@ -98,6 +102,7 @@ function spawnEnemy() {
     dir: "down",
     alive: true,
     fadeTimer: 0,
+    hitboxOffsetY: HITBOX_OFFSET_Y, // 👣 hitbox lowered slightly
   });
 }
 
@@ -188,7 +193,7 @@ export function drawEnemies(context) {
 
     ctx.save();
 
-    // Soft shadow for grounding
+    // Soft shadow
     ctx.beginPath();
     ctx.ellipse(
       e.x,
@@ -202,11 +207,10 @@ export function drawEnemies(context) {
     ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
     ctx.fill();
 
-    // Smooth pastel sprite rendering
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // Death fade transparency
+    // Fade if dead
     if (!e.alive) {
       const alpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
       ctx.globalAlpha = alpha;
@@ -214,6 +218,15 @@ export function drawEnemies(context) {
 
     // Draw goblin
     ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, ENEMY_SIZE, ENEMY_SIZE);
+
+    // // 🧪 DEBUG: visualize lowered hitbox
+    // ctx.strokeStyle = "rgba(0,255,0,0.6)";
+    // ctx.strokeRect(
+    //   e.x - e.width / 2,
+    //   e.y - e.height / 2 + e.hitboxOffsetY,
+    //   e.width,
+    //   e.height
+    // );
 
     ctx.restore();
   }

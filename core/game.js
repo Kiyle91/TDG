@@ -106,42 +106,40 @@ export function updateGame(delta) {
   updatePlayer(delta);
 }
 
+
 // ============================================================
-// 🎨 RENDER — called each frame from main.js
+// 🎨 RENDER — Corrected Layer Depth
 // ============================================================
 export function renderGame() {
   if (!ctx || !canvas) return;
 
-  // Clear frame
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // ----------------------------------------------------------
-  // LAYER ORDER:
-  // 1) Ground / base
-  // 2) Player (dot) — BETWEEN ground & trees
-  // 3) Trees / foliage (upper tiles)
-  // 4) Enemies / Towers / Projectiles / UI overlays
+  // 🌸 DRAW ORDER:
+  // 1) Ground / base tiles
+  // 2) Entities (player, goblins, towers, projectiles)
+  // 3) Trees / foliage (canopy above entities)
+  // 4) UI overlays (handled separately by HUD/UI systems)
   // ----------------------------------------------------------
 
-  // 1) Ground layers (base terrain)
-  // Uses the additive layered helper; falls back gracefully if no matches.
+  // 1️⃣ Ground / base layer
   drawMapLayered(ctx, "ground");
 
-  // 2) Player dot (under trees)
-  drawPlayer(ctx);
-
-  // 3) Trees / foliage layers (above player)
-  drawMapLayered(ctx, "trees");
-
-  // 4) World entities
+  // 2️⃣ Entities — all on same plane for natural overlap
   drawEnemies(ctx);
+  drawPlayer(ctx);
   drawTowers(ctx);
   drawProjectiles(ctx);
 
-  // If you still want the classic full map draw (all layers), you can keep:
-  // drawMap(ctx, 0, 0, canvas.width, canvas.height);
-  // (Left here for compatibility; not used in the layered flow.)
+  // 3️⃣ Trees / canopy — above entities
+  drawMapLayered(ctx, "trees");
+  
+  
 }
+
+
+
 
 // ============================================================
 // 🌟 END OF FILE

@@ -1,14 +1,16 @@
 // ============================================================
-// 🧭 playerController.js — Olivia’s World: Crystal Keep (Collision-Ready)
+// 🧭 playerController.js — Olivia’s World: Crystal Keep (Goblin Collision)
 // ------------------------------------------------------------
 // ✦ Smooth WASD + animation
 // ✦ Tiled collision via mapCollision (feet rect)
+// ✦ Entity collision vs Goblins (no push)
 // ✦ Soft shadow & high-quality sprite rendering
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
 import { TILE_SIZE } from "../utils/constants.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
+import { getEnemies } from "./enemies.js";
 
 // ------------------------------------------------------------
 let canvasRef = null;
@@ -55,12 +57,12 @@ function ensurePlayerRuntime() {
       gameState.player.speed = statSpeed;
     }
   }
-  // logical body for feet collision (narrower than sprite)
+  // logical body for feet collision
   if (!gameState.player.body) {
-    const bw = SPRITE_SIZE * 0.42;
-    const bh = SPRITE_SIZE * 0.28;
-    const ox = -bw/2;          // centered horizontally
-    const oy = SPRITE_SIZE*0.25; // down from center (feet)
+    const bw = SPRITE_SIZE * 0.55;
+    const bh = SPRITE_SIZE * 0.38;
+    const ox = -bw/2;
+    const oy = SPRITE_SIZE*0.20;
     gameState.player.body = { bw, bh, ox, oy };
   }
 }
@@ -68,6 +70,7 @@ function ensurePlayerRuntime() {
 function onKeyDown(e){ keys.add(e.code); }
 function onKeyUp(e){ keys.delete(e.code); }
 
+// ------------------------------------------------------------
 export async function initPlayerController(canvas) {
   canvasRef = canvas;
   ensurePlayerRuntime();
@@ -77,6 +80,17 @@ export async function initPlayerController(canvas) {
   console.log("🧭 PlayerController initialized.");
 }
 
+// ------------------------------------------------------------
+function rectsOverlap(a,b){
+  return (
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
+  );
+}
+
+// ------------------------------------------------------------
 export function updatePlayer(delta) {
   ensurePlayerRuntime();
   const p = gameState.player;
@@ -100,34 +114,57 @@ export function updatePlayer(delta) {
   const nextX = p.pos.x + dx * speed * dt;
   const nextY = p.pos.y + dy * speed * dt;
 
-  // feet rect in world pixels
   const { bw, bh, ox, oy } = p.body;
   const feetX = nextX + ox;
   const feetY = nextY + oy;
 
+  // ---- Map collision ----
   if (!isRectBlocked(feetX, feetY, bw, bh)) {
     p.pos.x = nextX;
     p.pos.y = nextY;
   }
 
-  // Direction (horizontal priority like you asked)
-  if (left || right) currentDir = left && !right ? "left" : right && !left ? "right" : currentDir;
-  else if (up || down) currentDir = up ? "up" : "down";
+  // ---- Goblin collision ----
+  const playerBox = { x: p.pos.x + ox, y: p.pos.y + oy, width: bw, height: bh };
+  for (const g of getEnemies()) {
+    if (!g.alive) continue;
+    const goblinBox = {
+      x: g.x - g.width / 2,
+      y: g.y - g.height / 2,
+      width: g.width,
+      height: g.height
+    };
+    if (rectsOverlap(playerBox, goblinBox)) {
+      // revert this frame’s movement slightly (soft bump)
+      p.pos.x -= dx * speed * dt * 1.0;
+      p.pos.y -= dy * speed * dt * 1.0;
+      break;
+    }
 
-  // Clamp to canvas
+  }
+
+  // ---- Direction & animation ----
+  if (left || right)
+    currentDir = left && !right ? "left" : right && !left ? "right" : currentDir;
+  else if (up || down)
+    currentDir = up ? "up" : "down";
+
   if (canvasRef) {
     const r = SPRITE_SIZE / 2;
     p.pos.x = Math.max(r, Math.min(canvasRef.width - r, p.pos.x));
     p.pos.y = Math.max(r, Math.min(canvasRef.height - r, p.pos.y));
   }
 
-  // Animation
   if (isMoving) {
     frameTimer += delta;
-    if (frameTimer >= WALK_FRAME_INTERVAL) { frameTimer = 0; currentFrame = (currentFrame + 1) % 2; }
+    if (frameTimer >= WALK_FRAME_INTERVAL) {
+      frameTimer = 0;
+      currentFrame = (currentFrame + 1) % 2;
+    }
   } else { frameTimer = 0; currentFrame = 0; }
 }
 
+// ------------------------------------------------------------
 export function drawPlayer(ctx) {
   if (!ctx) return;
   ensurePlayerRuntime();
@@ -141,7 +178,6 @@ export function drawPlayer(ctx) {
   const drawY = y - SPRITE_SIZE / 2;
 
   ctx.save();
-  // shadow
   ctx.beginPath();
   ctx.ellipse(x, y + SPRITE_SIZE/2.3, SPRITE_SIZE*0.35, SPRITE_SIZE*0.15, 0, 0, Math.PI*2);
   ctx.fillStyle = `rgba(0,0,0,${SHADOW_OPACITY})`;
@@ -151,16 +187,20 @@ export function drawPlayer(ctx) {
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, SPRITE_SIZE, SPRITE_SIZE);
 
-  // // debug feet rect (optional)
-  // const { bw,bh,ox,oy } = gameState.player.body;
-  // ctx.strokeStyle = "red";
-  // ctx.strokeRect(x+ox, y+oy, bw, bh);
-
+  // // debug
+  // ctx.strokeStyle="red"; ctx.strokeRect(x+p.body.ox, y+p.body.oy, p.body.bw, p.body.bh);
   ctx.restore();
+
+  
 }
 
+// ------------------------------------------------------------
 export function destroyPlayerController() {
   window.removeEventListener("keydown", onKeyDown);
   window.removeEventListener("keyup", onKeyUp);
   console.log("🧭 PlayerController destroyed.");
 }
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================
