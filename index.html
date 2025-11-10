@@ -409,11 +409,23 @@
   ============================================================= -->
   <section id="game-container" class="screen" style="display:none;">
     <div id="hud">
-      <div id="wave-display">Wave 1</div>
-      <div id="lives-display">Lives 10</div>
-      <div id="gold-display">Gold: 0</div>
-      <div id="diamond-display">Diamonds: 0</div>
+      
+      <div id="hp-bar" class="bar small">
+        <span id="hp-text" class="bar-text">100 / 100</span>
+      </div>
+
+      <div id="center-stats">
+        <div id="wave-display">Wave 1</div>
+        <div id="lives-display">Lives 10</div>
+        <div id="gold-display">Gold: 0</div>
+        <div id="diamond-display">Diamonds: 0</div>
+      </div>
+
+      <div id="mana-bar" class="bar small">
+        <span id="mana-text" class="bar-text">50 / 50</span>
+      </div>
     </div>
+
     <canvas id="game-canvas" width="1920" height="1080"></canvas>
   </section>
 
