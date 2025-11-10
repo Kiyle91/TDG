@@ -53,11 +53,18 @@ import {
   drawPlayer
 } from "./playerController.js";
 
+import { gameState } from "../utils/gameState.js";
+import { getMapPixelSize } from "./map.js";
 // ------------------------------------------------------------
 // ⚙️ LOCAL STATE
 // ------------------------------------------------------------
 let canvas = null;
 let ctx = null;
+
+
+// 🎥 CAMERA (scroll offset)
+let cameraX = 0;
+let cameraY = 0;
 
 // ============================================================
 // 🌷 INIT — called once when entering the Game screen
@@ -93,10 +100,13 @@ export async function initGame() {
 }
 
 // ============================================================
-// 🔁 UPDATE — called each frame from main.js with `delta` (ms)
+// 🔁 UPDATE — now includes delta clamp for all systems
 // ============================================================
 export function updateGame(delta) {
-  // Update world systems
+  // 🛡️ Prevent warp after alt-tab / pause / throttling
+  delta = Math.min(delta, 100);
+
+  // Update world systems (safe timing)
   updateEnemies(delta);
   updateTowers(delta);
   updateProjectiles(delta);
@@ -104,7 +114,19 @@ export function updateGame(delta) {
 
   // Update player movement (WASD/Arrow keys with delta timing)
   updatePlayer(delta);
+
+  // 🎥 CAMERA FOLLOW (center on player)
+  const px = gameState.player?.pos?.x ?? 0;
+  const py = gameState.player?.pos?.y ?? 0;
+  cameraX = Math.floor(px - canvas.width / 2);
+  cameraY = Math.floor(py - canvas.height / 2);
+
+  // Clamp to map bounds
+  const { width: mapW, height: mapH } = getMapPixelSize();
+  cameraX = Math.max(0, Math.min(mapW - canvas.width, cameraX));
+  cameraY = Math.max(0, Math.min(mapH - canvas.height, cameraY));
 }
+
 
 
 // ============================================================
