@@ -66,7 +66,7 @@ export function addProfile(name) {
   );
   if (exists) {
     console.warn(`⚠️ Profile name "${name}" already exists.`);
-    return "duplicate"; // we’ll handle this in profile.js
+    return "duplicate";
   }
 
   const newProfile = {
@@ -101,8 +101,6 @@ export function loadProfiles() {
     const data = localStorage.getItem("td_profiles");
     if (data) {
       gameState.profiles = JSON.parse(data);
-
-      // 💎 Ensure every existing profile has currencies
       gameState.profiles.forEach((p) => {
         if (!p.currencies) p.currencies = { gold: 0, diamonds: 0 };
       });

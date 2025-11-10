@@ -1,10 +1,11 @@
 // ============================================================
-// 🧭 playerController.js — Olivia’s World: Crystal Keep (Goblin Collision)
+// 🧭 playerController.js — Olivia’s World: Crystal Keep (Goblin Collision + Sync)
 // ------------------------------------------------------------
 // ✦ Smooth WASD + animation
 // ✦ Tiled collision via mapCollision (feet rect)
 // ✦ Entity collision vs Goblins (no push)
 // ✦ Soft shadow & high-quality sprite rendering
+// ✦ Syncs position into gameState.player.x/y for AI + enemy logic
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
@@ -140,7 +141,6 @@ export function updatePlayer(delta) {
       p.pos.y -= dy * speed * dt * 1.0;
       break;
     }
-
   }
 
   // ---- Direction & animation ----
@@ -162,6 +162,14 @@ export function updatePlayer(delta) {
       currentFrame = (currentFrame + 1) % 2;
     }
   } else { frameTimer = 0; currentFrame = 0; }
+
+  // ------------------------------------------------------------
+  // 🧭 Sync player global coordinates for AI + systems
+  // ------------------------------------------------------------
+  if (gameState.player) {
+    gameState.player.x = p.pos.x;
+    gameState.player.y = p.pos.y;
+  }
 }
 
 // ------------------------------------------------------------
@@ -190,8 +198,6 @@ export function drawPlayer(ctx) {
   // // debug
   // ctx.strokeStyle="red"; ctx.strokeRect(x+p.body.ox, y+p.body.oy, p.body.bw, p.body.bh);
   ctx.restore();
-
-  
 }
 
 // ------------------------------------------------------------
