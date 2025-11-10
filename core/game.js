@@ -184,8 +184,15 @@ function checkVictoryDefeat() {
 // ============================================================
 export function resetCombatState() {
   goblinsDefeated = 0;
-  // Re-run the game init that clears enemies/towers/projectiles,
-  // sets up player controller, HUD, etc.
+
+  // Reset player position + HP/lives for fresh spawn
+  if (gameState.player) {
+    gameState.player.pos = { x: 100, y: 100 }; // or your normal spawn coords
+    gameState.player.hp = gameState.player.maxHp ?? 100;
+    gameState.player.lives = 10;
+  }
+
+  // Re-run full combat init
   initGame();
 }
 

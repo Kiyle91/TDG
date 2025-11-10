@@ -1,10 +1,10 @@
 // ============================================================
-// 🌸 main.js — Olivia’s World: Crystal Keep
+// 🌸 main.js — Olivia’s World: Crystal Keep (FINAL BUILD)
 // ------------------------------------------------------------
-// ✦ Entry point and main control flow
-// ✦ Start/stop gameplay loop
-// ✦ Themed end screen with Try Again / Return to Hub
-// ✦ "Try Again" resets combat state but keeps gold/diamonds
+// ✦ Entry point and master control flow
+// ✦ Manages gameplay loop, overlays, resets, and hub transitions
+// ✦ "Try Again" = fresh battle (keeps gold/diamonds)
+// ✦ "Return to Hub" = smooth transition via screen manager
 // ============================================================
 
 import { initGame, updateGame, renderGame, resetCombatState } from "./core/game.js";
@@ -28,20 +28,18 @@ export let gameActive = false; // exported so core/game.js can stop loop
 // 🕒 GAME LOOP
 // ------------------------------------------------------------
 function gameLoop(timestamp) {
-  if (!gameActive) return; // ⛔ stop updating if stopped externally
-
+  if (!gameActive) return;
   const delta = timestamp - lastTime;
   if (delta >= FRAME_DURATION) {
     updateGame(delta);
     renderGame();
     lastTime = timestamp;
   }
-
   requestAnimationFrame(gameLoop);
 }
 
 // ------------------------------------------------------------
-// 🎬 START GAMEPLAY LOOP (called when player begins game)
+// 🎬 START GAMEPLAY LOOP
 // ------------------------------------------------------------
 export function startGameplay() {
   if (gameActive) return;
@@ -52,7 +50,7 @@ export function startGameplay() {
 }
 
 // ------------------------------------------------------------
-// 🛑 STOP GAMEPLAY LOOP (called on victory/defeat)
+// 🛑 STOP GAMEPLAY LOOP
 // ------------------------------------------------------------
 export function stopGameplay(reason = "unknown") {
   if (!gameActive) return;
@@ -63,46 +61,44 @@ export function stopGameplay(reason = "unknown") {
 
 // ------------------------------------------------------------
 // 🔁 RESET GAMEPLAY STATE (Try Again)
-// ✦ Keeps currencies (gold/diamonds)
-// ✦ Resets HP, lives, wave, enemies, counters
 // ------------------------------------------------------------
 function resetGameplay() {
   console.log("🔄 Restarting combat loop (fresh battle, keep currency).");
 
-  // Preserve currencies
+  // Preserve player currencies
   const savedGold = gameState.player?.gold ?? 0;
   const savedDiamonds = gameState.player?.diamonds ?? 0;
 
-  // Reset core player/battle stats
+  // Ensure player object exists
   if (!gameState.player) gameState.player = {};
+
+  // Reset key stats
   gameState.player.hp = gameState.player.maxHp ?? 100;
   gameState.player.lives = 10;
   gameState.player.wave = 1;
   gameState.player.gold = savedGold;
   gameState.player.diamonds = savedDiamonds;
 
-  // Remove overlay
+  // Reset player position (adjust to your normal map spawn)
+  gameState.player.pos = { x: 160, y: 160 };
+
+  // Remove overlay and re-init battle systems
   document.getElementById("end-screen")?.remove();
-
-  // Reset combat subsystems (enemies/towers/projectiles, counters, etc.)
   resetCombatState();
-
-  // Resume loop
   startGameplay();
+
   console.log("🌸 New battle started!");
 }
 
 // ------------------------------------------------------------
-// 🖼️ THEMED END SCREEN (Pastel, darkened backdrop)
+// 🖼️ THEMED END SCREEN (Pastel Dark Overlay)
 // ------------------------------------------------------------
 function showEndScreen(reason) {
-  // Darkened backdrop
   const overlay = document.createElement("div");
   overlay.id = "end-screen";
   overlay.className = "end-overlay";
   document.body.appendChild(overlay);
 
-  // Crystal panel
   const panel = document.createElement("div");
   panel.className = "end-panel";
   overlay.appendChild(panel);
@@ -133,22 +129,29 @@ function showEndScreen(reason) {
       subtitle.textContent = "";
   }
 
-  // Buttons
+  // 🔁 Try Again Button
   const retryBtn = document.createElement("button");
   retryBtn.textContent = reason === "victory" ? "Continue" : "Try Again";
   retryBtn.onclick = resetGameplay;
 
+  // 🏰 Return to Hub Button — uses screen manager
   const hubBtn = document.createElement("button");
   hubBtn.textContent = "Return to Hub";
   hubBtn.onclick = () => {
     document.getElementById("end-screen")?.remove();
-    showScreen("hub"); // your in-game hub screen
+    try {
+      showScreen("hub-screen"); // ✅ use full id per your screens.js
+      initHub();                // re-bind hub UI/buttons
+      console.log("🏰 Returned to Hub via screen manager (hub-screen).");
+    } catch (err) {
+      console.error("⚠️ Hub load failed:", err);
+    }
   };
 
   buttons.append(retryBtn, hubBtn);
   panel.append(title, subtitle, buttons);
 
-  // Soft fade-in
+  // Fade-in effect
   requestAnimationFrame(() => overlay.classList.add("visible"));
 }
 
@@ -162,7 +165,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initHub();
   initGame();
   initSparkles();
-  initMusic();
   initSettings();
   initTooltipSystem();
   console.log("🌸 Olivia’s World loaded — menu systems active");
