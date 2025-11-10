@@ -1,5 +1,5 @@
 // ============================================================
-// 👹 enemies.js — Olivia’s World: Crystal Keep (Full Logic Build)
+// 👹 enemies.js — Olivia’s World: Crystal Keep (Global Sync Fix)
 // ------------------------------------------------------------
 // ✦ Directional goblins with smooth animation + shadows
 // ✦ Chase / attack player with proximity AI
@@ -7,6 +7,7 @@
 // ✦ Health bars + color gradient, fade on death
 // ✦ Despawn + life loss when goblins reach the path end
 // ✦ Victory system integration (goblin kill counter)
+// ✦ FIX: Exposes shared global enemy array so player attacks work
 // ============================================================
 
 import { TILE_SIZE } from "../utils/constants.js";
@@ -19,14 +20,17 @@ let ctx = null;
 let pathPoints = [];
 let goblinSprites = null;
 
+// ✅ Global shared array so player + towers use same instance
+window.__enemies = enemies;
+
 // ------------------------------------------------------------
 // ⚙️ CONFIGURATION
 // ------------------------------------------------------------
 const ENEMY_SIZE = 80;
 const SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
-const FADE_OUT_TIME = 900;     // ms before removal after death
-const DEFAULT_HP = 200;
+const FADE_OUT_TIME = 900;
+const DEFAULT_HP = 50;
 const HITBOX_OFFSET_Y = 15;
 
 // 🧠 AI + Combat
@@ -37,7 +41,7 @@ const ATTACK_COOLDOWN = 1000;
 const GOBLIN_DAMAGE = 10;
 
 // 💀 Death handling
-const DEATH_LAY_DURATION = 600; // how long they lie slain before fade starts
+const DEATH_LAY_DURATION = 600;
 
 // ------------------------------------------------------------
 // 🧩 LOAD GOBLIN SPRITES
@@ -89,6 +93,7 @@ export function setEnemyPath(points) {
 // ------------------------------------------------------------
 export async function initEnemies() {
   enemies = [];
+  window.__enemies = enemies; // 🔄 keep global reference live
   await loadGoblinSprites();
   spawnEnemy();
 }
@@ -122,6 +127,8 @@ function spawnEnemy() {
     attackCooldown: 0,
     returnTimer: 0,
   });
+
+  window.__enemies = enemies; // 🧩 refresh global pointer
 }
 
 // ------------------------------------------------------------
@@ -141,26 +148,18 @@ export function updateEnemies(delta) {
       // death fade progression
       if (!e.fading) {
         e.deathTimer += delta;
-        if (e.deathTimer >= DEATH_LAY_DURATION) {
-          e.fading = true;
-        }
-      } else {
-        e.fadeTimer += delta;
-      }
+        if (e.deathTimer >= DEATH_LAY_DURATION) e.fading = true;
+      } else e.fadeTimer += delta;
       continue;
     }
 
-    // Standard AI
     const dxp = px - e.x;
     const dyp = py - e.y;
     const distToPlayer = Math.sqrt(dxp * dxp + dyp * dyp);
 
-    // Aggro
-    if (distToPlayer < AGGRO_RANGE && e.state === "path") {
-      e.state = "chase";
-    }
+    // Aggro + AI
+    if (distToPlayer < AGGRO_RANGE && e.state === "path") e.state = "chase";
 
-    // Chase / Attack
     if (e.state === "chase") {
       if (distToPlayer > AGGRO_RANGE * 1.5) {
         e.state = "return";
@@ -205,16 +204,19 @@ export function updateEnemies(delta) {
       const dx = target.x - e.x;
       const dy = target.y - e.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      e.dir = Math.abs(dx) > Math.abs(dy)
-        ? (dx > 0 ? "right" : "left")
-        : dy > 0 ? "down" : "up";
+      e.dir =
+        Math.abs(dx) > Math.abs(dy)
+          ? dx > 0
+            ? "right"
+            : "left"
+          : dy > 0
+          ? "down"
+          : "up";
       if (dist > 1) {
         e.x += (dx / dist) * SPEED * dt;
         e.y += (dy / dist) * SPEED * dt;
       } else {
         e.targetIndex++;
-
-        // ✅ Goblin reached end of path → despawn + life loss
         if (e.targetIndex >= pathPoints.length) {
           console.log("⚠️ Goblin reached the end!");
           handleGoblinEscape(e);
@@ -223,7 +225,6 @@ export function updateEnemies(delta) {
       }
     }
 
-    // Animation frame timer
     e.frameTimer += delta;
     if (e.frameTimer >= WALK_FRAME_INTERVAL) {
       e.frameTimer = 0;
@@ -231,23 +232,27 @@ export function updateEnemies(delta) {
     }
   }
 
-  // Remove fully faded
+  // Remove fully faded + respawn
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
     if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) {
-      // 🎁 Reward hook (future XP/gold)
       enemies.splice(i, 1);
       spawnEnemy();
     }
   }
+
+  window.__enemies = enemies; // 🔄 sync global reference
 }
 
 // ------------------------------------------------------------
 // 🎯 DAMAGE HANDLING + DEATH TRIGGER
 // ------------------------------------------------------------
 export function damageEnemy(enemy, amount) {
-  if (!enemy.alive) return;
+  if (!enemy || !enemy.alive) return;
+
   enemy.hp -= amount;
+  console.log(`🩸 Goblin hit for ${amount}. HP now ${enemy.hp}/${enemy.maxHp}`);
+
   if (enemy.hp <= 0) {
     enemy.hp = 0;
     enemy.alive = false;
@@ -255,15 +260,34 @@ export function damageEnemy(enemy, amount) {
     enemy.fading = false;
     enemy.fadeTimer = 0;
     console.log("💀 Goblin slain!");
-    incrementGoblinDefeated(); // 🏆 Count toward victory
+    incrementGoblinDefeated();
+
+    const s = document.createElement("div");
+    s.className = "magic-particle";
+    s.style.position = "absolute";
+    s.style.left = `${enemy.x}px`;
+    s.style.top = `${enemy.y}px`;
+    s.style.width = "8px";
+    s.style.height = "8px";
+    s.style.background = "white";
+    s.style.borderRadius = "50%";
+    s.style.opacity = "0.8";
+    document.body.appendChild(s);
+    s.animate(
+      [
+        { transform: "scale(1)", opacity: 0.8 },
+        { transform: "scale(2)", opacity: 0 },
+      ],
+      { duration: 500, easing: "ease-out" }
+    );
+    setTimeout(() => s.remove(), 600);
   }
 }
 
 // ------------------------------------------------------------
-// 💔 HANDLE ESCAPE — Goblin reaches end of path
+// 💔 HANDLE ESCAPE
 // ------------------------------------------------------------
 function handleGoblinEscape(enemy) {
-  // Remove 1 life from player/base
   if (gameState.player) {
     if (gameState.player.lives === undefined) gameState.player.lives = 10;
     gameState.player.lives = Math.max(0, gameState.player.lives - 1);
@@ -271,10 +295,9 @@ function handleGoblinEscape(enemy) {
     console.log(`💔 Goblin escaped! Lives left: ${gameState.player.lives}`);
   }
 
-  // Despawn this goblin immediately
   enemy.alive = false;
   enemy.hp = 0;
-  enemy.fadeTimer = FADE_OUT_TIME; // skip animation
+  enemy.fadeTimer = FADE_OUT_TIME;
 }
 
 // ------------------------------------------------------------
@@ -316,7 +339,6 @@ export function drawEnemies(context) {
 
     ctx.save();
 
-    // Shadow
     ctx.beginPath();
     ctx.ellipse(
       e.x,
@@ -333,7 +355,6 @@ export function drawEnemies(context) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // Fade effect
     if (!e.alive && e.fading) {
       const alpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
       ctx.globalAlpha = alpha;
@@ -354,11 +375,16 @@ function getEnemySprite(e) {
   if (!goblinSprites) return null;
   if (!e.alive) return goblinSprites.slain;
   switch (e.dir) {
-    case "up": return goblinSprites.walk.up[e.frame];
-    case "down": return goblinSprites.walk.down[e.frame];
-    case "left": return goblinSprites.walk.left[e.frame];
-    case "right": return goblinSprites.walk.right[e.frame];
-    default: return goblinSprites.idle;
+    case "up":
+      return goblinSprites.walk.up[e.frame];
+    case "down":
+      return goblinSprites.walk.down[e.frame];
+    case "left":
+      return goblinSprites.walk.left[e.frame];
+    case "right":
+      return goblinSprites.walk.right[e.frame];
+    default:
+      return goblinSprites.idle;
   }
 }
 
