@@ -1,10 +1,8 @@
 // ============================================================
-// 🌸 main.js — Olivia’s World: Crystal Keep (FINAL BUILD)
+// 🌸 main.js — Olivia’s World: Crystal Keep (CLEAN RESTART FIX)
 // ------------------------------------------------------------
 // ✦ Entry point and master control flow
-// ✦ Manages gameplay loop, overlays, resets, and hub transitions
-// ✦ "Try Again" = fresh battle (keeps gold/diamonds)
-// ✦ "Return to Hub" = smooth transition via screen manager
+// ✦ Ensures overlays are cleared on every new game
 // ============================================================
 
 import { initGame, updateGame, renderGame, resetCombatState } from "./core/game.js";
@@ -22,7 +20,7 @@ let lastTime = 0;
 const FPS = 60;
 const FRAME_DURATION = 1000 / FPS;
 
-export let gameActive = false; // exported so core/game.js can stop loop
+export let gameActive = false;
 
 // ------------------------------------------------------------
 // 🕒 GAME LOOP
@@ -42,6 +40,13 @@ function gameLoop(timestamp) {
 // 🎬 START GAMEPLAY LOOP
 // ------------------------------------------------------------
 export function startGameplay() {
+  // 💡 NEW: clear any lingering overlays (defeat/victory)
+  const oldOverlay = document.getElementById("end-screen");
+  if (oldOverlay) {
+    oldOverlay.remove();
+    console.log("🧹 Cleared leftover end-screen overlay before starting new game.");
+  }
+
   if (gameActive) return;
   gameActive = true;
   lastTime = performance.now();
@@ -65,33 +70,30 @@ export function stopGameplay(reason = "unknown") {
 function resetGameplay() {
   console.log("🔄 Restarting combat loop (fresh battle, keep currency).");
 
-  // Preserve player currencies
   const savedGold = gameState.player?.gold ?? 0;
   const savedDiamonds = gameState.player?.diamonds ?? 0;
 
-  // Ensure player object exists
   if (!gameState.player) gameState.player = {};
 
-  // Reset key stats
   gameState.player.hp = gameState.player.maxHp ?? 100;
   gameState.player.lives = 10;
   gameState.player.wave = 1;
   gameState.player.gold = savedGold;
   gameState.player.diamonds = savedDiamonds;
 
-  // Reset player position (adjust to your normal map spawn)
+  // Reset player position (adjust for map spawn)
   gameState.player.pos = { x: 160, y: 160 };
 
-  // Remove overlay and re-init battle systems
+  // Remove overlay before resetting combat
   document.getElementById("end-screen")?.remove();
+
   resetCombatState();
   startGameplay();
-
   console.log("🌸 New battle started!");
 }
 
 // ------------------------------------------------------------
-// 🖼️ THEMED END SCREEN (Pastel Dark Overlay)
+// 🖼️ THEMED END SCREEN
 // ------------------------------------------------------------
 function showEndScreen(reason) {
   const overlay = document.createElement("div");
@@ -129,19 +131,19 @@ function showEndScreen(reason) {
       subtitle.textContent = "";
   }
 
-  // 🔁 Try Again Button
+  // 🔁 Try Again
   const retryBtn = document.createElement("button");
   retryBtn.textContent = reason === "victory" ? "Continue" : "Try Again";
   retryBtn.onclick = resetGameplay;
 
-  // 🏰 Return to Hub Button — uses screen manager
+  // 🏰 Return to Hub (screen manager)
   const hubBtn = document.createElement("button");
   hubBtn.textContent = "Return to Hub";
   hubBtn.onclick = () => {
     document.getElementById("end-screen")?.remove();
     try {
-      showScreen("hub-screen"); // ✅ use full id per your screens.js
-      initHub();                // re-bind hub UI/buttons
+      showScreen("hub-screen"); // ✅ use full id per screens.js
+      initHub();
       console.log("🏰 Returned to Hub via screen manager (hub-screen).");
     } catch (err) {
       console.error("⚠️ Hub load failed:", err);
@@ -150,8 +152,6 @@ function showEndScreen(reason) {
 
   buttons.append(retryBtn, hubBtn);
   panel.append(title, subtitle, buttons);
-
-  // Fade-in effect
   requestAnimationFrame(() => overlay.classList.add("visible"));
 }
 
