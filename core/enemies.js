@@ -23,7 +23,7 @@ let goblinSprites = null;
 // ⚙️ CONFIGURATION
 // ------------------------------------------------------------
 const ENEMY_SIZE = 80;
-const SPEED = 240;
+const SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;     // ms before removal after death
 const DEFAULT_HP = 200;

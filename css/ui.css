@@ -75,3 +75,67 @@
 /* Brighter gradients (per your request) */
 #hp-bar::before   { background: linear-gradient(90deg, #ff3164, #ff94d2); }
 #mana-bar::before { background: linear-gradient(90deg, #33aaff, #99e0ff); }
+
+
+/* ============================================================
+   🩷 END SCREEN OVERLAY — Olivia’s World Pastel Theme
+   ============================================================ */
+.end-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(25, 15, 35, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+  z-index: 9999;
+}
+.end-overlay.visible { opacity: 1; }
+
+.end-panel {
+  background: linear-gradient(145deg, #ffe6f9, #d6c6ff, #b5e2ff);
+  background-size: 400% 400%;
+  animation: panelGlow 10s ease infinite;
+  border: 2px solid rgba(255,255,255,0.8);
+  box-shadow: 0 0 30px rgba(255,255,255,0.4);
+  border-radius: 20px;
+  padding: 40px 60px;
+  text-align: center;
+  color: #5b338c;
+  max-width: 600px;
+  font-family: "Princess Sofia", cursive;
+}
+.end-panel h1 {
+  font-size: 2.4rem;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 10px rgba(255,255,255,0.8);
+}
+.end-panel p {
+  font-size: 1.3rem;
+  margin-bottom: 2rem;
+  color: #4b2b6f;
+}
+.end-buttons button {
+  font-family: "Comic Sans MS", cursive;
+  background: linear-gradient(90deg, #ffb3e6, #b3d8ff);
+  border: none;
+  border-radius: 12px;
+  padding: 10px 22px;
+  margin: 0 8px;
+  font-size: 1.1rem;
+  color: #4a2b6d;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+.end-buttons button:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 12px rgba(255,255,255,0.6);
+}
+@keyframes panelGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+

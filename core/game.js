@@ -5,7 +5,7 @@
 // ✦ Initializes and coordinates all core modules
 // ✦ Runs update + render loops (called by main.js)
 // ✦ Player dot renders BETWEEN ground and trees
-// ✦ Includes Victory/Defeat System
+// ✦ Victory/Defeat system + resetCombatState()
 // ============================================================
 
 // ------------------------------------------------------------
@@ -56,7 +56,7 @@ import {
 
 import { gameState } from "../utils/gameState.js";
 import { getMapPixelSize } from "./map.js";
-import { stopGameplay } from "../main.js"; // 🧠 Used to stop game when win/lose
+import { stopGameplay } from "../main.js"; // used to stop game when win/lose
 
 // ------------------------------------------------------------
 // ⚙️ LOCAL STATE
@@ -84,18 +84,14 @@ export function incrementGoblinDefeated() {
 export async function initGame() {
   // 1) Canvas & context
   canvas = document.getElementById("game-canvas");
-  if (!canvas) {
-    throw new Error("game.js: #game-canvas not found in DOM");
-  }
+  if (!canvas) throw new Error("game.js: #game-canvas not found in DOM");
   ctx = canvas.getContext("2d");
-  if (!ctx) {
-    throw new Error("game.js: 2D context not available");
-  }
+  if (!ctx) throw new Error("game.js: 2D context not available");
 
-  // 2) Load the Tiled map data (populates window.mapData internally)
+  // 2) Load the Tiled map data
   await loadMap();
 
-  // 3) Extract enemy path from map (e.g., from a 'path' layer)
+  // 3) Extract enemy path and apply
   const pathPoints = extractPathFromMap();
   setEnemyPath(pathPoints);
 
@@ -173,11 +169,24 @@ function checkVictoryDefeat() {
     stopGameplay("defeat");
   } else if (lives <= 0) {
     console.log("💔 No lives remaining!");
-    stopGameplay("defeat");
+    stopGameplay("lives"); // distinct reason for copywriting
   } else if (goblinsDefeated >= 50) {
     console.log("🏆 Victory condition reached!");
     stopGameplay("victory");
   }
+}
+
+// ============================================================
+// ♻️ RESET COMBAT STATE (used by main.resetGameplay())
+// ------------------------------------------------------------
+// Resets counters and re-initializes combat subsystems fresh.
+// Keeps currencies because main.js preserved them in gameState.
+// ============================================================
+export function resetCombatState() {
+  goblinsDefeated = 0;
+  // Re-run the game init that clears enemies/towers/projectiles,
+  // sets up player controller, HUD, etc.
+  initGame();
 }
 
 // ============================================================
