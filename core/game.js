@@ -130,34 +130,26 @@ export function updateGame(delta) {
 
 
 // ============================================================
-// 🎨 RENDER — Corrected Layer Depth
+// 🎨 RENDER — Corrected Layer Depth + Camera
 // ============================================================
 export function renderGame() {
   if (!ctx || !canvas) return;
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // 1) Ground — pass camera and viewport so map draws only visible tiles
+  drawMapLayered(ctx, "ground", cameraX, cameraY, canvas.width, canvas.height);
 
-  // ----------------------------------------------------------
-  // 🌸 DRAW ORDER:
-  // 1) Ground / base tiles
-  // 2) Entities (player, goblins, towers, projectiles)
-  // 3) Trees / foliage (canopy above entities)
-  // 4) UI overlays (handled separately by HUD/UI systems)
-  // ----------------------------------------------------------
+  // 2) Entities — draw in world space, but shift the camera via translate
+  ctx.save();
+  ctx.translate(-cameraX, -cameraY);
 
-  // 1️⃣ Ground / base layer
-  drawMapLayered(ctx, "ground");
-
-  // 2️⃣ Entities — all on same plane for natural overlap
   drawEnemies(ctx);
   drawPlayer(ctx);
-  drawTowers(ctx);
   drawProjectiles(ctx);
 
-  // 3️⃣ Trees / canopy — above entities
-  drawMapLayered(ctx, "trees");
-  
-  
+  ctx.restore();
+
+  // 3) Trees / canopy — pass camera so top layer aligns with ground
+  drawMapLayered(ctx, "trees", cameraX, cameraY, canvas.width, canvas.height);
 }
 
 

@@ -107,9 +107,11 @@ function spawnEnemy() {
 }
 
 // ------------------------------------------------------------
-// 🧠 UPDATE
+// 🧠 UPDATE — now includes delta clamp to prevent warp after tabbing out
 // ------------------------------------------------------------
 export function updateEnemies(delta) {
+  // 🛡️ Cap delta time to avoid huge jumps (e.g., after alt-tab or pause)
+  delta = Math.min(delta, 100);
   const dt = delta / 1000;
 
   for (const e of enemies) {
@@ -163,6 +165,7 @@ export function updateEnemies(delta) {
     }
   }
 }
+
 
 // ------------------------------------------------------------
 // 🎯 DAMAGE HANDLING
