@@ -5,6 +5,7 @@
 // ✦ Auto direction detection + death fadeout
 // ✦ Solid hitboxes for player collision (now slightly LOWER)
 // ✦ High-quality smoothing for pastel visuals
+// ✦ Adds individual HP + health bar rendering above heads
 // ✦ Fully compatible with towers/projectiles systems
 // ============================================================
 
@@ -95,7 +96,8 @@ function spawnEnemy() {
     y: pathPoints[0].y,
     width: 42,
     height: 42,
-    hp: DEFAULT_HP,
+    hp: DEFAULT_HP,        // 🩸 Current HP
+    maxHp: DEFAULT_HP,     // 🩸 Max HP
     targetIndex: 1,
     frameTimer: 0,
     frame: 0,
@@ -107,7 +109,7 @@ function spawnEnemy() {
 }
 
 // ------------------------------------------------------------
-// 🧠 UPDATE — now includes delta clamp to prevent warp after tabbing out
+// 🧠 UPDATE — includes delta clamp to prevent warp after tabbing out
 // ------------------------------------------------------------
 export function updateEnemies(delta) {
   // 🛡️ Cap delta time to avoid huge jumps (e.g., after alt-tab or pause)
@@ -166,7 +168,6 @@ export function updateEnemies(delta) {
   }
 }
 
-
 // ------------------------------------------------------------
 // 🎯 DAMAGE HANDLING
 // ------------------------------------------------------------
@@ -181,7 +182,36 @@ export function damageEnemy(enemy, amount) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW
+// 🎨 DRAW HEALTH BAR
+// ------------------------------------------------------------
+function drawHealthBar(ctx, x, y, hp, maxHp) {
+  const barWidth = 40;
+  const barHeight = 5;
+  const offsetY = 20; // distance above goblin head
+  const hpPct = Math.max(0, Math.min(1, hp / maxHp));
+
+  // Background (dark semi-transparent)
+  ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+  ctx.fillRect(x - barWidth / 2, y - ENEMY_SIZE / 2 - offsetY, barWidth, barHeight);
+
+  // Fill (dynamic hue from green → red)
+  const hue = Math.max(0, Math.min(120, (hp / maxHp) * 120));
+  ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+  ctx.fillRect(
+    x - barWidth / 2,
+    y - ENEMY_SIZE / 2 - offsetY,
+    barWidth * hpPct,
+    barHeight
+  );
+
+  // Border
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x - barWidth / 2, y - ENEMY_SIZE / 2 - offsetY, barWidth, barHeight);
+}
+
+// ------------------------------------------------------------
+// 🎨 DRAW ENEMIES
 // ------------------------------------------------------------
 export function drawEnemies(context) {
   if (!goblinSprites) return;
@@ -219,8 +249,13 @@ export function drawEnemies(context) {
       ctx.globalAlpha = alpha;
     }
 
-    // Draw goblin
+    // Draw goblin sprite
     ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, ENEMY_SIZE, ENEMY_SIZE);
+
+    // Draw health bar (alive or fading)
+    if (e.alive || e.fadeTimer < FADE_OUT_TIME) {
+      drawHealthBar(ctx, e.x, e.y, e.hp, e.maxHp);
+    }
 
     // // 🧪 DEBUG: visualize lowered hitbox
     // ctx.strokeStyle = "rgba(0,255,0,0.6)";
