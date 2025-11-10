@@ -9,6 +9,7 @@
 // ============================================================
 
 import { TILE_SIZE, GRID_COLS, GRID_ROWS } from "../utils/constants.js";
+import { initCollision } from "../utils/mapCollision.js";
 
 let mapData = null;
 let layers = [];
@@ -16,6 +17,7 @@ let tilesets = [];
 let mapPixelWidth = GRID_COLS * TILE_SIZE;
 let mapPixelHeight = GRID_ROWS * TILE_SIZE;
 let pathPoints = [];
+
 
 // ------------------------------------------------------------
 // 🔗 PATH UTILITIES
@@ -53,6 +55,7 @@ export async function loadMap() {
   const res = await fetch("./data/map_one.json");
   mapData = await res.json();
   layers = mapData.layers || [];
+  initCollision(mapData, TILE_SIZE);
 
   mapPixelWidth = (mapData.width || GRID_COLS) * TILE_SIZE;
   mapPixelHeight = (mapData.height || GRID_ROWS) * TILE_SIZE;

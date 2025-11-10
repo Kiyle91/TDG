@@ -1,25 +1,23 @@
 // ============================================================
-// 🧭 playerController.js — Olivia’s World: Crystal Keep (Polished)
+// 🧭 playerController.js — Olivia’s World: Crystal Keep (Collision-Ready)
 // ------------------------------------------------------------
-// ✦ Smooth, pastel-friendly Glitter Guardian controller
-// ✦ 4-directional movement (WASD / Arrow keys)
-// ✦ High-quality sprite rendering (no pixelation)
-// ✦ Soft shadow & smoother animation timing
-// ✦ Consistent visual polish with enemy rendering
+// ✦ Smooth WASD + animation
+// ✦ Tiled collision via mapCollision (feet rect)
+// ✦ Soft shadow & high-quality sprite rendering
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
+import { TILE_SIZE } from "../utils/constants.js";
+import { isRectBlocked } from "../utils/mapCollision.js";
 
-// ------------------------------------------------------------
-// ⚙️ LOCAL STATE
 // ------------------------------------------------------------
 let canvasRef = null;
 const keys = new Set();
 
 const DEFAULT_SPEED = 220;
-const SPRITE_SIZE = 80;             // slightly larger for detail
-const WALK_FRAME_INTERVAL = 220;    // smoother animation pacing
-const SHADOW_OPACITY = 0.25;        // soft shadow tone
+const SPRITE_SIZE = 80;
+const WALK_FRAME_INTERVAL = 220;
+const SHADOW_OPACITY = 0.25;
 
 let frameTimer = 0;
 let currentFrame = 0;
@@ -27,90 +25,58 @@ let currentDir = "down";
 let isMoving = false;
 
 // ------------------------------------------------------------
-// 🖼️ SPRITE SETUP (WASD mapping)
-// ------------------------------------------------------------
 const sprites = {
   idle: null,
-  walk: {
-    up: [null, null],    // W1, W2
-    left: [null, null],  // A1, A2
-    down: [null, null],  // S1, S2
-    right: [null, null], // D1, D2
-  },
+  walk: { up: [null,null], left: [null,null], down: [null,null], right: [null,null] },
 };
 
-// ------------------------------------------------------------
-// 🖼️ LOAD SPRITES
-// ------------------------------------------------------------
-function loadSprite(src) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => resolve(img);
-  });
-}
+function loadSprite(src){ return new Promise(r=>{ const img=new Image(); img.src=src; img.onload=()=>r(img); }); }
 
 async function loadPlayerSprites() {
   sprites.idle = await loadSprite("./assets/images/sprites/glitter/glitter_idle.png");
-
   sprites.walk.up[0] = await loadSprite("./assets/images/sprites/glitter/glitter_W1.png");
   sprites.walk.up[1] = await loadSprite("./assets/images/sprites/glitter/glitter_W2.png");
-
   sprites.walk.left[0] = await loadSprite("./assets/images/sprites/glitter/glitter_A1.png");
   sprites.walk.left[1] = await loadSprite("./assets/images/sprites/glitter/glitter_A2.png");
-
   sprites.walk.down[0] = await loadSprite("./assets/images/sprites/glitter/glitter_S1.png");
   sprites.walk.down[1] = await loadSprite("./assets/images/sprites/glitter/glitter_S2.png");
-
   sprites.walk.right[0] = await loadSprite("./assets/images/sprites/glitter/glitter_D1.png");
   sprites.walk.right[1] = await loadSprite("./assets/images/sprites/glitter/glitter_D2.png");
-
-  console.log("🦄 Glitter sprites loaded (polished version).");
+  console.log("🦄 Glitter sprites loaded.");
 }
 
-// ------------------------------------------------------------
-// 🧩 ENSURE PLAYER RUNTIME
-// ------------------------------------------------------------
 function ensurePlayerRuntime() {
   if (!gameState.player) {
-    gameState.player = {
-      name: "Glitter Guardian",
-      pos: { x: 400, y: 400 },
-      speed: DEFAULT_SPEED,
-    };
+    gameState.player = { name:"Glitter Guardian", pos:{x:400,y:400}, speed:DEFAULT_SPEED };
   } else {
-    if (!gameState.player.pos) gameState.player.pos = { x: 400, y: 400 };
+    if (!gameState.player.pos) gameState.player.pos = { x:400, y:400 };
     if (typeof gameState.player.speed !== "number") {
-      const statSpeed =
-        gameState.player?.stats?.speed ??
-        gameState.profile?.player?.stats?.speed ??
-        DEFAULT_SPEED;
+      const statSpeed = gameState.player?.stats?.speed ?? gameState.profile?.player?.stats?.speed ?? DEFAULT_SPEED;
       gameState.player.speed = statSpeed;
     }
   }
+  // logical body for feet collision (narrower than sprite)
+  if (!gameState.player.body) {
+    const bw = SPRITE_SIZE * 0.42;
+    const bh = SPRITE_SIZE * 0.28;
+    const ox = -bw/2;          // centered horizontally
+    const oy = SPRITE_SIZE*0.25; // down from center (feet)
+    gameState.player.body = { bw, bh, ox, oy };
+  }
 }
 
-// ------------------------------------------------------------
-// 🎛️ INPUT HANDLING
-// ------------------------------------------------------------
-function onKeyDown(e) { keys.add(e.code); }
-function onKeyUp(e)   { keys.delete(e.code); }
+function onKeyDown(e){ keys.add(e.code); }
+function onKeyUp(e){ keys.delete(e.code); }
 
-// ------------------------------------------------------------
-// 🌷 INIT
-// ------------------------------------------------------------
 export async function initPlayerController(canvas) {
   canvasRef = canvas;
   ensurePlayerRuntime();
   window.addEventListener("keydown", onKeyDown);
   window.addEventListener("keyup", onKeyUp);
   await loadPlayerSprites();
-  console.log("🧭 PlayerController initialized — pastel smooth mode active.");
+  console.log("🧭 PlayerController initialized.");
 }
 
-// ------------------------------------------------------------
-// 🏃 UPDATE
-// ------------------------------------------------------------
 export function updatePlayer(delta) {
   ensurePlayerRuntime();
   const p = gameState.player;
@@ -129,22 +95,24 @@ export function updatePlayer(delta) {
   if (down)  dy += 1;
 
   isMoving = dx !== 0 || dy !== 0;
+  if (dx && dy){ const inv = 1/Math.sqrt(2); dx*=inv; dy*=inv; }
 
-  if (dx !== 0 && dy !== 0) {
-    const inv = 1 / Math.sqrt(2);
-    dx *= inv; dy *= inv;
+  const nextX = p.pos.x + dx * speed * dt;
+  const nextY = p.pos.y + dy * speed * dt;
+
+  // feet rect in world pixels
+  const { bw, bh, ox, oy } = p.body;
+  const feetX = nextX + ox;
+  const feetY = nextY + oy;
+
+  if (!isRectBlocked(feetX, feetY, bw, bh)) {
+    p.pos.x = nextX;
+    p.pos.y = nextY;
   }
 
-  p.pos.x += dx * speed * dt;
-  p.pos.y += dy * speed * dt;
-
-  // Direction logic with horizontal priority (like before)
-  if (left || right) {
-    if (left && !right) currentDir = "left";
-    else if (right && !left) currentDir = "right";
-  } else if (up || down) {
-    currentDir = up ? "up" : "down";
-  }
+  // Direction (horizontal priority like you asked)
+  if (left || right) currentDir = left && !right ? "left" : right && !left ? "right" : currentDir;
+  else if (up || down) currentDir = up ? "up" : "down";
 
   // Clamp to canvas
   if (canvasRef) {
@@ -153,22 +121,13 @@ export function updatePlayer(delta) {
     p.pos.y = Math.max(r, Math.min(canvasRef.height - r, p.pos.y));
   }
 
-  // Animation timer
+  // Animation
   if (isMoving) {
     frameTimer += delta;
-    if (frameTimer >= WALK_FRAME_INTERVAL) {
-      frameTimer = 0;
-      currentFrame = (currentFrame + 1) % 2;
-    }
-  } else {
-    frameTimer = 0;
-    currentFrame = 0;
-  }
+    if (frameTimer >= WALK_FRAME_INTERVAL) { frameTimer = 0; currentFrame = (currentFrame + 1) % 2; }
+  } else { frameTimer = 0; currentFrame = 0; }
 }
 
-// ------------------------------------------------------------
-// 🎨 DRAW (Polished pastel rendering)
-// ------------------------------------------------------------
 export function drawPlayer(ctx) {
   if (!ctx) return;
   ensurePlayerRuntime();
@@ -182,40 +141,26 @@ export function drawPlayer(ctx) {
   const drawY = y - SPRITE_SIZE / 2;
 
   ctx.save();
-
-  // 🌫️ Soft oval shadow
+  // shadow
   ctx.beginPath();
-  ctx.ellipse(
-    x,
-    y + SPRITE_SIZE / 2.3,
-    SPRITE_SIZE * 0.35,
-    SPRITE_SIZE * 0.15,
-    0,
-    0,
-    Math.PI * 2
-  );
-  ctx.fillStyle = `rgba(0, 0, 0, ${SHADOW_OPACITY})`;
+  ctx.ellipse(x, y + SPRITE_SIZE/2.3, SPRITE_SIZE*0.35, SPRITE_SIZE*0.15, 0, 0, Math.PI*2);
+  ctx.fillStyle = `rgba(0,0,0,${SHADOW_OPACITY})`;
   ctx.fill();
 
-  // 🦄 Smooth, pastel-friendly rendering
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
-
-  // Draw sprite
   ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, SPRITE_SIZE, SPRITE_SIZE);
+
+  // // debug feet rect (optional)
+  // const { bw,bh,ox,oy } = gameState.player.body;
+  // ctx.strokeStyle = "red";
+  // ctx.strokeRect(x+ox, y+oy, bw, bh);
 
   ctx.restore();
 }
 
-// ------------------------------------------------------------
-// 🧼 CLEANUP
-// ------------------------------------------------------------
 export function destroyPlayerController() {
   window.removeEventListener("keydown", onKeyDown);
   window.removeEventListener("keyup", onKeyUp);
   console.log("🧭 PlayerController destroyed.");
 }
-
-// ============================================================
-// 🌟 END OF FILE
-// ============================================================

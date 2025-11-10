@@ -35,13 +35,19 @@ export function initUI() {
 // ------------------------------------------------------------
 // 💖 UPDATE HUD
 // ------------------------------------------------------------
+// in core/ui.js
 export function updateHUD() {
+  if (!waveDisplay || !goldDisplay || !diamondDisplay || !livesDisplay) {
+    // not initialized yet — skip safely
+    return;
+  }
   const { gold, diamonds } = getCurrencies();
-  waveDisplay.textContent = `Wave ${gameStats.wave}`;
-  goldDisplay.textContent = `Gold: ${gold}`;
+  waveDisplay.textContent  = `Wave ${gameStats.wave}`;
+  goldDisplay.textContent  = `Gold: ${gold}`;
   diamondDisplay.textContent = `Diamonds: ${diamonds}`;
   livesDisplay.textContent = `Lives: ${gameStats.lives}`;
 }
+
 
 // ------------------------------------------------------------
 // 📜 GET GAME STATS
