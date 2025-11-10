@@ -143,6 +143,7 @@ export function renderGame() {
   ctx.translate(-cameraX, -cameraY);
 
   drawEnemies(ctx);
+  drawTowers(ctx);
   drawPlayer(ctx);
   drawProjectiles(ctx);
 
