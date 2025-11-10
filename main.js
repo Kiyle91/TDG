@@ -142,8 +142,10 @@ function showEndScreen(reason) {
   hubBtn.onclick = () => {
     document.getElementById("end-screen")?.remove();
     try {
-      showScreen("hub-screen"); // ✅ use full id per screens.js
-      initHub();
+      showScreen("hub-screen");
+
+      // 🪄 Re-initialize hub logic every time you arrive there
+      setTimeout(() => initHub(), 50);
       console.log("🏰 Returned to Hub via screen manager (hub-screen).");
     } catch (err) {
       console.error("⚠️ Hub load failed:", err);

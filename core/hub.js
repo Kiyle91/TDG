@@ -1,17 +1,17 @@
 // ============================================================
-// 🌸 hub.js — Olivia’s World: Crystal Keep (FINAL CLEAN BUILD)
+// 🌸 hub.js — Olivia’s World: Crystal Keep (FINAL POLISHED BUILD)
 // ------------------------------------------------------------
 // ✦ Main hub navigation screen
 // ✦ Handles transitions and overlay openings for all 8 buttons
-// ✦ Integrates with clean game start & screen manager
-// ✦ Fixed: “New Story” now resets everything properly
+// ✦ Clean game start + proper story intro integration
+// ✦ Fixed: “New Story” resets everything properly (no overlay issues)
 // ============================================================
 
 import { showScreen } from "./screens.js";
 import { startGameplay, gameActive, stopGameplay } from "../main.js";
 import { getCurrencies, gameState } from "../utils/gameState.js";
 import { showOverlay } from "./ui.js";
-import { setupStoryControls, startIntroStory } from "./story.js";
+import { startIntroStory } from "./story.js"; // ✅ only import startIntroStory
 import { initChest } from "./chest.js";
 import { showConfirm } from "./alert.js";
 import { updateStatsOverlay } from "./ui.js";
@@ -67,10 +67,10 @@ export function initHub() {
           // 1️⃣ Stop any running gameplay loop
           if (gameActive) stopGameplay("restart");
 
-          // 2️⃣ Remove any overlays (defeat/victory/story)
-          document.querySelectorAll("#end-screen, .end-overlay, .overlay").forEach(el => el.remove());
+          // 2️⃣ Remove leftover overlays (defeat/victory only)
+          document.querySelectorAll("#end-screen, .end-overlay").forEach(el => el.remove());
 
-          // 3️⃣ Reset combat state & player stats
+          // 3️⃣ Reset combat + player state
           resetCombatState();
           gameState.player = {
             hp: 100,
@@ -84,7 +84,6 @@ export function initHub() {
           };
 
           // 4️⃣ Switch to story overlay cleanly
-          setupStoryControls();
           startIntroStory();
           playFairySprinkle();
 
@@ -125,7 +124,7 @@ export function initHub() {
     showOverlay("overlay-skins");
   });
 
-  // 📜 STATS — open stats
+  // 📜 STATS — open stats overlay
   statsBtn.addEventListener("click", () => {
     console.log("📜 Stats overlay");
     playFairySprinkle();
