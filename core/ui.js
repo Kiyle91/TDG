@@ -35,19 +35,39 @@ export function initUI() {
 // ------------------------------------------------------------
 // 💖 UPDATE HUD
 // ------------------------------------------------------------
-// in core/ui.js
 export function updateHUD() {
-  if (!waveDisplay || !goldDisplay || !diamondDisplay || !livesDisplay) {
-    // not initialized yet — skip safely
-    return;
-  }
+  if (!waveDisplay || !goldDisplay || !diamondDisplay || !livesDisplay) return;
+
   const { gold, diamonds } = getCurrencies();
+  const p = gameState.player || {};
+
+  // Existing stats
   waveDisplay.textContent  = `Wave ${gameStats.wave}`;
   goldDisplay.textContent  = `Gold: ${gold}`;
   diamondDisplay.textContent = `Diamonds: ${diamonds}`;
   livesDisplay.textContent = `Lives: ${gameStats.lives}`;
-}
 
+  // ============================================================
+  // 💖 HP + MANA BARS (via CSS variable --fill)
+  // ============================================================
+  const hpBar   = document.getElementById("hp-bar");
+  const manaBar = document.getElementById("mana-bar");
+  const hpText   = document.getElementById("hp-text");
+  const manaText = document.getElementById("mana-text");
+
+  if (gameState.player && hpBar && manaBar) {
+    const hpPct   = Math.max(0, Math.min(100, (p.hp   / p.maxHp)   * 100));
+    const manaPct = Math.max(0, Math.min(100, (p.mana / p.maxMana) * 100));
+
+    // Apply CSS variable fills
+    hpBar.style.setProperty("--fill", `${hpPct}%`);
+    manaBar.style.setProperty("--fill", `${manaPct}%`);
+
+    // Update text values
+    if (hpText)   hpText.textContent   = `${p.hp} / ${p.maxHp}`;
+    if (manaText) manaText.textContent = `${p.mana} / ${p.maxMana}`;
+  }
+}
 
 // ------------------------------------------------------------
 // 📜 GET GAME STATS
@@ -78,7 +98,7 @@ export function showOverlay(id) {
 
   // Add close behavior
   const closeBtn = overlay.querySelector(".overlay-close");
-  if (closeBtn) {;
+  if (closeBtn) {
     closeBtn.onclick = () => closeOverlay(overlay);
   }
 }
@@ -95,8 +115,6 @@ export function updateStatsOverlay() {
 
   titleEl.textContent = `Princess ${gameState.profile.name}`;
 }
-
-
 
 // ============================================================
 // ⚙️ SETTINGS MENU INITIALIZATION
@@ -136,6 +154,40 @@ export function toggleMagicSparkles(enabled) {
     el.style.pointerEvents = enabled ? "auto" : "none";
   });
 }
+
+// ============================================================
+// 🧪 TEMP TEST — Keyboard Controls for HUD Verification
+// ------------------------------------------------------------
+// Press H / J to damage / heal HP
+// Press M / N to spend / restore Mana
+// ============================================================
+document.addEventListener("keydown", (e) => {
+  const p = gameState.player;
+  if (!p) return;
+
+  switch (e.key.toLowerCase()) {
+    case "h":
+      p.hp = Math.max(0, p.hp - 10);
+      console.log(`💔 HP -10 → ${p.hp}/${p.maxHp}`);
+      updateHUD();
+      break;
+    case "j":
+      p.hp = Math.min(p.maxHp, p.hp + 10);
+      console.log(`💖 HP +10 → ${p.hp}/${p.maxHp}`);
+      updateHUD();
+      break;
+    case "m":
+      p.mana = Math.max(0, p.mana - 10);
+      console.log(`🔷 Mana -10 → ${p.mana}/${p.maxMana}`);
+      updateHUD();
+      break;
+    case "n":
+      p.mana = Math.min(p.maxMana, p.mana + 10);
+      console.log(`🔹 Mana +10 → ${p.mana}/${p.maxMana}`);
+      updateHUD();
+      break;
+  }
+});
 
 // ============================================================
 // 🌟 END OF FILE

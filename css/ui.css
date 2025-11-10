@@ -1,56 +1,77 @@
 /* ============================================================
-   💖 HP + MANA Bars — Integrated with existing HUD
+   💖 HUD — Balanced layout + capped bars
    ============================================================ */
 
 #hud {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 20px;
   position: absolute;
   top: 0;
-  width: 100%;
+  left: 0;
   height: 50px;
+  width: 100%;
   background: linear-gradient(180deg, #ffe4f7 0%, #e3caff 100%);
   border-bottom: 2px solid rgba(255,255,255,0.4);
+
+  /* Center the middle block perfectly, regardless of bar widths */
+  position: absolute;
 }
 
-.bar.small {
-  width: 160px;
-  height: 16px;
+#center-stats {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-family: "Comic Sans MS", cursive;
+  color: #bb3ebb;
+  font-weight: bold;
+  text-shadow: 0 0 4px #bb3ebb;
+}
+
+/* Bars anchored to edges */
+#mana-bar, #hp-bar {
+  position: absolute;
+  top: 8px;
+  height: 30px;
+  width: 350px;              /* cap size here */
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.9);
   background: rgba(255,255,255,0.45);
   box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
-  position: relative;
 }
 
+/* 🔁 Swap sides: HP → LEFT, Mana → RIGHT */
+#hp-bar   { left: 20px;  right: auto; }
+#mana-bar { right: 20px; left:  auto; }
+
+/* Text inside bars */
 .bar-text {
   position: absolute;
-  width: 100%;
-  text-align: center;
-  color: #fff;
-  font-size: 11px;
-  line-height: 16px;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1;
   font-family: "Comic Sans MS", cursive;
-  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+  font-weight: bold;
+  text-shadow: 0 0 4px #bb3ebb;
   pointer-events: none;
 }
 
-#hp-bar::before, #mana-bar::before {
-  content: '';
+/* Fill uses a CSS variable we set from JS: --fill */
+#hp-bar::before,
+#mana-bar::before {
+  content: "";
   position: absolute;
   top: 0; left: 0; bottom: 0;
-  width: 100%;
+  width: var(--fill, 100%);   /* <- only this changes from JS */
   transition: width 0.25s ease-out;
-  border-radius: 10px;
+  border-radius: inherit;
 }
 
-#hp-bar::before {
-  background: linear-gradient(90deg, #ff3164, #ff94d2);
-}
-
-#mana-bar::before {
-  background: linear-gradient(90deg, #33aaff, #99e0ff);
-}
+/* Brighter gradients (per your request) */
+#hp-bar::before   { background: linear-gradient(90deg, #ff3164, #ff94d2); }
+#mana-bar::before { background: linear-gradient(90deg, #33aaff, #99e0ff); }
