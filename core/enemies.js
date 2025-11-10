@@ -1,14 +1,16 @@
 // ============================================================
-// 👹 enemies.js — Olivia’s World: Crystal Keep (Death Animation Build)
+// 👹 enemies.js — Olivia’s World: Crystal Keep (Full Logic Build)
 // ------------------------------------------------------------
 // ✦ Directional goblins with smooth animation + shadows
 // ✦ Chase / attack player with proximity AI
 // ✦ Cinematic death sequence (slain sprite → fade → respawn)
-// ✦ Smooth HP bar + visual feedback
+// ✦ Health bars + color gradient, fade on death
+// ✦ Despawn + life loss when goblins reach the path end
 // ============================================================
 
 import { TILE_SIZE } from "../utils/constants.js";
 import { gameState } from "../utils/gameState.js";
+import { updateHUD } from "./ui.js";
 
 let enemies = [];
 let ctx = null;
@@ -22,7 +24,7 @@ const ENEMY_SIZE = 80;
 const SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;     // ms before removal after death
-const DEFAULT_HP = 100;
+const DEFAULT_HP = 200;
 const HITBOX_OFFSET_Y = 15;
 
 // 🧠 AI + Combat
@@ -207,10 +209,12 @@ export function updateEnemies(delta) {
         e.y += (dy / dist) * SPEED * dt;
       } else {
         e.targetIndex++;
+
+        // ✅ Goblin reached end of path → despawn + life loss
         if (e.targetIndex >= pathPoints.length) {
-          e.targetIndex = 1;
-          e.x = pathPoints[0].x;
-          e.y = pathPoints[0].y;
+          console.log("⚠️ Goblin reached the end!");
+          handleGoblinEscape(e);
+          continue;
         }
       }
     }
@@ -228,7 +232,6 @@ export function updateEnemies(delta) {
     const e = enemies[i];
     if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) {
       // 🎁 Reward hook (future XP/gold)
-      // addGold(5); addXP(10);
       enemies.splice(i, 1);
       spawnEnemy();
     }
@@ -249,6 +252,24 @@ export function damageEnemy(enemy, amount) {
     enemy.fadeTimer = 0;
     console.log("💀 Goblin slain!");
   }
+}
+
+// ------------------------------------------------------------
+// 💔 HANDLE ESCAPE — Goblin reaches end of path
+// ------------------------------------------------------------
+function handleGoblinEscape(enemy) {
+  // Remove 1 life from player/base
+  if (gameState.player) {
+    if (gameState.player.lives === undefined) gameState.player.lives = 10;
+    gameState.player.lives = Math.max(0, gameState.player.lives - 1);
+    updateHUD ();
+    console.log(`💔 Goblin escaped! Lives left: ${gameState.player.lives}`);
+  }
+
+  // Despawn this goblin immediately
+  enemy.alive = false;
+  enemy.hp = 0;
+  enemy.fadeTimer = FADE_OUT_TIME; // skip animation
 }
 
 // ------------------------------------------------------------

@@ -45,7 +45,9 @@ export function updateHUD() {
   waveDisplay.textContent  = `Wave ${gameStats.wave}`;
   goldDisplay.textContent  = `Gold: ${gold}`;
   diamondDisplay.textContent = `Diamonds: ${diamonds}`;
-  livesDisplay.textContent = `Lives: ${gameStats.lives}`;
+  
+  const playerLives = gameState.player?.lives ?? gameStats.lives;
+  livesDisplay.textContent = `Lives: ${playerLives}`;
 
   // ============================================================
   // 💖 HP + MANA BARS (via CSS variable --fill)
