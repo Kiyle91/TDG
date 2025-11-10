@@ -1,69 +1,86 @@
 // ============================================================
-// 🌸 projectiles.js — Olivia’s World: Crystal Keep
+// 💫 projectiles.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Handles tower projectiles, movement, and impact
-// ✦ Controls projectile updates, collisions, and rendering
-// ✦ Integrates with tower targeting and enemy HP reduction
+// ✦ Handles all tower projectiles
+// ✦ Each projectile tracks target and applies damage on hit
+// ✦ Integrated with enemies.js damage system
 // ============================================================
 
-import { PROJECTILE_SPEED } from "../utils/constants.js";
+import { damageEnemy } from "./enemies.js";
 
-// ------------------------------------------------------------
-// ⚙️ STATE
-// ------------------------------------------------------------
+const PROJECTILE_SPEED = 480;   // px/sec
+const PROJECTILE_DAMAGE = 25;   // 💥 per hit
+
 let projectiles = [];
 
 // ------------------------------------------------------------
-// 🌷 INITIALIZATION
+// 🌱 INITIALIZATION
 // ------------------------------------------------------------
 export function initProjectiles() {
   projectiles = [];
+  console.log("💫 Projectiles system initialized.");
 }
 
+
 // ------------------------------------------------------------
-// 💫 SPAWN PROJECTILE
+// 🌱 SPAWN PROJECTILE
 // ------------------------------------------------------------
 export function spawnProjectile(x, y, target) {
-  projectiles.push({ x, y, target, radius: 4 });
+  if (!target || !target.alive) return;
+
+  projectiles.push({
+    x,
+    y,
+    target,
+    alive: true
+  });
 }
 
 // ------------------------------------------------------------
-// 🕒 UPDATE PROJECTILES — MOVEMENT & IMPACT
+// 🧠 UPDATE PROJECTILES
 // ------------------------------------------------------------
 export function updateProjectiles(delta) {
   const dt = delta / 1000;
 
-  projectiles.forEach((p, i) => {
-    if (!p.target) return;
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const p = projectiles[i];
+    const t = p.target;
 
-    const dx = p.target.x - p.x;
-    const dy = p.target.y - p.y;
-    const dist = Math.hypot(dx, dy);
-
-    // 🎯 Impact detection
-    if (dist < 8) {
-      p.target.hp -= 20; // 💥 Hit damage
+    // Skip invalid or dead targets
+    if (!t || !t.alive) {
       projectiles.splice(i, 1);
-      return;
+      continue;
     }
 
-    // 🌀 Move toward target
-    p.x += (dx / dist) * PROJECTILE_SPEED * dt;
-    p.y += (dy / dist) * PROJECTILE_SPEED * dt;
-  });
+    // Move toward target
+    const dx = t.x - p.x;
+    const dy = t.y - p.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const step = PROJECTILE_SPEED * dt;
+
+    if (dist < 8) {
+      // 💥 HIT CONFIRMED
+      damageEnemy(t, PROJECTILE_DAMAGE);
+      projectiles.splice(i, 1);
+      continue;
+    }
+
+    // Normal motion
+    p.x += (dx / dist) * step;
+    p.y += (dy / dist) * step;
+  }
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW PROJECTILES — VISUAL RENDER
+// 🎨 DRAW PROJECTILES
 // ------------------------------------------------------------
 export function drawProjectiles(ctx) {
-  ctx.fillStyle = "#b5e2ff"; // 🌈 soft pastel blue glow
-
-  projectiles.forEach((p) => {
+  ctx.fillStyle = "#aaf"; // light blue projectiles
+  for (const p of projectiles) {
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
     ctx.fill();
-  });
+  }
 }
 
 // ============================================================

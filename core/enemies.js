@@ -1,11 +1,10 @@
 // ============================================================
-// 👹 enemies.js — Olivia’s World: Crystal Keep (Aggro Goblins, Fixed Distance)
+// 👹 enemies.js — Olivia’s World: Crystal Keep (Death Animation Build)
 // ------------------------------------------------------------
 // ✦ Directional goblins with smooth animation + shadows
-// ✦ Auto direction detection + death fadeout
-// ✦ Goblins chase player if close, attack, then return to path
-// ✦ Uses player.pos.x/y safely for real distance
-// ✦ Health bars + color gradient, fade on death
+// ✦ Chase / attack player with proximity AI
+// ✦ Cinematic death sequence (slain sprite → fade → respawn)
+// ✦ Smooth HP bar + visual feedback
 // ============================================================
 
 import { TILE_SIZE } from "../utils/constants.js";
@@ -22,7 +21,7 @@ let goblinSprites = null;
 const ENEMY_SIZE = 80;
 const SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
-const FADE_OUT_TIME = 600;
+const FADE_OUT_TIME = 900;     // ms before removal after death
 const DEFAULT_HP = 100;
 const HITBOX_OFFSET_Y = 15;
 
@@ -32,6 +31,9 @@ const AGGRO_RANGE = 180;
 const RETURN_DELAY = 1200;
 const ATTACK_COOLDOWN = 1000;
 const GOBLIN_DAMAGE = 10;
+
+// 💀 Death handling
+const DEATH_LAY_DURATION = 600; // how long they lie slain before fade starts
 
 // ------------------------------------------------------------
 // 🧩 LOAD GOBLIN SPRITES
@@ -108,7 +110,9 @@ function spawnEnemy() {
     frame: 0,
     dir: "down",
     alive: true,
+    fading: false,
     fadeTimer: 0,
+    deathTimer: 0,
     hitboxOffsetY: HITBOX_OFFSET_Y,
     state: "path",
     attackCooldown: 0,
@@ -123,31 +127,36 @@ export function updateEnemies(delta) {
   delta = Math.min(delta, 100);
   const dt = delta / 1000;
   const player = gameState.player;
-
-  // Guard clause
   if (!player) return;
 
-  // Safely extract player coords (works with player.pos or flat x/y)
   const px = player?.pos?.x ?? player.x ?? 0;
   const py = player?.pos?.y ?? player.y ?? 0;
 
   for (const e of enemies) {
     if (!e.alive) {
-      e.fadeTimer += delta;
+      // death fade progression
+      if (!e.fading) {
+        e.deathTimer += delta;
+        if (e.deathTimer >= DEATH_LAY_DURATION) {
+          e.fading = true;
+        }
+      } else {
+        e.fadeTimer += delta;
+      }
       continue;
     }
 
-    // Calculate distance
+    // Standard AI
     const dxp = px - e.x;
     const dyp = py - e.y;
     const distToPlayer = Math.sqrt(dxp * dxp + dyp * dyp);
 
-    // 1️⃣ Aggro
+    // Aggro
     if (distToPlayer < AGGRO_RANGE && e.state === "path") {
       e.state = "chase";
     }
 
-    // 2️⃣ Chase / Attack
+    // Chase / Attack
     if (e.state === "chase") {
       if (distToPlayer > AGGRO_RANGE * 1.5) {
         e.state = "return";
@@ -165,7 +174,7 @@ export function updateEnemies(delta) {
       }
     }
 
-    // 3️⃣ Return to path
+    // Return to path
     if (e.state === "return") {
       e.returnTimer += delta;
       if (e.returnTimer > RETURN_DELAY) {
@@ -185,18 +194,14 @@ export function updateEnemies(delta) {
       }
     }
 
-    // Normal path
+    // Follow path
     if (e.state === "path") {
       const target = pathPoints[e.targetIndex];
       if (!target) continue;
       const dx = target.x - e.x;
       const dy = target.y - e.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (Math.abs(dx) > Math.abs(dy)) {
-        e.dir = dx > 0 ? "right" : "left";
-      } else {
-        e.dir = dy > 0 ? "down" : "up";
-      }
+      e.dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
       if (dist > 1) {
         e.x += (dx / dist) * SPEED * dt;
         e.y += (dy / dist) * SPEED * dt;
@@ -210,7 +215,7 @@ export function updateEnemies(delta) {
       }
     }
 
-    // Animation frames
+    // Animation frame timer
     e.frameTimer += delta;
     if (e.frameTimer >= WALK_FRAME_INTERVAL) {
       e.frameTimer = 0;
@@ -218,10 +223,12 @@ export function updateEnemies(delta) {
     }
   }
 
-  // Remove faded
+  // Remove fully faded
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
-    if (!e.alive && e.fadeTimer >= FADE_OUT_TIME) {
+    if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) {
+      // 🎁 Reward hook (future XP/gold)
+      // addGold(5); addXP(10);
       enemies.splice(i, 1);
       spawnEnemy();
     }
@@ -229,7 +236,7 @@ export function updateEnemies(delta) {
 }
 
 // ------------------------------------------------------------
-// 🎯 DAMAGE HANDLING
+// 🎯 DAMAGE HANDLING + DEATH TRIGGER
 // ------------------------------------------------------------
 export function damageEnemy(enemy, amount) {
   if (!enemy.alive) return;
@@ -237,7 +244,10 @@ export function damageEnemy(enemy, amount) {
   if (enemy.hp <= 0) {
     enemy.hp = 0;
     enemy.alive = false;
+    enemy.deathTimer = 0;
+    enemy.fading = false;
     enemy.fadeTimer = 0;
+    console.log("💀 Goblin slain!");
   }
 }
 
@@ -259,7 +269,7 @@ function drawHealthBar(ctx, x, y, hp, maxHp) {
     barWidth * hpPct,
     barHeight
   );
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.strokeStyle = "rgba(255,255,255,0.5)";
   ctx.lineWidth = 1;
   ctx.strokeRect(x - barWidth / 2, y - ENEMY_SIZE / 2 - offsetY, barWidth, barHeight);
 }
@@ -291,29 +301,28 @@ export function drawEnemies(context) {
       0,
       Math.PI * 2
     );
-    ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
 
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    if (!e.alive) {
+    // Fade effect
+    if (!e.alive && e.fading) {
       const alpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
       ctx.globalAlpha = alpha;
     }
 
     ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, ENEMY_SIZE, ENEMY_SIZE);
 
-    if (e.alive || e.fadeTimer < FADE_OUT_TIME) {
-      drawHealthBar(ctx, e.x, e.y, e.hp, e.maxHp);
-    }
+    if (e.alive) drawHealthBar(ctx, e.x, e.y, e.hp, e.maxHp);
 
     ctx.restore();
   }
 }
 
 // ------------------------------------------------------------
-// 🧩 SELECT SPRITE BASED ON STATE
+// 🧩 SPRITE SELECTOR
 // ------------------------------------------------------------
 function getEnemySprite(e) {
   if (!goblinSprites) return null;
@@ -328,7 +337,7 @@ function getEnemySprite(e) {
 }
 
 // ------------------------------------------------------------
-// 🔍 EXTERNAL ACCESSORS
+// 🔍 ACCESSORS
 // ------------------------------------------------------------
 export function getEnemies() {
   return enemies;

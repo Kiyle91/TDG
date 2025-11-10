@@ -33,12 +33,7 @@ import {
   drawTowers
 } from "./towers.js";
 
-import {
-  initProjectiles,
-  updateProjectiles,
-  drawProjectiles
-} from "./projectiles.js";
-
+import { initProjectiles, updateProjectiles, drawProjectiles } from "./projectiles.js";
 // ------------------------------------------------------------
 // 🧩 UI / HUD
 // ------------------------------------------------------------
