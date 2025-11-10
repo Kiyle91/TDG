@@ -187,7 +187,7 @@ export function resetCombatState() {
 
   // Reset player position + HP/lives for fresh spawn
   if (gameState.player) {
-    gameState.player.pos = { x: 100, y: 100 }; // or your normal spawn coords
+    gameState.player.pos = { x: 1000, y: 500 }; // or your normal spawn coords
     gameState.player.hp = gameState.player.maxHp ?? 100;
     gameState.player.lives = 10;
   }

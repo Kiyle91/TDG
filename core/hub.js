@@ -80,7 +80,7 @@ export function initHub() {
             lives: 10,
             gold: 0,
             diamonds: 0,
-            pos: { x: 160, y: 160 },
+            pos: { x: 1000, y: 500 },
           };
 
           // 4️⃣ Switch to story overlay cleanly

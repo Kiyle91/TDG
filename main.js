@@ -3,6 +3,7 @@
 // ------------------------------------------------------------
 // ✦ Entry point and master control flow
 // ✦ Ensures overlays are cleared on every new game
+// ✦ Updated spawn position → x: 1000, y: 500
 // ============================================================
 
 import { initGame, updateGame, renderGame, resetCombatState } from "./core/game.js";
@@ -81,8 +82,11 @@ function resetGameplay() {
   gameState.player.gold = savedGold;
   gameState.player.diamonds = savedDiamonds;
 
-  // Reset player position (adjust for map spawn)
-  gameState.player.pos = { x: 160, y: 160 };
+  // ------------------------------------------------------------
+  // 🎯 Reset player position (fixed spawn)
+  // ------------------------------------------------------------
+  gameState.player.pos = { x: 1000, y: 500 };
+  console.log(`📍 Player respawned at x:${gameState.player.pos.x}, y:${gameState.player.pos.y}`);
 
   // Remove overlay before resetting combat
   document.getElementById("end-screen")?.remove();
