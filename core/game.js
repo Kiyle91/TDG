@@ -5,6 +5,7 @@
 // ✦ Initializes and coordinates all core modules
 // ✦ Runs update + render loops (called by main.js)
 // ✦ Player dot renders BETWEEN ground and trees
+// ✦ Includes Victory/Defeat System
 // ============================================================
 
 // ------------------------------------------------------------
@@ -13,8 +14,8 @@
 import {
   loadMap,
   extractPathFromMap,
-  drawMap,          // kept for compatibility (no cuts)
-  drawMapLayered    // new additive helper for layered rendering
+  drawMap,
+  drawMapLayered
 } from "./map.js";
 
 // ------------------------------------------------------------
@@ -33,7 +34,12 @@ import {
   drawTowers
 } from "./towers.js";
 
-import { initProjectiles, updateProjectiles, drawProjectiles } from "./projectiles.js";
+import {
+  initProjectiles,
+  updateProjectiles,
+  drawProjectiles
+} from "./projectiles.js";
+
 // ------------------------------------------------------------
 // 🧩 UI / HUD
 // ------------------------------------------------------------
@@ -50,16 +56,27 @@ import {
 
 import { gameState } from "../utils/gameState.js";
 import { getMapPixelSize } from "./map.js";
+import { stopGameplay } from "../main.js"; // 🧠 Used to stop game when win/lose
+
 // ------------------------------------------------------------
 // ⚙️ LOCAL STATE
 // ------------------------------------------------------------
 let canvas = null;
 let ctx = null;
 
-
 // 🎥 CAMERA (scroll offset)
 let cameraX = 0;
 let cameraY = 0;
+
+// ------------------------------------------------------------
+// 🏆 VICTORY TRACKING EXPORTS
+// ------------------------------------------------------------
+export let goblinsDefeated = 0;
+
+export function incrementGoblinDefeated() {
+  goblinsDefeated++;
+  console.log(`⚔️ Goblins defeated: ${goblinsDefeated}`);
+}
 
 // ============================================================
 // 🌷 INIT — called once when entering the Game screen
@@ -98,19 +115,16 @@ export async function initGame() {
 // 🔁 UPDATE — now includes delta clamp for all systems
 // ============================================================
 export function updateGame(delta) {
-  // 🛡️ Prevent warp after alt-tab / pause / throttling
   delta = Math.min(delta, 100);
 
-  // Update world systems (safe timing)
+  // Update world systems
   updateEnemies(delta);
   updateTowers(delta);
   updateProjectiles(delta);
   updateHUD();
-
-  // Update player movement (WASD/Arrow keys with delta timing)
   updatePlayer(delta);
 
-  // 🎥 CAMERA FOLLOW (center on player)
+  // 🎥 CAMERA FOLLOW
   const px = gameState.player?.pos?.x ?? 0;
   const py = gameState.player?.pos?.y ?? 0;
   cameraX = Math.floor(px - canvas.width / 2);
@@ -120,9 +134,10 @@ export function updateGame(delta) {
   const { width: mapW, height: mapH } = getMapPixelSize();
   cameraX = Math.max(0, Math.min(mapW - canvas.width, cameraX));
   cameraY = Math.max(0, Math.min(mapH - canvas.height, cameraY));
+
+  // 🧠 Victory/Defeat check
+  checkVictoryDefeat();
 }
-
-
 
 // ============================================================
 // 🎨 RENDER — Corrected Layer Depth + Camera
@@ -130,26 +145,40 @@ export function updateGame(delta) {
 export function renderGame() {
   if (!ctx || !canvas) return;
 
-  // 1) Ground — pass camera and viewport so map draws only visible tiles
+  // 1) Ground
   drawMapLayered(ctx, "ground", cameraX, cameraY, canvas.width, canvas.height);
 
-  // 2) Entities — draw in world space, but shift the camera via translate
+  // 2) Entities
   ctx.save();
   ctx.translate(-cameraX, -cameraY);
-
   drawEnemies(ctx);
   drawTowers(ctx);
   drawPlayer(ctx);
   drawProjectiles(ctx);
-
   ctx.restore();
 
-  // 3) Trees / canopy — pass camera so top layer aligns with ground
+  // 3) Trees / canopy
   drawMapLayered(ctx, "trees", cameraX, cameraY, canvas.width, canvas.height);
 }
 
+// ============================================================
+// 🧠 VICTORY / DEFEAT CHECKS
+// ============================================================
+function checkVictoryDefeat() {
+  const playerHP = gameState.player?.hp ?? 100;
+  const lives = gameState.player?.lives ?? 3;
 
-
+  if (playerHP <= 0) {
+    console.log("💀 Player defeated!");
+    stopGameplay("defeat");
+  } else if (lives <= 0) {
+    console.log("💔 No lives remaining!");
+    stopGameplay("defeat");
+  } else if (goblinsDefeated >= 50) {
+    console.log("🏆 Victory condition reached!");
+    stopGameplay("victory");
+  }
+}
 
 // ============================================================
 // 🌟 END OF FILE

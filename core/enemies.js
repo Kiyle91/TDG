@@ -6,11 +6,13 @@
 // ✦ Cinematic death sequence (slain sprite → fade → respawn)
 // ✦ Health bars + color gradient, fade on death
 // ✦ Despawn + life loss when goblins reach the path end
+// ✦ Victory system integration (goblin kill counter)
 // ============================================================
 
 import { TILE_SIZE } from "../utils/constants.js";
 import { gameState } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
+import { incrementGoblinDefeated } from "./game.js"; // 🏆 track kills
 
 let enemies = [];
 let ctx = null;
@@ -21,7 +23,7 @@ let goblinSprites = null;
 // ⚙️ CONFIGURATION
 // ------------------------------------------------------------
 const ENEMY_SIZE = 80;
-const SPEED = 80;
+const SPEED = 240;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;     // ms before removal after death
 const DEFAULT_HP = 200;
@@ -203,7 +205,9 @@ export function updateEnemies(delta) {
       const dx = target.x - e.x;
       const dy = target.y - e.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      e.dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
+      e.dir = Math.abs(dx) > Math.abs(dy)
+        ? (dx > 0 ? "right" : "left")
+        : dy > 0 ? "down" : "up";
       if (dist > 1) {
         e.x += (dx / dist) * SPEED * dt;
         e.y += (dy / dist) * SPEED * dt;
@@ -251,6 +255,7 @@ export function damageEnemy(enemy, amount) {
     enemy.fading = false;
     enemy.fadeTimer = 0;
     console.log("💀 Goblin slain!");
+    incrementGoblinDefeated(); // 🏆 Count toward victory
   }
 }
 
@@ -262,7 +267,7 @@ function handleGoblinEscape(enemy) {
   if (gameState.player) {
     if (gameState.player.lives === undefined) gameState.player.lives = 10;
     gameState.player.lives = Math.max(0, gameState.player.lives - 1);
-    updateHUD ();
+    updateHUD();
     console.log(`💔 Goblin escaped! Lives left: ${gameState.player.lives}`);
   }
 
