@@ -214,31 +214,34 @@ function performMeleeAttack() {
   else console.log("⚔️ Melee swing missed.");
 }
 
-// ------------------------------------------------------------
-// 🏹 RANGED
+// ============================================================
+// 🏹 RANGED ATTACK — accurate angle + consistent cursor aim
 // ------------------------------------------------------------
 function performRangedAttack(e) {
   const p = gameState.player;
   const dmg = p.attack * DMG_RANGED;
+
+  // --- Accurate mouse position within canvas (account for scaling) ---
   const rect = canvasRef.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
+  const mx = (e.clientX - rect.left) * (canvasRef.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvasRef.height / rect.height);
+
+  // --- Compute precise world-space angle ---
   const angle = Math.atan2(my - p.pos.y, mx - p.pos.x);
   const speed = 600;
 
-  // decide facing direction based on cursor
+  // --- Determine facing side for animation ---
   currentDir = mx < p.pos.x ? "left" : "right";
 
+  // --- Play raise → shoot animation ---
   isAttacking = true;
   attackType = "ranged";
   attackCooldown = CD_RANGED;
-
-  // animate raise → shoot
   currentFrame = 0;
   setTimeout(() => { currentFrame = 1; }, 200);
   setTimeout(() => { isAttacking = false; currentFrame = 0; }, 400);
 
-  // spawn projectile slightly forward from player
+  // --- Spawn projectile slightly in front of Glitter ---
   const startX = p.pos.x + Math.cos(angle) * 30;
   const startY = p.pos.y + Math.sin(angle) * 30;
 
@@ -249,6 +252,7 @@ function performRangedAttack(e) {
     speed,
     dmg,
     alive: true,
+    life: 0, // ms lifetime
   });
 
   spawnSparkleBurst(startX, startY, 6);
@@ -327,11 +331,12 @@ function spawnSparkleBurst(x, y, count = 12) {
   }
 }
 
-// ------------------------------------------------------------
-// 🏹 UPDATE PROJECTILES
+// ============================================================
+// 🏹 UPDATE PROJECTILES — accuracy + map collision + lifetime
 // ------------------------------------------------------------
 function updateProjectiles(delta) {
   const dt = delta / 1000;
+
   for (let i = projectiles.length - 1; i >= 0; i--) {
     const a = projectiles[i];
     if (!a.alive) {
@@ -339,24 +344,38 @@ function updateProjectiles(delta) {
       continue;
     }
 
+    // --- Move projectile ---
     a.x += Math.cos(a.angle) * a.speed * dt;
     a.y += Math.sin(a.angle) * a.speed * dt;
 
+    // --- Lifetime limiter (prevents infinite arrows) ---
+    a.life += delta;
+    if (a.life > 1500) { // 1.5s max
+      a.alive = false;
+      continue;
+    }
+
+    // --- Map collision (block arrows by environment) ---
+    const hitbox = 8;
+    if (isRectBlocked(a.x - hitbox / 2, a.y - hitbox / 2, hitbox, hitbox)) {
+      a.alive = false;
+      continue;
+    }
+
+    // --- Enemy hit detection ---
     for (const g of getEnemies()) {
       if (!g.alive) continue;
-      const dx = g.x - a.x;
-      const dy = g.y - a.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const hitRadius = g.width / 2 + 15;
-      if (dist <= hitRadius) {
-        console.log("🏹 Arrow hit goblin!");
+      const dist = Math.hypot(g.x - a.x, g.y - a.y);
+      if (dist < 45) {
         damageEnemy(g, a.dmg);
         a.alive = false;
+        console.log("🏹 Arrow hit goblin!");
         break;
       }
     }
   }
 }
+
 
 // ------------------------------------------------------------
 export function updatePlayer(delta) {
