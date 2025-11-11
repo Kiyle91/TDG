@@ -1,9 +1,10 @@
 // ============================================================
-// 🌸 main.js — Olivia’s World: Crystal Keep (Continue System + Clean Restart Fix)
+// 🌸 main.js — Olivia’s World: Crystal Keep (Continue System + Goblin Story Integration)
 // ------------------------------------------------------------
 // ✦ Entry point and master control flow
 // ✦ Ensures overlays are cleared on every new game
 // ✦ Supports "Continue for 25 Diamonds" after defeat
+// ✦ Pauses during story sequences
 // ✦ Updated spawn position → x: 1000, y: 500
 // ============================================================
 
@@ -18,6 +19,7 @@ import { initTooltipSystem } from "./core/tooltip.js";
 import { showScreen } from "./core/screens.js";
 import { gameState, getCurrencies, spendDiamonds } from "./utils/gameState.js";
 import { updateHUD } from "./core/ui.js";
+import { startGoblinIntroStory } from "./core/story.js";
 
 let lastTime = 0;
 const FPS = 60;
@@ -46,7 +48,7 @@ function gameLoop(timestamp) {
 // 🎬 START GAMEPLAY LOOP
 // ------------------------------------------------------------
 export function startGameplay() {
-  // 💡 NEW: clear any lingering overlays (defeat/victory)
+  // 💡 Clear any lingering overlays (defeat/victory)
   const oldOverlay = document.getElementById("end-screen");
   if (oldOverlay) {
     oldOverlay.remove();
@@ -58,6 +60,16 @@ export function startGameplay() {
   lastTime = performance.now();
   requestAnimationFrame(gameLoop);
   console.log("🎮 Gameplay loop started!");
+
+  // 📖 Start goblin intro story (only once)
+  if (!gameState.goblinIntroPlayed) {
+    gameState.goblinIntroPlayed = true;
+    gameState.paused = true; // pause game during dialogue
+    startGoblinIntroStory().then(() => {
+      gameState.paused = false;
+      console.log("📖 Goblin intro finished — resuming battle!");
+    });
+  }
 }
 
 // ------------------------------------------------------------
@@ -87,9 +99,7 @@ function resetGameplay() {
   gameState.player.gold = savedGold;
   gameState.player.diamonds = savedDiamonds;
 
-  // ------------------------------------------------------------
   // 🎯 Reset player position (fixed spawn)
-  // ------------------------------------------------------------
   gameState.player.pos = { x: 1000, y: 500 };
   console.log(`📍 Player respawned at x:${gameState.player.pos.x}, y:${gameState.player.pos.y}`);
 
@@ -133,10 +143,11 @@ function tryContinueWithDiamonds() {
     msg.style.fontSize = "24px";
     msg.style.color = "#fff2b3";
     msg.style.textShadow = "0 0 10px #fff";
+    msg.style.zIndex = "9999";
     document.body.appendChild(msg);
     setTimeout(() => msg.remove(), 2000);
 
-    // Optional sparkle burst animation
+    // Sparkle revival burst
     const spark = document.createElement("div");
     spark.className = "revive-sparkle";
     spark.style.position = "fixed";
@@ -169,6 +180,7 @@ function tryContinueWithDiamonds() {
     warn.style.fontSize = "22px";
     warn.style.color = "#ff99b9";
     warn.style.textShadow = "0 0 8px #fff";
+    warn.style.zIndex = "9999";
     document.body.appendChild(warn);
     setTimeout(() => warn.remove(), 2000);
   }
@@ -232,16 +244,13 @@ function showEndScreen(reason) {
     }
   };
 
-  // 💎 Continue Button (only if player can afford)
+  // 💎 Continue Button
   const c = getCurrencies();
-  if (c.diamonds >= 25) {
-    const continueBtn = document.createElement("button");
-    continueBtn.textContent = "Continue (25 💎)";
-    continueBtn.onclick = tryContinueWithDiamonds;
-    buttons.appendChild(continueBtn);
-  }
+  const continueBtn = document.createElement("button");
+  continueBtn.textContent = "Continue (25 💎)";
+  continueBtn.onclick = tryContinueWithDiamonds;
+  buttons.append(continueBtn, retryBtn, hubBtn);
 
-  buttons.append(retryBtn, hubBtn);
   panel.append(title, subtitle, buttons);
   requestAnimationFrame(() => overlay.classList.add("visible"));
 }

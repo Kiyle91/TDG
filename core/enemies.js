@@ -11,7 +11,7 @@
 // ============================================================
 
 import { TILE_SIZE } from "../utils/constants.js";
-import { gameState } from "../utils/gameState.js";
+import { addGold, gameState } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
 import { incrementGoblinDefeated } from "./game.js";
 import { spawnFloatingText } from "./floatingText.js";
@@ -310,6 +310,7 @@ export function damageEnemy(enemy, amount) {
     playGoblinDeath();
     incrementGoblinDefeated();
     awardXP(25);
+    addGold(5);
     spawnFloatingText(enemy.x, enemy.y - 50, "+25 XP", "#b3ffb3", 18);
 
     const s = document.createElement("div");
