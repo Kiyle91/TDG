@@ -94,7 +94,12 @@ function handleNavAction(action) {
     // 👑 PLAYER STATS
     // --------------------------------------------------------
     case "player":
-      alert("👑 Player stats overlay coming soon!");
+      playFairySprinkle();
+      console.log("👑 Opening player stats overlay...");
+      import("./ui.js").then(mod => {
+        mod.updatePlayerStatsOverlay?.();
+        mod.showOverlay?.("overlay-player-stats");
+      });
       break;
 
     default:
