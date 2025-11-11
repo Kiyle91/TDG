@@ -246,50 +246,52 @@ function performMeleeAttack() {
   console.log(hit ? "🗡️ Melee hit landed!" : "⚔️ Melee swing missed.");
 }
 
-// ------------------------------------------------------------
-// 🏹 Ranged — accurate aim (canvas scaling), map collision, lifetime
-// ------------------------------------------------------------
-// 🏹 Ranged — numeric-safe damage, proper hit registration
-// ------------------------------------------------------------
 function performRangedAttack(e) {
   const p = gameState.player;
   if (!p) return;
 
-  // ✅ Safe damage calculation
   const dmg = Math.max(1, (Number(p.rangedAttack) || 0) * DMG_RANGED);
 
-  // Get mouse position relative to canvas
+  // 🎯 Mouse angle (canvas coordinate space)
   const rect = canvasRef.getBoundingClientRect();
   const mx = (e.clientX - rect.left) * (canvasRef.width / rect.width);
   const my = (e.clientY - rect.top) * (canvasRef.height / rect.height);
+  const dx = mx - p.pos.x;
+  const dy = my - p.pos.y;
+  const angle = Math.atan2(dy, dx);
+  const deg = ((angle * 180) / Math.PI + 360) % 360; // normalize 0–360
 
-  const angle = Math.atan2(my - p.pos.y, mx - p.pos.x);
-  const speed = 1200;
-
-  const screenHalfY = canvasRef.height / 2;
+  // 🧭 Define 6 sectors (each 60°)
+  // Note: 0° = right, 90° = down, 180° = left, 270° = up (canvas Y+ is down)
   let facing;
-  if (my > screenHalfY && mx < p.pos.x) facing = "lowerLeft";
-  else if (my > screenHalfY && mx >= p.pos.x) facing = "lowerRight";
-  else facing = mx < p.pos.x ? "left" : "right";
+  if (deg >= 330 || deg < 30) facing = "right";           // ➡️
+  else if (deg >= 30 && deg < 90) facing = "bottomRight"; // ↘️
+  else if (deg >= 90 && deg < 150) facing = "bottomLeft"; // ↙️
+  else if (deg >= 150 && deg < 210) facing = "left";      // ⬅️
+  else if (deg >= 210 && deg < 270) facing = "topLeft";   // ↖️
+  else if (deg >= 270 && deg < 330) facing = "topRight";  // ↗️
+  else facing = "right";
+
   p.facing = facing;
 
+  // 🏹 Simple one-frame pose hold
   isAttacking = true;
   attackType = "ranged";
   attackCooldown = CD_RANGED;
-  currentFrame = 0;
-  setTimeout(() => (currentFrame = 1), 200);
-  setTimeout(() => {
-    isAttacking = false;
-    currentFrame = 0;
-  }, 400);
+  setTimeout(() => { isAttacking = false; }, 300);
 
-  // ✅ Fire projectile
+  // 💫 Fire projectile
+  const speed = 1200;
   const startX = p.pos.x + Math.cos(angle) * 30;
   const startY = p.pos.y + Math.sin(angle) * 30;
   projectiles.push({ x: startX, y: startY, angle, speed, dmg, alive: true, life: 0 });
   playArrowSwish();
-  console.log(`🏹 Arrow fired — Damage: ${dmg.toFixed(1)}`);
+
+  console.log(`🏹 Arrow fired (${facing}) — angle ${deg.toFixed(1)}°`);
 }
+
+
+
 
 
 // ------------------------------------------------------------
@@ -717,20 +719,39 @@ export function drawPlayer(ctx) {
 
     else if (attackType === "ranged") {
       const facing = p.facing || "right";
-      if (facing === "lowerLeft") {
-        img = sprites.shoot.lowerLeft;
-      } else if (facing === "lowerRight") {
-        img = sprites.shoot.lowerRight;
-      } else if (facing === "left") {
-        img = currentFrame === 0
-          ? sprites.shoot.left[0]
-          : sprites.shoot.left[1];
-      } else {
-        img = currentFrame === 0
-          ? sprites.shoot.right[0]
-          : sprites.shoot.right[1];
+
+      switch (facing) {
+        case "left":
+          img = sprites.shoot.left[1];        // glitter_shoot_left.png
+          break;
+
+        case "right":
+          img = sprites.shoot.right[1];       // glitter_shoot_right.png
+          break;
+
+        case "topLeft":
+          img = sprites.shoot.left[0];        // glitter_raise_left.png
+          break;
+
+        case "topRight":
+          img = sprites.shoot.right[0];       // glitter_raise_right.png
+          break;
+
+        case "bottomLeft":
+          img = sprites.shoot.lowerLeft;      // glitter_lower_left.png
+          break;
+
+        case "bottomRight":
+          img = sprites.shoot.lowerRight;     // glitter_lower_right.png
+          break;
+
+        default:
+          img = sprites.shoot.right[1];
+          break;
       }
     }
+
+
 
     else if (attackType === "spell") {
       img = currentFrame === 0
