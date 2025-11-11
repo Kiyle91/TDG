@@ -186,7 +186,7 @@ function checkVictoryDefeat() {
   } else if (lives <= 0) {
     console.log("💔 No lives remaining!");
     stopGameplay("lives");
-  } else if (goblinsDefeated >= 5) {
+  } else if (goblinsDefeated >= 50) {
     console.log("🏆 Victory condition reached!");
     stopGameplay("victory");
   }

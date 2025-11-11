@@ -17,7 +17,7 @@ import { incrementGoblinDefeated } from "./game.js"; // 🏆 track kills
 import { spawnFloatingText } from "./floatingText.js";
 import { playGoblinAttack, playGoblinDeath, playPlayerDamage, playGoblinDamage } from "./soundtrack.js";
 import { spawnDamageSparkles } from "./playerController.js";
-
+import { awardXP } from "./levelSystem.js";
 
 let enemies = [];
 let ctx = null;
@@ -312,6 +312,7 @@ export function damageEnemy(enemy, amount) {
     console.log("💀 Goblin slain!");
     playGoblinDeath();
     incrementGoblinDefeated();
+    awardXP(25);
 
     // 💀 Optional death sparkle
     const s = document.createElement("div");

@@ -139,3 +139,48 @@
   100% { background-position: 0% 50%; }
 }
 
+.levelup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 240, 250, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.levelup-box {
+  background: linear-gradient(180deg, #ffe6f7, #e8d9ff);
+  border: 2px solid #fff;
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(255, 200, 255, 0.8);
+}
+
+.levelup-buttons {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.levelup-btn {
+  background: linear-gradient(180deg, #ffd6eb, #d0b3ff);
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #5b2b73;
+  font-weight: bold;
+  transition: 0.2s ease;
+}
+
+.levelup-btn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(180deg, #ffe6f7, #e5ccff);
+}
