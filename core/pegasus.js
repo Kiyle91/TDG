@@ -1,8 +1,9 @@
 // ============================================================
-// 🪽 pegasus.js — Olivia’s World: Crystal Keep (Fast Glide Version)
+// 🪽 pegasus.js — Olivia’s World: Crystal Keep (Dynamic Flight Edition)
 // ------------------------------------------------------------
-// ✦ Elegant Pegasus flies across the upper sky every few minutes
-// ✦ Faster, smaller, high-altitude ambient animation
+// ✦ Pegasus glides across the sky with random altitude, speed & wave pattern
+// ✦ Occasionally reverses direction for variety
+// ✦ Smooth fade-in/out and sine-wave motion for natural flight
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
@@ -11,7 +12,18 @@ let ctx = null;
 let pegasusImg = null;
 let active = false;
 let flightTimer = 0;
-let pegasus = { x: -500, y: 0, opacity: 0 };
+
+let pegasus = {
+  x: -500,
+  y: 0,
+  baseY: 0,
+  opacity: 0,
+  waveTime: 0,
+  direction: 1, // 1 = right, -1 = left
+  speed: 500,
+  waveHeight: 40,
+  waveSpeed: 0.005,
+};
 
 // ------------------------------------------------------------
 // 🌈 LOAD PEGASUS SPRITE
@@ -19,7 +31,7 @@ let pegasus = { x: -500, y: 0, opacity: 0 };
 export async function loadPegasus() {
   return new Promise((resolve) => {
     const img = new Image();
-    img.src = "./assets/images/characters/pegasus_glide.png"; // ✅ correct path
+    img.src = "./assets/images/characters/pegasus_glide.png";
     img.onload = () => {
       pegasusImg = img;
       console.log("🪽 Pegasus sprite loaded successfully.");
@@ -42,35 +54,50 @@ export function initPegasus(canvasContext) {
 }
 
 // ------------------------------------------------------------
-// 🔁 UPDATE — called by game.js once per frame
+// 🔁 UPDATE — called from game.js each frame
 // ------------------------------------------------------------
 export function updatePegasus(delta = 16) {
   if (!ctx || !pegasusImg || gameState.paused) return;
 
   flightTimer += delta;
 
-  // Every 5 seconds (testing)
-  if (!active && flightTimer >= 120000) {
+  // 🕒 Trigger a new flight every 2 minutes
+  if (!active && flightTimer >= 60000) {
     startPegasusFlight();
     flightTimer = 0;
   }
 
   if (active) {
     const canvas = ctx.canvas;
-    const speed = 500; // 💨 faster glide (px/sec)
-    const fadeSpeed = 0.02; // slightly quicker fade
+    const fadeSpeed = 0.02;
 
-    pegasus.x += (speed * delta) / 1000;
+    pegasus.x += (pegasus.speed * pegasus.direction * delta) / 1000;
+    pegasus.waveTime += delta;
 
-    // Fade in/out smoothly
-    if (pegasus.x < canvas.width * 0.15) {
-      pegasus.opacity = Math.min(1, pegasus.opacity + fadeSpeed);
-    } else if (pegasus.x > canvas.width * 0.85) {
-      pegasus.opacity = Math.max(0, pegasus.opacity - fadeSpeed);
+    // 💫 Random swooping motion
+    const curve = Math.sin(pegasus.waveTime * pegasus.waveSpeed) * pegasus.waveHeight;
+    pegasus.y = pegasus.baseY + curve;
+
+    // ✨ Fade in/out at edges
+    if (pegasus.direction === 1) {
+      // → flying right
+      if (pegasus.x < canvas.width * 0.15)
+        pegasus.opacity = Math.min(1, pegasus.opacity + fadeSpeed);
+      else if (pegasus.x > canvas.width * 0.85)
+        pegasus.opacity = Math.max(0, pegasus.opacity - fadeSpeed);
+    } else {
+      // ← flying left
+      if (pegasus.x > canvas.width * 0.85)
+        pegasus.opacity = Math.min(1, pegasus.opacity + fadeSpeed);
+      else if (pegasus.x < canvas.width * 0.15)
+        pegasus.opacity = Math.max(0, pegasus.opacity - fadeSpeed);
     }
 
-    // End flight when offscreen
-    if (pegasus.x > canvas.width + 300) {
+    // 🚫 End flight when completely off-screen
+    if (
+      (pegasus.direction === 1 && pegasus.x > canvas.width + 400) ||
+      (pegasus.direction === -1 && pegasus.x < -400)
+    ) {
       active = false;
       pegasus.opacity = 0;
     }
@@ -78,23 +105,42 @@ export function updatePegasus(delta = 16) {
 }
 
 // ------------------------------------------------------------
-// 🕊️ START FLIGHT — triggered periodically
+// 🕊️ START FLIGHT — new randomized flight setup
 // ------------------------------------------------------------
 function startPegasusFlight() {
   if (!ctx) return;
   const canvas = ctx.canvas;
-  pegasus.x = -400;
 
-  // ☁️ high in the sky (top 10–30% of screen)
-  pegasus.y = canvas.height * (0.1 + Math.random() * 0.2);
+  // Random direction (50% chance to reverse)
+  pegasus.direction = Math.random() < 0.5 ? 1 : -1;
+
+  // Start off-screen based on direction
+  pegasus.x = pegasus.direction === 1 ? -400 : canvas.width + 400;
+
+  // Random vertical altitude (10%–50% screen height)
+  const minY = canvas.height * 0.1;
+  const maxY = canvas.height * 0.5;
+  pegasus.baseY = minY + Math.random() * (maxY - minY);
+  pegasus.y = pegasus.baseY;
+
+  // Random motion style
+  pegasus.speed = 400 + Math.random() * 250; // px/sec
+  pegasus.waveHeight = 20 + Math.random() * 80; // swoop amplitude
+  pegasus.waveSpeed = 0.003 + Math.random() * 0.005; // sine frequency
 
   pegasus.opacity = 0;
+  pegasus.waveTime = 0;
   active = true;
-  console.log("🌠 Pegasus flight started high in the sky!");
+
+  console.log(
+    `🌠 Pegasus flight started — dir: ${pegasus.direction === 1 ? "→" : "←"}, y=${Math.round(
+      pegasus.baseY
+    )}, speed=${pegasus.speed.toFixed(0)}, wave=${pegasus.waveHeight.toFixed(0)}`
+  );
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW — called from renderGame()
+// 🎨 DRAW — rendered from renderGame()
 // ------------------------------------------------------------
 export function drawPegasusFrame(context) {
   if (!active || !pegasusImg) return;
@@ -104,12 +150,24 @@ export function drawPegasusFrame(context) {
   context.shadowColor = "#ffffff";
   context.shadowBlur = 25;
 
-  // 🪽 smaller Pegasus (40% scale)
+  // Flip horizontally if flying left
   const scale = 0.2;
   const width = pegasusImg.width * scale;
   const height = pegasusImg.height * scale;
 
-  context.drawImage(pegasusImg, pegasus.x, pegasus.y, width, height);
+  if (pegasus.direction === -1) {
+    context.scale(-1, 1);
+    context.drawImage(
+      pegasusImg,
+      -pegasus.x - width, // mirrored
+      pegasus.y,
+      width,
+      height
+    );
+  } else {
+    context.drawImage(pegasusImg, pegasus.x, pegasus.y, width, height);
+  }
+
   context.restore();
 }
 
