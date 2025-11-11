@@ -100,6 +100,14 @@ export function playGoblinAttack() {
   playSfx(goblinAttackPath);
 }
 
+// ------------------------------------------------------------
+// 💀 Goblin Death SFX
+// ------------------------------------------------------------
+const goblinDeathPath = "./assets/sounds/goblin_death.mp3";
+export function playGoblinDeath() {
+  playSfx(goblinDeathPath);
+}
+
 
 // ------------------------------------------------------------
 // 🛑 Stop Music

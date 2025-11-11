@@ -15,7 +15,7 @@ import { gameState } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
 import { incrementGoblinDefeated } from "./game.js"; // 🏆 track kills
 import { spawnFloatingText } from "./floatingText.js";
-import { playGoblinAttack } from "./soundtrack.js";
+import { playGoblinAttack, playGoblinDeath } from "./soundtrack.js";
 
 let enemies = [];
 let ctx = null;
@@ -302,6 +302,7 @@ export function damageEnemy(enemy, amount) {
     enemy.fading = false;
     enemy.fadeTimer = 0;
     console.log("💀 Goblin slain!");
+    playGoblinDeath();
     incrementGoblinDefeated();
 
     // 💀 Optional death sparkle
