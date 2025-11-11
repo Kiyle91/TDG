@@ -74,8 +74,9 @@ function loadSprite(src) {
 }
 
 async function loadPlayerSprites() {
-  // Idle + walk
+  // 🩷 IDLE + WALK
   sprites.idle = await loadSprite("./assets/images/sprites/glitter/glitter_idle.png");
+
   sprites.walk.up[0] = await loadSprite("./assets/images/sprites/glitter/glitter_W1.png");
   sprites.walk.up[1] = await loadSprite("./assets/images/sprites/glitter/glitter_W2.png");
   sprites.walk.left[0] = await loadSprite("./assets/images/sprites/glitter/glitter_A1.png");
@@ -85,19 +86,21 @@ async function loadPlayerSprites() {
   sprites.walk.right[0] = await loadSprite("./assets/images/sprites/glitter/glitter_D1.png");
   sprites.walk.right[1] = await loadSprite("./assets/images/sprites/glitter/glitter_D2.png");
 
-  // Attack + shoot
+  // 🗡️ MELEE (2-frame sequence)
   sprites.attack.left[0] = await loadSprite("./assets/images/sprites/glitter/glitter_attack_left.png");
   sprites.attack.left[1] = await loadSprite("./assets/images/sprites/glitter/glitter_melee_left.png");
   sprites.attack.right[0] = await loadSprite("./assets/images/sprites/glitter/glitter_attack_right.png");
   sprites.attack.right[1] = await loadSprite("./assets/images/sprites/glitter/glitter_melee_right.png");
 
+  // 🏹 RANGED (2-frame sequence)
   sprites.shoot.left[0] = await loadSprite("./assets/images/sprites/glitter/glitter_raise_left.png");
   sprites.shoot.left[1] = await loadSprite("./assets/images/sprites/glitter/glitter_shoot_left.png");
   sprites.shoot.right[0] = await loadSprite("./assets/images/sprites/glitter/glitter_raise_right.png");
   sprites.shoot.right[1] = await loadSprite("./assets/images/sprites/glitter/glitter_shoot_right.png");
 
-  console.log("🦄 Glitter sprites + combat frames loaded.");
+  console.log("🦄 Glitter sprites + combat frames loaded (file-verified).");
 }
+
 
 // ------------------------------------------------------------
 function ensurePlayerRuntime() {
@@ -169,28 +172,34 @@ export async function initPlayerController(canvas) {
   console.log("🧭 PlayerController initialized (Combat Fixed).");
 }
 
-// ------------------------------------------------------------
-// 🗡️ MELEE
-// ------------------------------------------------------------
 function performMeleeAttack() {
   const p = gameState.player;
   const dmg = p.attack * DMG_MELEE;
+  const leftKeys = keys.has("KeyA") || keys.has("KeyW");
+  const rightKeys = keys.has("KeyD") || keys.has("KeyS");
+  currentDir = leftKeys && !rightKeys ? "left" : "right";
+
   isAttacking = true;
   attackType = "melee";
   attackCooldown = CD_MELEE;
-  setTimeout(() => (isAttacking = false), 400);
 
+  // Start with first attack frame
+  currentFrame = 0;
+
+  // play attack frame → then melee frame after short delay
+  setTimeout(() => { currentFrame = 1; }, 180);
+  setTimeout(() => { isAttacking = false; currentFrame = 0; }, 400);
+
+  // --- damage + knockback ---
   const range = 80;
   const origin = { x: p.pos.x, y: p.pos.y };
 
   let hitSomething = false;
   for (const g of getEnemies()) {
-    if (!g || !g.alive) continue;
-
+    if (!g.alive) continue;
     const dx = g.x - origin.x;
     const dy = g.y - origin.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
-
     if (dist <= range + g.width / 2) {
       damageEnemy(g, dmg);
       hitSomething = true;
@@ -211,23 +220,40 @@ function performMeleeAttack() {
 function performRangedAttack(e) {
   const p = gameState.player;
   const dmg = p.attack * DMG_RANGED;
-  isAttacking = true;
-  attackType = "ranged";
-  attackCooldown = CD_RANGED;
-  setTimeout(() => (isAttacking = false), 350);
-
   const rect = canvasRef.getBoundingClientRect();
   const mx = e.clientX - rect.left;
   const my = e.clientY - rect.top;
   const angle = Math.atan2(my - p.pos.y, mx - p.pos.x);
   const speed = 600;
 
+  // decide facing direction based on cursor
+  currentDir = mx < p.pos.x ? "left" : "right";
+
+  isAttacking = true;
+  attackType = "ranged";
+  attackCooldown = CD_RANGED;
+
+  // animate raise → shoot
+  currentFrame = 0;
+  setTimeout(() => { currentFrame = 1; }, 200);
+  setTimeout(() => { isAttacking = false; currentFrame = 0; }, 400);
+
+  // spawn projectile slightly forward from player
   const startX = p.pos.x + Math.cos(angle) * 30;
   const startY = p.pos.y + Math.sin(angle) * 30;
 
-  projectiles.push({ x: startX, y: startY, angle, speed, dmg, alive: true });
+  projectiles.push({
+    x: startX,
+    y: startY,
+    angle,
+    speed,
+    dmg,
+    alive: true,
+  });
+
   spawnSparkleBurst(startX, startY, 6);
 }
+
 
 // ------------------------------------------------------------
 // 💖 HEAL
@@ -382,7 +408,10 @@ export function updatePlayer(delta) {
     p.pos.y = Math.max(r, Math.min(canvasRef.height - r, p.pos.y));
   }
 
-  if (isMoving && !isAttacking) {
+  if (isAttacking) {
+    // 🔒 preserve currentFrame for attack animations
+    // do not reset here; handled by attack timeouts
+  } else if (isMoving) {
     frameTimer += delta;
     if (frameTimer >= WALK_FRAME_INTERVAL) {
       frameTimer = 0;
@@ -397,29 +426,58 @@ export function updatePlayer(delta) {
   gameState.player.y = p.pos.y;
 }
 
+
 // ------------------------------------------------------------
-// 🎨 DRAW PLAYER
+// 🎨 DRAW PLAYER — proper 2-frame attack + ranged animation
 // ------------------------------------------------------------
 export function drawPlayer(ctx) {
   if (!ctx) return;
   ensurePlayerRuntime();
   const { x, y } = gameState.player.pos;
 
+  // default
   let img = sprites.idle;
+
+  // ==========================================================
+  // ATTACK ANIMATIONS
+  // ==========================================================
   if (isAttacking) {
-    if (attackType === "melee")
-      img = sprites.attack[currentDir === "left" ? "left" : "right"][currentFrame];
-    else if (attackType === "ranged")
-      img = sprites.shoot[currentDir === "left" ? "left" : "right"][currentFrame];
+    if (attackType === "melee") {
+      // Frame 0 → glitter_attack_*, Frame 1 → glitter_melee_*
+      const dir = currentDir === "left" ? "left" : "right";
+      img = currentFrame === 0
+        ? sprites.attack[dir][0]   // glitter_attack_*
+        : sprites.attack[dir][1];  // glitter_melee_*
+    }
+
+    if (attackType === "ranged") {
+      // Frame 0 → glitter_raise_*, Frame 1 → glitter_shoot_*
+      const dir = currentDir === "left" ? "left" : "right";
+      img = currentFrame === 0
+        ? sprites.shoot[dir][0]   // glitter_raise_*
+        : sprites.shoot[dir][1];  // glitter_shoot_*
+    }
+  }
+
+  // ==========================================================
+  // MOVEMENT / IDLE
+  // ==========================================================
+  if (!isAttacking) {
+    if (isMoving) img = sprites.walk[currentDir][currentFrame];
     else img = sprites.idle;
-  } else if (isMoving) img = sprites.walk[currentDir][currentFrame];
+  }
+
   if (!img) return;
 
-  const drawX = x - SPRITE_SIZE / 2,
-    drawY = y - SPRITE_SIZE / 2;
+  // ==========================================================
+  // RENDER
+  // ==========================================================
+  const drawX = x - SPRITE_SIZE / 2;
+  const drawY = y - SPRITE_SIZE / 2;
+
   ctx.save();
 
-  // Shadow
+  // 🩶 shadow
   ctx.beginPath();
   ctx.ellipse(
     x,
@@ -437,7 +495,7 @@ export function drawPlayer(ctx) {
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, SPRITE_SIZE, SPRITE_SIZE);
 
-  // Draw silver arrows
+  // 🏹 silver arrows
   ctx.fillStyle = "rgba(240,240,255,0.9)";
   for (const a of projectiles) {
     ctx.save();
@@ -449,6 +507,8 @@ export function drawPlayer(ctx) {
 
   ctx.restore();
 }
+
+
 
 // ------------------------------------------------------------
 export function destroyPlayerController() {
