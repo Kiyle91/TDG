@@ -108,6 +108,21 @@ export function playGoblinDeath() {
   playSfx(goblinDeathPath);
 }
 
+// ------------------------------------------------------------
+// ❤️ Player Damage SFX
+// ------------------------------------------------------------
+const playerDamagePath = "./assets/sounds/player_damage.mp3";
+export function playPlayerDamage() {
+  playSfx(playerDamagePath);
+}
+
+// ------------------------------------------------------------
+// 💢 Goblin Damage (when hit, not killed)
+// ------------------------------------------------------------
+const goblinDamagePath = "./assets/sounds/goblin_damage.mp3";
+export function playGoblinDamage() {
+  playSfx(goblinDamagePath);
+}
 
 // ------------------------------------------------------------
 // 🛑 Stop Music

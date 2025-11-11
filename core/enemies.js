@@ -15,7 +15,9 @@ import { gameState } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
 import { incrementGoblinDefeated } from "./game.js"; // 🏆 track kills
 import { spawnFloatingText } from "./floatingText.js";
-import { playGoblinAttack, playGoblinDeath } from "./soundtrack.js";
+import { playGoblinAttack, playGoblinDeath, playPlayerDamage, playGoblinDamage } from "./soundtrack.js";
+
+
 
 let enemies = [];
 let ctx = null;
@@ -190,6 +192,9 @@ export function updateEnemies(delta) {
           e.attackCooldown = ATTACK_COOLDOWN;
           player.hp = Math.max(0, player.hp - GOBLIN_DAMAGE);
           playGoblinAttack();
+          setTimeout(() => {
+            playPlayerDamage();
+          }, 220);
 
           // 🗡️ 2-frame directional attack animation
           e.attacking = true;
@@ -293,6 +298,7 @@ export function damageEnemy(enemy, amount) {
 
   enemy.hp -= amount;
   enemy.flashTimer = 150; // 🔴 flash for 150 ms
+  playGoblinDamage();
   console.log(`🩸 Goblin hit for ${amount}. HP now ${enemy.hp}/${enemy.maxHp}`);
 
   if (enemy.hp <= 0) {
