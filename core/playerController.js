@@ -233,20 +233,24 @@ function performMeleeAttack() {
 
 // ------------------------------------------------------------
 // 🏹 Ranged — accurate aim (canvas scaling), map collision, lifetime
+// ------------------------------------------------------------
+// 🏹 Ranged — numeric-safe damage, proper hit registration
+// ------------------------------------------------------------
 function performRangedAttack(e) {
   const p = gameState.player;
-  const dmg = p.attack * DMG_RANGED;
+  if (!p) return;
+
+  // ✅ Safe damage calculation
+  const dmg = Math.max(1, (Number(p.rangedAttack) || 0) * DMG_RANGED);
 
   // Get mouse position relative to canvas
   const rect = canvasRef.getBoundingClientRect();
   const mx = (e.clientX - rect.left) * (canvasRef.width / rect.width);
   const my = (e.clientY - rect.top) * (canvasRef.height / rect.height);
 
-  // Calculate shot angle and speed
   const angle = Math.atan2(my - p.pos.y, mx - p.pos.x);
   const speed = 1200;
 
-  // Determine facing purely from cursor position
   const screenHalfY = canvasRef.height / 2;
   let facing;
   if (my > screenHalfY && mx < p.pos.x) facing = "lowerLeft";
@@ -254,43 +258,60 @@ function performRangedAttack(e) {
   else facing = mx < p.pos.x ? "left" : "right";
   p.facing = facing;
 
-  // Attack timing (short lockout)
   isAttacking = true;
   attackType = "ranged";
   attackCooldown = CD_RANGED;
   currentFrame = 0;
-  setTimeout(() => { currentFrame = 1; }, 200);
-  setTimeout(() => { isAttacking = false; currentFrame = 0; }, 400);
+  setTimeout(() => (currentFrame = 1), 200);
+  setTimeout(() => {
+    isAttacking = false;
+    currentFrame = 0;
+  }, 400);
 
-  // Spawn projectile
+  // ✅ Fire projectile
   const startX = p.pos.x + Math.cos(angle) * 30;
   const startY = p.pos.y + Math.sin(angle) * 30;
   projectiles.push({ x: startX, y: startY, angle, speed, dmg, alive: true, life: 0 });
   playArrowSwish();
+  console.log(`🏹 Arrow fired — Damage: ${dmg.toFixed(1)}`);
 }
 
 
 // ------------------------------------------------------------
-// 💖 Heal — centered rainbow shimmer + HUD update
+// 💖 Heal — pastel shimmer, SP + MaxHP scaling, NaN-safe
+// ------------------------------------------------------------
 function performHeal() {
   const p = gameState.player;
-  if (p.mana < COST_HEAL) return;
+  const cost = Number(COST_HEAL) || 0;
+  if (!p || p.mana < cost) return;
 
   isAttacking = true;
   attackType = "heal";
   attackCooldown = CD_HEAL;
   currentFrame = 0;
-
-  // show the kneeling animation for 1 second
   setTimeout(() => { isAttacking = false; currentFrame = 0; }, 1000);
 
-  p.mana -= COST_HEAL;
-  const amount = p.maxHp ? p.maxHp * 0.25 : 25;
-  p.hp = Math.min(p.maxHp || 100, p.hp + amount);
-  playFairySprinkle();
-  spawnFloatingText(p.pos.x, p.pos.y - 40, `+${Math.round(amount)}`, "#7aff7a");
+  // Spend mana
+  p.mana = Math.max(0, p.mana - cost);
 
-  // soft green sparkle burst
+  // ✅ Heal scales with Spell Power + a small share of MaxHP
+  const sp = Number(p.spellPower) || 0;
+  const mh = Number(p.maxHp) || 0;
+
+  // Tweak coefficients to taste; these feel good early-game
+  const rawHeal = sp * 1.2 + mh * 0.08 + 10; // base + SP + %MaxHP
+  const amount = Math.max(1, Math.round(rawHeal));
+
+  // Apply and clamp
+  const prevHP = p.hp;
+  p.hp = Math.min(p.maxHp, p.hp + amount);
+  const actual = Math.max(0, Math.round(p.hp - prevHP)); // in case we were almost full
+
+  // SFX + FX
+  playFairySprinkle();
+  spawnFloatingText(p.pos.x, p.pos.y - 40, `+${actual}`, "#7aff7a");
+
+  // Soft green sparkle burst
   spawnCanvasSparkleBurst(
     p.pos.x,
     p.pos.y,
@@ -300,47 +321,62 @@ function performHeal() {
   );
 
   updateHUD();
-  console.log(`💖 Heal +${Math.round(amount)} HP`);
+  console.log(`💖 Heal +${actual} HP (SP=${sp}, MaxHP=${mh}, Cost=${cost})`);
 }
+
 
 
 // ------------------------------------------------------------
 // 🔮 Spell — large pastel explosion + AoE damage
+// ------------------------------------------------------------
+// 🔮 Spell — numeric-safe AoE + spellPower scaling
+// ------------------------------------------------------------
 function performSpell() {
   const p = gameState.player;
-  if (p.mana < COST_SPELL) return;
+  if (!p || p.mana < COST_SPELL) return;
 
   isAttacking = true;
   attackType = "spell";
   attackCooldown = CD_SPELL;
-
   p.mana -= COST_SPELL;
 
-  // start with charge frame
   currentFrame = 0;
-  setTimeout(() => { currentFrame = 1; }, 350); // switch to explode frame after charge
-  setTimeout(() => { isAttacking = false; currentFrame = 0; }, 900);
-
-  // AoE damage + sparkle burst after delay
+  setTimeout(() => (currentFrame = 1), 350);
   setTimeout(() => {
-    const dmg = p.attack * DMG_SPELL;
+    isAttacking = false;
+    currentFrame = 0;
+  }, 900);
+
+  // 💥 AoE damage mid-animation
+  setTimeout(() => {
+    const dmg = Math.max(1, (Number(p.spellPower) || 0) * DMG_SPELL);
     const radius = 150;
     let hits = 0;
-    for (const g of getEnemies()) {
+
+    for (const g of window.__enemies || []) {
       if (!g.alive) continue;
-      const dx = g.x - p.pos.x, dy = g.y - p.pos.y;
+      const dx = g.x - p.pos.x;
+      const dy = g.y - p.pos.y;
       const dist = Math.hypot(dx, dy);
-      if (dist < radius) { damageEnemy(g, dmg); hits++; }
+      if (dist < radius) {
+        damageEnemy(g, dmg);
+        hits++;
+      }
     }
+
     spawnCanvasSparkleBurst(
-      p.pos.x, p.pos.y, 90, 160,
+      p.pos.x,
+      p.pos.y,
+      90,
+      160,
       ["#ffb3e6", "#b3ecff", "#fff2b3", "#cdb3ff", "#b3ffd9", "#ffffff"]
     );
     updateHUD();
     playSpellCast();
-    console.log(`🔮 Spell cast! Hit ${hits} enemies.`);
-  }, 400); // trigger explosion mid-animation
+    console.log(`🔮 Spell cast! Hit ${hits} enemies for ${dmg.toFixed(1)} each.`);
+  }, 400);
 }
+
 
 // ------------------------------------------------------------
 // 🌈 GLITTER BURSTS — refined size + radius (canvas-based)

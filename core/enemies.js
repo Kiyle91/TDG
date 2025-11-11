@@ -1,21 +1,26 @@
 // ============================================================
-// 👹 enemies.js — Olivia’s World: Crystal Keep (Global Sync Fix + Floating Text + Flash Fade)
+// 👹 enemies.js — Olivia’s World: Crystal Keep (Numeric-Safe + Death Fix)
 // ------------------------------------------------------------
 // ✦ Directional goblins with smooth animation + shadows
 // ✦ Chase / attack player with proximity AI
 // ✦ Cinematic death sequence (slain sprite → fade → respawn)
 // ✦ Health bars + color gradient, fade on death
 // ✦ Despawn + life loss when goblins reach the path end
-// ✦ Victory system integration (goblin kill counter)
-// ✦ FIX: Floating combat text + smooth red flash fade
+// ✦ Victory + XP integration + Floating Text
+// ✦ FIXED: NaN-safe damage, proper death progression
 // ============================================================
 
 import { TILE_SIZE } from "../utils/constants.js";
 import { gameState } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
-import { incrementGoblinDefeated } from "./game.js"; // 🏆 track kills
+import { incrementGoblinDefeated } from "./game.js";
 import { spawnFloatingText } from "./floatingText.js";
-import { playGoblinAttack, playGoblinDeath, playPlayerDamage, playGoblinDamage } from "./soundtrack.js";
+import {
+  playGoblinAttack,
+  playGoblinDeath,
+  playPlayerDamage,
+  playGoblinDamage,
+} from "./soundtrack.js";
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
 
@@ -79,7 +84,6 @@ async function loadGoblinSprites() {
         await loadImage("./assets/images/sprites/goblin/goblin_D2.png"),
       ],
     },
-    // ⚔️ Attack (2-frame sequence like player)
     attack: {
       left: [
         await loadImage("./assets/images/sprites/goblin/goblin_attack_left.png"),
@@ -96,7 +100,6 @@ async function loadGoblinSprites() {
   console.log("👹 Goblin sprite set loaded (directional + attack + death).");
 }
 
-
 // ------------------------------------------------------------
 // 🌍 PATH CONTROL
 // ------------------------------------------------------------
@@ -109,7 +112,7 @@ export function setEnemyPath(points) {
 // ------------------------------------------------------------
 export async function initEnemies() {
   enemies = [];
-  window.__enemies = enemies; // 🔄 keep global reference live
+  window.__enemies = enemies;
   await loadGoblinSprites();
   spawnEnemy();
 }
@@ -142,10 +145,13 @@ function spawnEnemy() {
     state: "path",
     attackCooldown: 0,
     returnTimer: 0,
-    flashTimer: 0, // red flash duration
+    flashTimer: 0,
+    attacking: false,
+    attackFrame: 0,
+    attackDir: "right",
   });
 
-  window.__enemies = enemies; // 🧩 refresh global pointer
+  window.__enemies = enemies;
 }
 
 // ------------------------------------------------------------
@@ -162,11 +168,12 @@ export function updateEnemies(delta) {
 
   for (const e of enemies) {
     if (!e.alive) {
-      // death fade progression
       if (!e.fading) {
         e.deathTimer += delta;
         if (e.deathTimer >= DEATH_LAY_DURATION) e.fading = true;
-      } else e.fadeTimer += delta;
+      } else {
+        e.fadeTimer += delta;
+      }
       continue;
     }
 
@@ -174,7 +181,6 @@ export function updateEnemies(delta) {
     const dyp = py - e.y;
     const distToPlayer = Math.sqrt(dxp * dxp + dyp * dyp);
 
-    // Aggro + AI
     if (distToPlayer < AGGRO_RANGE && e.state === "path") e.state = "chase";
 
     if (e.state === "chase") {
@@ -187,28 +193,18 @@ export function updateEnemies(delta) {
       } else {
         e.attackCooldown -= delta;
 
-        // ⚔️ Attack trigger and animation
         if (e.attackCooldown <= 0) {
           e.attackCooldown = ATTACK_COOLDOWN;
           player.hp = Math.max(0, player.hp - GOBLIN_DAMAGE);
           playGoblinAttack();
-          setTimeout(() => {
-            playPlayerDamage();
-          }, 370);
-
+          setTimeout(() => playPlayerDamage(), 370);
           spawnDamageSparkles(player.pos.x, player.pos.y);
 
-          // 🗡️ 2-frame directional attack animation
           e.attacking = true;
           e.attackFrame = 0;
-
-          // determine attack facing based on player position
           e.attackDir = px < e.x ? "left" : "right";
 
-          setTimeout(() => {
-            e.attackFrame = 1;
-          }, 150);
-
+          setTimeout(() => (e.attackFrame = 1), 150);
           setTimeout(() => {
             e.attacking = false;
             e.attackFrame = 0;
@@ -219,7 +215,6 @@ export function updateEnemies(delta) {
       }
     }
 
-    // Return to path
     if (e.state === "return") {
       e.returnTimer += delta;
       if (e.returnTimer > RETURN_DELAY) {
@@ -239,7 +234,6 @@ export function updateEnemies(delta) {
       }
     }
 
-    // Follow path
     if (e.state === "path") {
       const target = pathPoints[e.targetIndex];
       if (!target) continue;
@@ -273,11 +267,9 @@ export function updateEnemies(delta) {
       e.frame = (e.frame + 1) % 2;
     }
 
-    // 🩸 Flash timer update (fade out)
     if (e.flashTimer > 0) e.flashTimer -= delta;
   }
 
-  // Remove fully faded + respawn
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
     if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) {
@@ -286,7 +278,7 @@ export function updateEnemies(delta) {
     }
   }
 
-  window.__enemies = enemies; // 🔄 sync global reference
+  window.__enemies = enemies;
 }
 
 // ------------------------------------------------------------
@@ -295,13 +287,18 @@ export function updateEnemies(delta) {
 export function damageEnemy(enemy, amount) {
   if (!enemy || !enemy.alive) return;
 
-  // 💬 Floating damage text on every hit
-  spawnFloatingText(enemy.x, enemy.y - 30, `-${Math.round(amount)}`, "#ff5c8a", 18);
+  const dmg = Number(amount);
+  if (isNaN(dmg) || dmg <= 0) {
+    console.warn("⚠️ Invalid or zero damage:", amount);
+    return;
+  }
 
-  enemy.hp -= amount;
-  enemy.flashTimer = 150; // 🔴 flash for 150 ms
+  spawnFloatingText(enemy.x, enemy.y - 30, -Math.abs(Math.round(dmg)), "#ff5c8a", 18);
+
+  enemy.hp -= dmg;
+  enemy.flashTimer = 150;
   playGoblinDamage();
-  console.log(`🩸 Goblin hit for ${amount}. HP now ${enemy.hp}/${enemy.maxHp}`);
+  console.log(`🩸 Goblin took ${dmg} damage → ${enemy.hp}/${enemy.maxHp}`);
 
   if (enemy.hp <= 0) {
     enemy.hp = 0;
@@ -313,18 +310,20 @@ export function damageEnemy(enemy, amount) {
     playGoblinDeath();
     incrementGoblinDefeated();
     awardXP(25);
+    spawnFloatingText(enemy.x, enemy.y - 50, "+25 XP", "#b3ffb3", 18);
 
-    // 💀 Optional death sparkle
     const s = document.createElement("div");
     s.className = "magic-particle";
-    s.style.position = "absolute";
-    s.style.left = `${enemy.x}px`;
-    s.style.top = `${enemy.y}px`;
-    s.style.width = "8px";
-    s.style.height = "8px";
-    s.style.background = "white";
-    s.style.borderRadius = "50%";
-    s.style.opacity = "0.8";
+    Object.assign(s.style, {
+      position: "absolute",
+      left: `${enemy.x}px`,
+      top: `${enemy.y}px`,
+      width: "8px",
+      height: "8px",
+      background: "white",
+      borderRadius: "50%",
+      opacity: "0.8",
+    });
     document.body.appendChild(s);
     s.animate(
       [
@@ -335,7 +334,6 @@ export function damageEnemy(enemy, amount) {
     );
     setTimeout(() => s.remove(), 600);
 
-    // 💬 Floating skull text on death
     spawnFloatingText(enemy.x, enemy.y - 40, "💀", "#ffffff", 22);
   }
 }
@@ -395,7 +393,6 @@ export function drawEnemies(context) {
 
     ctx.save();
 
-    // 🩶 soft drop shadow under goblin
     ctx.beginPath();
     ctx.ellipse(
       e.x,
@@ -412,9 +409,8 @@ export function drawEnemies(context) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // 🩸 smooth red flash fade (only when alive)
     if (e.alive && e.flashTimer > 0) {
-      const flashAlpha = Math.max(0, e.flashTimer / 150); // fade strength
+      const flashAlpha = Math.max(0, e.flashTimer / 150);
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
       ctx.filter = `contrast(1.2) brightness(${1 + flashAlpha * 0.5}) saturate(${1 + flashAlpha * 1.5}) hue-rotate(-30deg)`;
@@ -422,20 +418,16 @@ export function drawEnemies(context) {
       ctx.filter = "none";
     }
 
-    // ☠️ fade out on death
     if (!e.alive && e.fading) {
       const alpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
       ctx.globalAlpha *= alpha;
     }
 
-    // 🧩 draw sprite
     ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, ENEMY_SIZE, ENEMY_SIZE);
 
-    // reset filter / alpha
     ctx.filter = "none";
     ctx.globalAlpha = 1;
 
-    // ❤️ health bar
     if (e.alive) drawHealthBar(ctx, e.x, e.y, e.hp, e.maxHp);
 
     ctx.restore();
@@ -449,18 +441,22 @@ function getEnemySprite(e) {
   if (!goblinSprites) return null;
   if (!e.alive) return goblinSprites.slain;
 
-  // ⚔️ Attack sequence (2-frame)
   if (e.attacking) {
     const dir = e.attackDir || (e.dir === "left" ? "left" : "right");
     return goblinSprites.attack[dir][e.attackFrame || 0];
   }
 
   switch (e.dir) {
-    case "up": return goblinSprites.walk.up[e.frame];
-    case "down": return goblinSprites.walk.down[e.frame];
-    case "left": return goblinSprites.walk.left[e.frame];
-    case "right": return goblinSprites.walk.right[e.frame];
-    default: return goblinSprites.idle;
+    case "up":
+      return goblinSprites.walk.up[e.frame];
+    case "down":
+      return goblinSprites.walk.down[e.frame];
+    case "left":
+      return goblinSprites.walk.left[e.frame];
+    case "right":
+      return goblinSprites.walk.right[e.frame];
+    default:
+      return goblinSprites.idle;
   }
 }
 
