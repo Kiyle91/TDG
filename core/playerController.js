@@ -110,6 +110,9 @@ async function loadPlayerSprites() {
   // 💖 HEAL (single-frame kneeling prayer)
   sprites.heal = await loadSprite("./assets/images/sprites/glitter/glitter_heal_kneel.png");
 
+  // 💀 DEATH (single slain frame)
+  sprites.dead = await loadSprite("./assets/images/sprites/glitter/glitter_slain.png");
+
 
 
   console.log("🦄 Glitter sprites + combat frames loaded (file-verified).");
@@ -137,6 +140,7 @@ function ensurePlayerRuntime() {
   if (typeof p.mana    !== "number" || isNaN(p.mana))    p.mana    = 50;
   if (typeof p.maxMana !== "number" || isNaN(p.maxMana)) p.maxMana = 50;
   if (typeof p.defense !== "number" || isNaN(p.defense)) p.defense = 5;
+  if (typeof p.dead === "undefined") p.dead = false;
 
   if (!p.body) {
     const bw = SPRITE_SIZE * 0.55;
@@ -446,15 +450,31 @@ function updateProjectiles(delta) {
   }
 }
 
-// ------------------------------------------------------------
-// Update
+// ============================================================
+// 🔁 UPDATE PLAYER — movement, combat, death + FX
+// ============================================================
 export function updatePlayer(delta) {
   ensurePlayerRuntime();
   const p = gameState.player;
   const dt = Math.max(0, delta) / 1000;
   const speed = p.speed ?? DEFAULT_SPEED;
 
-  // Cooldown & projectiles
+  // ⚰️ Death check
+  if (p.hp <= 0 && !p.dead) {
+    p.hp = 0;
+    p.dead = true;
+    isAttacking = false;
+    isMoving = false;
+    console.log("💀 Player has fallen!");
+  }
+
+  // Stop all updates if dead
+  if (p.dead) return;
+
+  // Reduce flash timer if active
+  if (p.flashTimer > 0) p.flashTimer -= delta;
+
+  // Cooldowns & projectiles
   if (attackCooldown > 0) attackCooldown -= dt;
   updateProjectiles(delta);
 
@@ -472,16 +492,19 @@ export function updatePlayer(delta) {
   isMoving = dx !== 0 || dy !== 0;
   if (dx && dy) { const inv = 1 / Math.sqrt(2); dx *= inv; dy *= inv; }
 
-  // Move if not locked by attack animation
+  // Movement (if not attacking)
   if (!isAttacking) {
     const nextX = p.pos.x + dx * speed * dt;
     const nextY = p.pos.y + dy * speed * dt;
     const { bw, bh, ox, oy } = p.body;
     const feetX = nextX + ox, feetY = nextY + oy;
-    if (!isRectBlocked(feetX, feetY, bw, bh)) { p.pos.x = nextX; p.pos.y = nextY; }
+    if (!isRectBlocked(feetX, feetY, bw, bh)) {
+      p.pos.x = nextX;
+      p.pos.y = nextY;
+    }
   }
 
-  // Facing
+  // Facing direction
   if (left || right) currentDir = left && !right ? "left" : right && !left ? "right" : currentDir;
   else if (up || down) currentDir = up ? "up" : "down";
 
@@ -494,7 +517,7 @@ export function updatePlayer(delta) {
 
   // Animation advance
   if (isAttacking) {
-    // preserve currentFrame for attack (controlled by timeouts)
+    // handled by attack timeouts
   } else if (isMoving) {
     frameTimer += delta;
     if (frameTimer >= WALK_FRAME_INTERVAL) {
@@ -506,28 +529,39 @@ export function updatePlayer(delta) {
     currentFrame = 0;
   }
 
-  // Sync global coords
+  // Sync coordinates
   gameState.player.x = p.pos.x;
   gameState.player.y = p.pos.y;
 }
 
-// ------------------------------------------------------------
 // ============================================================
-// 🎨 Draw Player (melee, ranged + spell animations)
+// 🎨 DRAW PLAYER — all states + death + red flash
 // ============================================================
 export function drawPlayer(ctx) {
   if (!ctx) return;
   ensurePlayerRuntime();
-  const { x, y } = gameState.player.pos;
+  const p = gameState.player;
+  const { x, y } = p.pos;
 
   let img = sprites.idle;
 
-  // ============================================================
-  // 🗡️ / 🏹 / 🔮 ATTACK SEQUENCES
-  // ============================================================
-  if (isAttacking) {
+  // ------------------------------------------------------------
+  // 🩸 Red flash effect when hit
+  // ------------------------------------------------------------
+  if (p.flashTimer > 0) {
+    ctx.filter = "brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(6)";
+  }
+
+  // ------------------------------------------------------------
+  // 💀 Death frame override
+  // ------------------------------------------------------------
+  if (p.dead) {
+    img = sprites.dead;
+  } else if (isAttacking) {
+    // ------------------------------------------------------------
+    // 🗡️ / 🏹 / 🔮 / 💖 ATTACK SEQUENCES
+    // ------------------------------------------------------------
     if (attackType === "melee") {
-      // Two-frame melee animation
       const dir = currentDir === "left" ? "left" : "right";
       img = currentFrame === 0
         ? sprites.attack[dir][0]
@@ -535,8 +569,7 @@ export function drawPlayer(ctx) {
     }
 
     else if (attackType === "ranged") {
-      // Cursor-based ranged animation (top/bottom half logic)
-      const facing = gameState.player.facing || "right";
+      const facing = p.facing || "right";
       if (facing === "lowerLeft") {
         img = sprites.shoot.lowerLeft;
       } else if (facing === "lowerRight") {
@@ -553,44 +586,43 @@ export function drawPlayer(ctx) {
     }
 
     else if (attackType === "spell") {
-      // Spell charge → explode (2-frame sequence)
       img = currentFrame === 0
         ? sprites.spell.charge
         : sprites.spell.explode;
     }
 
     else if (attackType === "heal") {
-      img = sprites.heal; // single kneeling frame
+      img = sprites.heal;
     }
+  }
 
-  } else if (isMoving) {
-    // Walking animation
+  // ------------------------------------------------------------
+  // 🚶 Movement / Idle
+  // ------------------------------------------------------------
+  else if (isMoving) {
     img = sprites.walk[currentDir][currentFrame];
   } else {
-    // Idle frame
     img = sprites.idle;
   }
 
   if (!img) return;
 
-  // ============================================================
-  // 🩶 SHADOW + CHARACTER RENDER
-  // ============================================================
+  // ------------------------------------------------------------
+  // 🩶 Shadow + Character Rendering
+  // ------------------------------------------------------------
   const drawX = x - SPRITE_SIZE / 2;
   const drawY = y - SPRITE_SIZE / 2;
 
   ctx.save();
 
-  // Soft drop shadow beneath Glitter
+  // Soft drop shadow
   ctx.beginPath();
   ctx.ellipse(
     x,
     y + SPRITE_SIZE / 2.3,
     SPRITE_SIZE * 0.35,
     SPRITE_SIZE * 0.15,
-    0,
-    0,
-    Math.PI * 2
+    0, 0, Math.PI * 2
   );
   ctx.fillStyle = `rgba(0,0,0,${SHADOW_OPACITY})`;
   ctx.fill();
@@ -599,23 +631,23 @@ export function drawPlayer(ctx) {
   ctx.imageSmoothingQuality = "high";
 
   // ------------------------------------------------------------
-  // ✨ Render player sprite — upscale only glitter_attack_* frames
+  // ✨ Draw sprite (scaled melee / normal others)
   // ------------------------------------------------------------
   if (isAttacking && attackType === "melee" && currentFrame === 0) {
-    const scale = 1.5; // ~40% larger for attack-left/right
+    const scale = 1.5;
     const w = SPRITE_SIZE * scale;
     const h = SPRITE_SIZE * scale;
     const offsetX = x - w / 2;
     const offsetY = y - h / 2;
     ctx.drawImage(img, 0, 0, 1024, 1024, offsetX, offsetY, w, h);
   } else {
-    // Normal render size
     ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, SPRITE_SIZE, SPRITE_SIZE);
   }
 
-  // ============================================================
-  // 🏹 DRAW PROJECTILES (silver arrows)
-  // ============================================================
+  // ------------------------------------------------------------
+  // 🏹 Silver Arrow Projectiles
+  // ------------------------------------------------------------
+  ctx.filter = "none"; // reset after red flash
   ctx.fillStyle = "rgba(240,240,255,0.9)";
   for (const a of projectiles) {
     ctx.save();
@@ -625,9 +657,9 @@ export function drawPlayer(ctx) {
     ctx.restore();
   }
 
-  // ============================================================
-  // 🌈 DRAW SPARKLES (canvas particle bursts)
-  // ============================================================
+  // ------------------------------------------------------------
+  // 🌈 Sparkle FX
+  // ------------------------------------------------------------
   updateAndDrawSparkles(ctx, 16);
 
   ctx.restore();
