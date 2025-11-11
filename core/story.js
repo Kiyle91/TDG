@@ -8,6 +8,7 @@
 
 import { showScreen } from "./screens.js";
 import { startGameplay } from "../main.js";
+import { gameState } from "../utils/gameState.js";
 
 // ------------------------------------------------------------
 // 📜 INTRO STORY LINES
@@ -194,6 +195,40 @@ export async function startGoblinIntroStory() {
 
   console.log("📖 Goblin scout story finished — gameplay begins!");
 }
+
+
+// ============================================================
+// ⚔️ Mid-Battle Story Trigger — after 10 goblins spawned
+// ------------------------------------------------------------
+// ✦ Uses same cinematic dialogue box + typewriter effect
+// ✦ Temporarily pauses gameplay during dialogue
+// ============================================================
+
+export async function triggerMidBattleStory() {
+  console.log("🎬 Mid-battle story triggered!");
+  gameState.paused = true; // ⏸️ pause gameplay loop
+
+  const dialogues = [
+    {
+      portrait: "./assets/images/portraits/princess_ariana.png",
+      text: "The goblins are advancing faster than expected! Their scouts have called for reinforcements!",
+    },
+    {
+      portrait: "./assets/images/portraits/princess_ariana.png",
+      text: "You must stand your ground, Guardian. Remember — the crystals lend you their light. Use your power wisely!",
+    },
+  ];
+
+  for (const d of dialogues) {
+    await showDialogueBox(d);
+  }
+
+  // Resume gameplay
+  gameState.paused = false;
+  console.log("⚔️ Mid-battle story finished — gameplay resumes!");
+}
+
+
 
 // ============================================================
 // 🌟 END OF FILE

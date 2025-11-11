@@ -1,13 +1,14 @@
 // ============================================================
-// 👹 enemies.js — Olivia’s World: Crystal Keep (Numeric-Safe + Death Fix)
+// 👹 enemies.js — Olivia’s World: Crystal Keep (Numeric-Safe + Death Fix + Spawn Story Trigger)
 // ------------------------------------------------------------
 // ✦ Directional goblins with smooth animation + shadows
 // ✦ Chase / attack player with proximity AI
 // ✦ Cinematic death sequence (slain sprite → fade → respawn)
 // ✦ Health bars + color gradient, fade on death
 // ✦ Despawn + life loss when goblins reach the path end
-// ✦ Victory + XP integration + Floating Text
+// ✦ Victory + XP integration + Floating Text + 5 gold on kill
 // ✦ FIXED: NaN-safe damage, proper death progression
+// ✦ NEW: Mid-battle story triggers after 10 total spawns
 // ============================================================
 
 import { TILE_SIZE } from "../utils/constants.js";
@@ -23,11 +24,16 @@ import {
 } from "./soundtrack.js";
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
+import { triggerMidBattleStory } from "./story.js";
 
 let enemies = [];
 let ctx = null;
 let pathPoints = [];
 let goblinSprites = null;
+
+// 📈 Spawn tracking (for mid-battle story, scaling, etc.)
+let enemiesSpawned = 0;     // total number spawned since initEnemies()
+let storyTriggered = false; // ensure we only trigger once
 
 // ✅ Global shared array so player + towers use same instance
 window.__enemies = enemies;
@@ -39,7 +45,7 @@ const ENEMY_SIZE = 80;
 const SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;
-const DEFAULT_HP = 250;
+const DEFAULT_HP = 50;
 const HITBOX_OFFSET_Y = 15;
 
 // 🧠 AI + Combat
@@ -113,6 +119,11 @@ export function setEnemyPath(points) {
 export async function initEnemies() {
   enemies = [];
   window.__enemies = enemies;
+
+  // Reset spawn/story counters on fresh init
+  enemiesSpawned = 0;
+  storyTriggered = false;
+
   await loadGoblinSprites();
   spawnEnemy();
 }
@@ -146,10 +157,20 @@ function spawnEnemy() {
     attackCooldown: 0,
     returnTimer: 0,
     flashTimer: 0,
-    attacking: false,
-    attackFrame: 0,
-    attackDir: "right",
   });
+
+  enemiesSpawned++;
+
+  // 🎯 Trigger mid-battle story after 10 spawns
+  if (enemiesSpawned >= 10 && !storyTriggered) {
+    storyTriggered = true;
+    console.log("📖 Triggering mid-battle story...");
+    try {
+      triggerMidBattleStory(); // 👑 call story.js
+    } catch (e) {
+      console.warn("⚠️ triggerMidBattleStory failed or not present:", e);
+    }
+  }
 
   window.__enemies = enemies;
 }
@@ -163,11 +184,13 @@ export function updateEnemies(delta) {
   const player = gameState.player;
   if (!player) return;
 
+  // Handle missing pos gracefully
   const px = player?.pos?.x ?? player.x ?? 0;
   const py = player?.pos?.y ?? player.y ?? 0;
 
   for (const e of enemies) {
     if (!e.alive) {
+      // Death sequence timing
       if (!e.fading) {
         e.deathTimer += delta;
         if (e.deathTimer >= DEATH_LAY_DURATION) e.fading = true;
@@ -181,25 +204,38 @@ export function updateEnemies(delta) {
     const dyp = py - e.y;
     const distToPlayer = Math.sqrt(dxp * dxp + dyp * dyp);
 
+    // Aggro switch
     if (distToPlayer < AGGRO_RANGE && e.state === "path") e.state = "chase";
 
+    // Chase / Attack
     if (e.state === "chase") {
       if (distToPlayer > AGGRO_RANGE * 1.5) {
         e.state = "return";
         e.returnTimer = 0;
       } else if (distToPlayer > ATTACK_RANGE) {
+        // Move toward player
         e.x += (dxp / distToPlayer) * SPEED * dt;
         e.y += (dyp / distToPlayer) * SPEED * dt;
       } else {
+        // Attack timing
         e.attackCooldown -= delta;
 
         if (e.attackCooldown <= 0) {
           e.attackCooldown = ATTACK_COOLDOWN;
-          player.hp = Math.max(0, player.hp - GOBLIN_DAMAGE);
-          playGoblinAttack();
-          setTimeout(() => playPlayerDamage(), 370);
-          spawnDamageSparkles(player.pos.x, player.pos.y);
 
+          // Apply damage
+          player.hp = Math.max(0, (player.hp ?? 0) - GOBLIN_DAMAGE);
+          playGoblinAttack();
+
+          // Delay the player's damage sound slightly to feel weighty
+          setTimeout(() => playPlayerDamage(), 370);
+
+          // Safe-guard player.pos for sparkles
+          const sx = player?.pos?.x ?? px;
+          const sy = player?.pos?.y ?? py;
+          spawnDamageSparkles(sx, sy);
+
+          // 2-frame attack animation
           e.attacking = true;
           e.attackFrame = 0;
           e.attackDir = px < e.x ? "left" : "right";
@@ -215,6 +251,7 @@ export function updateEnemies(delta) {
       }
     }
 
+    // Return to path (find nearest node)
     if (e.state === "return") {
       e.returnTimer += delta;
       if (e.returnTimer > RETURN_DELAY) {
@@ -234,12 +271,14 @@ export function updateEnemies(delta) {
       }
     }
 
+    // Follow path
     if (e.state === "path") {
       const target = pathPoints[e.targetIndex];
       if (!target) continue;
       const dx = target.x - e.x;
       const dy = target.y - e.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
+
       e.dir =
         Math.abs(dx) > Math.abs(dy)
           ? dx > 0
@@ -248,6 +287,7 @@ export function updateEnemies(delta) {
           : dy > 0
           ? "down"
           : "up";
+
       if (dist > 1) {
         e.x += (dx / dist) * SPEED * dt;
         e.y += (dy / dist) * SPEED * dt;
@@ -261,15 +301,18 @@ export function updateEnemies(delta) {
       }
     }
 
+    // Walk frame advance
     e.frameTimer += delta;
     if (e.frameTimer >= WALK_FRAME_INTERVAL) {
       e.frameTimer = 0;
       e.frame = (e.frame + 1) % 2;
     }
 
+    // Hit flash timer
     if (e.flashTimer > 0) e.flashTimer -= delta;
   }
 
+  // Remove fully faded enemies and respawn
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
     if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) {
@@ -293,6 +336,7 @@ export function damageEnemy(enemy, amount) {
     return;
   }
 
+  // Floating damage (negative shows as -xx)
   spawnFloatingText(enemy.x, enemy.y - 30, -Math.abs(Math.round(dmg)), "#ff5c8a", 18);
 
   enemy.hp -= dmg;
@@ -300,19 +344,24 @@ export function damageEnemy(enemy, amount) {
   playGoblinDamage();
   console.log(`🩸 Goblin took ${dmg} damage → ${enemy.hp}/${enemy.maxHp}`);
 
+  // Death transition
   if (enemy.hp <= 0) {
     enemy.hp = 0;
     enemy.alive = false;
     enemy.deathTimer = 0;
     enemy.fading = false;
     enemy.fadeTimer = 0;
+
     console.log("💀 Goblin slain!");
     playGoblinDeath();
     incrementGoblinDefeated();
-    awardXP(25);
-    addGold(5);
+    awardXP(25);     // XP gain
+    addGold(5);      // +5 gold per kill (testing/economy)
+
+    // XP text (separate from damage number)
     spawnFloatingText(enemy.x, enemy.y - 50, "+25 XP", "#b3ffb3", 18);
 
+    // Small death sparkle accent
     const s = document.createElement("div");
     s.className = "magic-particle";
     Object.assign(s.style, {
@@ -324,6 +373,7 @@ export function damageEnemy(enemy, amount) {
       background: "white",
       borderRadius: "50%",
       opacity: "0.8",
+      pointerEvents: "none",
     });
     document.body.appendChild(s);
     s.animate(
@@ -335,6 +385,7 @@ export function damageEnemy(enemy, amount) {
     );
     setTimeout(() => s.remove(), 600);
 
+    // Skull float
     spawnFloatingText(enemy.x, enemy.y - 40, "💀", "#ffffff", 22);
   }
 }
@@ -363,8 +414,10 @@ function drawHealthBar(ctx, x, y, hp, maxHp) {
   const barHeight = 5;
   const offsetY = 20;
   const hpPct = Math.max(0, Math.min(1, hp / maxHp));
+
   ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
   ctx.fillRect(x - barWidth / 2, y - ENEMY_SIZE / 2 - offsetY, barWidth, barHeight);
+
   const hue = Math.max(0, Math.min(120, (hp / maxHp) * 120));
   ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
   ctx.fillRect(
@@ -373,9 +426,15 @@ function drawHealthBar(ctx, x, y, hp, maxHp) {
     barWidth * hpPct,
     barHeight
   );
+
   ctx.strokeStyle = "rgba(255,255,255,0.5)";
   ctx.lineWidth = 1;
-  ctx.strokeRect(x - barWidth / 2, y - ENEMY_SIZE / 2 - offsetY, barWidth, barHeight);
+  ctx.strokeRect(
+    x - barWidth / 2,
+    y - ENEMY_SIZE / 2 - offsetY,
+    barWidth,
+    barHeight
+  );
 }
 
 // ------------------------------------------------------------
@@ -394,6 +453,7 @@ export function drawEnemies(context) {
 
     ctx.save();
 
+    // Soft shadow
     ctx.beginPath();
     ctx.ellipse(
       e.x,
@@ -410,6 +470,7 @@ export function drawEnemies(context) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
+    // Hit flash filter
     if (e.alive && e.flashTimer > 0) {
       const flashAlpha = Math.max(0, e.flashTimer / 150);
       ctx.globalAlpha = 1;
@@ -419,16 +480,20 @@ export function drawEnemies(context) {
       ctx.filter = "none";
     }
 
+    // Death fading
     if (!e.alive && e.fading) {
       const alpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
       ctx.globalAlpha *= alpha;
     }
 
+    // Draw sprite
     ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, ENEMY_SIZE, ENEMY_SIZE);
 
+    // Reset
     ctx.filter = "none";
     ctx.globalAlpha = 1;
 
+    // Health bar
     if (e.alive) drawHealthBar(ctx, e.x, e.y, e.hp, e.maxHp);
 
     ctx.restore();
@@ -442,6 +507,7 @@ function getEnemySprite(e) {
   if (!goblinSprites) return null;
   if (!e.alive) return goblinSprites.slain;
 
+  // 2-frame attack
   if (e.attacking) {
     const dir = e.attackDir || (e.dir === "left" ? "left" : "right");
     return goblinSprites.attack[dir][e.attackFrame || 0];
