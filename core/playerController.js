@@ -100,6 +100,16 @@ async function loadPlayerSprites() {
   sprites.shoot.lowerLeft = await loadSprite("./assets/images/sprites/glitter/glitter_lower_left.png");
   sprites.shoot.lowerRight = await loadSprite("./assets/images/sprites/glitter/glitter_lower_right.png");
 
+  // 🔮 SPELL (2-frame sequence)
+  sprites.spell = {};
+  sprites.spell.charge  = await loadSprite("./assets/images/sprites/glitter/glitter_spell_charge.png");
+  sprites.spell.explode = await loadSprite("./assets/images/sprites/glitter/glitter_spell_explode.png");
+
+  // 💖 HEAL (single-frame kneeling prayer)
+  sprites.heal = await loadSprite("./assets/images/sprites/glitter/glitter_heal_kneel.png");
+
+
+
   console.log("🦄 Glitter sprites + combat frames loaded (file-verified).");
 }
 
@@ -257,44 +267,69 @@ function performRangedAttack(e) {
 function performHeal() {
   const p = gameState.player;
   if (p.mana < COST_HEAL) return;
-  isAttacking = true; attackType = "heal"; attackCooldown = CD_HEAL;
+
+  isAttacking = true;
+  attackType = "heal";
+  attackCooldown = CD_HEAL;
+  currentFrame = 0;
+
+  // show the kneeling animation for 1 second
+  setTimeout(() => { isAttacking = false; currentFrame = 0; }, 1000);
 
   p.mana -= COST_HEAL;
   const amount = p.maxHp ? p.maxHp * 0.25 : 25;
   p.hp = Math.min(p.maxHp || 100, p.hp + amount);
   playFairySprinkle();
-  spawnCanvasSparkleBurst(p.pos.x, p.pos.y, 25, 80, ["#b3ffb3", "#99ffcc", "#ccffcc"]);
+
+  // soft green sparkle burst
+  spawnCanvasSparkleBurst(
+    p.pos.x,
+    p.pos.y,
+    25,
+    80,
+    ["#b3ffb3", "#99ffcc", "#ccffcc"]
+  );
 
   updateHUD();
   console.log(`💖 Heal +${Math.round(amount)} HP`);
-  setTimeout(() => { isAttacking = false; }, 1000);
 }
+
 
 // ------------------------------------------------------------
 // 🔮 Spell — large pastel explosion + AoE damage
 function performSpell() {
   const p = gameState.player;
   if (p.mana < COST_SPELL) return;
-  isAttacking = true; attackType = "spell"; attackCooldown = CD_SPELL;
+
+  isAttacking = true;
+  attackType = "spell";
+  attackCooldown = CD_SPELL;
 
   p.mana -= COST_SPELL;
-  const dmg = p.attack * DMG_SPELL;
-  const radius = 150;
-  let hits = 0;
 
-  for (const g of getEnemies()) {
-    if (!g.alive) continue;
-    const dx = g.x - p.pos.x, dy = g.y - p.pos.y;
-    const dist = Math.hypot(dx, dy);
-    if (dist < radius) { damageEnemy(g, dmg); hits++; }
-  }
+  // start with charge frame
+  currentFrame = 0;
+  setTimeout(() => { currentFrame = 1; }, 350); // switch to explode frame after charge
+  setTimeout(() => { isAttacking = false; currentFrame = 0; }, 900);
 
-  spawnCanvasSparkleBurst(p.pos.x, p.pos.y, 90, 160,
-    ["#ffb3e6", "#b3ecff", "#fff2b3", "#cdb3ff", "#b3ffd9", "#ffffff"]);
-
-  updateHUD();
-  console.log(`🔮 Spell cast! Hit ${hits} enemies for ${Math.round(dmg)} dmg`);
-  setTimeout(() => { isAttacking = false; }, 1000);
+  // AoE damage + sparkle burst after delay
+  setTimeout(() => {
+    const dmg = p.attack * DMG_SPELL;
+    const radius = 150;
+    let hits = 0;
+    for (const g of getEnemies()) {
+      if (!g.alive) continue;
+      const dx = g.x - p.pos.x, dy = g.y - p.pos.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < radius) { damageEnemy(g, dmg); hits++; }
+    }
+    spawnCanvasSparkleBurst(
+      p.pos.x, p.pos.y, 90, 160,
+      ["#ffb3e6", "#b3ecff", "#fff2b3", "#cdb3ff", "#b3ffd9", "#ffffff"]
+    );
+    updateHUD();
+    console.log(`🔮 Spell cast! Hit ${hits} enemies.`);
+  }, 400); // trigger explosion mid-animation
 }
 
 // ------------------------------------------------------------
@@ -472,7 +507,7 @@ export function updatePlayer(delta) {
 
 // ------------------------------------------------------------
 // ============================================================
-// 🎨 Draw Player (with cursor-based ranged animation)
+// 🎨 Draw Player (melee, ranged + spell animations)
 // ============================================================
 export function drawPlayer(ctx) {
   if (!ctx) return;
@@ -482,34 +517,51 @@ export function drawPlayer(ctx) {
   let img = sprites.idle;
 
   // ============================================================
-  // 🗡️ / 🏹 ATTACK SEQUENCES
+  // 🗡️ / 🏹 / 🔮 ATTACK SEQUENCES
   // ============================================================
   if (isAttacking) {
     if (attackType === "melee") {
-      // two-frame melee animation
+      // Two-frame melee animation
       const dir = currentDir === "left" ? "left" : "right";
-      img = currentFrame === 0 ? sprites.attack[dir][0] : sprites.attack[dir][1];
-    } 
-    
+      img = currentFrame === 0
+        ? sprites.attack[dir][0]
+        : sprites.attack[dir][1];
+    }
+
     else if (attackType === "ranged") {
-      // cursor-based ranged animation
+      // Cursor-based ranged animation (top/bottom half logic)
       const facing = gameState.player.facing || "right";
       if (facing === "lowerLeft") {
         img = sprites.shoot.lowerLeft;
       } else if (facing === "lowerRight") {
         img = sprites.shoot.lowerRight;
       } else if (facing === "left") {
-        img = currentFrame === 0 ? sprites.shoot.left[0] : sprites.shoot.left[1];
+        img = currentFrame === 0
+          ? sprites.shoot.left[0]
+          : sprites.shoot.left[1];
       } else {
-        img = currentFrame === 0 ? sprites.shoot.right[0] : sprites.shoot.right[1];
+        img = currentFrame === 0
+          ? sprites.shoot.right[0]
+          : sprites.shoot.right[1];
       }
     }
 
+    else if (attackType === "spell") {
+      // Spell charge → explode (2-frame sequence)
+      img = currentFrame === 0
+        ? sprites.spell.charge
+        : sprites.spell.explode;
+    }
+
+    else if (attackType === "heal") {
+      img = sprites.heal; // single kneeling frame
+    }
+
   } else if (isMoving) {
-    // walking animation
+    // Walking animation
     img = sprites.walk[currentDir][currentFrame];
   } else {
-    // idle frame
+    // Idle frame
     img = sprites.idle;
   }
 
@@ -523,7 +575,7 @@ export function drawPlayer(ctx) {
 
   ctx.save();
 
-  // Soft drop shadow
+  // Soft drop shadow beneath Glitter
   ctx.beginPath();
   ctx.ellipse(
     x,
@@ -544,14 +596,14 @@ export function drawPlayer(ctx) {
   // ✨ Render player sprite — upscale only glitter_attack_* frames
   // ------------------------------------------------------------
   if (isAttacking && attackType === "melee" && currentFrame === 0) {
-    const scale = 1.5; // 40% larger
+    const scale = 1.5; // ~40% larger for attack-left/right
     const w = SPRITE_SIZE * scale;
     const h = SPRITE_SIZE * scale;
     const offsetX = x - w / 2;
     const offsetY = y - h / 2;
     ctx.drawImage(img, 0, 0, 1024, 1024, offsetX, offsetY, w, h);
   } else {
-    // normal size for everything else
+    // Normal render size
     ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, SPRITE_SIZE, SPRITE_SIZE);
   }
 
@@ -568,12 +620,13 @@ export function drawPlayer(ctx) {
   }
 
   // ============================================================
-  // 🌈 DRAW SPARKLES
+  // 🌈 DRAW SPARKLES (canvas particle bursts)
   // ============================================================
   updateAndDrawSparkles(ctx, 16);
 
   ctx.restore();
 }
+
 
 
 // ============================================================
