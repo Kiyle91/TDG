@@ -17,7 +17,7 @@ import { checkTowerUnlocks } from "./towerUnlock.js";
 // ------------------------------------------------------------
 const XP_PER_LEVEL_BASE = 100;  // base XP required for level 1→2
 const XP_SCALING = 1.25;        // XP requirement growth per level
-const POINTS_PER_LEVEL = 3;     // stat points awarded per level
+const POINTS_PER_LEVEL = 1;     // stat points awarded per level
 
 // ------------------------------------------------------------
 // 🧠 XP GAIN ON ENEMY DEATH

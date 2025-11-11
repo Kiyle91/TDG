@@ -18,6 +18,7 @@ import { updateStatsOverlay } from "./ui.js";
 import { initSettingsMenu } from "./ui.js";
 import { playFairySprinkle } from "./soundtrack.js";
 import { resetCombatState } from "./game.js";
+import { createPlayer } from "./player.js";
 
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
@@ -72,16 +73,10 @@ export function initHub() {
 
           // 3️⃣ Reset combat + player state
           resetCombatState();
-          gameState.player = {
-            hp: 100,
-            maxHp: 100,
-            mana: 50,
-            maxMana: 50,
-            lives: 10,
-            gold: 0,
-            diamonds: 0,
-            pos: { x: 1000, y: 500 },
-          };
+          gameState.player = createPlayer();
+          gameState.player.pos = { x: 1000, y: 500 };
+
+          
 
           // 4️⃣ Switch to story overlay cleanly
           startIntroStory();

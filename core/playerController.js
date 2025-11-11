@@ -54,13 +54,13 @@ const CD_HEAL = 1.0;
 const CD_SPELL = 1.0;
 
 // Mana costs (kept low for testing as per your last file)
-const COST_HEAL = 1;
-const COST_SPELL = 1;
+const COST_HEAL = 15;
+const COST_SPELL = 10;
 
 // Damage multipliers
 const DMG_MELEE = 1.2;
 const DMG_RANGED = 0.9;
-const DMG_SPELL = 8;
+const DMG_SPELL = 4;
 
 // Walk anim timer
 let frameTimer = 0;
