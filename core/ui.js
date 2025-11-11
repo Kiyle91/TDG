@@ -67,13 +67,14 @@ export function updateHUD() {
     hpBar.style.setProperty("--fill", `${hpPct}%`);
     manaBar.style.setProperty("--fill", `${manaPct}%`);
 
-    // Update text values
-    if (hpText)   hpText.textContent   = `${p.hp} / ${p.maxHp}`;
-    if (manaText) manaText.textContent = `${p.mana} / ${p.maxMana}`;
+    // Update text values (rounded for readability)
+    if (hpText)   hpText.textContent   = `${Math.round(p.hp)} / ${p.maxHp}`;
+    if (manaText) manaText.textContent = `${p.mana.toFixed(1)} / ${p.maxMana}`;
   }
 
   updateTurretBar();
 }
+
 
 // ------------------------------------------------------------
 // 📜 GET GAME STATS

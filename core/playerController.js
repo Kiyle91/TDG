@@ -535,6 +535,17 @@ export function updatePlayer(delta) {
   if (attackCooldown > 0) attackCooldown -= dt;
   updateProjectiles(delta);
 
+  // ------------------------------------------------------------
+  // 🔮 PASSIVE MANA REGENERATION
+  // ------------------------------------------------------------
+  // Restores a small amount of mana per second (scales with level)
+  const regenRate = 0.1 + p.level * 0.02; // base 1 mana/sec +0.3 per level
+  p.mana = Math.min(p.maxMana, p.mana + regenRate * dt);
+
+  // Optional: soft HP regen if desired (commented out)
+  // const hpRegen = 0.2 * dt; // e.g. +0.2 HP per second
+  // p.hp = Math.min(p.maxHp, p.hp + hpRegen);
+
   // Movement input
   const left  = keys.has("KeyA") || keys.has("ArrowLeft");
   const right = keys.has("KeyD") || keys.has("ArrowRight");
@@ -562,8 +573,10 @@ export function updatePlayer(delta) {
   }
 
   // Facing direction
-  if (left || right) currentDir = left && !right ? "left" : right && !left ? "right" : currentDir;
-  else if (up || down) currentDir = up ? "up" : "down";
+  if (left || right)
+    currentDir = left && !right ? "left" : right && !left ? "right" : currentDir;
+  else if (up || down)
+    currentDir = up ? "up" : "down";
 
   // Clamp to canvas
   if (canvasRef) {
@@ -590,6 +603,7 @@ export function updatePlayer(delta) {
   gameState.player.x = p.pos.x;
   gameState.player.y = p.pos.y;
 }
+
 
 // ============================================================
 // 🎨 DRAW PLAYER — Olivia’s World: Crystal Keep (Final + Red Flash Overlay)

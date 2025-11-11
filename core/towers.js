@@ -18,7 +18,7 @@ let towers = [];
 let pulseRings = []; // 🌈 stores active AoE ring animations
 
 // ⚙️ CONFIG
-const MAX_ATTACKS = 10;
+const MAX_ATTACKS = 25;
 const FIRE_RATE_MS = 800;
 const FADE_SPEED = 2;
 const TOWER_SIZE = 96;
