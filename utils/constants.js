@@ -17,7 +17,7 @@ export const GRID_ROWS = 35;
 // ⚔️ GAMEPLAY CONSTANTS
 // ------------------------------------------------------------
 export const ENEMY_SPEED = 60;       // pixels per second
-export const TOWER_RANGE = 150;      // tower attack range (px)
+export const TOWER_RANGE = 250;      // tower attack range (px)
 export const PROJECTILE_SPEED = 300; // projectile travel speed (px/s)
 
 // ============================================================

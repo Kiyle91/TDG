@@ -20,6 +20,7 @@ import { showScreen } from "./core/screens.js";
 import { gameState, getCurrencies, spendDiamonds } from "./utils/gameState.js";
 import { updateHUD } from "./core/ui.js";
 import { startGoblinIntroStory } from "./core/story.js";
+import { initNavbar } from "./core/navbar.js";
 
 let lastTime = 0;
 const FPS = 60;
@@ -266,6 +267,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initGame();
   initSparkles();
   initSettings();
+  initNavbar();
   initTooltipSystem();
   console.log("🌸 Olivia’s World loaded — menu systems active");
 });
