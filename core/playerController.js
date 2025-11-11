@@ -207,7 +207,7 @@ function performMeleeAttack() {
   const palette = Math.random() > 0.5
     ? ["#ffd6eb", "#b5e2ff", "#ffffff"]
     : ["#b3ffd9", "#cdb3ff", "#fff2b3"];
-  spawnCanvasSparkleBurst(ox, oy, 45, 120, palette);
+  spawnCanvasSparkleBurst(p.pos.x, p.pos.y, 15, 60, ["#ffd6eb", "#b5e2ff", "#ffffff"]);
 
   console.log(hit ? "🗡️ Melee hit landed!" : "⚔️ Melee swing missed.");
 }
@@ -236,8 +236,7 @@ function performRangedAttack(e) {
 
   projectiles.push({ x: startX, y: startY, angle, speed, dmg, alive: true, life: 0 });
 
-  // small glitter pop on release
-  spawnCanvasSparkleBurst(startX, startY, 25, 80, ["#b5e2ff", "#ffffff"]);
+  
 }
 
 // ------------------------------------------------------------
@@ -251,8 +250,8 @@ function performHeal() {
   const amount = p.maxHp ? p.maxHp * 0.25 : 25;
   p.hp = Math.min(p.maxHp || 100, p.hp + amount);
   playFairySprinkle();
-  spawnCanvasSparkleBurst(p.pos.x, p.pos.y, 60, 140,
-    ["#fff2b3", "#ffd6eb", "#b5e2ff", "#ffe0b3", "#ffffff"]);
+  spawnCanvasSparkleBurst(p.pos.x, p.pos.y, 25, 80, ["#b3ffb3", "#99ffcc", "#ccffcc"]);
+
   updateHUD();
   console.log(`💖 Heal +${Math.round(amount)} HP`);
   setTimeout(() => { isAttacking = false; }, 1000);
@@ -290,17 +289,17 @@ function performSpell() {
 const sparkles = [];
 
 function spawnCanvasSparkleBurst(x, y, count = 50, radius = 140, colors) {
-  colors ??= ["#ffd6eb", "#b5e2ff", "#fff2b3", "#cdb3ff", "#b3ffd9", "#ffffff"];
+  colors ??= ["#ffd6eb", "#b5e2ff", "#fff2b3"];
   for (let i = 0; i < count; i++) {
-    const ang   = Math.random() * Math.PI * 2;
-    const speed = 220 + Math.random() * 280;        // refined outward velocity
+    const ang = Math.random() * Math.PI * 2;
+    const speed = 160 + Math.random() * 180; // slightly slower, gentler spread
     sparkles.push({
       x, y,
       vx: Math.cos(ang) * speed,
       vy: Math.sin(ang) * speed,
-      life: 1000 + Math.random() * 600,
+      life: 800 + Math.random() * 400,
       age: 0,
-      size: 2 + Math.random() * 4,                   // smaller particles
+      size: 1.5 + Math.random() * 2.5, // ✨ smaller particles
       color: colors[Math.floor(Math.random() * colors.length)],
       rot: Math.random() * Math.PI * 2,
       spin: (Math.random() - 0.5) * 0.2,
