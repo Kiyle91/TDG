@@ -202,22 +202,53 @@ export function destroyPlayerController() {
   console.log("🧭 PlayerController destroyed.");
 }
 
+
+// Nearest enemy within a search radius (px/py = player position)
+function findNearestEnemyInRange(px, py, maxDist = 320) {
+  let target = null;
+  let best = maxDist;
+  for (const g of getEnemies()) {
+    if (!g?.alive) continue;
+    const dx = g.x - px;
+    const dy = g.y - py;
+    const d  = Math.hypot(dx, dy);
+    if (d < best) { best = d; target = g; }
+  }
+  return { target, dist: best };
+}
+
+
 // ------------------------------------------------------------
-// 🗡️ Melee (2-frame attack → melee) + knockback + glitter burst
+// 🗡️ Melee (Auto-face nearest enemy during swing, then restore)
+// ------------------------------------------------------------
 function performMeleeAttack() {
   const p = gameState.player;
   const dmg = p.attack * DMG_MELEE;
-  const leftKeys  = keys.has("KeyA") || keys.has("KeyW");
-  const rightKeys = keys.has("KeyD") || keys.has("KeyS");
-  currentDir = leftKeys && !rightKeys ? "left" : "right";
 
+  // 🧭 Remember facing before swing
+  const prevDir = currentDir;
+
+  // 🧠 Find nearest enemy and face them
+  const { target } = findNearestEnemyInRange(p.pos.x, p.pos.y, 320);
+  if (target) {
+    const dxToEnemy = target.x - p.pos.x;
+    currentDir = dxToEnemy < 0 ? "left" : "right";
+  }
+
+  // 🎬 Begin attack sequence
   isAttacking = true;
   attackType = "melee";
   attackCooldown = CD_MELEE;
   currentFrame = 0;
-  setTimeout(() => { currentFrame = 1; }, 180);
-  setTimeout(() => { isAttacking = false; currentFrame = 0; }, 400);
 
+  setTimeout(() => { currentFrame = 1; }, 180);
+  setTimeout(() => {
+    isAttacking = false;
+    currentFrame = 0;
+    currentDir = prevDir; // 🔁 restore movement direction
+  }, 400);
+
+  // ⚔️ Damage logic
   const range = 80;
   const ox = p.pos.x, oy = p.pos.y;
   let hit = false;
@@ -229,22 +260,27 @@ function performMeleeAttack() {
     if (dist <= range + g.width / 2) {
       damageEnemy(g, dmg);
       hit = true;
-      // knockback
+
+      // 💥 Knockback
       const len = Math.max(1, dist);
       g.x += (dx / len) * 50;
       g.y += (dy / len) * 50;
     }
   }
 
-  // pastel alternating melee burst
-  const palette = Math.random() > 0.5
-    ? ["#ffd6eb", "#b5e2ff", "#ffffff"]
-    : ["#b3ffd9", "#cdb3ff", "#fff2b3"];
+  // ✨ FX + SFX
   spawnCanvasSparkleBurst(p.pos.x, p.pos.y, 15, 60, ["#ffd6eb", "#b5e2ff", "#ffffff"]);
   playMeleeSwing();
 
-  console.log(hit ? "🗡️ Melee hit landed!" : "⚔️ Melee swing missed.");
+  console.log(
+    `🗡️ Melee → faced ${currentDir} for swing, then restored ${prevDir} | ${hit ? "Hit" : "Miss"}`
+  );
 }
+
+
+
+
+
 
 function performRangedAttack(e) {
   const p = gameState.player;
@@ -840,22 +876,7 @@ export function drawPlayer(ctx) {
     ctx.strokeRect(x - barWidth / 2, y + offsetY, barWidth, barHeight);
   }
 
-  // ------------------------------------------------------------
-  // 🩸 Red Flash Overlay (when damaged)
-  // ------------------------------------------------------------
-  if (p.flashTimer > 0) {
-    const flashAlpha = Math.max(0, p.flashTimer / 150);
-    ctx.fillStyle = `rgba(255, 0, 0, ${0.35 * flashAlpha})`;
-    ctx.beginPath();
-    ctx.ellipse(
-      x,
-      y - SPRITE_SIZE * 0.1,
-      SPRITE_SIZE * 0.5,
-      SPRITE_SIZE * 0.6,
-      0, 0, Math.PI * 2
-    );
-    ctx.fill();
-  }
+  
 
   // ------------------------------------------------------------
   // 🏹 Silver Arrows (projectiles)
