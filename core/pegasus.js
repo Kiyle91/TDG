@@ -1,12 +1,14 @@
 // ============================================================
-// 🪽 pegasus.js — Olivia’s World: Crystal Keep (Dynamic Flight Edition)
+// 🪽 pegasus.js — Olivia’s World: Crystal Keep (Dynamic Flight + Healing Drop)
 // ------------------------------------------------------------
-// ✦ Pegasus glides across the sky with random altitude, speed & wave pattern
-// ✦ Occasionally reverses direction for variety
-// ✦ Smooth fade-in/out and sine-wave motion for natural flight
+// ✦ Pegasus glides gracefully across the sky every few seconds
+// ✦ Random altitude, speed, wave amplitude & direction
+// ✦ Always drops a magical healing gem once per flight (for testing)
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
+import { spawnHealingDrop } from "./pegasusDrop.js"; // 💎 Healing gem system
+
 
 let ctx = null;
 let pegasusImg = null;
@@ -19,10 +21,11 @@ let pegasus = {
   baseY: 0,
   opacity: 0,
   waveTime: 0,
-  direction: 1, // 1 = right, -1 = left
+  direction: 1, // 1 = →, -1 = ←
   speed: 500,
   waveHeight: 40,
   waveSpeed: 0.005,
+  hasDropped: false, // ✅ prevents multiple drops per flight
 };
 
 // ------------------------------------------------------------
@@ -61,7 +64,7 @@ export function updatePegasus(delta = 16) {
 
   flightTimer += delta;
 
-  // 🕒 Trigger a new flight every 2 minutes
+  // 🕒 Trigger a new flight every 5 seconds (testing)
   if (!active && flightTimer >= 60000) {
     startPegasusFlight();
     flightTimer = 0;
@@ -71,26 +74,33 @@ export function updatePegasus(delta = 16) {
     const canvas = ctx.canvas;
     const fadeSpeed = 0.02;
 
+    // Horizontal movement + sine-wave path
     pegasus.x += (pegasus.speed * pegasus.direction * delta) / 1000;
     pegasus.waveTime += delta;
-
-    // 💫 Random swooping motion
     const curve = Math.sin(pegasus.waveTime * pegasus.waveSpeed) * pegasus.waveHeight;
     pegasus.y = pegasus.baseY + curve;
 
-    // ✨ Fade in/out at edges
+    // ✨ Fade in/out smoothly at screen edges
     if (pegasus.direction === 1) {
-      // → flying right
       if (pegasus.x < canvas.width * 0.15)
         pegasus.opacity = Math.min(1, pegasus.opacity + fadeSpeed);
       else if (pegasus.x > canvas.width * 0.85)
         pegasus.opacity = Math.max(0, pegasus.opacity - fadeSpeed);
     } else {
-      // ← flying left
       if (pegasus.x > canvas.width * 0.85)
         pegasus.opacity = Math.min(1, pegasus.opacity + fadeSpeed);
       else if (pegasus.x < canvas.width * 0.15)
         pegasus.opacity = Math.max(0, pegasus.opacity - fadeSpeed);
+    }
+
+    const halfway = ctx.canvas.width * 0.5;
+    if (!pegasus.hasDropped && (
+        (pegasus.direction === 1 && pegasus.x > halfway) ||
+        (pegasus.direction === -1 && pegasus.x < halfway)
+    )) {
+    spawnHealingDrop(pegasus.x, pegasus.y + 80);
+    pegasus.hasDropped = true;
+    console.log("💎 Pegasus dropped a healing gem mid-flight!");
     }
 
     // 🚫 End flight when completely off-screen
@@ -105,7 +115,7 @@ export function updatePegasus(delta = 16) {
 }
 
 // ------------------------------------------------------------
-// 🕊️ START FLIGHT — new randomized flight setup
+// 🕊️ START FLIGHT — randomized motion setup
 // ------------------------------------------------------------
 function startPegasusFlight() {
   if (!ctx) return;
@@ -114,22 +124,23 @@ function startPegasusFlight() {
   // Random direction (50% chance to reverse)
   pegasus.direction = Math.random() < 0.5 ? 1 : -1;
 
-  // Start off-screen based on direction
+  // Start off-screen
   pegasus.x = pegasus.direction === 1 ? -400 : canvas.width + 400;
 
-  // Random vertical altitude (10%–50% screen height)
+  // Random altitude between 10%–50% of screen height
   const minY = canvas.height * 0.1;
   const maxY = canvas.height * 0.5;
   pegasus.baseY = minY + Math.random() * (maxY - minY);
   pegasus.y = pegasus.baseY;
 
-  // Random motion style
-  pegasus.speed = 400 + Math.random() * 250; // px/sec
+  // Random motion parameters
+  pegasus.speed = 400 + Math.random() * 250; // 400–650 px/sec
   pegasus.waveHeight = 20 + Math.random() * 80; // swoop amplitude
   pegasus.waveSpeed = 0.003 + Math.random() * 0.005; // sine frequency
 
   pegasus.opacity = 0;
   pegasus.waveTime = 0;
+  pegasus.hasDropped = false; // reset drop state
   active = true;
 
   console.log(
@@ -150,20 +161,15 @@ export function drawPegasusFrame(context) {
   context.shadowColor = "#ffffff";
   context.shadowBlur = 25;
 
-  // Flip horizontally if flying left
+  // 🪽 40% scale for subtle appearance
   const scale = 0.2;
   const width = pegasusImg.width * scale;
   const height = pegasusImg.height * scale;
 
   if (pegasus.direction === -1) {
+    // Flip horizontally when flying left
     context.scale(-1, 1);
-    context.drawImage(
-      pegasusImg,
-      -pegasus.x - width, // mirrored
-      pegasus.y,
-      width,
-      height
-    );
+    context.drawImage(pegasusImg, -pegasus.x - width, pegasus.y, width, height);
   } else {
     context.drawImage(pegasusImg, pegasus.x, pegasus.y, width, height);
   }

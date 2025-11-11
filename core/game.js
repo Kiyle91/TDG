@@ -69,6 +69,10 @@ import {
 // ------------------------------------------------------------
 // NOTE: ensure ./pegasus.js exports loadPegasus, initPegasus, and drawPegasusFrame
 import { loadPegasus, initPegasus, updatePegasus, drawPegasusFrame } from "./pegasus.js";
+import { loadHealingGem, initHealingDrops, updateHealingDrops, drawHealingDrops } from "./pegasusDrop.js";
+
+
+
 
 // ------------------------------------------------------------
 // ⚙️ GLOBAL STATE IMPORTS
@@ -125,6 +129,10 @@ export async function initGame() {
   // 6️⃣ Pegasus ambient flight (load once, then init with ctx)
   await loadPegasus();
   initPegasus(ctx);
+  await loadPegasus();
+  initPegasus(ctx);
+  await loadHealingGem();      // 💎 Load the gem image
+  initHealingDrops(ctx);
 
   console.log("🌸 game.js — Initialization complete.");
 }
@@ -142,7 +150,9 @@ export function updateGame(delta) {
   updateHUD();
   updatePlayer(delta);
   updateFloatingText(delta);
-  updatePegasus(delta); // 💬 Floating text movement + fade
+  updatePegasus(delta);
+  updateHealingDrops(delta);
+   // 💬 Floating text movement + fade
 
   // 🎥 Camera follow player
   const px = gameState.player?.pos?.x ?? 0;
@@ -178,6 +188,7 @@ export function renderGame() {
   drawPlayer(ctx);
   drawProjectiles(ctx);
   drawFloatingText(ctx); // 💬 draw floating damage/heal numbers
+  drawHealingDrops(ctx);
 
   ctx.restore();
 
