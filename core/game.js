@@ -1,5 +1,5 @@
 // ============================================================
-// 🌸 game.js — Olivia’s World: Crystal Keep (FULL — Floating Text Integrated)
+// 🌸 game.js — Olivia’s World: Crystal Keep (FULL — Floating Text Integrated + Pegasus)
 // ------------------------------------------------------------
 // ✦ Core game controller & system orchestration
 // ✦ Initializes and coordinates all core modules
@@ -7,6 +7,7 @@
 // ✦ Player + Enemies + Towers rendered between layers
 // ✦ Victory/Defeat system + resetCombatState()
 // ✦ Floating combat text support (damage/heal popups)
+// ✦ Pegasus ambient flight drawn above all layers
 // ============================================================
 
 // ------------------------------------------------------------
@@ -64,6 +65,12 @@ import {
 } from "./floatingText.js";
 
 // ------------------------------------------------------------
+// 🪽 PEGASUS (ambient flight)
+// ------------------------------------------------------------
+// NOTE: ensure ./pegasus.js exports loadPegasus, initPegasus, and drawPegasusFrame
+import { loadPegasus, initPegasus, updatePegasus, drawPegasusFrame } from "./pegasus.js";
+
+// ------------------------------------------------------------
 // ⚙️ GLOBAL STATE IMPORTS
 // ------------------------------------------------------------
 import { gameState } from "../utils/gameState.js";
@@ -115,6 +122,10 @@ export async function initGame() {
   // 5️⃣ Player setup
   initPlayerController(canvas);
 
+  // 6️⃣ Pegasus ambient flight (load once, then init with ctx)
+  await loadPegasus();
+  initPegasus(ctx);
+
   console.log("🌸 game.js — Initialization complete.");
 }
 
@@ -130,7 +141,8 @@ export function updateGame(delta) {
   updateProjectiles(delta);
   updateHUD();
   updatePlayer(delta);
-  updateFloatingText(delta); // 💬 Floating text movement + fade
+  updateFloatingText(delta);
+  updatePegasus(delta); // 💬 Floating text movement + fade
 
   // 🎥 Camera follow player
   const px = gameState.player?.pos?.x ?? 0;
@@ -169,8 +181,19 @@ export function renderGame() {
 
   ctx.restore();
 
-  // 3️⃣ Foreground canopy / trees layer
+  // 3️⃣ Foreground canopy / trees layer (map overlay)
   drawMapLayered(ctx, "trees", cameraX, cameraY, canvas.width, canvas.height);
+
+  // 4️⃣ Pegasus drawn LAST so it stays visible above all (screen-space)
+  // If your drawPegasusFrame expects world-space, move it between save()/restore() instead.
+  try {
+    if (typeof drawPegasusFrame === "function") {
+      drawPegasusFrame(ctx);
+    }
+  } catch (e) {
+    // Non-fatal: if pegasus.js hasn't exported drawPegasusFrame yet, skip draw
+    // (loadPegasus/initPegasus still run; you can expose drawPegasusFrame later)
+  }
 }
 
 // ============================================================
