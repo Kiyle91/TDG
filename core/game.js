@@ -238,5 +238,29 @@ export function resetCombatState() {
 }
 
 // ============================================================
+// 🔁 RESET PLAYER STATE — used by "Try Again"
+// ------------------------------------------------------------
+// Soft reset: restores HP, Mana, and clears death state.
+// Keeps current map, towers, and enemies in place.
+// ============================================================
+export function resetPlayerState() {
+  const p = gameState.player;
+  if (!p) return;
+
+  p.hp = p.maxHp ?? 100;
+  p.mana = p.maxMana ?? 50;
+  p.dead = false;
+  p.lives = 10;
+  p.pos = { x: 1000, y: 500 };
+  p.facing = "right";
+
+  if (typeof window.__playerControllerReset === "function") {
+    window.__playerControllerReset();
+  }
+
+  updateHUD();
+  console.log("🎮 Player revived — soft reset (Try Again).");
+}
+// ============================================================
 // 🌟 END OF FILE
 // ============================================================

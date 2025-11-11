@@ -666,7 +666,7 @@ export function drawPlayer(ctx) {
 }
 
 // ------------------------------------------------------------
-// 🧭 Controller Reset (used by Try Again)
+// 🧭 Controller Reset (for Try Again)
 // ------------------------------------------------------------
 export function resetPlayerControllerState() {
   isAttacking = false;
@@ -676,9 +676,8 @@ export function resetPlayerControllerState() {
   attackCooldown = 0;
   console.log("🎮 Player controller reset (Try Again).");
 }
-
-// Make available globally for game.js
 window.__playerControllerReset = resetPlayerControllerState;
+
 
 
 // ============================================================
