@@ -2,8 +2,9 @@
    🌸 OLIVIA’S WORLD: CRYSTAL KEEP — alert.css
    ------------------------------------------------------------
    ✦ Custom glowing pastel alert / confirm / input modals
-   ✦ Replaces all browser UI dialogs
-   ✦ Fully responsive with smooth fade transitions
+   ✦ Matches overlay theme (blurred, glowing, gradient)
+   ✦ Replaces all browser UI dialogs (alert / confirm / input)
+   ✦ Fully responsive with smooth fade + pop transitions
 ============================================================ */
 
 /* ============================================================
@@ -15,8 +16,8 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(14px);
   display: none;
   justify-content: center;
   align-items: center;
@@ -30,10 +31,10 @@
 }
 
 /* ============================================================
-   💎 ALERT BOX
+   💎 ALERT / INPUT BOX
 ============================================================ */
 .ow-alert-box {
-  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
+  background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
   padding: 40px 60px;
@@ -59,6 +60,8 @@
 #ow-alert-text {
   font-size: 1.2rem;
   margin-bottom: 20px;
+  color: #ffe6f7;
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
 }
 
 .ow-alert-input {
@@ -85,7 +88,7 @@
 }
 
 /* ============================================================
-   🌸 BUTTONS
+   🌸 BUTTONS (used for all alerts and confirms)
 ============================================================ */
 .ow-alert-actions {
   display: flex;
@@ -95,29 +98,18 @@
 }
 
 .ow-alert-btn {
-  padding: 10px 28px;
+  padding: 12px 34px;
   border-radius: 12px;
   border: 2px solid rgba(91, 139, 230, 0.6);
   cursor: pointer;
   font-size: 1rem;
   font-family: inherit;
   transition: all 0.3s ease;
-}
-
-.ow-alert-btn.ok {
-  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
   color: #ffffff;
   box-shadow:
     0 0 15px rgba(255, 204, 238, 0.6),
     inset 0 0 10px rgba(255, 255, 255, 0.4);
-}
-
-.ow-alert-btn.cancel {
-  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
-  color: #ffffff;
-  box-shadow:
-    0 0 10px rgba(255, 204, 238, 0.4),
-    inset 0 0 6px rgba(255, 255, 255, 0.3);
 }
 
 .ow-alert-btn:hover {
@@ -126,6 +118,88 @@
     0 0 25px rgba(255, 204, 238, 0.9),
     inset 0 0 12px rgba(255, 255, 255, 0.5);
   filter: brightness(1.05);
+}
+
+/* Specific button variants */
+.ow-alert-btn.ok {
+  color: #e7fff9;
+}
+
+.ow-alert-btn.cancel {
+  color: #ffe6f7;
+  opacity: 0.9;
+}
+
+/* ============================================================
+   💎 CRYSTAL CONFIRM BOX — Unified Style
+   ------------------------------------------------------------
+   ✦ Used by all showConfirm() dialogs
+   ✦ Matches overlay boxes exactly
+============================================================ */
+
+.confirm-box {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+  padding: 40px 60px;
+  text-align: center;
+  color: #fff;
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  animation: overlayPop 0.4s ease;
+  font-family: "Comic Sans MS", cursive;
+  width: 420px;
+}
+
+@keyframes overlayPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.confirm-message {
+  font-size: 1.1rem;
+  color: #ffe6f7;
+  text-shadow: 0 0 6px rgba(224, 187, 255, 0.8);
+  margin-bottom: 30px;
+}
+
+.confirm-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.confirm-btn {
+  padding: 12px 34px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  color: #fff;
+  font-family: "Comic Sans MS", cursive;
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.6),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.confirm-btn:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 30px rgba(224, 187, 255, 0.9),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.confirm-btn.yes {
+  color: #e7fff9;
+}
+
+.confirm-btn.no {
+  color: #ffe6f7;
+  opacity: 0.85;
 }
 
 /* ============================================================

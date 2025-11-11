@@ -53,7 +53,7 @@ export function showAlert(message, callback = null) {
 }
 
 // ------------------------------------------------------------
-// 🌺 SHOW CONFIRM (yes/no dialog)
+// 🌺 SHOW CONFIRM (yes/no dialog) — Crystal Overlay Edition
 // ------------------------------------------------------------
 export function showConfirm(message, onYes, onNo = null) {
   if (!modal) createModal();
@@ -62,15 +62,25 @@ export function showConfirm(message, onYes, onNo = null) {
   const extra = modal.querySelector("#ow-alert-extra");
   const ok = modal.querySelector("#ow-alert-ok");
   const cancel = modal.querySelector("#ow-alert-cancel");
+  const box = modal.querySelector(".ow-alert-box");
 
+  // Apply unified crystal styling
+  box.classList.add("confirm-box");
+  text.classList.add("confirm-message");
+  ok.classList.add("confirm-btn", "yes");
+  cancel.classList.add("confirm-btn", "no");
+
+  // Message setup
   text.textContent = message;
   extra.innerHTML = "";
   cancel.style.display = "inline-flex";
   ok.textContent = "Yes";
   cancel.textContent = "No";
 
+  // Show modal
   modal.style.display = "flex";
 
+  // 🎵 Click sounds + callbacks
   ok.onclick = () => {
     playFairySprinkle();
     modal.style.display = "none";
@@ -83,6 +93,7 @@ export function showConfirm(message, onYes, onNo = null) {
     if (onNo) onNo();
   };
 }
+
 
 // ------------------------------------------------------------
 // 🌷 SHOW INPUT (custom name entry / text prompt)
