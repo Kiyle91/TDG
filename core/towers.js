@@ -5,7 +5,8 @@
 // ✦ Adds Frost + Flame AoE pulse rings with soft expansion
 // ✦ Each turret has unique attack logic
 // ✦ Includes fade-out durability & smooth drawing
-// ✦ NEW: Only attacks when enemies are within range
+// ✦ Smart targeting — only attacks when enemies are nearby
+// ✦ Optimized: Frost/Flame towers no longer spam floating text
 // ============================================================
 
 import { TOWER_RANGE } from "../utils/constants.js";
@@ -16,16 +17,15 @@ import { gameState } from "../utils/gameState.js";
 
 let turretSprites = {};
 let towers = [];
-let pulseRings = []; // 🌈 stores active AoE ring animations
+let pulseRings = [];
 
-// ⚙️ CONFIG
-const MAX_ATTACKS = 50;
+const MAX_ATTACKS = 25;
 const FIRE_RATE_MS = 800;
 const FADE_SPEED = 2;
 const TOWER_SIZE = 96;
 
 // ------------------------------------------------------------
-// 🖼️ IMAGE LOADING
+// 🖼️ LOAD SPRITES
 // ------------------------------------------------------------
 function loadImage(src) {
   return new Promise((resolve) => {
@@ -43,11 +43,11 @@ async function loadTowerSprites() {
       active: await loadImage(`./assets/images/turrets/${t}_turret_active.png`),
     };
   }
-  console.log("🏰 All turret sprites loaded:", Object.keys(turretSprites).length);
+  console.log("🏰 Tower sprites loaded:", Object.keys(turretSprites).length);
 }
 
 // ------------------------------------------------------------
-// 🌸 INITIALIZATION
+// 🌸 INIT
 // ------------------------------------------------------------
 export async function initTowers() {
   towers = [];
@@ -57,7 +57,7 @@ export async function initTowers() {
 }
 
 // ------------------------------------------------------------
-// ➕ ADD TOWER
+// ➕ ADD
 // ------------------------------------------------------------
 export function addTower(data) {
   towers.push({
@@ -70,7 +70,7 @@ export function addTower(data) {
 }
 
 // ------------------------------------------------------------
-// 🧠 UPDATE TOWERS — Elemental Behavior + Smart Targeting
+// 🧠 UPDATE TOWERS (Smart Targeting + Optimized)
 // ------------------------------------------------------------
 export function updateTowers(delta) {
   const dt = delta / 1000;
@@ -79,7 +79,7 @@ export function updateTowers(delta) {
   for (let i = towers.length - 1; i >= 0; i--) {
     const tower = towers[i];
 
-    // 💨 Fade-out & removal
+    // 🕓 Fade + removal
     if (tower.fadeOut > 0) {
       tower.fadeOut -= dt * FADE_SPEED;
       if (tower.fadeOut <= 0) {
@@ -92,30 +92,17 @@ export function updateTowers(delta) {
     tower.cooldown -= dt;
     if (tower.activeFrameTimer > 0) tower.activeFrameTimer -= delta;
 
-    // 🎯 Attack logic only when ready
+    // Attack if ready
     if (tower.cooldown <= 0) {
       switch (tower.type) {
-        case "basic_turret":
-          handleBasicAttack(tower, enemies);
-          break;
-        case "frost_turret":
-          handleFrostPulse(tower, enemies);
-          break;
-        case "flame_turret":
-          handleFlamePulse(tower, enemies);
-          break;
-        case "arcane_turret":
-          handleArcaneAttack(tower, enemies);
-          break;
-        case "light_turret":
-          handleLightAura(tower);
-          break;
-        case "moon_turret":
-          handleMoonBolt(tower, enemies);
-          break;
+        case "basic_turret": handleBasicAttack(tower, enemies); break;
+        case "frost_turret": handleFrostPulse(tower, enemies); break;
+        case "flame_turret": handleFlamePulse(tower, enemies); break;
+        case "arcane_turret": handleArcaneAttack(tower, enemies); break;
+        case "light_turret": handleLightAura(tower); break;
+        case "moon_turret": handleMoonBolt(tower, enemies); break;
       }
 
-      // 💥 Durability check
       if (tower.attacksDone >= MAX_ATTACKS) {
         tower.fadeOut = 1;
         spawnFloatingText(tower.x, tower.y - 30, "💥 Broken!", "#ff6fb1");
@@ -128,33 +115,35 @@ export function updateTowers(delta) {
 }
 
 // ------------------------------------------------------------
-// 🎯 ELEMENTAL BEHAVIORS — Smart Fire/Frost Logic
+// 🎯 ELEMENTAL BEHAVIORS (Optimized)
 // ------------------------------------------------------------
 
-// 🌸 Basic — Crystal Defender
+// 🌸 Basic
 function handleBasicAttack(tower, enemies) {
   const target = findNearestEnemy(tower, enemies, TOWER_RANGE);
-  if (!target) return; // 🔇 no target = no attack
+  if (!target) return;
   spawnProjectile(tower.x, tower.y, target, "crystal");
   triggerTowerAttack(tower);
 }
 
-// ❄️ Frost — AoE slow pulse + ring VFX (only if enemy in range)
+// ❄️ Frost Pulse (AoE slow)
 function handleFrostPulse(tower, enemies) {
   const anyEnemy = enemies.some(e => e.alive && distance(tower, e) <= TOWER_RANGE * 0.8);
-  if (!anyEnemy) return; // ❌ skip if no nearby enemies
+  if (!anyEnemy) return;
 
   tower.cooldown = FIRE_RATE_MS / 1000;
   tower.activeFrameTimer = 300;
   tower.attacksDone++;
 
   const radius = TOWER_RANGE * 0.8;
-  const slowed = enemies.filter(e => e.alive && distance(tower, e) <= radius);
-  slowed.forEach(e => {
-    e.slowTimer = 2000;
-    e.speed *= 0.5;
+  enemies.forEach(e => {
+    if (e.alive && distance(tower, e) <= radius) {
+      e.slowTimer = 2000;
+      e.speed *= 0.5;
+    }
   });
 
+  // ✅ Single text message instead of many
   spawnFloatingText(tower.x, tower.y - 20, "❄️ Freeze Pulse!", "#77ccff");
 
   pulseRings.push({
@@ -167,22 +156,24 @@ function handleFrostPulse(tower, enemies) {
   });
 }
 
-// 🔥 Flame — AoE burn DoT + ring VFX (only if enemy in range)
+// 🔥 Flame Pulse (AoE burn)
 function handleFlamePulse(tower, enemies) {
   const anyEnemy = enemies.some(e => e.alive && distance(tower, e) <= TOWER_RANGE * 0.7);
-  if (!anyEnemy) return; // ❌ skip if no nearby enemies
+  if (!anyEnemy) return;
 
   tower.cooldown = FIRE_RATE_MS / 1000;
   tower.activeFrameTimer = 300;
   tower.attacksDone++;
 
   const radius = TOWER_RANGE * 0.7;
-  const burned = enemies.filter(e => e.alive && distance(tower, e) <= radius);
-  burned.forEach(e => {
-    e.burnTimer = 3000;
-    e.burnDamage = 3;
+  enemies.forEach(e => {
+    if (e.alive && distance(tower, e) <= radius) {
+      e.burnTimer = 3000;
+      e.burnDamage = 3;
+    }
   });
 
+  // ✅ Single text message instead of spam
   spawnFloatingText(tower.x, tower.y - 20, "🔥 Flame Burst!", "#ff8844");
 
   pulseRings.push({
@@ -195,7 +186,7 @@ function handleFlamePulse(tower, enemies) {
   });
 }
 
-// 💜 Arcane — Long range heavy projectile
+// 💜 Arcane — long-range projectile
 function handleArcaneAttack(tower, enemies) {
   const target = findNearestEnemy(tower, enemies, TOWER_RANGE * 1.5);
   if (!target) return;
@@ -203,13 +194,13 @@ function handleArcaneAttack(tower, enemies) {
   triggerTowerAttack(tower);
 }
 
-// 💛 Light — Heal player nearby
+// 💛 Light — heals player nearby
 function handleLightAura(tower) {
   const player = gameState.player;
   if (!player) return;
 
   const dist = Math.hypot(player.pos.x - tower.x, player.pos.y - tower.y);
-  if (dist > TOWER_RANGE * 0.8) return; // ❌ only heal if close
+  if (dist > TOWER_RANGE * 0.8) return;
 
   tower.cooldown = FIRE_RATE_MS / 1000;
   tower.activeFrameTimer = 400;
@@ -219,7 +210,7 @@ function handleLightAura(tower) {
   spawnFloatingText(tower.x, tower.y - 20, "✨ Heal!", "#ffee88");
 }
 
-// 🌙 Moon — Knockback projectile (only if enemy found)
+// 🌙 Moon — knockback projectile
 function handleMoonBolt(tower, enemies) {
   const target = findNearestEnemy(tower, enemies, TOWER_RANGE);
   if (!target) return;
@@ -256,7 +247,7 @@ function distance(a, b) {
 }
 
 // ------------------------------------------------------------
-// 🌈 AOE PULSE RINGS — visual animation logic
+// 🌈 AOE Pulse Ring Animation
 // ------------------------------------------------------------
 function updatePulseRings(dt) {
   for (let i = pulseRings.length - 1; i >= 0; i--) {
@@ -273,7 +264,7 @@ function updatePulseRings(dt) {
 export function drawTowers(ctx) {
   if (!ctx) return;
 
-  // Draw AoE pulse rings first
+  // AoE rings behind towers
   pulseRings.forEach(ring => {
     ctx.save();
     ctx.globalAlpha = ring.life;
@@ -285,8 +276,8 @@ export function drawTowers(ctx) {
     ctx.restore();
   });
 
-  // Draw tower sprites
-  towers.forEach((tower) => {
+  // Tower sprites
+  towers.forEach(tower => {
     const base = tower.type.replace("_turret", "");
     const spriteSet = turretSprites[base] || turretSprites.basic;
     const img = tower.activeFrameTimer > 0 ? spriteSet.active : spriteSet.idle;
@@ -298,16 +289,13 @@ export function drawTowers(ctx) {
     ctx.save();
     ctx.globalAlpha = tower.fadeOut > 0 ? tower.fadeOut : 1;
 
-    // Soft shadow
     ctx.beginPath();
     ctx.ellipse(
       tower.x,
       tower.y + TOWER_SIZE * 0.35,
       TOWER_SIZE * 0.25,
       TOWER_SIZE * 0.1,
-      0,
-      0,
-      Math.PI * 2
+      0, 0, Math.PI * 2
     );
     ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
     ctx.fill();
