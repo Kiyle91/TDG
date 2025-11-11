@@ -16,7 +16,12 @@ import { playFairySprinkle, playMeleeSwing, playArrowSwish, playSpellCast } from
 
 import { spawnFloatingText } from "./floatingText.js";
 
-import { tryPlaceTower } from "./towerPlacement.js";
+
+import { handleTowerKey } from "./towerPlacement.js";
+
+window.addEventListener("keydown", (e) => {
+  if (e.code.startsWith("Digit")) handleTowerKey(e.code);
+});
 
 // ------------------------------------------------------------
 // ✅ Shared enemy getter (same instance towers & player use)

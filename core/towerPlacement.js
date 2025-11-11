@@ -1,10 +1,11 @@
 // ============================================================
-// 🏗️ towerPlacement.js — Olivia’s World: Crystal Keep (Profile Gold Integration)
+// 🏗️ towerPlacement.js — Olivia’s World: Crystal Keep (Full Multi-Turret System)
 // ------------------------------------------------------------
-// ✦ Handles player-triggered tower placement (press 1 key)
-// ✦ Unlocks Crystal Defender at Level 2
-// ✦ Costs 50 gold (from profile.currencies.gold)
-// ✦ Uses spendGold() for persistence + HUD sync
+// ✦ Handles player-triggered tower placement (keys 1–6)
+// ✦ Unlocks different turret types based on player level
+// ✦ Deducts gold using profile currencies via spendGold()
+// ✦ Uses addTower() to create turret instances
+// ✦ Integrates sounds, floating text, and HUD updates
 // ============================================================
 
 import { gameState, spendGold } from "../utils/gameState.js";
@@ -13,64 +14,85 @@ import { spawnFloatingText } from "./floatingText.js";
 import { playFairySprinkle, playCancelSound } from "./soundtrack.js";
 import { updateHUD } from "./ui.js";
 
-const CRYSTAL_DEFENDER_COST = 50;
-const CRYSTAL_DEFENDER_UNLOCK_LEVEL = 2;
+// ------------------------------------------------------------
+// ⚙️ CONFIGURATION
+// ------------------------------------------------------------
 const TILE_SIZE = 64;
+const TOWER_COST = 50;
+
+// ✨ Unlock levels + metadata for each turret
+const TOWER_UNLOCKS = {
+  1: { name: "Crystal Defender", key: "basic_turret", unlock: 2, projectile: "crystal" },
+  2: { name: "Frost Sentinel", key: "frost_turret", unlock: 6, projectile: "frost" },
+  3: { name: "Flameheart", key: "flame_turret", unlock: 10, projectile: "flame" },
+  4: { name: "Arcane Spire", key: "arcane_turret", unlock: 15, projectile: "arcane" },
+  5: { name: "Beacon of Light", key: "light_turret", unlock: 20, projectile: "light" },
+  6: { name: "Moonlight Aegis", key: "moon_turret", unlock: 25, projectile: "moon" },
+};
 
 // ------------------------------------------------------------
-// 🩵 Attempt to place a tower
+// 🧭 handleTowerKey()
 // ------------------------------------------------------------
-export function tryPlaceTower() {
+// Called from playerController.js when key 1–6 pressed.
+// ------------------------------------------------------------
+export function handleTowerKey(keyCode) {
+  const num = parseInt(keyCode.replace("Digit", ""));
+  if (num >= 1 && num <= 6) tryPlaceTower(num);
+}
+
+// ------------------------------------------------------------
+// 🩵 tryPlaceTower()
+// ------------------------------------------------------------
+// Handles placement, unlock checks, cost, and spawn.
+// ------------------------------------------------------------
+function tryPlaceTower(num) {
   const p = gameState.player;
-  if (!p) return;
+  if (!p || !gameState.profile) return;
 
-  // 🔒 Unlock requirement
-  if ((p.level || 1) < CRYSTAL_DEFENDER_UNLOCK_LEVEL) {
-    spawnFloatingText(p.pos.x, p.pos.y - 40, "Locked!", "#ff7aa8");
+  const towerData = TOWER_UNLOCKS[num];
+  if (!towerData) return;
+
+  // 🔒 Check level unlock
+  if ((p.level || 1) < towerData.unlock) {
+    spawnFloatingText(p.pos.x, p.pos.y - 40, `Locked — Lvl ${towerData.unlock}`, "#ff7aa8");
     playCancelSound();
-    console.log("🔒 Tower locked — reach level 2 to unlock Crystal Defender.");
+    console.log(`🔒 ${towerData.name} locked until level ${towerData.unlock}.`);
     return;
   }
 
-  // 💰 Check gold using profile currencies
+  // 💰 Check gold (profile currencies)
   const gold = gameState.profile?.currencies?.gold ?? 0;
-  if (gold < CRYSTAL_DEFENDER_COST) {
+  if (gold < TOWER_COST) {
     spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough gold", "#ff7aa8");
     playCancelSound();
-    console.log(`💰 Not enough gold (${gold}/${CRYSTAL_DEFENDER_COST}).`);
+    console.log(`💰 Not enough gold (${gold}/${TOWER_COST}).`);
     return;
   }
 
-  // 🏗️ Determine spawn position (1 tile to the right for now)
+  // 🏗️ Determine spawn position (right tile for now)
   const spawnX = p.pos.x + TILE_SIZE;
   const spawnY = p.pos.y;
 
-  // ✅ Create the tower
+  // 🏰 Create the new tower instance
   addTower({
-    name: "Crystal Defender",
-    type: "basic_turret",
-    projectileType: "crystal",
+    name: towerData.name,
+    type: towerData.key,
+    projectileType: towerData.projectile,
     x: spawnX,
     y: spawnY,
   });
 
-  // 💸 Deduct gold via helper for persistence
-  const success = spendGold(CRYSTAL_DEFENDER_COST);
+  // 💸 Deduct gold & refresh HUD
+  const success = spendGold(TOWER_COST);
   if (success) {
     updateHUD();
-    spawnFloatingText(spawnX, spawnY - 40, "-50 G", "#ffd6eb");
+    spawnFloatingText(spawnX, spawnY - 40, `-${TOWER_COST} G`, "#ffd6eb");
     playFairySprinkle();
-    console.log(
-      `🏰 Placed Crystal Defender! Remaining gold: ${
-        gameState.profile.currencies.gold
-      }`
-    );
+    console.log(`🏰 Placed ${towerData.name}!`);
   } else {
     playCancelSound();
     console.warn("❌ spendGold() failed — possibly unsynced profile.");
   }
 }
 
-// ============================================================
-// 🌟 END OF FILE
 // ============================================================
