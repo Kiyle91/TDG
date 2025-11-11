@@ -11,6 +11,24 @@ import { gameState, getCurrencies, saveProfiles } from "../utils/gameState.js";
 import { playCancelSound } from "./soundtrack.js";
 import { initTurretBar, updateTurretBar } from "./turretBar.js";
 
+// ============================================================
+// ⏸️ GAME PAUSE / RESUME HELPERS
+// ============================================================
+
+export function pauseGame() {
+  if (!gameState.paused) {
+    gameState.paused = true;
+    console.log("⏸️ Game paused (overlay open).");
+  }
+}
+
+export function resumeGame() {
+  if (gameState.paused) {
+    gameState.paused = false;
+    console.log("▶️ Game resumed (overlay closed).");
+  }
+}
+
 // ------------------------------------------------------------
 // ⚙️ STATE
 // ------------------------------------------------------------
@@ -90,17 +108,20 @@ export function showOverlay(id) {
     return;
   }
 
-  // Hide other overlays
+  // Hide others
   document.querySelectorAll(".overlay").forEach((o) => {
     o.classList.remove("active");
     o.style.display = "none";
   });
 
-  // Show selected overlay
+  // Pause gameplay
+  pauseGame();
+
+  // Show this one
   overlay.style.display = "flex";
   requestAnimationFrame(() => overlay.classList.add("active"));
 
-  // Close behavior
+  // Add close behavior
   const closeBtn = overlay.querySelector(".overlay-close");
   if (closeBtn) {
     closeBtn.onclick = () => closeOverlay(overlay);
@@ -110,8 +131,13 @@ export function showOverlay(id) {
 export function closeOverlay(overlay) {
   overlay.classList.remove("active");
   playCancelSound();
-  setTimeout(() => (overlay.style.display = "none"), 600);
+  setTimeout(() => {
+    overlay.style.display = "none";
+    resumeGame(); // ✅ resume gameplay once overlay fully closed
+  }, 600);
 }
+
+
 
 // ------------------------------------------------------------
 // ⚙️ SETTINGS MENU INITIALIZATION
