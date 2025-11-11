@@ -43,7 +43,7 @@ const FADE_OUT_TIME = 900;
 const DEFAULT_HP = 100;
 const HITBOX_OFFSET_Y = 15;
 const ATTACK_RANGE = 80;
-const AGGRO_RANGE = 180;
+const AGGRO_RANGE = 150;
 const RETURN_DELAY = 1200;
 const ATTACK_COOLDOWN = 1000;
 const GOBLIN_DAMAGE = 10;
@@ -380,8 +380,8 @@ export function damageEnemy(enemy, amount) {
     enemy.fadeTimer = 0;
     playGoblinDeath();
     incrementGoblinDefeated();
-    awardXP(20);
-    addGold(5);
+    awardXP(1000);
+    addGold(1000);
     updateHUD();
   }
 }

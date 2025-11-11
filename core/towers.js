@@ -1,10 +1,11 @@
 // ============================================================
-// 💎 towers.js — Olivia’s World: Crystal Keep (Elemental VFX Edition)
+// 💎 towers.js — Olivia’s World: Crystal Keep (Elemental VFX + Smart Targeting Edition)
 // ------------------------------------------------------------
 // ✦ Supports all 6 turret types (basic, frost, flame, arcane, light, moon)
 // ✦ Adds Frost + Flame AoE pulse rings with soft expansion
 // ✦ Each turret has unique attack logic
 // ✦ Includes fade-out durability & smooth drawing
+// ✦ NEW: Only attacks when enemies are within range
 // ============================================================
 
 import { TOWER_RANGE } from "../utils/constants.js";
@@ -18,7 +19,7 @@ let towers = [];
 let pulseRings = []; // 🌈 stores active AoE ring animations
 
 // ⚙️ CONFIG
-const MAX_ATTACKS = 25;
+const MAX_ATTACKS = 50;
 const FIRE_RATE_MS = 800;
 const FADE_SPEED = 2;
 const TOWER_SIZE = 96;
@@ -69,13 +70,12 @@ export function addTower(data) {
 }
 
 // ------------------------------------------------------------
-// 🧠 UPDATE TOWERS — Elemental Behavior Handling
+// 🧠 UPDATE TOWERS — Elemental Behavior + Smart Targeting
 // ------------------------------------------------------------
 export function updateTowers(delta) {
   const dt = delta / 1000;
   const enemies = getEnemies();
 
-  // Update tower behaviors
   for (let i = towers.length - 1; i >= 0; i--) {
     const tower = towers[i];
 
@@ -92,15 +92,27 @@ export function updateTowers(delta) {
     tower.cooldown -= dt;
     if (tower.activeFrameTimer > 0) tower.activeFrameTimer -= delta;
 
-    // 🎯 Fire when ready
+    // 🎯 Attack logic only when ready
     if (tower.cooldown <= 0) {
       switch (tower.type) {
-        case "basic_turret": handleBasicAttack(tower, enemies); break;
-        case "frost_turret": handleFrostPulse(tower, enemies); break;
-        case "flame_turret": handleFlamePulse(tower, enemies); break;
-        case "arcane_turret": handleArcaneAttack(tower, enemies); break;
-        case "light_turret": handleLightAura(tower, enemies); break;
-        case "moon_turret": handleMoonBolt(tower, enemies); break;
+        case "basic_turret":
+          handleBasicAttack(tower, enemies);
+          break;
+        case "frost_turret":
+          handleFrostPulse(tower, enemies);
+          break;
+        case "flame_turret":
+          handleFlamePulse(tower, enemies);
+          break;
+        case "arcane_turret":
+          handleArcaneAttack(tower, enemies);
+          break;
+        case "light_turret":
+          handleLightAura(tower);
+          break;
+        case "moon_turret":
+          handleMoonBolt(tower, enemies);
+          break;
       }
 
       // 💥 Durability check
@@ -112,25 +124,26 @@ export function updateTowers(delta) {
     }
   }
 
-  // Update AoE pulse animations
   updatePulseRings(dt);
 }
 
 // ------------------------------------------------------------
-// 🎯 ELEMENTAL BEHAVIORS
+// 🎯 ELEMENTAL BEHAVIORS — Smart Fire/Frost Logic
 // ------------------------------------------------------------
 
 // 🌸 Basic — Crystal Defender
 function handleBasicAttack(tower, enemies) {
   const target = findNearestEnemy(tower, enemies, TOWER_RANGE);
-  if (target) {
-    spawnProjectile(tower.x, tower.y, target, "crystal");
-    triggerTowerAttack(tower);
-  }
+  if (!target) return; // 🔇 no target = no attack
+  spawnProjectile(tower.x, tower.y, target, "crystal");
+  triggerTowerAttack(tower);
 }
 
-// ❄️ Frost — AoE slow pulse + ring VFX
+// ❄️ Frost — AoE slow pulse + ring VFX (only if enemy in range)
 function handleFrostPulse(tower, enemies) {
+  const anyEnemy = enemies.some(e => e.alive && distance(tower, e) <= TOWER_RANGE * 0.8);
+  if (!anyEnemy) return; // ❌ skip if no nearby enemies
+
   tower.cooldown = FIRE_RATE_MS / 1000;
   tower.activeFrameTimer = 300;
   tower.attacksDone++;
@@ -138,13 +151,12 @@ function handleFrostPulse(tower, enemies) {
   const radius = TOWER_RANGE * 0.8;
   const slowed = enemies.filter(e => e.alive && distance(tower, e) <= radius);
   slowed.forEach(e => {
-    e.slowTimer = 2000; // slow for 2s
+    e.slowTimer = 2000;
     e.speed *= 0.5;
   });
 
   spawnFloatingText(tower.x, tower.y - 20, "❄️ Freeze Pulse!", "#77ccff");
 
-  // Add visual pulse ring
   pulseRings.push({
     x: tower.x,
     y: tower.y,
@@ -155,8 +167,11 @@ function handleFrostPulse(tower, enemies) {
   });
 }
 
-// 🔥 Flame — AoE burn DoT + ring VFX
+// 🔥 Flame — AoE burn DoT + ring VFX (only if enemy in range)
 function handleFlamePulse(tower, enemies) {
+  const anyEnemy = enemies.some(e => e.alive && distance(tower, e) <= TOWER_RANGE * 0.7);
+  if (!anyEnemy) return; // ❌ skip if no nearby enemies
+
   tower.cooldown = FIRE_RATE_MS / 1000;
   tower.activeFrameTimer = 300;
   tower.attacksDone++;
@@ -183,35 +198,34 @@ function handleFlamePulse(tower, enemies) {
 // 💜 Arcane — Long range heavy projectile
 function handleArcaneAttack(tower, enemies) {
   const target = findNearestEnemy(tower, enemies, TOWER_RANGE * 1.5);
-  if (target) {
-    spawnProjectile(tower.x, tower.y, target, "arcane");
-    triggerTowerAttack(tower);
-  }
+  if (!target) return;
+  spawnProjectile(tower.x, tower.y, target, "arcane");
+  triggerTowerAttack(tower);
 }
 
 // 💛 Light — Heal player nearby
-function handleLightAura(tower, enemies) {
+function handleLightAura(tower) {
+  const player = gameState.player;
+  if (!player) return;
+
+  const dist = Math.hypot(player.pos.x - tower.x, player.pos.y - tower.y);
+  if (dist > TOWER_RANGE * 0.8) return; // ❌ only heal if close
+
   tower.cooldown = FIRE_RATE_MS / 1000;
   tower.activeFrameTimer = 400;
   tower.attacksDone++;
 
-  const player = gameState.player;
-  if (!player) return;
-  const dist = Math.hypot(player.pos.x - tower.x, player.pos.y - tower.y);
-  if (dist <= TOWER_RANGE * 0.8) {
-    player.hp = Math.min(player.maxHp, player.hp + 5);
-    spawnFloatingText(tower.x, tower.y - 20, "✨ Heal!", "#ffee88");
-  }
+  player.hp = Math.min(player.maxHp, player.hp + 5);
+  spawnFloatingText(tower.x, tower.y - 20, "✨ Heal!", "#ffee88");
 }
 
-// 🌙 Moon — Knockback projectile
+// 🌙 Moon — Knockback projectile (only if enemy found)
 function handleMoonBolt(tower, enemies) {
   const target = findNearestEnemy(tower, enemies, TOWER_RANGE);
-  if (target) {
-    target.knockback = 15;
-    spawnProjectile(tower.x, tower.y, target, "moon");
-    triggerTowerAttack(tower);
-  }
+  if (!target) return;
+  target.knockback = 15;
+  spawnProjectile(tower.x, tower.y, target, "moon");
+  triggerTowerAttack(tower);
 }
 
 // ------------------------------------------------------------
@@ -247,8 +261,8 @@ function distance(a, b) {
 function updatePulseRings(dt) {
   for (let i = pulseRings.length - 1; i >= 0; i--) {
     const ring = pulseRings[i];
-    ring.radius += dt * 200; // expand speed
-    ring.life -= dt * 1.5;   // fade speed
+    ring.radius += dt * 200;
+    ring.life -= dt * 1.5;
     if (ring.life <= 0) pulseRings.splice(i, 1);
   }
 }
@@ -259,7 +273,7 @@ function updatePulseRings(dt) {
 export function drawTowers(ctx) {
   if (!ctx) return;
 
-  // Draw AoE pulse rings first (behind towers)
+  // Draw AoE pulse rings first
   pulseRings.forEach(ring => {
     ctx.save();
     ctx.globalAlpha = ring.life;
