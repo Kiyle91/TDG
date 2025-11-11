@@ -16,7 +16,7 @@ import { updateHUD } from "./ui.js";
 import { incrementGoblinDefeated } from "./game.js"; // 🏆 track kills
 import { spawnFloatingText } from "./floatingText.js";
 import { playGoblinAttack, playGoblinDeath, playPlayerDamage, playGoblinDamage } from "./soundtrack.js";
-
+import { spawnDamageSparkles } from "./playerController.js";
 
 
 let enemies = [];
@@ -195,6 +195,8 @@ export function updateEnemies(delta) {
           setTimeout(() => {
             playPlayerDamage();
           }, 370);
+
+          spawnDamageSparkles(player.pos.x, player.pos.y);
 
           // 🗡️ 2-frame directional attack animation
           e.attacking = true;

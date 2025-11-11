@@ -413,6 +413,19 @@ function updateAndDrawSparkles(ctx, delta) {
 }
 
 // ------------------------------------------------------------
+// 🌸 Damage Sparkle Burst (soft pink-crimson magical hit)
+// ------------------------------------------------------------
+export function spawnDamageSparkles(x, y) {
+  // 💫 Softer tones — pink-magenta blend instead of dark red
+  const pinkRedPalette = ["#ff7aa8", "#ff99b9", "#ffb3c6", "#ffccd5"];
+
+  // Fewer sparkles, small radius, subtle intensity
+  spawnCanvasSparkleBurst(x, y, 12, 50, pinkRedPalette);
+}
+
+
+
+// ------------------------------------------------------------
 // 🏹 Projectiles — accuracy + map collision + lifetime + damage
 function updateProjectiles(delta) {
   const dt = delta / 1000;
