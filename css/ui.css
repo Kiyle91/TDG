@@ -227,3 +227,68 @@
   transform: translateY(0);
   box-shadow: none;
 }
+
+
+/* ============================================================
+   🏰 TURRET BAR HUD
+============================================================ */
+.turret-bar {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 10px 6px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 10px rgba(255,255,255,0.2);
+  z-index: 9999;
+}
+
+.turret-slot {
+  width: 64px;
+  height: 64px;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: grayscale(1) brightness(0.6);
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.turret-slot img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.turret-slot span {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 3px #000;
+}
+
+.turret-slot.unlocked {
+  filter: none;
+  opacity: 1;
+  box-shadow: 0 0 8px rgba(255,255,255,0.5);
+}
+
+.turret-slot.unlocked span {
+  color: #ffd6eb;
+  text-shadow: 0 0 6px #fff;
+}

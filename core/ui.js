@@ -9,6 +9,7 @@
 import { getCurrencies } from "../utils/gameState.js";
 import { gameState, saveProfiles } from "../utils/gameState.js";
 import { playCancelSound } from "./soundtrack.js";
+import { initTurretBar, updateTurretBar } from "./turretBar.js";
 
 // ------------------------------------------------------------
 // ⚙️ STATE
@@ -30,6 +31,7 @@ export function initUI() {
   livesDisplay = document.getElementById("lives-display");
 
   updateHUD();
+  initTurretBar();
 }
 
 // ------------------------------------------------------------
@@ -69,6 +71,8 @@ export function updateHUD() {
     if (hpText)   hpText.textContent   = `${p.hp} / ${p.maxHp}`;
     if (manaText) manaText.textContent = `${p.mana} / ${p.maxMana}`;
   }
+
+  updateTurretBar();
 }
 
 // ------------------------------------------------------------
