@@ -394,8 +394,8 @@ export function damageEnemy(enemy, amount) {
     addGold(10);
     updateHUD();
 
-    spawnFloatingText(enemy.x, enemy.y - 40, "💀", "#fff", 22);
-    spawnFloatingText(enemy.x, enemy.y - 55, "+25 XP", "#b3ffb3", 18);
+    
+    
   }
 }
 
