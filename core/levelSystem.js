@@ -1,13 +1,13 @@
 // ============================================================
-// 🌟 levelSystem.js — Olivia’s World: Crystal Keep
+// 🌟 levelSystem.js — Olivia’s World: Crystal Keep (Pause + Full Upgrade System)
 // ------------------------------------------------------------
 // ✦ Handles XP gain, level-ups, and stat upgrades
-// ✦ Uses alert.js for upgrade UI (or a custom overlay later)
-// ✦ Grants 3 upgrade points per level
+// ✦ Pauses gameplay and opens a proper overlay for upgrades
+// ✦ Awards 3 points per level with real-time HUD updates
+// ✦ Fully integrated with gameState pause control
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
-import { showAlert } from "./alert.js";
 import { updateHUD } from "./ui.js";
 import { spawnFloatingText } from "./floatingText.js";
 
@@ -15,7 +15,7 @@ import { spawnFloatingText } from "./floatingText.js";
 // ⚙️ CONFIGURATION
 // ------------------------------------------------------------
 const XP_PER_LEVEL_BASE = 100;  // base XP required for level 1→2
-const XP_SCALING = 1.25;        // how much XP requirement scales per level
+const XP_SCALING = 1.25;        // XP requirement growth per level
 const POINTS_PER_LEVEL = 3;     // stat points awarded per level
 
 // ------------------------------------------------------------
@@ -26,7 +26,10 @@ export function awardXP(amount = 25) {
   if (!p) return;
 
   p.xp = (p.xp || 0) + amount;
+
+  // Floating XP text
   spawnFloatingText(p.pos.x, p.pos.y - 50, `+${amount} XP`, "#b3ffb3", 18);
+
   checkLevelUp();
 }
 
@@ -38,14 +41,19 @@ function checkLevelUp() {
   if (!p) return;
 
   const xpToNext = getXpForLevel(p.level || 1);
+
   if (p.xp >= xpToNext) {
     p.xp -= xpToNext;
     p.level = (p.level || 1) + 1;
     p.statPoints = (p.statPoints || 0) + POINTS_PER_LEVEL;
 
-    spawnFloatingText(p.pos.x, p.pos.y - 60, `⭐ Level ${p.level}!`, "#fff2b3", 20);
+    spawnFloatingText(p.pos.x, p.pos.y - 60, `⭐ Level ${p.level}!`, "#fff2b3", 22);
 
-    showLevelUpAlert(p);
+    // ✅ Pause gameplay and show level up overlay
+    gameState.paused = true;
+    console.log("⏸️ Gameplay paused for Level Up");
+
+    showLevelUpOverlay(p);
   }
 }
 
@@ -57,24 +65,27 @@ function getXpForLevel(level) {
 }
 
 // ------------------------------------------------------------
-// 🧮 LEVEL UP ALERT
+// 💫 LEVEL UP OVERLAY
 // ------------------------------------------------------------
-function showLevelUpAlert(p) {
-  const msg = `🎉 You reached Level ${p.level}! 
-You have ${p.statPoints} points to allocate.`;
+function showLevelUpOverlay(p) {
+  // Remove any existing overlay first
+  document.querySelector(".levelup-overlay")?.remove();
 
-  showAlert(msg, () => {
-    showStatUpgradeOptions();
-  });
-}
+  // Create dim background
+  const overlay = document.createElement("div");
+  overlay.className = "levelup-overlay";
+  overlay.innerHTML = `
+    <div class="levelup-backdrop"></div>
+    <div class="levelup-box">
+      <h2>✨ Level Up!</h2>
+      <p>You reached <strong>Level ${p.level}</strong>!<br>
+      You have <strong>${p.statPoints}</strong> points to allocate.</p>
+      <div class="levelup-buttons"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
 
-// ------------------------------------------------------------
-// 🧩 STAT UPGRADE MENU (simple alert-driven version)
-// ------------------------------------------------------------
-function showStatUpgradeOptions() {
-  const p = gameState.player;
-  if (!p || !p.statPoints) return;
-
+  // Build stat buttons
   const stats = [
     { name: "HP", key: "maxHp" },
     { name: "Mana", key: "maxMana" },
@@ -83,37 +94,131 @@ function showStatUpgradeOptions() {
     { name: "Ranged Attack", key: "rangedAttack" },
   ];
 
-  const buttons = stats.map((s, i) => {
-    return `<button class="levelup-btn" data-key="${s.key}">${s.name}</button>`;
-  }).join("");
-
-  const modal = document.createElement("div");
-  modal.className = "levelup-overlay";
-  modal.innerHTML = `
-    <div class="levelup-box">
-      <h2>✨ Level Up!</h2>
-      <p>You have <strong>${p.statPoints}</strong> points left.</p>
-      <div class="levelup-buttons">${buttons}</div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  modal.querySelectorAll(".levelup-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const key = btn.dataset.key;
-      if (p.statPoints > 0) {
-        p[key] = (p[key] || 0) + 5; // each point = +5 to stat
-        p.statPoints--;
-        updateHUD();
-        spawnFloatingText(p.pos.x, p.pos.y - 30, `+${key.replace("max", "")}`, "#b5e2ff");
-        if (p.statPoints <= 0) {
-          modal.remove();
-        } else {
-          modal.querySelector("p").innerHTML = `You have <strong>${p.statPoints}</strong> points left.`;
-        }
-      }
-    });
+  const btnContainer = overlay.querySelector(".levelup-buttons");
+  stats.forEach((s) => {
+    const btn = document.createElement("button");
+    btn.className = "levelup-btn";
+    btn.textContent = s.name;
+    btn.dataset.key = s.key;
+    btn.addEventListener("click", () => handleStatUpgrade(p, s.key, overlay));
+    btnContainer.appendChild(btn);
   });
+
+  requestAnimationFrame(() => overlay.classList.add("visible"));
+}
+
+// ------------------------------------------------------------
+// 🧮 HANDLE STAT UPGRADE
+// ------------------------------------------------------------
+function handleStatUpgrade(p, key, overlay) {
+  if (!p || p.statPoints <= 0) return;
+
+  // Upgrade stat
+  p[key] = (Number(p[key]) || 0) + 5;
+  p.statPoints--;
+
+  // Auto-boost current HP/Mana if max increased
+  if (key === "maxHp")   p.hp   = Math.min(p.maxHp,   p.hp + 5);
+  if (key === "maxMana") p.mana = Math.min(p.maxMana, p.mana + 5);
+
+  // Floating feedback
+  spawnFloatingText(p.pos.x, p.pos.y - 30, `+${key.replace("max", "")}`, "#b5e2ff");
+
+  // Update HUD
+  updateHUD();
+
+  // Update text
+  const text = overlay.querySelector("p");
+  if (p.statPoints > 0) {
+    text.innerHTML = `You reached <strong>Level ${p.level}</strong>!<br>
+    You have <strong>${p.statPoints}</strong> points left.`;
+  } else {
+    closeLevelUpOverlay(overlay);
+  }
+}
+
+// ------------------------------------------------------------
+// 🧹 CLOSE OVERLAY + RESUME GAMEPLAY
+// ------------------------------------------------------------
+function closeLevelUpOverlay(overlay) {
+  if (!overlay) return;
+
+  overlay.classList.remove("visible");
+  setTimeout(() => overlay.remove(), 250);
+
+  gameState.paused = false;
+  console.log("▶️ Gameplay resumed after Level Up");
+}
+
+// ------------------------------------------------------------
+// 🎨 BASIC CSS INJECTION (only if missing)
+// ------------------------------------------------------------
+if (!document.getElementById("levelup-style")) {
+  const style = document.createElement("style");
+  style.id = "levelup-style";
+  style.textContent = `
+  .levelup-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    background: rgba(255, 220, 255, 0.35);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 9000;
+  }
+  .levelup-overlay.visible { opacity: 1; }
+  .levelup-box {
+    background: linear-gradient(180deg, #fff0fa, #fbe9ff, #e8f5ff);
+    border: 2px solid rgba(255,255,255,0.8);
+    box-shadow: 0 0 12px rgba(255,255,255,0.6);
+    border-radius: 20px;
+    padding: 25px 35px;
+    text-align: center;
+    font-family: "Comic Sans MS", cursive;
+    color: #b44ac0;
+    animation: popIn 0.3s ease;
+  }
+  .levelup-box h2 {
+    font-size: 26px;
+    margin-bottom: 10px;
+    color: #ff99d9;
+    text-shadow: 0 0 6px rgba(255,255,255,0.7);
+  }
+  .levelup-box p {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+  .levelup-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  .levelup-btn {
+    background: linear-gradient(180deg, #ffb3e6, #b3e5ff);
+    border: none;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 16px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .levelup-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 8px rgba(255,255,255,0.6);
+  }
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  `;
+  document.head.appendChild(style);
 }
 
 // ============================================================

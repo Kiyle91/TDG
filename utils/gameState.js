@@ -13,6 +13,7 @@ export const gameState = {
   // 🧚‍♀️ Runtime entities
   player: null,   // active player object (Glitter Guardian)
   profile: null,  // selected save profile
+  paused: false,  
 
   // 💾 Stored save data
   profiles: [], // up to 6 profiles

@@ -49,7 +49,7 @@ function claimReward() {
 
   // 💎 Reward
   addGold(100);
-  addDiamonds(5);
+  addDiamonds(500);
   updateHUD();
   updateHubCurrencies();
 

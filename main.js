@@ -1,8 +1,9 @@
 // ============================================================
-// 🌸 main.js — Olivia’s World: Crystal Keep (CLEAN RESTART FIX)
+// 🌸 main.js — Olivia’s World: Crystal Keep (Continue System + Clean Restart Fix)
 // ------------------------------------------------------------
 // ✦ Entry point and master control flow
 // ✦ Ensures overlays are cleared on every new game
+// ✦ Supports "Continue for 25 Diamonds" after defeat
 // ✦ Updated spawn position → x: 1000, y: 500
 // ============================================================
 
@@ -15,7 +16,8 @@ import { initSettings } from "./core/settings.js";
 import { initMusic } from "./core/soundtrack.js";
 import { initTooltipSystem } from "./core/tooltip.js";
 import { showScreen } from "./core/screens.js";
-import { gameState } from "./utils/gameState.js";
+import { gameState, getCurrencies, spendDiamonds } from "./utils/gameState.js";
+import { updateHUD } from "./core/ui.js";
 
 let lastTime = 0;
 const FPS = 60;
@@ -30,7 +32,10 @@ function gameLoop(timestamp) {
   if (!gameActive) return;
   const delta = timestamp - lastTime;
   if (delta >= FRAME_DURATION) {
-    updateGame(delta);
+    // ⏸️ Skip updates while paused
+    if (!gameState.paused) {
+      updateGame(delta);
+    }
     renderGame();
     lastTime = timestamp;
   }
@@ -97,7 +102,80 @@ function resetGameplay() {
 }
 
 // ------------------------------------------------------------
-// 🖼️ THEMED END SCREEN
+// 💎 CONTINUE USING DIAMONDS
+// ------------------------------------------------------------
+function tryContinueWithDiamonds() {
+  const player = gameState.player;
+  const c = getCurrencies();
+
+  if (c.diamonds >= 25 && spendDiamonds(25)) {
+    console.log("💎 Continue purchased — restoring player!");
+    document.getElementById("end-screen")?.remove();
+
+    // Restore player stats and resume
+    player.hp = player.maxHp;
+    player.lives = 10;
+    player.dead = false;
+    updateHUD();
+
+    gameState.paused = false;
+
+    // Resume gameplay immediately
+    startGameplay();
+
+    // ✨ Visual resurrection feedback
+    const msg = document.createElement("div");
+    msg.textContent = "✨ The Crystal restores your strength!";
+    msg.style.position = "fixed";
+    msg.style.top = "40%";
+    msg.style.width = "100%";
+    msg.style.textAlign = "center";
+    msg.style.fontSize = "24px";
+    msg.style.color = "#fff2b3";
+    msg.style.textShadow = "0 0 10px #fff";
+    document.body.appendChild(msg);
+    setTimeout(() => msg.remove(), 2000);
+
+    // Optional sparkle burst animation
+    const spark = document.createElement("div");
+    spark.className = "revive-sparkle";
+    spark.style.position = "fixed";
+    spark.style.left = "50%";
+    spark.style.top = "50%";
+    spark.style.width = "100px";
+    spark.style.height = "100px";
+    spark.style.marginLeft = "-50px";
+    spark.style.marginTop = "-50px";
+    spark.style.borderRadius = "50%";
+    spark.style.background = "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 80%)";
+    spark.style.zIndex = "9999";
+    document.body.appendChild(spark);
+    spark.animate(
+      [
+        { transform: "scale(0)", opacity: 1 },
+        { transform: "scale(3)", opacity: 0 }
+      ],
+      { duration: 1200, easing: "ease-out" }
+    );
+    setTimeout(() => spark.remove(), 1200);
+  } else {
+    console.log("❌ Not enough diamonds to continue.");
+    const warn = document.createElement("div");
+    warn.textContent = "💎 You need 25 diamonds to continue!";
+    warn.style.position = "fixed";
+    warn.style.top = "40%";
+    warn.style.width = "100%";
+    warn.style.textAlign = "center";
+    warn.style.fontSize = "22px";
+    warn.style.color = "#ff99b9";
+    warn.style.textShadow = "0 0 8px #fff";
+    document.body.appendChild(warn);
+    setTimeout(() => warn.remove(), 2000);
+  }
+}
+
+// ------------------------------------------------------------
+// 🖼️ THEMED END SCREEN (with Continue option)
 // ------------------------------------------------------------
 function showEndScreen(reason) {
   const overlay = document.createElement("div");
@@ -140,21 +218,28 @@ function showEndScreen(reason) {
   retryBtn.textContent = reason === "victory" ? "Continue" : "Try Again";
   retryBtn.onclick = resetGameplay;
 
-  // 🏰 Return to Hub (screen manager)
+  // 🏰 Return to Hub
   const hubBtn = document.createElement("button");
   hubBtn.textContent = "Return to Hub";
   hubBtn.onclick = () => {
     document.getElementById("end-screen")?.remove();
     try {
       showScreen("hub-screen");
-
-      // 🪄 Re-initialize hub logic every time you arrive there
       setTimeout(() => initHub(), 50);
       console.log("🏰 Returned to Hub via screen manager (hub-screen).");
     } catch (err) {
       console.error("⚠️ Hub load failed:", err);
     }
   };
+
+  // 💎 Continue Button (only if player can afford)
+  const c = getCurrencies();
+  if (c.diamonds >= 25) {
+    const continueBtn = document.createElement("button");
+    continueBtn.textContent = "Continue (25 💎)";
+    continueBtn.onclick = tryContinueWithDiamonds;
+    buttons.appendChild(continueBtn);
+  }
 
   buttons.append(retryBtn, hubBtn);
   panel.append(title, subtitle, buttons);
@@ -175,3 +260,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initTooltipSystem();
   console.log("🌸 Olivia’s World loaded — menu systems active");
 });
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================
