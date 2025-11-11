@@ -1,38 +1,57 @@
 // ============================================================
-// 💫 projectiles.js — Olivia’s World: Crystal Keep
+// 💫 projectiles.js — Olivia’s World: Crystal Keep (Multi-Type Ready)
 // ------------------------------------------------------------
-// ✦ Handles all tower projectiles
-// ✦ Each projectile tracks target and applies damage on hit
-// ✦ Integrated with enemies.js damage system
+// ✦ Handles all tower projectiles by type
+// ✦ "crystal" → glowing shard projectile
+// ✦ Easily extendable for future tower types
 // ============================================================
 
 import { damageEnemy } from "./enemies.js";
 
-const PROJECTILE_SPEED = 480;   // px/sec
-const PROJECTILE_DAMAGE = 25;   // 💥 per hit
+const PROJECTILE_SPEED = 480;
+const PROJECTILE_DAMAGE = 25;
 
 let projectiles = [];
+let crystalImg = null;
+
+// ------------------------------------------------------------
+// 🌷 LOAD SPRITES
+// ------------------------------------------------------------
+function loadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => resolve(img);
+  });
+}
+
+async function loadCrystal() {
+  crystalImg = await loadImage("./assets/images/turrets/crystal_projectile.png");
+  console.log("💎 Crystal projectile sprite loaded.");
+}
 
 // ------------------------------------------------------------
 // 🌱 INITIALIZATION
 // ------------------------------------------------------------
-export function initProjectiles() {
+export async function initProjectiles() {
   projectiles = [];
-  console.log("💫 Projectiles system initialized.");
+  if (!crystalImg) await loadCrystal();
+  console.log("💫 Projectiles initialized (multi-type ready).");
 }
 
-
 // ------------------------------------------------------------
-// 🌱 SPAWN PROJECTILE
+// 💥 SPAWN PROJECTILE
 // ------------------------------------------------------------
-export function spawnProjectile(x, y, target) {
+export function spawnProjectile(x, y, target, type = "default") {
   if (!target || !target.alive) return;
-
   projectiles.push({
     x,
     y,
     target,
-    alive: true
+    type, // e.g. "crystal", "fire", "frost"
+    alive: true,
+    angle: 0,
+    life: 0
   });
 }
 
@@ -46,26 +65,25 @@ export function updateProjectiles(delta) {
     const p = projectiles[i];
     const t = p.target;
 
-    // Skip invalid or dead targets
     if (!t || !t.alive) {
       projectiles.splice(i, 1);
       continue;
     }
 
-    // Move toward target
     const dx = t.x - p.x;
     const dy = t.y - p.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
     const step = PROJECTILE_SPEED * dt;
 
+    p.angle = Math.atan2(dy, dx);
+    p.life += delta;
+
     if (dist < 8) {
-      // 💥 HIT CONFIRMED
       damageEnemy(t, PROJECTILE_DAMAGE);
       projectiles.splice(i, 1);
       continue;
     }
 
-    // Normal motion
     p.x += (dx / dist) * step;
     p.y += (dy / dist) * step;
   }
@@ -75,11 +93,48 @@ export function updateProjectiles(delta) {
 // 🎨 DRAW PROJECTILES
 // ------------------------------------------------------------
 export function drawProjectiles(ctx) {
-  ctx.fillStyle = "#aaf"; // light blue projectiles
+  if (!ctx) return;
+
   for (const p of projectiles) {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.angle);
+
+    if (p.type === "crystal") {
+      // 💎 Crystal projectile look
+      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 22);
+      gradient.addColorStop(0, "rgba(173, 216, 255, 0.9)");
+      gradient.addColorStop(0.5, "rgba(147, 112, 219, 0.4)");
+      gradient.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(0, 0, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (crystalImg) {
+        ctx.shadowColor = "rgba(200,255,255,0.8)";
+        ctx.shadowBlur = 10;
+        ctx.drawImage(crystalImg, -12, -12, 24, 24);
+      } else {
+        ctx.fillStyle = "#b3e5ff";
+        ctx.beginPath();
+        ctx.moveTo(-8, -4);
+        ctx.lineTo(8, 0);
+        ctx.lineTo(-8, 4);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    else {
+      // 🩶 Default fallback projectile (simple pastel dot)
+      ctx.fillStyle = "rgba(200,200,255,0.6)";
+      ctx.beginPath();
+      ctx.arc(0, 0, 6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
   }
 }
 

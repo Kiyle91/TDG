@@ -1,24 +1,17 @@
 // ============================================================
-// 💎 towers.js — Olivia’s World: Crystal Keep (Crystal Defender XL + Refined Shadow)
+// 💎 towers.js — Olivia’s World: Crystal Keep (Crystal Defender Modular)
 // ------------------------------------------------------------
-// ✦ Crystal Defender tower visuals + targeting + firing
-// ✦ Enlarged to 96px with smaller, softer shadow
-// ✦ Idle / Active frames from ./assets/images/turrets/
+// ✦ Each tower defines its own projectileType
+// ✦ Crystal Defender → uses 'crystal'
+// ✦ Future towers: flame / frost / arcane etc.
 // ============================================================
 
 import { TOWER_RANGE } from "../utils/constants.js";
 import { spawnProjectile } from "./projectiles.js";
 import { getEnemies } from "./enemies.js";
 
-// ------------------------------------------------------------
-// 🖼️ SPRITES
-// ------------------------------------------------------------
 let turretIdle = null;
 let turretActive = null;
-
-// ------------------------------------------------------------
-// ⚙️ STATE
-// ------------------------------------------------------------
 let towers = [];
 
 // ------------------------------------------------------------
@@ -45,19 +38,22 @@ export async function initTowers() {
   towers = [];
   await loadTowerSprites();
 
+  // ✨ Crystal Defender
   towers.push({
     name: "Crystal Defender",
+    type: "basic_turret",
+    projectileType: "crystal", // 🩵 important!
     x: 5 * 64 + 32,
     y: 4 * 64 + 32,
     cooldown: 0,
     activeFrameTimer: 0,
   });
 
-  console.log(`🏹 ${towers.length} Crystal Defender tower(s) initialized.`);
+  console.log(`🏹 ${towers.length} tower(s) initialized.`);
 }
 
 // ------------------------------------------------------------
-// 🕒 UPDATE TOWERS — TARGETING & FIRING
+// 🕒 UPDATE TOWERS
 // ------------------------------------------------------------
 export function updateTowers(delta) {
   const dt = delta / 1000;
@@ -74,7 +70,7 @@ export function updateTowers(delta) {
       });
 
       if (target) {
-        spawnProjectile(tower.x, tower.y, target);
+        spawnProjectile(tower.x, tower.y, target, tower.projectileType);
         tower.cooldown = 800 / 1000;
         tower.activeFrameTimer = 200;
       }
@@ -83,10 +79,7 @@ export function updateTowers(delta) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW TOWERS — 96px size + compact shadow
-// ------------------------------------------------------------
-// ------------------------------------------------------------
-// 🎨 DRAW TOWERS — 96px size + compact shadow + lowered 10%
+// 🎨 DRAW TOWERS (unchanged from before, shortened)
 // ------------------------------------------------------------
 export function drawTowers(ctx) {
   if (!ctx) return;
@@ -96,42 +89,23 @@ export function drawTowers(ctx) {
     if (!img) return;
 
     const size = 96;
+    const verticalOffset = size * 0.10;
     const drawX = tower.x - size / 2;
-    const verticalOffset = size * 0.10; // 🔻 move down 10%
     const drawY = tower.y - size / 2 + verticalOffset;
 
     ctx.save();
-
-    // 🩶 Smaller, softer shadow (unchanged)
     ctx.beginPath();
-    ctx.ellipse(
-      tower.x,
-      tower.y + size * 0.38,
-      size * 0.25,
-      size * 0.10,
-      0,
-      0,
-      Math.PI * 2
-    );
+    ctx.ellipse(tower.x, tower.y + size * 0.38, size * 0.25, size * 0.10, 0, 0, Math.PI * 2);
     ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
     ctx.fill();
 
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(img, drawX, drawY, size, size);
-
     ctx.restore();
   });
 }
 
-
-// ------------------------------------------------------------
-// 🔍 ACCESSOR
-// ------------------------------------------------------------
 export function getTowers() {
   return towers;
 }
-
-// ============================================================
-// 🌟 END OF FILE
-// ============================================================
