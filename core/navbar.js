@@ -77,7 +77,9 @@ function handleNavAction(action) {
     // 🎮 CONTROLS
     // --------------------------------------------------------
     case "controls":
-      alert("🎮 Controls overlay coming soon!");
+      playFairySprinkle();
+      console.log("🎮 Opening controls overlay...");
+      import("./ui.js").then((mod) => mod.showOverlay?.("overlay-controls"));
       break;
 
     // --------------------------------------------------------
