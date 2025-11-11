@@ -355,7 +355,7 @@ export function damageEnemy(enemy, amount) {
     console.log("💀 Goblin slain!");
     playGoblinDeath();
     incrementGoblinDefeated();
-    awardXP(25);     // XP gain
+    awardXP(250);     // XP gain
     addGold(5);      // +5 gold per kill (testing/economy)
 
     // XP text (separate from damage number)
