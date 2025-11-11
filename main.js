@@ -107,7 +107,7 @@ export function stopGameplay(reason = "unknown") {
 // ------------------------------------------------------------
 // 🔁 RESET GAMEPLAY (Try Again / Restart / New Game)
 // ------------------------------------------------------------
-function resetGameplay() {
+export function resetGameplay() {
   console.log("🔄 Restarting combat loop (fresh battle, keep currency).");
 
   // 🧩 Stop any old loop safely

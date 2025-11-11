@@ -1,15 +1,15 @@
 // ============================================================
-// 🧭 navbar.js — Olivia’s World: Crystal Keep (Hub-Standard Safe Exit)
+// 🧭 navbar.js — Olivia’s World: Crystal Keep (Restart Confirm + Safe Exit)
 // ------------------------------------------------------------
-// ✦ Bottom in-game navbar for quick menus
-// ✦ Home uses confirm dialog and calls stopGameplay("exit")
-// ✦ Avoids triggering defeat overlay, fades cleanly to hub
-// ✦ Other buttons stubbed safely
+// ✦ Adds restart with confirmation (same as Try Again)
+// ✦ Keeps player data intact (no profile wipe)
+// ✦ Uses resetGameplay() from main.js
+// ✦ Home still uses confirm + safe hub exit
 // ============================================================
 
 import { showConfirm } from "./alert.js";
 import { playFairySprinkle } from "./soundtrack.js";
-import { stopGameplay } from "../main.js";
+import { stopGameplay, resetGameplay } from "../main.js";
 
 // ------------------------------------------------------------
 // 🌸 INIT NAVBAR
@@ -25,7 +25,7 @@ export function initNavbar() {
     btn.addEventListener("click", () => handleNavAction(btn.dataset.action));
   });
 
-  console.log("🧭 Navbar initialized (hub-standard confirm + safe exit).");
+  console.log("🧭 Navbar initialized (safe exit + restart confirm).");
 }
 
 // ------------------------------------------------------------
@@ -51,17 +51,26 @@ function handleNavAction(action) {
       break;
 
     // --------------------------------------------------------
+    // 🔄 RESTART MAP — Confirm + ResetGameplay
+    // --------------------------------------------------------
+    case "restart":
+      showConfirm(
+        "Restart this map? You’ll keep your player stats, but towers and enemies will reset.",
+        () => {
+          console.log("🔄 Confirmed: restarting map...");
+          // No fadeOut — just flash effect for visual feedback
+          flashScreen();
+          resetGameplay(); // identical to Try Again from defeat overlay
+        },
+        () => console.log("❎ Restart cancelled.")
+      );
+      break;
+
+    // --------------------------------------------------------
     // 💾 SAVE / LOAD
     // --------------------------------------------------------
     case "save":
       alert("💾 Save/Load system coming soon!");
-      break;
-
-    // --------------------------------------------------------
-    // 🔄 RESTART MAP
-    // --------------------------------------------------------
-    case "restart":
-      alert("🔄 Restart feature not yet connected!");
       break;
 
     // --------------------------------------------------------
@@ -91,7 +100,27 @@ function handleNavAction(action) {
 }
 
 // ------------------------------------------------------------
-// 🌈 FADE HELPERS
+// ✨ FLASH EFFECT (short white pulse for restart feedback)
+// ------------------------------------------------------------
+function flashScreen() {
+  const flash = document.createElement("div");
+  Object.assign(flash.style, {
+    position: "fixed",
+    inset: "0",
+    background: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.65), rgba(255,255,255,0))",
+    pointerEvents: "none",
+    zIndex: "9999",
+    opacity: "0",
+  });
+  document.body.appendChild(flash);
+  flash.animate(
+    [{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }],
+    { duration: 350, easing: "ease-out" }
+  ).finished.then(() => flash.remove());
+}
+
+// ------------------------------------------------------------
+// 🌈 FADE HELPERS (used only for hub exit)
 // ------------------------------------------------------------
 function fadeOut(element, callback) {
   if (!element) return;
