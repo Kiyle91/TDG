@@ -1,9 +1,9 @@
 // ============================================================
-// 🏰 turretBar.js — Olivia’s World: Crystal Keep (White Text + Gold Shadow)
+// 🏰 turretBar.js — Olivia’s World: Crystal Keep (Hotkey Labels)
 // ------------------------------------------------------------
 // ✦ Displays turret unlock progression
-// ✦ Shows level requirement when locked
-// ✦ Shows 🪙 gold cost when unlocked (white text + gold glow)
+// ✦ Adds visible hotkey indicators beside each turret slot
+// ✦ Works seamlessly with existing unlock logic
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
@@ -12,20 +12,32 @@ import { gameState } from "../utils/gameState.js";
 // ⚙️ CONFIGURATION
 // ------------------------------------------------------------
 const turretData = {
-  1: { name: "Crystal Defender", level: 2, cost: 50 },
-  2: { name: "Frost Sentinel", level: 6, cost: 100 },
-  3: { name: "Flameheart", level: 10, cost: 150 },
-  4: { name: "Arcane Spire", level: 15, cost: 200 },
-  5: { name: "Beacon of Light", level: 20, cost: 250 },
-  6: { name: "Moonlight Aegis", level: 25, cost: 300 },
+  1: { name: "Crystal Defender", level: 2, cost: 50, key: "1" },
+  2: { name: "Frost Sentinel", level: 6, cost: 100, key: "2" },
+  3: { name: "Flameheart", level: 10, cost: 150, key: "3" },
+  4: { name: "Arcane Spire", level: 15, cost: 200, key: "4" },
+  5: { name: "Beacon of Light", level: 20, cost: 250, key: "5" },
+  6: { name: "Moonlight Aegis", level: 25, cost: 300, key: "6" },
 };
 
 // ------------------------------------------------------------
 // 🌸 INITIALIZE
 // ------------------------------------------------------------
 export function initTurretBar() {
+  // Inject hotkey labels (if not already present)
+  document.querySelectorAll(".turret-slot").forEach((slot, i) => {
+    const id = i + 1;
+    const data = turretData[id];
+    if (!slot.querySelector(".key-label")) {
+      const key = document.createElement("div");
+      key.className = "key-label";
+      key.textContent = data?.key ?? id;
+      slot.appendChild(key);
+    }
+  });
+
   updateTurretBar();
-  console.log("🏰 Turret bar initialized.");
+  console.log("🏰 Turret bar initialized with hotkey labels.");
 }
 
 // ------------------------------------------------------------
@@ -39,6 +51,7 @@ export function updateTurretBar() {
     const data = turretData[id];
     const img = slot.querySelector("img");
     const label = slot.querySelector("span");
+    const keyLabel = slot.querySelector(".key-label");
 
     if (!data) return;
 
@@ -51,6 +64,7 @@ export function updateTurretBar() {
       slot.title = `${data.name} — Unlocks at Level ${data.level}`;
       img.style.filter = "grayscale(1) brightness(0.6)";
       slot.style.boxShadow = "none";
+      if (keyLabel) keyLabel.classList.remove("unlocked");
     }
 
     // 🌕 Unlocked
@@ -62,6 +76,7 @@ export function updateTurretBar() {
       slot.title = `${data.name} — Cost: ${data.cost} Gold`;
       img.style.filter = "none";
       slot.style.boxShadow = "0 0 10px rgba(255, 223, 95, 0.6)";
+      if (keyLabel) keyLabel.classList.add("unlocked");
     }
   });
 }

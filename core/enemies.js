@@ -390,7 +390,7 @@ export function damageEnemy(enemy, amount) {
 
     playGoblinDeath();
     incrementGoblinDefeated();
-    awardXP(5);
+    awardXP(10);
     addGold(10);
     updateHUD();
 
