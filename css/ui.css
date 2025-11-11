@@ -282,13 +282,14 @@
   text-shadow: 0 0 3px #000;
 }
 
+
+
 .turret-slot.unlocked {
   filter: none;
   opacity: 1;
-  box-shadow: 0 0 8px rgba(255,255,255,0.5);
+  box-shadow: 0 0 10px rgba(255, 223, 95, 0.6);
 }
-
 .turret-slot.unlocked span {
-  color: #ffd6eb;
-  text-shadow: 0 0 6px #fff;
+  color: #fff;
+  text-shadow: 0 0 6px #ffdf5f, 0 0 12px #ffdf5f;
 }

@@ -1,10 +1,11 @@
 // ============================================================
-// 👹 enemies.js — Olivia’s World: Crystal Keep (Elemental Status Edition)
+// 👹 enemies.js — Olivia’s World: Crystal Keep (Elemental Status + Continuous Spawn)
 // ------------------------------------------------------------
 // ✦ Adds support for Frost slow, Flame burn DoT, and Moon knockback
 // ✦ Fully compatible with tower elemental system
 // ✦ Smooth recovery timers + safe clamping
 // ✦ Restores all existing chase/path/death/XP/gold logic
+// ✦ NEW: Continuous spawn system (1 goblin every 3 seconds)
 // ============================================================
 
 import { TILE_SIZE } from "../utils/constants.js";
@@ -34,9 +35,9 @@ let storyTriggered = false;
 // ✅ Global shared array so towers can access
 window.__enemies = enemies;
 
-// ------------------------------------------------------------
+// ============================================================
 // ⚙️ CONFIGURATION
-// ------------------------------------------------------------
+// ============================================================
 const ENEMY_SIZE = 80;
 const BASE_SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
@@ -51,9 +52,14 @@ const ATTACK_COOLDOWN = 1000;
 const GOBLIN_DAMAGE = 10;
 const DEATH_LAY_DURATION = 600;
 
-// ------------------------------------------------------------
+// 🕒 Continuous spawn system config
+let spawnTimer = 0;
+const SPAWN_INTERVAL = 3000; // spawn new enemy every 3 seconds
+const MAX_ACTIVE_ENEMIES = 50; // optional safety cap
+
+// ============================================================
 // 🧩 LOAD GOBLIN SPRITES
-// ------------------------------------------------------------
+// ============================================================
 async function loadImage(src) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -99,16 +105,16 @@ async function loadGoblinSprites() {
   console.log("👹 Goblin sprite set loaded (directional + attack + death).");
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // 🌍 PATH CONTROL
-// ------------------------------------------------------------
+// ============================================================
 export function setEnemyPath(points) {
   pathPoints = points || [];
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // 🌱 INIT
-// ------------------------------------------------------------
+// ============================================================
 export async function initEnemies() {
   enemies = [];
   window.__enemies = enemies;
@@ -118,11 +124,14 @@ export async function initEnemies() {
 
   await loadGoblinSprites();
   spawnEnemy();
+
+  // reset spawn timer so the continuous spawner starts immediately
+  spawnTimer = SPAWN_INTERVAL;
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // 💀 SPAWN
-// ------------------------------------------------------------
+// ============================================================
 function spawnEnemy() {
   if (!pathPoints.length) {
     console.warn("⚠️ No path points — cannot spawn enemies.");
@@ -174,7 +183,7 @@ function spawnEnemy() {
 }
 
 // ------------------------------------------------------------
-// 🧠 UPDATE ENEMIES
+// 🧠 UPDATE ENEMIES — Stable 5s Spawn, Max 50 Active
 // ------------------------------------------------------------
 export function updateEnemies(delta) {
   delta = Math.min(delta, 100);
@@ -185,8 +194,11 @@ export function updateEnemies(delta) {
   const px = player?.pos?.x ?? player.x ?? 0;
   const py = player?.pos?.y ?? player.y ?? 0;
 
+  // ============================================================
+  // 🧠 Enemy Logic Loop
+  // ============================================================
   for (const e of enemies) {
-    // ☠️ Handle dead enemies (same as before)
+    // ☠️ Dead handling
     if (!e.alive) {
       if (!e.fading) {
         e.deathTimer += delta;
@@ -197,10 +209,10 @@ export function updateEnemies(delta) {
       continue;
     }
 
-    // 🌡️ STATUS EFFECT HANDLING
+    // 🌡️ Elemental effects (slow, burn, knockback)
     handleElementalEffects(e, dt);
 
-    // 🧠 Standard AI logic (same as before)
+    // 🧭 Basic AI
     const dxp = px - e.x;
     const dyp = py - e.y;
     const distToPlayer = Math.sqrt(dxp * dxp + dyp * dyp);
@@ -216,7 +228,7 @@ export function updateEnemies(delta) {
         e.x += (dxp / distToPlayer) * moveSpeed * dt;
         e.y += (dyp / distToPlayer) * moveSpeed * dt;
       } else {
-        // Attack player
+        // ⚔️ Attack player
         e.attackCooldown -= delta;
         if (e.attackCooldown <= 0) {
           e.attackCooldown = ATTACK_COOLDOWN;
@@ -240,6 +252,7 @@ export function updateEnemies(delta) {
       }
     }
 
+    // 🧭 Return to path
     if (e.state === "return") {
       e.returnTimer += delta;
       if (e.returnTimer > RETURN_DELAY) {
@@ -259,6 +272,7 @@ export function updateEnemies(delta) {
       }
     }
 
+    // 🛣️ Follow path
     if (e.state === "path") {
       const target = pathPoints[e.targetIndex];
       if (!target) continue;
@@ -285,36 +299,51 @@ export function updateEnemies(delta) {
       }
     }
 
-    // Knockback effect
+    // 💨 Knockback
     if (e.knockback > 0) {
       e.knockback -= dt * 20;
-      e.y -= e.knockback; // simple push upward along path for now
+      e.y -= e.knockback;
     }
 
+    // 🎞️ Walk animation
     e.frameTimer += delta;
     if (e.frameTimer >= WALK_FRAME_INTERVAL) {
       e.frameTimer = 0;
       e.frame = (e.frame + 1) % 2;
     }
 
+    // 💢 Hit flash
     if (e.flashTimer > 0) e.flashTimer -= delta;
   }
 
-  // Remove & respawn faded enemies
+  // 💀 Remove faded enemies (no automatic respawn)
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
     if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) {
       enemies.splice(i, 1);
-      spawnEnemy();
     }
   }
 
+  // ============================================================
+  // 🧬 Continuous Spawning System (every 5s, max 50)
+  // ============================================================
+  spawnTimer -= delta;
+  if (spawnTimer <= 0) {
+    if (enemies.length < MAX_ACTIVE_ENEMIES) {
+      spawnEnemy();
+    }
+    spawnTimer = 5000; // strict 5 seconds between spawns
+  }
+
+  // ✅ Sync global reference
   window.__enemies = enemies;
 }
 
-// ------------------------------------------------------------
+
+
+// ============================================================
 // 🌡️ ELEMENTAL EFFECTS HANDLER
-// ------------------------------------------------------------
+// ============================================================
 function handleElementalEffects(e, dt) {
   // ❄️ Slow decay
   if (e.slowTimer > 0) {
@@ -339,9 +368,9 @@ function handleElementalEffects(e, dt) {
   }
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // 🎯 DAMAGE HANDLING (unchanged except for safety)
-// ------------------------------------------------------------
+// ============================================================
 export function damageEnemy(enemy, amount) {
   if (!enemy || !enemy.alive) return;
   const dmg = Number(amount);
@@ -361,8 +390,8 @@ export function damageEnemy(enemy, amount) {
 
     playGoblinDeath();
     incrementGoblinDefeated();
-    awardXP(2500);
-    addGold(50);
+    awardXP(10);
+    addGold(10);
     updateHUD();
 
     spawnFloatingText(enemy.x, enemy.y - 40, "💀", "#fff", 22);
@@ -370,9 +399,9 @@ export function damageEnemy(enemy, amount) {
   }
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // 💔 HANDLE ESCAPE
-// ------------------------------------------------------------
+// ============================================================
 function handleGoblinEscape(enemy) {
   if (gameState.player) {
     if (gameState.player.lives === undefined) gameState.player.lives = 10;
@@ -384,9 +413,9 @@ function handleGoblinEscape(enemy) {
   enemy.fadeTimer = FADE_OUT_TIME;
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // 🎨 DRAW ENEMIES (same visuals)
-// ------------------------------------------------------------
+// ============================================================
 export function drawEnemies(context) {
   if (!goblinSprites) return;
   ctx = context;
@@ -434,9 +463,9 @@ function drawHealthBar(ctx, x, y, hp, maxHp) {
   ctx.fillRect(x - barWidth / 2, y - ENEMY_SIZE / 2 - offsetY, barWidth * hpPct, barHeight);
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // 🧩 SPRITE SELECTOR (unchanged)
-// ------------------------------------------------------------
+// ============================================================
 function getEnemySprite(e) {
   if (!goblinSprites) return null;
   if (!e.alive) return goblinSprites.slain;
@@ -453,9 +482,9 @@ function getEnemySprite(e) {
   }
 }
 
-// ------------------------------------------------------------
+// ============================================================
 // 🔍 ACCESSOR
-// ------------------------------------------------------------
+// ============================================================
 export function getEnemies() {
   return enemies;
 }
