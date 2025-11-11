@@ -174,7 +174,7 @@ function onKeyDown(e) {
       case "Space": performMeleeAttack(); break;
       case "KeyR":  performHeal();        break;
       case "KeyF":  performSpell();       break;
-      case "Digit1": tryPlaceTower();     break;
+      
     }
   }
 }
