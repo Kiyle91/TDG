@@ -170,7 +170,7 @@ function checkVictoryDefeat() {
   } else if (lives <= 0) {
     console.log("💔 No lives remaining!");
     stopGameplay("lives"); // distinct reason for copywriting
-  } else if (goblinsDefeated >= 50) {
+  } else if (goblinsDefeated >= 5) {
     console.log("🏆 Victory condition reached!");
     stopGameplay("victory");
   }

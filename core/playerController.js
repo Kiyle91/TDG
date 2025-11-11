@@ -500,7 +500,21 @@ export function drawPlayer(ctx) {
 
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, SPRITE_SIZE, SPRITE_SIZE);
+  // ------------------------------------------------------------
+  // ✨ Render player sprite — upscale only glitter_attack_* frames
+  // ------------------------------------------------------------
+  if (isAttacking && attackType === "melee" && currentFrame === 0) {
+    // currentFrame 0 = glitter_attack_left/right
+    const scale = 1.5; // 40% larger
+    const w = SPRITE_SIZE * scale;
+    const h = SPRITE_SIZE * scale;
+    const offsetX = x - w / 2;
+    const offsetY = y - h / 2;
+    ctx.drawImage(img, 0, 0, 1024, 1024, offsetX, offsetY, w, h);
+  } else {
+    // normal size for everything else
+    ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, SPRITE_SIZE, SPRITE_SIZE);
+  }
 
   // Draw silver arrows
   ctx.fillStyle = "rgba(240,240,255,0.9)";
