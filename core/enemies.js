@@ -403,12 +403,14 @@ export function drawEnemies(context) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // 🩸 smooth red flash fade (based on remaining flashTimer)
-    if (e.flashTimer > 0) {
+    // 🩸 smooth red flash fade (only when alive)
+    if (e.alive && e.flashTimer > 0) {
       const flashAlpha = Math.max(0, e.flashTimer / 150); // fade strength
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
       ctx.filter = `contrast(1.2) brightness(${1 + flashAlpha * 0.5}) saturate(${1 + flashAlpha * 1.5}) hue-rotate(-30deg)`;
+    } else {
+      ctx.filter = "none";
     }
 
     // ☠️ fade out on death
