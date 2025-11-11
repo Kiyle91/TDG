@@ -1,15 +1,16 @@
 // ============================================================
-// 🌟 levelSystem.js — Olivia’s World: Crystal Keep (Pause + Full Upgrade System)
+// 🌟 levelSystem.js — Olivia’s World: Crystal Keep (Pause + Full Upgrade + Tower Unlock Integration)
 // ------------------------------------------------------------
 // ✦ Handles XP gain, level-ups, and stat upgrades
 // ✦ Pauses gameplay and opens a proper overlay for upgrades
 // ✦ Awards 3 points per level with real-time HUD updates
-// ✦ Fully integrated with gameState pause control
+// ✦ Automatically checks and displays tower unlock popups
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
 import { spawnFloatingText } from "./floatingText.js";
+import { checkTowerUnlocks } from "./towerUnlock.js";
 
 // ------------------------------------------------------------
 // ⚙️ CONFIGURATION
@@ -49,11 +50,17 @@ function checkLevelUp() {
 
     spawnFloatingText(p.pos.x, p.pos.y - 60, `⭐ Level ${p.level}!`, "#fff2b3", 22);
 
-    // ✅ Pause gameplay and show level up overlay
+    // ✅ Pause gameplay for stat upgrades
     gameState.paused = true;
     console.log("⏸️ Gameplay paused for Level Up");
 
-    showLevelUpOverlay(p);
+    // 🔧 Pass a callback that runs once stat allocation is complete
+    showLevelUpOverlay(p, async () => {
+      console.log("🎯 Stat allocation complete — checking tower unlocks...");
+      await checkTowerUnlocks(); // will show tower popup if new tower unlocked
+      gameState.paused = false;
+      console.log("▶️ Gameplay resumed after tower unlock popup");
+    });
   }
 }
 
@@ -65,13 +72,12 @@ function getXpForLevel(level) {
 }
 
 // ------------------------------------------------------------
-// 💫 LEVEL UP OVERLAY
+// 💫 LEVEL UP OVERLAY (with callback)
 // ------------------------------------------------------------
-function showLevelUpOverlay(p) {
+function showLevelUpOverlay(p, onClose) {
   // Remove any existing overlay first
   document.querySelector(".levelup-overlay")?.remove();
 
-  // Create dim background
   const overlay = document.createElement("div");
   overlay.className = "levelup-overlay";
   overlay.innerHTML = `
@@ -100,7 +106,7 @@ function showLevelUpOverlay(p) {
     btn.className = "levelup-btn";
     btn.textContent = s.name;
     btn.dataset.key = s.key;
-    btn.addEventListener("click", () => handleStatUpgrade(p, s.key, overlay));
+    btn.addEventListener("click", () => handleStatUpgrade(p, s.key, overlay, onClose));
     btnContainer.appendChild(btn);
   });
 
@@ -110,7 +116,7 @@ function showLevelUpOverlay(p) {
 // ------------------------------------------------------------
 // 🧮 HANDLE STAT UPGRADE
 // ------------------------------------------------------------
-function handleStatUpgrade(p, key, overlay) {
+function handleStatUpgrade(p, key, overlay, onClose) {
   if (!p || p.statPoints <= 0) return;
 
   // Upgrade stat
@@ -127,27 +133,27 @@ function handleStatUpgrade(p, key, overlay) {
   // Update HUD
   updateHUD();
 
-  // Update text
+  // Update overlay text
   const text = overlay.querySelector("p");
   if (p.statPoints > 0) {
     text.innerHTML = `You reached <strong>Level ${p.level}</strong>!<br>
     You have <strong>${p.statPoints}</strong> points left.`;
   } else {
-    closeLevelUpOverlay(overlay);
+    closeLevelUpOverlay(overlay, onClose);
   }
 }
 
 // ------------------------------------------------------------
-// 🧹 CLOSE OVERLAY + RESUME GAMEPLAY
+// 🧹 CLOSE OVERLAY + TRIGGER CALLBACK
 // ------------------------------------------------------------
-function closeLevelUpOverlay(overlay) {
+function closeLevelUpOverlay(overlay, onClose) {
   if (!overlay) return;
 
   overlay.classList.remove("visible");
   setTimeout(() => overlay.remove(), 250);
 
-  gameState.paused = false;
-  console.log("▶️ Gameplay resumed after Level Up");
+  // Don’t unpause yet — wait for tower unlock alert
+  if (typeof onClose === "function") onClose();
 }
 
 // ------------------------------------------------------------
