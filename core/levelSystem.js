@@ -156,76 +156,7 @@ function closeLevelUpOverlay(overlay, onClose) {
   if (typeof onClose === "function") onClose();
 }
 
-// ------------------------------------------------------------
-// 🎨 BASIC CSS INJECTION (only if missing)
-// ------------------------------------------------------------
-if (!document.getElementById("levelup-style")) {
-  const style = document.createElement("style");
-  style.id = "levelup-style";
-  style.textContent = `
-  .levelup-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(5px);
-    background: rgba(255, 220, 255, 0.35);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 9000;
-  }
-  .levelup-overlay.visible { opacity: 1; }
-  .levelup-box {
-    background: linear-gradient(180deg, #fff0fa, #fbe9ff, #e8f5ff);
-    border: 2px solid rgba(255,255,255,0.8);
-    box-shadow: 0 0 12px rgba(255,255,255,0.6);
-    border-radius: 20px;
-    padding: 25px 35px;
-    text-align: center;
-    font-family: "Comic Sans MS", cursive;
-    color: #b44ac0;
-    animation: popIn 0.3s ease;
-  }
-  .levelup-box h2 {
-    font-size: 26px;
-    margin-bottom: 10px;
-    color: #ff99d9;
-    text-shadow: 0 0 6px rgba(255,255,255,0.7);
-  }
-  .levelup-box p {
-    font-size: 18px;
-    margin-bottom: 15px;
-  }
-  .levelup-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-  }
-  .levelup-btn {
-    background: linear-gradient(180deg, #ffb3e6, #b3e5ff);
-    border: none;
-    border-radius: 12px;
-    padding: 10px 16px;
-    font-size: 16px;
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-  .levelup-btn:hover {
-    transform: scale(1.08);
-    box-shadow: 0 0 8px rgba(255,255,255,0.6);
-  }
-  @keyframes popIn {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-  `;
-  document.head.appendChild(style);
-}
+
 
 // ============================================================
 // 🌟 END OF FILE

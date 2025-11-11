@@ -1,69 +1,98 @@
 /* ============================================================
-   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — story.css (Final Clean)
+   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — story.css (Unified Crystal Aesthetic)
    ------------------------------------------------------------
-   ✦ Princess portrait fixed left
-   ✦ Only dialogue text + Continue button
-   ✦ Crystal glow and perfect alignment
+   ✦ One crystal-glass system for all cinematic overlays
+   ✦ Story, Tower Unlock, and Level-Up use the same look
+   ✦ True transparency + blur (no white backgrounds)
 ============================================================ */
 
+
 /* ============================================================
-   🌈 OVERLAY — fullscreen story background
+   🌈 UNIVERSAL OVERLAY BACKGROUND
+   ------------------------------------------------------------
+   ✦ Covers full screen with soft blur
+   ✦ Allows game map to glow faintly through
 ============================================================ */
-.story-overlay {
+.story-overlay,
+#tower-unlock-overlay,
+.levelup-overlay {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  background: radial-gradient(
-    circle at center,
-    rgba(255, 255, 255, 0.4),
-    rgba(210, 220, 255, 0.7)
-  );
+  background: rgba(200, 170, 255, 0.25);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 99999;
   animation: fadeIn 0.4s ease;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+
 /* ============================================================
-   💎 STORY BOX — crystal dialogue container
+   💎 CRYSTAL BOX BASE
+   ------------------------------------------------------------
+   ✦ Shared between story, tower, and level-up boxes
+   ✦ Semi-transparent, glowing border, soft inner light
 ============================================================ */
-.story-box {
+.story-box,
+.tower-unlock-box,
+.levelup-box {
   position: relative;
   width: 900px;
   min-height: 280px;
   background: rgba(255, 255, 255, 0.15);
   border: 2px solid rgba(91, 139, 230, 0.6);
-  border-radius: 20px;
-  padding: 40px 60px 60px 260px; /* space for portrait */
-  color: #fff;
-  font-size: 1.2rem;
+  border-radius: 22px;
+  padding: 40px 60px;
+  color: #ffffff;
+  font-family: "Comic Sans MS", cursive;
+  font-size: 1.1rem;
   line-height: 1.6;
+  text-align: center;
   box-shadow:
     0 0 25px rgba(181, 226, 255, 0.8),
     inset 0 0 20px rgba(255, 255, 255, 0.4);
   animation: overlayPop 0.5s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-family: "Comic Sans MS", cursive;
 }
 
-/* ============================================================
-   👑 PORTRAIT — fixed left, doesn’t move
-============================================================ */
-.story-portrait {
+@keyframes overlayPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* ✨ Soft aura glow frame */
+.story-box::before,
+.tower-unlock-box::before,
+.levelup-box::before {
+  content: "";
   position: absolute;
-  left: 40px;
-  top: 50%;
-  transform: translateY(-50%);
+  inset: 0;
+  border-radius: 22px;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.25), transparent 70%);
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   👑 PORTRAITS & IMAGES
+   ------------------------------------------------------------
+   ✦ Princess portrait for story
+   ✦ Tower sprite or illustration for unlocks
+============================================================ */
+.story-portrait,
+.tower-img {
   width: 180px;
   height: 220px;
   border-radius: 12px;
-  object-fit: cover;
+  object-fit: contain;
   border: 2px solid rgba(181, 226, 255, 0.6);
   box-shadow:
     0 0 15px rgba(181, 226, 255, 0.6),
@@ -72,36 +101,63 @@
   pointer-events: none;
 }
 
+
 /* ============================================================
-   💬 TEXT — dialogue only
+   🩵 STORY CONTENT LAYOUT
+   ------------------------------------------------------------
+   ✦ Portrait on left, text on right
+============================================================ */
+.story-box .story-content,
+.tower-unlock-box .story-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 40px;
+  text-align: left;
+}
+
+/* For level-up (no portrait) */
+.levelup-box .story-content {
+  display: block;
+  text-align: center;
+}
+
+
+/* ============================================================
+   💬 TEXT
 ============================================================ */
 .story-text {
-  text-align: left;
   color: #ffffff;
   text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
   font-size: 1.1rem;
   line-height: 1.6;
   white-space: pre-wrap;
-  overflow: hidden;
-  min-height: 100px;
-  width: 100%;
-  padding: 0;
 }
 
-/* ============================================================
-   ✨ CONTINUE BUTTON — centered pastel glow
-============================================================ */
-.story-next-btn {
-  margin-top: 25px;
-  align-self: center;
-  display: block;
-  padding: 12px 36px;
-  font-size: 1.1rem;
-  font-weight: bold;
+.story-text h2 {
+  font-family: "Princess Sofia", cursive;
+  font-size: 26px;
   color: #ffffff;
+  text-shadow: 0 0 8px #fff, 0 0 16px #c8b3ff;
+  margin-bottom: 10px;
+}
+
+
+/* ============================================================
+   ✨ BUTTONS — "Continue", "OK", and Stat Upgrades
+============================================================ */
+.story-next-btn,
+.levelup-btn {
+  display: inline-block;
   background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 16px;
+  padding: 12px 36px;
+  margin-top: 25px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ffffff;
   cursor: pointer;
   font-family: "Comic Sans MS", cursive;
   letter-spacing: 0.5px;
@@ -111,32 +167,86 @@
   transition: all 0.3s ease;
 }
 
-.story-next-btn:hover {
+.story-next-btn:hover,
+.levelup-btn:hover {
   transform: scale(1.05);
   box-shadow:
     0 0 30px rgba(224, 187, 255, 0.9),
     inset 0 0 18px rgba(255, 255, 255, 0.5);
 }
 
-.story-next-btn:active {
+.story-next-btn:active,
+.levelup-btn:active {
   transform: scale(0.97);
   box-shadow:
     0 0 18px rgba(181, 226, 255, 0.8),
     inset 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
+
 /* ============================================================
-   ✨ ANIMATIONS
+   💫 LEVEL UP — Extra Controls
 ============================================================ */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.levelup-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
 }
 
-@keyframes overlayPop {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+.levelup-btn {
+  padding: 10px 22px;
+  font-size: 16px;
 }
+
+
+/* ============================================================
+   💎 TOWER UNLOCK — Centered Tower Art + Text
+============================================================ */
+.tower-unlock-box .story-content {
+  justify-content: center;
+  gap: 60px;
+}
+
+.tower-img {
+  filter:
+    drop-shadow(0 0 10px rgba(255,255,255,0.8))
+    drop-shadow(0 0 20px rgba(190,170,255,0.6));
+  animation: towerPulse 3s ease-in-out infinite;
+}
+
+@keyframes towerPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.95; }
+}
+
+
+/* ============================================================
+   🧚‍♀️ RESPONSIVE TWEAKS
+============================================================ */
+@media (max-width: 800px) {
+  .story-box,
+  .tower-unlock-box,
+  .levelup-box {
+    width: 90%;
+    padding: 30px;
+  }
+
+  .story-box .story-content,
+  .tower-unlock-box .story-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .story-portrait,
+  .tower-img {
+    width: 140px;
+    height: 180px;
+  }
+}
+
 
 /* ============================================================
    🌟 END OF FILE
