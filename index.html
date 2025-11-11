@@ -470,11 +470,67 @@
         <span>Lv 25</span>
       </div>
     </div>
+  </section>
+
+    <!-- ============================================================
+        ⚙️ IN-GAME SETTINGS OVERLAY — Olivia’s World: Crystal Keep
+    ============================================================ -->
+    <div id="overlay-settings-game" class="overlay hidden">
+      <div class="overlay-box settings-container">
+        <h3 class="settings-title">⚙️ Game Settings</h3>
+
+        <div class="settings-grid">
+          <!-- 🎵 Music Volume -->
+          <div class="setting-item">
+            <label for="music-volume-game">Music Volume</label>
+            <input
+              type="range"
+              id="music-volume-game"
+              min="0"
+              max="100"
+              value="80"
+              class="slider"
+            />
+            <span id="music-value-game">80%</span>
+          </div>
+
+          <!-- 🔊 Sound Effects -->
+          <div class="setting-item">
+            <label for="sfx-volume-game">Sound Effects</label>
+            <input
+              type="range"
+              id="sfx-volume-game"
+              min="0"
+              max="100"
+              value="80"
+              class="slider"
+            />
+            <span id="sfx-value-game">80%</span>
+          </div>
+
+          <!-- 🌈 Visuals -->
+          <div class="setting-item toggle">
+            <label for="visuals-toggle-game">Visual Effects</label>
+            <input type="checkbox" id="visuals-toggle-game" checked />
+            <span>Enabled</span>
+          </div>
+
+          <!-- 🪄 Tooltips -->
+          <div class="setting-item toggle">
+            <label for="tooltips-toggle-game">Tooltips</label>
+            <input type="checkbox" id="tooltips-toggle-game" checked />
+            <span>Enabled</span>
+          </div>
+        </div>
+
+        <button class="overlay-close">OK</button>
+      </div>
+    </div>
 
     <!-- ============================================================
         🎮 CONTROLS OVERLAY — Olivia’s World: Crystal Keep
     ============================================================ -->
-    <div id="overlay-controls" class="overlay hidden">
+    <div id="overlay-game-controls" class="overlay hidden">
       <div class="overlay-box controls-container">
         <h3 class="controls-title">🎮 Game Controls</h3>
 
@@ -492,8 +548,6 @@
         <button class="overlay-close">OK</button>
       </div>
     </div>
-
-  </section>
 
   <div id="tooltip-box-fixed" class="tooltip-fixed hidden">
     <p id="tooltip-fixed-text">💎 Welcome to Crystal Keep!</p>

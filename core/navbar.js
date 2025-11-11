@@ -73,20 +73,21 @@ function handleNavAction(action) {
       alert("💾 Save/Load system coming soon!");
       break;
 
-    // --------------------------------------------------------
     // 🎮 CONTROLS
-    // --------------------------------------------------------
     case "controls":
       playFairySprinkle();
       console.log("🎮 Opening controls overlay...");
-      import("./ui.js").then((mod) => mod.showOverlay?.("overlay-controls"));
+      import("./ui.js").then((mod) => mod.showOverlay?.("overlay-game-controls")); // ✅ updated ID
       break;
 
     // --------------------------------------------------------
-    // ⚙️ SETTINGS
+    // ⚙️ SETTINGS (in-game version)
     // --------------------------------------------------------
     case "settings":
-      alert("⚙️ Settings menu coming soon!");
+      playFairySprinkle();
+      console.log("⚙️ Opening in-game settings overlay...");
+      import("./settings.js").then((mod) => mod.initGameSettings?.());
+      import("./ui.js").then((mod) => mod.showOverlay?.("overlay-settings-game"));
       break;
 
     // --------------------------------------------------------

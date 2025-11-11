@@ -131,3 +131,58 @@ function updateLabels() {
 export function getTooltipSetting() {
   return settings.tooltipsEnabled;
 }
+
+
+// ------------------------------------------------------------
+// 🎮 Initialize in-game settings overlay (uses game IDs)
+// ------------------------------------------------------------
+export function initGameSettings() {
+  const musicRange = document.getElementById("music-volume-game");
+  const sfxRange = document.getElementById("sfx-volume-game");
+  const visualsToggle = document.getElementById("visuals-toggle-game");
+  const tooltipsToggle = document.getElementById("tooltips-toggle-game");
+
+  if (!musicRange) return; // not on this screen
+
+  // sync from stored settings
+  musicRange.value = settings.musicVolume * 100;
+  sfxRange.value = settings.sfxVolume * 100;
+  visualsToggle.checked = settings.visualsEnabled;
+  tooltipsToggle.checked = settings.tooltipsEnabled;
+
+  document.getElementById("music-value-game").textContent =
+    `${Math.round(settings.musicVolume * 100)}%`;
+  document.getElementById("sfx-value-game").textContent =
+    `${Math.round(settings.sfxVolume * 100)}%`;
+
+  // attach listeners (identical to hub overlay)
+  musicRange.oninput = e => {
+    const val = e.target.value / 100;
+    settings.musicVolume = val;
+    setMusicVolume(val);
+    saveSettings();
+    document.getElementById("music-value-game").textContent =
+      `${e.target.value}%`;
+  };
+
+  sfxRange.oninput = e => {
+    const val = e.target.value / 100;
+    settings.sfxVolume = val;
+    setSfxVolume(val);
+    saveSettings();
+    document.getElementById("sfx-value-game").textContent =
+      `${e.target.value}%`;
+  };
+
+  visualsToggle.onchange = e => {
+    settings.visualsEnabled = e.target.checked;
+    saveSettings();
+    playFairySprinkle();
+  };
+
+  tooltipsToggle.onchange = e => {
+    settings.tooltipsEnabled = e.target.checked;
+    saveSettings();
+    playFairySprinkle();
+  };
+}
