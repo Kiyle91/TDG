@@ -1,5 +1,5 @@
 // ============================================================
-// 👹 enemies.js — Olivia’s World: Crystal Keep (Global Sync Fix + Floating Text)
+// 👹 enemies.js — Olivia’s World: Crystal Keep (Global Sync Fix + Floating Text + Flash Fade)
 // ------------------------------------------------------------
 // ✦ Directional goblins with smooth animation + shadows
 // ✦ Chase / attack player with proximity AI
@@ -7,7 +7,7 @@
 // ✦ Health bars + color gradient, fade on death
 // ✦ Despawn + life loss when goblins reach the path end
 // ✦ Victory system integration (goblin kill counter)
-// ✦ FIX: Floating combat text spawns on every hit
+// ✦ FIX: Floating combat text + smooth red flash fade
 // ============================================================
 
 import { TILE_SIZE } from "../utils/constants.js";
@@ -127,6 +127,7 @@ function spawnEnemy() {
     state: "path",
     attackCooldown: 0,
     returnTimer: 0,
+    flashTimer: 0, // red flash duration
   });
 
   window.__enemies = enemies; // 🧩 refresh global pointer
@@ -231,6 +232,9 @@ export function updateEnemies(delta) {
       e.frameTimer = 0;
       e.frame = (e.frame + 1) % 2;
     }
+
+    // 🩸 Flash timer update (fade out)
+    if (e.flashTimer > 0) e.flashTimer -= delta;
   }
 
   // Remove fully faded + respawn
@@ -255,6 +259,7 @@ export function damageEnemy(enemy, amount) {
   spawnFloatingText(enemy.x, enemy.y - 30, `-${Math.round(amount)}`, "#ff5c8a", 18);
 
   enemy.hp -= amount;
+  enemy.flashTimer = 150; // 🔴 flash for 150 ms
   console.log(`🩸 Goblin hit for ${amount}. HP now ${enemy.hp}/${enemy.maxHp}`);
 
   if (enemy.hp <= 0) {
@@ -332,7 +337,7 @@ function drawHealthBar(ctx, x, y, hp, maxHp) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW ENEMIES
+// 🎨 DRAW ENEMIES (smooth red flash fade)
 // ------------------------------------------------------------
 export function drawEnemies(context) {
   if (!goblinSprites) return;
@@ -347,6 +352,7 @@ export function drawEnemies(context) {
 
     ctx.save();
 
+    // 🩶 soft drop shadow under goblin
     ctx.beginPath();
     ctx.ellipse(
       e.x,
@@ -363,13 +369,28 @@ export function drawEnemies(context) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    if (!e.alive && e.fading) {
-      const alpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
-      ctx.globalAlpha = alpha;
+    // 🩸 smooth red flash fade (based on remaining flashTimer)
+    if (e.flashTimer > 0) {
+      const flashAlpha = Math.max(0, e.flashTimer / 150); // fade strength
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+      ctx.filter = `contrast(1.2) brightness(${1 + flashAlpha * 0.5}) saturate(${1 + flashAlpha * 1.5}) hue-rotate(-30deg)`;
     }
 
+    // ☠️ fade out on death
+    if (!e.alive && e.fading) {
+      const alpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
+      ctx.globalAlpha *= alpha;
+    }
+
+    // 🧩 draw sprite
     ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, ENEMY_SIZE, ENEMY_SIZE);
 
+    // reset filter / alpha
+    ctx.filter = "none";
+    ctx.globalAlpha = 1;
+
+    // ❤️ health bar
     if (e.alive) drawHealthBar(ctx, e.x, e.y, e.hp, e.maxHp);
 
     ctx.restore();
@@ -383,22 +404,17 @@ function getEnemySprite(e) {
   if (!goblinSprites) return null;
   if (!e.alive) return goblinSprites.slain;
   switch (e.dir) {
-    case "up":
-      return goblinSprites.walk.up[e.frame];
-    case "down":
-      return goblinSprites.walk.down[e.frame];
-    case "left":
-      return goblinSprites.walk.left[e.frame];
-    case "right":
-      return goblinSprites.walk.right[e.frame];
-    default:
-      return goblinSprites.idle;
+    case "up": return goblinSprites.walk.up[e.frame];
+    case "down": return goblinSprites.walk.down[e.frame];
+    case "left": return goblinSprites.walk.left[e.frame];
+    case "right": return goblinSprites.walk.right[e.frame];
+    default: return goblinSprites.idle;
   }
 }
 
 // ------------------------------------------------------------
 // 🔍 ACCESSORS
-// ----------------------------------------------------------
+// ------------------------------------------------------------
 export function getEnemies() {
   return enemies;
 }
