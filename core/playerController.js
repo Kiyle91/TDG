@@ -12,7 +12,14 @@ import { gameState } from "../utils/gameState.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
 import { damageEnemy } from "./enemies.js"; // ✅ shared enemy array mutated inside enemies.js
 import { updateHUD } from "./ui.js";
-import { playFairySprinkle, playMeleeSwing, playArrowSwish, playSpellCast } from "./soundtrack.js";
+import { 
+  playFairySprinkle, 
+  playMeleeSwing, 
+  playArrowSwish, 
+  playSpellCast, 
+  playPlayerDamage 
+} from "./soundtrack.js";
+
 
 import { spawnFloatingText } from "./floatingText.js";
 
@@ -508,7 +515,13 @@ function updateProjectiles(delta) {
 }
 
 // ============================================================
-// 🔁 UPDATE PLAYER — movement, combat, death + FX
+// 🔁 UPDATE PLAYER — movement, combat, collision, regen + FX
+// ------------------------------------------------------------
+// ✦ WASD movement + sprite animation
+// ✦ Passive mana regeneration
+// ✦ Goblin contact damage
+// ✦ Soft goblin push resistance (prevents walking through them)
+// ✦ Keeps all prior functionality intact
 // ============================================================
 export function updatePlayer(delta) {
   ensurePlayerRuntime();
@@ -538,15 +551,12 @@ export function updatePlayer(delta) {
   // ------------------------------------------------------------
   // 🔮 PASSIVE MANA REGENERATION
   // ------------------------------------------------------------
-  // Restores a small amount of mana per second (scales with level)
-  const regenRate = 0.1 + p.level * 0.02; // base 1 mana/sec +0.3 per level
+  const regenRate = 0.1 + (p.level ?? 1) * 0.02; // base 0.1 + 0.02 per level
   p.mana = Math.min(p.maxMana, p.mana + regenRate * dt);
 
-  // Optional: soft HP regen if desired (commented out)
-  // const hpRegen = 0.2 * dt; // e.g. +0.2 HP per second
-  // p.hp = Math.min(p.maxHp, p.hp + hpRegen);
-
-  // Movement input
+  // ------------------------------------------------------------
+  // 🎮 MOVEMENT INPUT
+  // ------------------------------------------------------------
   const left  = keys.has("KeyA") || keys.has("ArrowLeft");
   const right = keys.has("KeyD") || keys.has("ArrowRight");
   const up    = keys.has("KeyW") || keys.has("ArrowUp");
@@ -557,35 +567,101 @@ export function updatePlayer(delta) {
   if (right) dx += 1;
   if (up)    dy -= 1;
   if (down)  dy += 1;
-  isMoving = dx !== 0 || dy !== 0;
-  if (dx && dy) { const inv = 1 / Math.sqrt(2); dx *= inv; dy *= inv; }
 
-  // Movement (if not attacking)
+  isMoving = dx !== 0 || dy !== 0;
+
+  // Normalize diagonal
+  if (dx && dy) {
+    const inv = 1 / Math.sqrt(2);
+    dx *= inv;
+    dy *= inv;
+  }
+
+  // ------------------------------------------------------------
+  // 🚶 MOVEMENT (if not attacking) + Goblin Resistance
+  // ------------------------------------------------------------
   if (!isAttacking) {
-    const nextX = p.pos.x + dx * speed * dt;
-    const nextY = p.pos.y + dy * speed * dt;
+    let nextX = p.pos.x + dx * speed * dt;
+    let nextY = p.pos.y + dy * speed * dt;
     const { bw, bh, ox, oy } = p.body;
     const feetX = nextX + ox, feetY = nextY + oy;
+
+    // ✅ Prevent moving into blocked tiles
     if (!isRectBlocked(feetX, feetY, bw, bh)) {
+      // 🧱 Goblin pushback resistance — prevents clipping through goblins
+      for (const g of getEnemies()) {
+        if (!g.alive) continue;
+        const dxp = nextX - g.x;
+        const dyp = nextY - g.y;
+        const dist = Math.hypot(dxp, dyp);
+        const minDist = 45; // how close before resistance begins
+        if (dist > 0 && dist < minDist) {
+          const overlap = (minDist - dist) / 3; // smaller = softer push
+          const nx = dxp / dist;
+          const ny = dyp / dist;
+
+          // Apply partial mutual pushback (mostly affects player)
+          nextX += nx * overlap * 0.8;   // resist forward motion
+          nextY += ny * overlap * 0.8;
+        }
+      }
+
+      // ✅ Apply final position
       p.pos.x = nextX;
       p.pos.y = nextY;
     }
   }
 
-  // Facing direction
+  // ------------------------------------------------------------
+  // 🎯 FACING DIRECTION
+  // ------------------------------------------------------------
   if (left || right)
     currentDir = left && !right ? "left" : right && !left ? "right" : currentDir;
   else if (up || down)
     currentDir = up ? "up" : "down";
 
-  // Clamp to canvas
+  // ------------------------------------------------------------
+  // 🧱 CLAMP TO CANVAS BOUNDS
+  // ------------------------------------------------------------
   if (canvasRef) {
     const r = SPRITE_SIZE / 2;
     p.pos.x = Math.max(r, Math.min(canvasRef.width  - r, p.pos.x));
     p.pos.y = Math.max(r, Math.min(canvasRef.height - r, p.pos.y));
   }
 
-  // Animation advance
+  // ------------------------------------------------------------
+  // 👹 PLAYER ↔ ENEMY COLLISION (Contact Damage)
+  // ------------------------------------------------------------
+  if (!p.invulnTimer) p.invulnTimer = 0;
+  if (p.invulnTimer > 0) {
+    p.invulnTimer -= delta;
+  } else {
+    for (const g of getEnemies()) {
+      if (!g.alive) continue;
+
+      const dx = g.x - p.pos.x;
+      const dy = g.y - p.pos.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist < 50) { // contact radius (adjust as needed)
+        const damage = 10; // flat collision damage
+        p.hp = Math.max(0, p.hp - damage);
+        p.flashTimer = 200;
+        p.invulnTimer = 800; // 0.8s invulnerability
+
+        spawnFloatingText(p.pos.x, p.pos.y - 30, `-${damage}`, "#ff7aa8");
+        playPlayerDamage();
+        spawnDamageSparkles(p.pos.x, p.pos.y);
+
+        console.log(`💥 Player hit by goblin for ${damage} damage!`);
+        break;
+      }
+    }
+  }
+
+  // ------------------------------------------------------------
+  // 🕺 ANIMATION ADVANCE
+  // ------------------------------------------------------------
   if (isAttacking) {
     // handled by attack timeouts
   } else if (isMoving) {
@@ -599,10 +675,14 @@ export function updatePlayer(delta) {
     currentFrame = 0;
   }
 
-  // Sync coordinates
+  // ------------------------------------------------------------
+  // 🧭 SYNC COORDINATES TO GLOBAL STATE
+  // ------------------------------------------------------------
   gameState.player.x = p.pos.x;
   gameState.player.y = p.pos.y;
 }
+
+
 
 
 // ============================================================
