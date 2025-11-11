@@ -606,11 +606,11 @@ export function updatePlayer(delta) {
 
 
 // ============================================================
-// 🎨 DRAW PLAYER — Olivia’s World: Crystal Keep (Final + Red Flash Overlay)
+// 🎨 DRAW PLAYER — Olivia’s World: Crystal Keep (Final + Red Flash + HP Bar Under Feet)
 // ------------------------------------------------------------
 // ✦ Handles movement, combat, heal, spell, and death frames
 // ✦ Includes red flash overlay when damaged
-// ✦ Keeps shadow, sparkles, projectiles, and attack scaling intact
+// ✦ Adds compact HP bar under player sprite
 // ============================================================
 export function drawPlayer(ctx) {
   if (!ctx) return;
@@ -714,17 +714,43 @@ export function drawPlayer(ctx) {
   }
 
   // ------------------------------------------------------------
+  // 💖 Compact Player HP Bar (under feet)
+  // ------------------------------------------------------------
+  if (!p.dead) {
+    const barWidth = 42;
+    const barHeight = 4;
+    const offsetY = SPRITE_SIZE * 0.5 + 12; // 🔽 places it just below sprite + above shadow
+    const hpPct = Math.max(0, Math.min(1, p.hp / p.maxHp));
+
+    // Background
+    ctx.fillStyle = "rgba(0,0,0,0.4)";
+    ctx.fillRect(x - barWidth / 2, y + offsetY, barWidth, barHeight);
+
+    // Foreground gradient
+    const grad = ctx.createLinearGradient(x - barWidth / 2, 0, x + barWidth / 2, 0);
+    grad.addColorStop(0, "#ff66b3");
+    grad.addColorStop(1, "#ff99cc");
+    ctx.fillStyle = grad;
+    ctx.fillRect(x - barWidth / 2, y + offsetY, barWidth * hpPct, barHeight);
+
+    // Glow outline
+    ctx.strokeStyle = "rgba(255,182,193,0.6)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x - barWidth / 2, y + offsetY, barWidth, barHeight);
+  }
+
+  // ------------------------------------------------------------
   // 🩸 Red Flash Overlay (when damaged)
   // ------------------------------------------------------------
   if (p.flashTimer > 0) {
-    const flashAlpha = Math.max(0, p.flashTimer / 150); // fades out smoothly
+    const flashAlpha = Math.max(0, p.flashTimer / 150);
     ctx.fillStyle = `rgba(255, 0, 0, ${0.35 * flashAlpha})`;
     ctx.beginPath();
     ctx.ellipse(
       x,
-      y - SPRITE_SIZE * 0.1,     // slightly above shadow
-      SPRITE_SIZE * 0.5,         // horizontal radius
-      SPRITE_SIZE * 0.6,         // vertical radius
+      y - SPRITE_SIZE * 0.1,
+      SPRITE_SIZE * 0.5,
+      SPRITE_SIZE * 0.6,
       0, 0, Math.PI * 2
     );
     ctx.fill();
@@ -749,6 +775,8 @@ export function drawPlayer(ctx) {
 
   ctx.restore();
 }
+
+
 
 
 // ------------------------------------------------------------

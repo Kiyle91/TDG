@@ -42,7 +42,7 @@ const ENEMY_SIZE = 80;
 const BASE_SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;
-const DEFAULT_HP = 50;
+const DEFAULT_HP = 150;
 const HITBOX_OFFSET_Y = 15;
 
 const ATTACK_RANGE = 80;
@@ -390,8 +390,8 @@ export function damageEnemy(enemy, amount) {
 
     playGoblinDeath();
     incrementGoblinDefeated();
-    awardXP(10);
-    addGold(10);
+    awardXP(20);
+    addGold(5);
     updateHUD();
 
     
