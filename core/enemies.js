@@ -194,7 +194,7 @@ export function updateEnemies(delta) {
           playGoblinAttack();
           setTimeout(() => {
             playPlayerDamage();
-          }, 220);
+          }, 370);
 
           // 🗡️ 2-frame directional attack animation
           e.attacking = true;
