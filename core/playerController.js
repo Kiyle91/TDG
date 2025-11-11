@@ -238,7 +238,7 @@ function performRangedAttack(e) {
 
   // Calculate shot angle and speed
   const angle = Math.atan2(my - p.pos.y, mx - p.pos.x);
-  const speed = 600;
+  const speed = 1200;
 
   // Determine facing purely from cursor position
   const screenHalfY = canvasRef.height / 2;
@@ -617,7 +617,7 @@ export function drawPlayer(ctx) {
     ctx.save();
     ctx.translate(a.x, a.y);
     ctx.rotate(a.angle);
-    ctx.fillRect(0, -2, 18, 4);
+    ctx.fillRect(0, -3, 45, 4);
     ctx.restore();
   }
 
