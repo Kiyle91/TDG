@@ -13,6 +13,7 @@ import { isRectBlocked } from "../utils/mapCollision.js";
 import { damageEnemy } from "./enemies.js"; // ✅ shared enemy array mutated inside enemies.js
 import { updateHUD } from "./ui.js";
 import { playFairySprinkle } from "./soundtrack.js";
+import { spawnFloatingText } from "./floatingText.js";
 
 // ------------------------------------------------------------
 // ✅ Shared enemy getter (same instance towers & player use)
@@ -280,6 +281,7 @@ function performHeal() {
   const amount = p.maxHp ? p.maxHp * 0.25 : 25;
   p.hp = Math.min(p.maxHp || 100, p.hp + amount);
   playFairySprinkle();
+  spawnFloatingText(p.pos.x, p.pos.y - 40, `+${Math.round(amount)}`, "#7aff7a");
 
   // soft green sparkle burst
   spawnCanvasSparkleBurst(

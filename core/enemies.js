@@ -1,5 +1,5 @@
 // ============================================================
-// 👹 enemies.js — Olivia’s World: Crystal Keep (Global Sync Fix)
+// 👹 enemies.js — Olivia’s World: Crystal Keep (Global Sync Fix + Floating Text)
 // ------------------------------------------------------------
 // ✦ Directional goblins with smooth animation + shadows
 // ✦ Chase / attack player with proximity AI
@@ -7,13 +7,14 @@
 // ✦ Health bars + color gradient, fade on death
 // ✦ Despawn + life loss when goblins reach the path end
 // ✦ Victory system integration (goblin kill counter)
-// ✦ FIX: Exposes shared global enemy array so player attacks work
+// ✦ FIX: Floating combat text spawns on every hit
 // ============================================================
 
 import { TILE_SIZE } from "../utils/constants.js";
 import { gameState } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
 import { incrementGoblinDefeated } from "./game.js"; // 🏆 track kills
+import { spawnFloatingText } from "./floatingText.js";
 
 let enemies = [];
 let ctx = null;
@@ -30,7 +31,7 @@ const ENEMY_SIZE = 80;
 const SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;
-const DEFAULT_HP = 50;
+const DEFAULT_HP = 250;
 const HITBOX_OFFSET_Y = 15;
 
 // 🧠 AI + Combat
@@ -245,10 +246,13 @@ export function updateEnemies(delta) {
 }
 
 // ------------------------------------------------------------
-// 🎯 DAMAGE HANDLING + DEATH TRIGGER
+// 🎯 DAMAGE HANDLING + DEATH TRIGGER + FLOATING TEXT
 // ------------------------------------------------------------
 export function damageEnemy(enemy, amount) {
   if (!enemy || !enemy.alive) return;
+
+  // 💬 Floating damage text on every hit
+  spawnFloatingText(enemy.x, enemy.y - 30, `-${Math.round(amount)}`, "#ff5c8a", 18);
 
   enemy.hp -= amount;
   console.log(`🩸 Goblin hit for ${amount}. HP now ${enemy.hp}/${enemy.maxHp}`);
@@ -262,6 +266,7 @@ export function damageEnemy(enemy, amount) {
     console.log("💀 Goblin slain!");
     incrementGoblinDefeated();
 
+    // 💀 Optional death sparkle
     const s = document.createElement("div");
     s.className = "magic-particle";
     s.style.position = "absolute";
@@ -281,6 +286,9 @@ export function damageEnemy(enemy, amount) {
       { duration: 500, easing: "ease-out" }
     );
     setTimeout(() => s.remove(), 600);
+
+    // 💬 Floating skull text on death
+    spawnFloatingText(enemy.x, enemy.y - 40, "💀", "#ffffff", 22);
   }
 }
 

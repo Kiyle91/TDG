@@ -1,15 +1,16 @@
 // ============================================================
-// 🌸 game.js — Olivia’s World: Crystal Keep (FULL FILE)
+// 🌸 game.js — Olivia’s World: Crystal Keep (FULL — Floating Text Integrated)
 // ------------------------------------------------------------
 // ✦ Core game controller & system orchestration
 // ✦ Initializes and coordinates all core modules
 // ✦ Runs update + render loops (called by main.js)
-// ✦ Player dot renders BETWEEN ground and trees
+// ✦ Player + Enemies + Towers rendered between layers
 // ✦ Victory/Defeat system + resetCombatState()
+// ✦ Floating combat text support (damage/heal popups)
 // ============================================================
 
 // ------------------------------------------------------------
-// 🗺️ Map & Layers
+// 🗺️ MAP & LAYERS
 // ------------------------------------------------------------
 import {
   loadMap,
@@ -19,7 +20,7 @@ import {
 } from "./map.js";
 
 // ------------------------------------------------------------
-// 👹 Enemies / Towers / Projectiles
+// 👹 ENEMIES / TOWERS / PROJECTILES
 // ------------------------------------------------------------
 import {
   initEnemies,
@@ -41,12 +42,7 @@ import {
 } from "./projectiles.js";
 
 // ------------------------------------------------------------
-// 🧩 UI / HUD
-// ------------------------------------------------------------
-import { initUI, updateHUD } from "./ui.js";
-
-// ------------------------------------------------------------
-// 🧭 Player Controller (movable dot)
+// 🧭 PLAYER CONTROLLER
 // ------------------------------------------------------------
 import {
   initPlayerController,
@@ -54,22 +50,37 @@ import {
   drawPlayer
 } from "./playerController.js";
 
+// ------------------------------------------------------------
+// 🧩 UI / HUD
+// ------------------------------------------------------------
+import { initUI, updateHUD } from "./ui.js";
+
+// ------------------------------------------------------------
+// 💬 FLOATING COMBAT TEXT
+// ------------------------------------------------------------
+import {
+  updateFloatingText,
+  drawFloatingText
+} from "./floatingText.js";
+
+// ------------------------------------------------------------
+// ⚙️ GLOBAL STATE IMPORTS
+// ------------------------------------------------------------
 import { gameState } from "../utils/gameState.js";
 import { getMapPixelSize } from "./map.js";
 import { stopGameplay } from "../main.js"; // used to stop game when win/lose
 
 // ------------------------------------------------------------
-// ⚙️ LOCAL STATE
+// 🎥 LOCAL CAMERA STATE
 // ------------------------------------------------------------
 let canvas = null;
 let ctx = null;
 
-// 🎥 CAMERA (scroll offset)
 let cameraX = 0;
 let cameraY = 0;
 
 // ------------------------------------------------------------
-// 🏆 VICTORY TRACKING EXPORTS
+// 🏆 VICTORY COUNTER
 // ------------------------------------------------------------
 export let goblinsDefeated = 0;
 
@@ -82,83 +93,88 @@ export function incrementGoblinDefeated() {
 // 🌷 INIT — called once when entering the Game screen
 // ============================================================
 export async function initGame() {
-  // 1) Canvas & context
+  // 1️⃣ Canvas & Context
   canvas = document.getElementById("game-canvas");
   if (!canvas) throw new Error("game.js: #game-canvas not found in DOM");
   ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("game.js: 2D context not available");
 
-  // 2) Load the Tiled map data
+  // 2️⃣ Load Map
   await loadMap();
 
-  // 3) Extract enemy path and apply
+  // 3️⃣ Extract enemy path + apply
   const pathPoints = extractPathFromMap();
   setEnemyPath(pathPoints);
 
-  // 4) Initialize subsystems
+  // 4️⃣ Initialize subsystems
   initEnemies();
   initTowers();
   initProjectiles();
   initUI();
 
-  // 5) Initialize player (movable dot)
+  // 5️⃣ Player setup
   initPlayerController(canvas);
 
   console.log("🌸 game.js — Initialization complete.");
 }
 
 // ============================================================
-// 🔁 UPDATE — now includes delta clamp for all systems
+// 🔁 UPDATE — synchronized world logic
 // ============================================================
 export function updateGame(delta) {
   delta = Math.min(delta, 100);
 
-  // Update world systems
+  // Update all systems
   updateEnemies(delta);
   updateTowers(delta);
   updateProjectiles(delta);
   updateHUD();
   updatePlayer(delta);
+  updateFloatingText(delta); // 💬 Floating text movement + fade
 
-  // 🎥 CAMERA FOLLOW
+  // 🎥 Camera follow player
   const px = gameState.player?.pos?.x ?? 0;
   const py = gameState.player?.pos?.y ?? 0;
+
   cameraX = Math.floor(px - canvas.width / 2);
   cameraY = Math.floor(py - canvas.height / 2);
 
-  // Clamp to map bounds
+  // Clamp camera within map bounds
   const { width: mapW, height: mapH } = getMapPixelSize();
   cameraX = Math.max(0, Math.min(mapW - canvas.width, cameraX));
   cameraY = Math.max(0, Math.min(mapH - canvas.height, cameraY));
 
-  // 🧠 Victory/Defeat check
+  // Check win/loss
   checkVictoryDefeat();
 }
 
 // ============================================================
-// 🎨 RENDER — Corrected Layer Depth + Camera
+// 🎨 RENDER — ordered by layer depth + camera offset
 // ============================================================
 export function renderGame() {
   if (!ctx || !canvas) return;
 
-  // 1) Ground
+  // 1️⃣ Background ground layer
   drawMapLayered(ctx, "ground", cameraX, cameraY, canvas.width, canvas.height);
 
-  // 2) Entities
+  // 2️⃣ Entities (translated by camera)
   ctx.save();
   ctx.translate(-cameraX, -cameraY);
+
   drawEnemies(ctx);
   drawTowers(ctx);
   drawPlayer(ctx);
   drawProjectiles(ctx);
+  drawFloatingText(ctx); // 💬 draw floating damage/heal numbers
+
   ctx.restore();
 
-  // 3) Trees / canopy
+  // 3️⃣ Foreground canopy / trees layer
   drawMapLayered(ctx, "trees", cameraX, cameraY, canvas.width, canvas.height);
 }
 
 // ============================================================
-// 🧠 VICTORY / DEFEAT CHECKS
+// 🧠 VICTORY / DEFEAT CONDITIONS
 // ============================================================
 function checkVictoryDefeat() {
   const playerHP = gameState.player?.hp ?? 100;
@@ -169,7 +185,7 @@ function checkVictoryDefeat() {
     stopGameplay("defeat");
   } else if (lives <= 0) {
     console.log("💔 No lives remaining!");
-    stopGameplay("lives"); // distinct reason for copywriting
+    stopGameplay("lives");
   } else if (goblinsDefeated >= 5) {
     console.log("🏆 Victory condition reached!");
     stopGameplay("victory");
@@ -185,14 +201,12 @@ function checkVictoryDefeat() {
 export function resetCombatState() {
   goblinsDefeated = 0;
 
-  // Reset player position + HP/lives for fresh spawn
   if (gameState.player) {
-    gameState.player.pos = { x: 1000, y: 500 }; // or your normal spawn coords
+    gameState.player.pos = { x: 1000, y: 500 };
     gameState.player.hp = gameState.player.maxHp ?? 100;
     gameState.player.lives = 10;
   }
 
-  // Re-run full combat init
   initGame();
 }
 
