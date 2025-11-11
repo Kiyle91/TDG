@@ -12,7 +12,8 @@ import { gameState } from "../utils/gameState.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
 import { damageEnemy } from "./enemies.js"; // ✅ shared enemy array mutated inside enemies.js
 import { updateHUD } from "./ui.js";
-import { playFairySprinkle } from "./soundtrack.js";
+import { playFairySprinkle, playMeleeSwing, playArrowSwish, playSpellCast } from "./soundtrack.js";
+
 import { spawnFloatingText } from "./floatingText.js";
 
 // ------------------------------------------------------------
@@ -52,7 +53,7 @@ const COST_SPELL = 1;
 // Damage multipliers
 const DMG_MELEE = 1.2;
 const DMG_RANGED = 0.9;
-const DMG_SPELL = 2.5;
+const DMG_SPELL = 8;
 
 // Walk anim timer
 let frameTimer = 0;
@@ -221,6 +222,7 @@ function performMeleeAttack() {
     ? ["#ffd6eb", "#b5e2ff", "#ffffff"]
     : ["#b3ffd9", "#cdb3ff", "#fff2b3"];
   spawnCanvasSparkleBurst(p.pos.x, p.pos.y, 15, 60, ["#ffd6eb", "#b5e2ff", "#ffffff"]);
+  playMeleeSwing();
 
   console.log(hit ? "🗡️ Melee hit landed!" : "⚔️ Melee swing missed.");
 }
@@ -260,6 +262,7 @@ function performRangedAttack(e) {
   const startX = p.pos.x + Math.cos(angle) * 30;
   const startY = p.pos.y + Math.sin(angle) * 30;
   projectiles.push({ x: startX, y: startY, angle, speed, dmg, alive: true, life: 0 });
+  playArrowSwish();
 }
 
 
@@ -330,6 +333,7 @@ function performSpell() {
       ["#ffb3e6", "#b3ecff", "#fff2b3", "#cdb3ff", "#b3ffd9", "#ffffff"]
     );
     updateHUD();
+    playSpellCast();
     console.log(`🔮 Spell cast! Hit ${hits} enemies.`);
   }, 400); // trigger explosion mid-animation
 }

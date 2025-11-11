@@ -1,9 +1,9 @@
 // ============================================================
-// 🎵 soundtrack.js — Olivia’s World: Crystal Keep
+// 🎵 soundtrack.js — Olivia’s World: Crystal Keep (Extended SFX)
 // ------------------------------------------------------------
 // ✦ Handles background music and sound effects volume
 // ✦ Waits for first click/tap to unlock audio context
-// ✦ Includes Fairy Sparkle, Chest Open, and Cancel SFX
+// ✦ Includes Fairy Sparkle, Chest Open, Cancel, and Combat SFX
 // ============================================================
 
 let musicAudio = null;
@@ -14,13 +14,12 @@ let musicUnlocked = false;
 // 🌸 Initialize background music (safe, user-triggered)
 // ------------------------------------------------------------
 export function initMusic() {
-  if (musicAudio) return; // already initialized
+  if (musicAudio) return;
 
   musicAudio = new Audio("./assets/sounds/soundtrack.mp3");
   musicAudio.loop = true;
   musicAudio.volume = 0.8;
 
-  // Wait until user interacts before playback
   const unlockAudio = () => {
     if (musicUnlocked) return;
     musicUnlocked = true;
@@ -38,7 +37,7 @@ export function initMusic() {
 }
 
 // ------------------------------------------------------------
-// 🎚️ Volume Controls (linked to settings.js sliders)
+// 🎚️ Volume Controls
 // ------------------------------------------------------------
 export function setMusicVolume(value) {
   if (musicAudio) musicAudio.volume = value;
@@ -52,7 +51,7 @@ export function setSfxVolume(value) {
 // 💥 Generic One-Shot SFX (safe play after unlock)
 // ------------------------------------------------------------
 export function playSfx(path) {
-  if (!musicUnlocked) return; // prevents blocked play
+  if (!musicUnlocked) return;
   const sfx = new Audio(path);
   sfx.volume = Math.pow(sfxVolume, 0.7);
   sfx.play().catch(() => {});
@@ -62,40 +61,39 @@ export function playSfx(path) {
 // 🧚‍♀️ Fairy Sparkle Menu / Alert SFX
 // ------------------------------------------------------------
 const fairySparklePath = "./assets/sounds/fairy-sparkle.mp3";
-
 export function playFairySprinkle() {
-  if (!musicUnlocked) return;
-  const sparkle = new Audio(fairySparklePath);
-  sparkle.volume = Math.pow(sfxVolume, 0.7);
-  sparkle.play().catch(() => {});
+  playSfx(fairySparklePath);
 }
 
 // ------------------------------------------------------------
 // 💰 Chest Opening SFX
 // ------------------------------------------------------------
 const chestOpenPath = "./assets/sounds/chest-open.mp3";
-
 export function playChestOpen() {
-  if (!musicUnlocked) return;
-  const chest = new Audio(chestOpenPath);
-  chest.volume = Math.pow(sfxVolume, 0.7);
-  chest.play().catch(() => {});
+  playSfx(chestOpenPath);
 }
 
 // ------------------------------------------------------------
 // 🚫 Cancel / No Button SFX
 // ------------------------------------------------------------
 const cancelButtonPath = "./assets/sounds/cancel-button.mp3";
-
 export function playCancelSound() {
-  if (!musicUnlocked) return;
-  const cancel = new Audio(cancelButtonPath);
-  cancel.volume = Math.pow(sfxVolume, 0.7);
-  cancel.play().catch(() => {});
+  playSfx(cancelButtonPath);
 }
 
 // ------------------------------------------------------------
-// 🛑 Stop Music (optional helper)
+// ⚔️ Combat SFX
+// ------------------------------------------------------------
+const meleePath = "./assets/sounds/melee_swing.mp3";
+const arrowPath = "./assets/sounds/arrow_swish.mp3";
+const spellPath = "./assets/sounds/spell_cast.mp3";
+
+export function playMeleeSwing() { playSfx(meleePath); }
+export function playArrowSwish() { playSfx(arrowPath); }
+export function playSpellCast()  { playSfx(spellPath); }
+
+// ------------------------------------------------------------
+// 🛑 Stop Music
 // ------------------------------------------------------------
 export function stopMusic() {
   if (musicAudio) {
