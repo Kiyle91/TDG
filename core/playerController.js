@@ -97,6 +97,8 @@ async function loadPlayerSprites() {
   sprites.shoot.left[1]   = await loadSprite("./assets/images/sprites/glitter/glitter_shoot_left.png");
   sprites.shoot.right[0]  = await loadSprite("./assets/images/sprites/glitter/glitter_raise_right.png");
   sprites.shoot.right[1]  = await loadSprite("./assets/images/sprites/glitter/glitter_shoot_right.png");
+  sprites.shoot.lowerLeft = await loadSprite("./assets/images/sprites/glitter/glitter_lower_left.png");
+  sprites.shoot.lowerRight = await loadSprite("./assets/images/sprites/glitter/glitter_lower_right.png");
 
   console.log("🦄 Glitter sprites + combat frames loaded (file-verified).");
 }
@@ -218,26 +220,37 @@ function performRangedAttack(e) {
   const p = gameState.player;
   const dmg = p.attack * DMG_RANGED;
 
+  // Get mouse position relative to canvas
   const rect = canvasRef.getBoundingClientRect();
-  const mx = (e.clientX - rect.left) * (canvasRef.width  / rect.width);
-  const my = (e.clientY - rect.top)  * (canvasRef.height / rect.height);
+  const mx = (e.clientX - rect.left) * (canvasRef.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvasRef.height / rect.height);
 
+  // Calculate shot angle and speed
   const angle = Math.atan2(my - p.pos.y, mx - p.pos.x);
   const speed = 600;
-  currentDir = mx < p.pos.x ? "left" : "right";
 
-  isAttacking = true; attackType = "ranged"; attackCooldown = CD_RANGED;
+  // Determine facing purely from cursor position
+  const screenHalfY = canvasRef.height / 2;
+  let facing;
+  if (my > screenHalfY && mx < p.pos.x) facing = "lowerLeft";
+  else if (my > screenHalfY && mx >= p.pos.x) facing = "lowerRight";
+  else facing = mx < p.pos.x ? "left" : "right";
+  p.facing = facing;
+
+  // Attack timing (short lockout)
+  isAttacking = true;
+  attackType = "ranged";
+  attackCooldown = CD_RANGED;
   currentFrame = 0;
   setTimeout(() => { currentFrame = 1; }, 200);
   setTimeout(() => { isAttacking = false; currentFrame = 0; }, 400);
 
+  // Spawn projectile
   const startX = p.pos.x + Math.cos(angle) * 30;
   const startY = p.pos.y + Math.sin(angle) * 30;
-
   projectiles.push({ x: startX, y: startY, angle, speed, dmg, alive: true, life: 0 });
-
-  
 }
+
 
 // ------------------------------------------------------------
 // 💖 Heal — centered rainbow shimmer + HUD update
@@ -458,7 +471,9 @@ export function updatePlayer(delta) {
 }
 
 // ------------------------------------------------------------
-// Draw
+// ============================================================
+// 🎨 Draw Player (with cursor-based ranged animation)
+// ============================================================
 export function drawPlayer(ctx) {
   if (!ctx) return;
   ensurePlayerRuntime();
@@ -466,45 +481,69 @@ export function drawPlayer(ctx) {
 
   let img = sprites.idle;
 
-  // Attack sequences (2 frames)
+  // ============================================================
+  // 🗡️ / 🏹 ATTACK SEQUENCES
+  // ============================================================
   if (isAttacking) {
     if (attackType === "melee") {
+      // two-frame melee animation
       const dir = currentDir === "left" ? "left" : "right";
       img = currentFrame === 0 ? sprites.attack[dir][0] : sprites.attack[dir][1];
-    } else if (attackType === "ranged") {
-      const dir = currentDir === "left" ? "left" : "right";
-      img = currentFrame === 0 ? sprites.shoot[dir][0] : sprites.shoot[dir][1];
+    } 
+    
+    else if (attackType === "ranged") {
+      // cursor-based ranged animation
+      const facing = gameState.player.facing || "right";
+      if (facing === "lowerLeft") {
+        img = sprites.shoot.lowerLeft;
+      } else if (facing === "lowerRight") {
+        img = sprites.shoot.lowerRight;
+      } else if (facing === "left") {
+        img = currentFrame === 0 ? sprites.shoot.left[0] : sprites.shoot.left[1];
+      } else {
+        img = currentFrame === 0 ? sprites.shoot.right[0] : sprites.shoot.right[1];
+      }
     }
+
   } else if (isMoving) {
+    // walking animation
     img = sprites.walk[currentDir][currentFrame];
   } else {
+    // idle frame
     img = sprites.idle;
   }
 
   if (!img) return;
 
-  // Draw player + shadow
+  // ============================================================
+  // 🩶 SHADOW + CHARACTER RENDER
+  // ============================================================
   const drawX = x - SPRITE_SIZE / 2;
   const drawY = y - SPRITE_SIZE / 2;
 
   ctx.save();
 
+  // Soft drop shadow
   ctx.beginPath();
   ctx.ellipse(
-    x, y + SPRITE_SIZE / 2.3,
-    SPRITE_SIZE * 0.35, SPRITE_SIZE * 0.15,
-    0, 0, Math.PI * 2
+    x,
+    y + SPRITE_SIZE / 2.3,
+    SPRITE_SIZE * 0.35,
+    SPRITE_SIZE * 0.15,
+    0,
+    0,
+    Math.PI * 2
   );
   ctx.fillStyle = `rgba(0,0,0,${SHADOW_OPACITY})`;
   ctx.fill();
 
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
+
   // ------------------------------------------------------------
   // ✨ Render player sprite — upscale only glitter_attack_* frames
   // ------------------------------------------------------------
   if (isAttacking && attackType === "melee" && currentFrame === 0) {
-    // currentFrame 0 = glitter_attack_left/right
     const scale = 1.5; // 40% larger
     const w = SPRITE_SIZE * scale;
     const h = SPRITE_SIZE * scale;
@@ -516,7 +555,9 @@ export function drawPlayer(ctx) {
     ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, SPRITE_SIZE, SPRITE_SIZE);
   }
 
-  // Draw silver arrows
+  // ============================================================
+  // 🏹 DRAW PROJECTILES (silver arrows)
+  // ============================================================
   ctx.fillStyle = "rgba(240,240,255,0.9)";
   for (const a of projectiles) {
     ctx.save();
@@ -526,11 +567,14 @@ export function drawPlayer(ctx) {
     ctx.restore();
   }
 
-  // Draw canvas sparkles (approx delta 16ms if you don't have render-delta here)
+  // ============================================================
+  // 🌈 DRAW SPARKLES
+  // ============================================================
   updateAndDrawSparkles(ctx, 16);
 
   ctx.restore();
 }
+
 
 // ============================================================
 // 🌟 END OF FILE
