@@ -155,7 +155,7 @@ function spawnEnemy() {
 
   enemiesSpawned++;
 
-  if (enemiesSpawned >= 10 && !storyTriggered) {
+  if (enemiesSpawned >= 25 && !storyTriggered) {
     storyTriggered = true;
     console.log("📖 Triggering mid-battle story...");
     try {

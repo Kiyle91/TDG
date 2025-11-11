@@ -1,13 +1,13 @@
 // ============================================================
-// 🌸 ui.js — Olivia’s World: Crystal Keep
+// 🌸 ui.js — Olivia’s World: Crystal Keep (Cleaned + Fixed Build)
 // ------------------------------------------------------------
 // ✦ Basic HUD display and stat management
 // ✦ Controls wave, gold, diamond, and life counters
-// ✦ Updates the in-game UI elements dynamically
+// ✦ Updates in-game UI + overlays dynamically
+// ✦ Includes unified Stats overlay logic (Hub + In-Game)
 // ============================================================
 
-import { getCurrencies } from "../utils/gameState.js";
-import { gameState, saveProfiles } from "../utils/gameState.js";
+import { gameState, getCurrencies, saveProfiles } from "../utils/gameState.js";
 import { playCancelSound } from "./soundtrack.js";
 import { initTurretBar, updateTurretBar } from "./turretBar.js";
 
@@ -44,37 +44,34 @@ export function updateHUD() {
   const p = gameState.player || {};
 
   // Existing stats
-  waveDisplay.textContent  = `Wave ${gameStats.wave}`;
-  goldDisplay.textContent  = `Gold: ${gold}`;
+  waveDisplay.textContent = `Wave ${gameStats.wave}`;
+  goldDisplay.textContent = `Gold: ${gold}`;
   diamondDisplay.textContent = `Diamonds: ${diamonds}`;
-  
-  const playerLives = gameState.player?.lives ?? gameStats.lives;
+
+  const playerLives = p.lives ?? gameStats.lives;
   livesDisplay.textContent = `Lives: ${playerLives}`;
 
-  // ============================================================
   // 💖 HP + MANA BARS (via CSS variable --fill)
-  // ============================================================
-  const hpBar   = document.getElementById("hp-bar");
+  const hpBar = document.getElementById("hp-bar");
   const manaBar = document.getElementById("mana-bar");
-  const hpText   = document.getElementById("hp-text");
+  const hpText = document.getElementById("hp-text");
   const manaText = document.getElementById("mana-text");
 
-  if (gameState.player && hpBar && manaBar) {
-    const hpPct   = Math.max(0, Math.min(100, (p.hp   / p.maxHp)   * 100));
+  if (p && hpBar && manaBar) {
+    const hpPct = Math.max(0, Math.min(100, (p.hp / p.maxHp) * 100));
     const manaPct = Math.max(0, Math.min(100, (p.mana / p.maxMana) * 100));
 
     // Apply CSS variable fills
     hpBar.style.setProperty("--fill", `${hpPct}%`);
     manaBar.style.setProperty("--fill", `${manaPct}%`);
 
-    // Update text values (rounded for readability)
-    if (hpText)   hpText.textContent   = `${Math.round(p.hp)} / ${p.maxHp}`;
+    // Update text values
+    if (hpText) hpText.textContent = `${Math.round(p.hp)} / ${p.maxHp}`;
     if (manaText) manaText.textContent = `${p.mana.toFixed(1)} / ${p.maxMana}`;
   }
 
   updateTurretBar();
 }
-
 
 // ------------------------------------------------------------
 // 📜 GET GAME STATS
@@ -93,17 +90,17 @@ export function showOverlay(id) {
     return;
   }
 
-  // Hide others
+  // Hide other overlays
   document.querySelectorAll(".overlay").forEach((o) => {
     o.classList.remove("active");
     o.style.display = "none";
   });
 
-  // Show this one
+  // Show selected overlay
   overlay.style.display = "flex";
   requestAnimationFrame(() => overlay.classList.add("active"));
 
-  // Add close behavior
+  // Close behavior
   const closeBtn = overlay.querySelector(".overlay-close");
   if (closeBtn) {
     closeBtn.onclick = () => closeOverlay(overlay);
@@ -116,16 +113,9 @@ export function closeOverlay(overlay) {
   setTimeout(() => (overlay.style.display = "none"), 600);
 }
 
-export function updateStatsOverlay() {
-  const titleEl = document.getElementById("stats-title");
-  if (!titleEl || !gameState.profile) return;
-
-  titleEl.textContent = `Princess ${gameState.profile.name}`;
-}
-
-// ============================================================
+// ------------------------------------------------------------
 // ⚙️ SETTINGS MENU INITIALIZATION
-// ============================================================
+// ------------------------------------------------------------
 export function initSettingsMenu() {
   const visualsToggle = document.getElementById("visuals-toggle");
   const visualsLabel = visualsToggle?.nextElementSibling;
@@ -134,24 +124,26 @@ export function initSettingsMenu() {
 
   // 🩷 Apply saved preference
   visualsToggle.checked = gameState.settings.visualEffects;
-  visualsLabel.textContent = visualsToggle.checked ? "Enabled" : "Disabled";
+  if (visualsLabel)
+    visualsLabel.textContent = visualsToggle.checked ? "Enabled" : "Disabled";
 
-  // 🪄 Apply the state immediately when the menu loads
+  // 🪄 Apply state immediately
   toggleMagicSparkles(gameState.settings.visualEffects);
 
   // 🎧 When player changes the toggle
   visualsToggle.addEventListener("change", () => {
     const enabled = visualsToggle.checked;
     gameState.settings.visualEffects = enabled;
-    visualsLabel.textContent = enabled ? "Enabled" : "Disabled";
-    saveProfiles();                // persist the choice
-    toggleMagicSparkles(enabled);  // apply immediately
+    if (visualsLabel)
+      visualsLabel.textContent = enabled ? "Enabled" : "Disabled";
+    saveProfiles();
+    toggleMagicSparkles(enabled);
   });
 }
 
-// ============================================================
+// ------------------------------------------------------------
 // ✨ MAGIC SPARKLES VISIBILITY
-// ============================================================
+// ------------------------------------------------------------
 export function toggleMagicSparkles(enabled) {
   const sparkles = document.querySelectorAll(".magic-sparkle");
   if (!sparkles.length) return;
@@ -165,9 +157,6 @@ export function toggleMagicSparkles(enabled) {
 // ============================================================
 // 🧪 TEMP TEST — Keyboard Controls for HUD Verification
 // ------------------------------------------------------------
-// Press H / J to damage / heal HP
-// Press M / N to spend / restore Mana
-// ============================================================
 document.addEventListener("keydown", (e) => {
   const p = gameState.player;
   if (!p) return;
@@ -196,7 +185,111 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+// ============================================================
+// 👑 PLAYER / HUB STATS — Live Overlay Updaters
+// ------------------------------------------------------------
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
 
+function fillStats(prefix, titleId) {
+  const p = gameState.player || {};
+  setText(titleId, p.name ? `Princess ${p.name}` : "Princess (Unknown)");
+
+  // Core numbers (with sane fallbacks)
+  const level = p.level ?? 1;
+  const xp = p.xp ?? 0;
+  const xpToNext = p.xpToNext ?? 100;
+  const statPts = p.statPoints ?? 0;
+  const hp = p.hp ?? p.maxHp ?? 100;
+  const maxHp = p.maxHp ?? 100;
+  const mana = p.mana ?? p.maxMana ?? 50;
+  const maxMana = p.maxMana ?? 50;
+  const sp = p.spellPower ?? 10;
+  const ranged = p.rangedAttack ?? 10;
+  const atk = p.attack ?? 15;
+  const def = p.defense ?? 5;
+  const critPct = Math.round((p.critChance ?? 0) * 100);
+
+  setText(`${prefix}level`, String(level));
+  setText(`${prefix}xp`, `${xp} / ${xpToNext}`);
+  setText(`${prefix}statPoints`, String(statPts));
+  setText(`${prefix}hp`, `${hp} / ${maxHp}`);
+  setText(`${prefix}mana`, `${mana} / ${maxMana}`);
+  setText(`${prefix}spellPower`, String(sp));
+  setText(`${prefix}ranged`, String(ranged));
+  setText(`${prefix}attack`, String(atk));
+  setText(`${prefix}defense`, String(def));
+  setText(`${prefix}crit`, `${critPct}%`);
+}
+
+// Live refresh while overlay is open
+function startLiveRefresh(overlayId, refreshFn) {
+  const overlay = document.getElementById(overlayId);
+  if (!overlay) return;
+
+  if (overlay.__statsInterval) clearInterval(overlay.__statsInterval);
+
+  overlay.__statsInterval = setInterval(() => {
+    if (
+      !document.body.contains(overlay) ||
+      overlay.classList.contains("hidden") ||
+      overlay.style.display === "none"
+    ) {
+      clearInterval(overlay.__statsInterval);
+      overlay.__statsInterval = null;
+      return;
+    }
+    refreshFn();
+  }, 300);
+}
+
+// HUB overlay updater — excludes Stat Points
+export function updateStatsOverlay() {
+  const p = gameState.player || {};
+  const titleEl = document.getElementById("stats-title");
+  if (titleEl) titleEl.textContent = p.name ? `Princess ${p.name}` : "Princess (Unknown)";
+
+  const level = p.level ?? 1;
+  const xp = p.xp ?? 0;
+  const xpToNext = p.xpToNext ?? 100;
+  const hp = p.hp ?? p.maxHp ?? 100;
+  const maxHp = p.maxHp ?? 100;
+  const mana = p.mana ?? p.maxMana ?? 50;
+  const maxMana = p.maxMana ?? 50;
+  const sp = p.spellPower ?? 10;
+  const ranged = p.rangedAttack ?? 10;
+  const atk = p.attack ?? 15;
+  const def = p.defense ?? 5;
+  const critPct = Math.round((p.critChance ?? 0) * 100);
+
+  const map = {
+    "stat-level": level,
+    "stat-xp": `${xp} / ${xpToNext}`,
+    "stat-hp": `${hp} / ${maxHp}`,
+    "stat-mana": `${mana} / ${maxMana}`,
+    "stat-spellPower": sp,
+    "stat-ranged": ranged,
+    "stat-attack": atk,
+    "stat-defense": def,
+    "stat-crit": `${critPct}%`,
+  };
+
+  Object.entries(map).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  });
+}
+
+
+// IN-GAME overlay updater
+export function updatePlayerStatsOverlay() {
+  fillStats("pstat-", "player-stats-title");
+  startLiveRefresh("overlay-player-stats", () =>
+    fillStats("pstat-", "player-stats-title")
+  );
+}
 
 // ============================================================
 // 🌟 END OF FILE
