@@ -1,21 +1,23 @@
 // ============================================================
-// 🧭 navbar.js — Olivia’s World: Crystal Keep (Stable Build)
+// 🧭 navbar.js — Olivia’s World: Crystal Keep (Hub-Standard Safe Exit)
 // ------------------------------------------------------------
-// ✦ Bottom nav bar for quick access menus
-// ✦ Home, Save/Load, Restart, Controls, Settings, Player
-// ✦ All missing features handled gracefully (no 404s / no bad imports)
+// ✦ Bottom in-game navbar for quick menus
+// ✦ Home uses confirm dialog and calls stopGameplay("exit")
+// ✦ Avoids triggering defeat overlay, fades cleanly to hub
+// ✦ Other buttons stubbed safely
 // ============================================================
 
-import { showScreen } from "./screens.js";
-// import { restartMap } from "./game.js"; // not implemented yet
-// import { openSettings } from "./settings.js"; // not implemented yet
-import { openControlsOverlay } from "./controls.js"; // simple placeholder we added
-// import { openPlayerStats } from "./profile.js";    // not implemented yet
+import { showConfirm } from "./alert.js";
+import { playFairySprinkle } from "./soundtrack.js";
+import { stopGameplay } from "../main.js";
 
+// ------------------------------------------------------------
+// 🌸 INIT NAVBAR
+// ------------------------------------------------------------
 export function initNavbar() {
   const nav = document.getElementById("game-navbar");
   if (!nav) {
-    console.warn("🧭 Navbar not found in DOM");
+    console.warn("🧭 Navbar not found in DOM.");
     return;
   }
 
@@ -23,31 +25,62 @@ export function initNavbar() {
     btn.addEventListener("click", () => handleNavAction(btn.dataset.action));
   });
 
-  console.log("🧭 Navbar initialized and linked.");
+  console.log("🧭 Navbar initialized (hub-standard confirm + safe exit).");
 }
 
+// ------------------------------------------------------------
+// 💖 ACTION HANDLER
+// ------------------------------------------------------------
 function handleNavAction(action) {
+  playFairySprinkle();
+
   switch (action) {
+    // --------------------------------------------------------
+    // 🏠 HOME — Confirm safe hub exit
+    // --------------------------------------------------------
     case "home":
-      showScreen("hub-screen");
+      showConfirm(
+        "Return to the Crystal Hub? Your progress will be saved safely.",
+        () => {
+          console.log("🏠 Confirmed: graceful exit to hub.");
+          const gameContainer = document.getElementById("game-container");
+          fadeOut(gameContainer, () => stopGameplay("exit"));
+        },
+        () => console.log("❎ Cancelled hub return.")
+      );
       break;
 
+    // --------------------------------------------------------
+    // 💾 SAVE / LOAD
+    // --------------------------------------------------------
     case "save":
-      alert("💾 Save/Load system not yet implemented!");
+      alert("💾 Save/Load system coming soon!");
       break;
 
+    // --------------------------------------------------------
+    // 🔄 RESTART MAP
+    // --------------------------------------------------------
     case "restart":
-      restartMap?.();
+      alert("🔄 Restart feature not yet connected!");
       break;
 
+    // --------------------------------------------------------
+    // 🎮 CONTROLS
+    // --------------------------------------------------------
     case "controls":
-      openControlsOverlay?.();
+      alert("🎮 Controls overlay coming soon!");
       break;
 
+    // --------------------------------------------------------
+    // ⚙️ SETTINGS
+    // --------------------------------------------------------
     case "settings":
-      openSettings?.();
+      alert("⚙️ Settings menu coming soon!");
       break;
 
+    // --------------------------------------------------------
+    // 👑 PLAYER STATS
+    // --------------------------------------------------------
     case "player":
       alert("👑 Player stats overlay coming soon!");
       break;
@@ -56,3 +89,20 @@ function handleNavAction(action) {
       console.warn("Unknown navbar action:", action);
   }
 }
+
+// ------------------------------------------------------------
+// 🌈 FADE HELPERS
+// ------------------------------------------------------------
+function fadeOut(element, callback) {
+  if (!element) return;
+  element.style.transition = "opacity 0.8s ease";
+  element.style.opacity = 0;
+  setTimeout(() => {
+    element.style.display = "none";
+    if (callback) callback();
+  }, 800);
+}
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================
