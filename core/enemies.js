@@ -15,6 +15,7 @@ import { gameState } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
 import { incrementGoblinDefeated } from "./game.js"; // 🏆 track kills
 import { spawnFloatingText } from "./floatingText.js";
+import { playGoblinAttack } from "./soundtrack.js";
 
 let enemies = [];
 let ctx = null;
@@ -76,11 +77,23 @@ async function loadGoblinSprites() {
         await loadImage("./assets/images/sprites/goblin/goblin_D2.png"),
       ],
     },
+    // ⚔️ Attack (2-frame sequence like player)
+    attack: {
+      left: [
+        await loadImage("./assets/images/sprites/goblin/goblin_attack_left.png"),
+        await loadImage("./assets/images/sprites/goblin/goblin_melee_left.png"),
+      ],
+      right: [
+        await loadImage("./assets/images/sprites/goblin/goblin_attack_right.png"),
+        await loadImage("./assets/images/sprites/goblin/goblin_melee_right.png"),
+      ],
+    },
     slain: await loadImage("./assets/images/sprites/goblin/goblin_slain.png"),
   };
 
-  console.log("👹 Goblin sprite set loaded (directional + death).");
+  console.log("👹 Goblin sprite set loaded (directional + attack + death).");
 }
+
 
 // ------------------------------------------------------------
 // 🌍 PATH CONTROL
@@ -171,9 +184,29 @@ export function updateEnemies(delta) {
         e.y += (dyp / distToPlayer) * SPEED * dt;
       } else {
         e.attackCooldown -= delta;
+
+        // ⚔️ Attack trigger and animation
         if (e.attackCooldown <= 0) {
           e.attackCooldown = ATTACK_COOLDOWN;
           player.hp = Math.max(0, player.hp - GOBLIN_DAMAGE);
+          playGoblinAttack();
+
+          // 🗡️ 2-frame directional attack animation
+          e.attacking = true;
+          e.attackFrame = 0;
+
+          // determine attack facing based on player position
+          e.attackDir = px < e.x ? "left" : "right";
+
+          setTimeout(() => {
+            e.attackFrame = 1;
+          }, 150);
+
+          setTimeout(() => {
+            e.attacking = false;
+            e.attackFrame = 0;
+          }, 350);
+
           console.log(`💥 Goblin hit! Player HP: ${player.hp}`);
         }
       }
@@ -403,6 +436,13 @@ export function drawEnemies(context) {
 function getEnemySprite(e) {
   if (!goblinSprites) return null;
   if (!e.alive) return goblinSprites.slain;
+
+  // ⚔️ Attack sequence (2-frame)
+  if (e.attacking) {
+    const dir = e.attackDir || (e.dir === "left" ? "left" : "right");
+    return goblinSprites.attack[dir][e.attackFrame || 0];
+  }
+
   switch (e.dir) {
     case "up": return goblinSprites.walk.up[e.frame];
     case "down": return goblinSprites.walk.down[e.frame];

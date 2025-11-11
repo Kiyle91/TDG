@@ -535,7 +535,11 @@ export function updatePlayer(delta) {
 }
 
 // ============================================================
-// 🎨 DRAW PLAYER — all states + death + red flash
+// 🎨 DRAW PLAYER — Olivia’s World: Crystal Keep (Final + Red Flash Overlay)
+// ------------------------------------------------------------
+// ✦ Handles movement, combat, heal, spell, and death frames
+// ✦ Includes red flash overlay when damaged
+// ✦ Keeps shadow, sparkles, projectiles, and attack scaling intact
 // ============================================================
 export function drawPlayer(ctx) {
   if (!ctx) return;
@@ -546,21 +550,13 @@ export function drawPlayer(ctx) {
   let img = sprites.idle;
 
   // ------------------------------------------------------------
-  // 🩸 Red flash effect when hit
-  // ------------------------------------------------------------
-  if (p.flashTimer > 0) {
-    ctx.filter = "brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(6)";
-  }
-
-  // ------------------------------------------------------------
   // 💀 Death frame override
   // ------------------------------------------------------------
   if (p.dead) {
     img = sprites.dead;
-  } else if (isAttacking) {
-    // ------------------------------------------------------------
-    // 🗡️ / 🏹 / 🔮 / 💖 ATTACK SEQUENCES
-    // ------------------------------------------------------------
+  } 
+  else if (isAttacking) {
+    // 🗡️ / 🏹 / 🔮 / 💖 Attack Sequences
     if (attackType === "melee") {
       const dir = currentDir === "left" ? "left" : "right";
       img = currentFrame === 0
@@ -594,28 +590,25 @@ export function drawPlayer(ctx) {
     else if (attackType === "heal") {
       img = sprites.heal;
     }
-  }
-
-  // ------------------------------------------------------------
-  // 🚶 Movement / Idle
-  // ------------------------------------------------------------
+  } 
   else if (isMoving) {
     img = sprites.walk[currentDir][currentFrame];
-  } else {
+  } 
+  else {
     img = sprites.idle;
   }
 
   if (!img) return;
 
   // ------------------------------------------------------------
-  // 🩶 Shadow + Character Rendering
+  // 🩶 Shadow + Character Base
   // ------------------------------------------------------------
   const drawX = x - SPRITE_SIZE / 2;
   const drawY = y - SPRITE_SIZE / 2;
 
   ctx.save();
 
-  // Soft drop shadow
+  // 🩶 Soft drop shadow under player
   ctx.beginPath();
   ctx.ellipse(
     x,
@@ -631,7 +624,7 @@ export function drawPlayer(ctx) {
   ctx.imageSmoothingQuality = "high";
 
   // ------------------------------------------------------------
-  // ✨ Draw sprite (scaled melee / normal others)
+  // ✨ Draw player sprite (scaled for melee)
   // ------------------------------------------------------------
   if (isAttacking && attackType === "melee" && currentFrame === 0) {
     const scale = 1.5;
@@ -641,13 +634,34 @@ export function drawPlayer(ctx) {
     const offsetY = y - h / 2;
     ctx.drawImage(img, 0, 0, 1024, 1024, offsetX, offsetY, w, h);
   } else {
-    ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, SPRITE_SIZE, SPRITE_SIZE);
+    ctx.drawImage(
+      img,
+      0, 0, 1024, 1024,
+      drawX, drawY,
+      SPRITE_SIZE, SPRITE_SIZE
+    );
   }
 
   // ------------------------------------------------------------
-  // 🏹 Silver Arrow Projectiles
+  // 🩸 Red Flash Overlay (when damaged)
   // ------------------------------------------------------------
-  ctx.filter = "none"; // reset after red flash
+  if (p.flashTimer > 0) {
+    const flashAlpha = Math.max(0, p.flashTimer / 150); // fades out smoothly
+    ctx.fillStyle = `rgba(255, 0, 0, ${0.35 * flashAlpha})`;
+    ctx.beginPath();
+    ctx.ellipse(
+      x,
+      y - SPRITE_SIZE * 0.1,     // slightly above shadow
+      SPRITE_SIZE * 0.5,         // horizontal radius
+      SPRITE_SIZE * 0.6,         // vertical radius
+      0, 0, Math.PI * 2
+    );
+    ctx.fill();
+  }
+
+  // ------------------------------------------------------------
+  // 🏹 Silver Arrows (projectiles)
+  // ------------------------------------------------------------
   ctx.fillStyle = "rgba(240,240,255,0.9)";
   for (const a of projectiles) {
     ctx.save();
@@ -658,12 +672,13 @@ export function drawPlayer(ctx) {
   }
 
   // ------------------------------------------------------------
-  // 🌈 Sparkle FX
+  // 🌈 Sparkles (magic bursts)
   // ------------------------------------------------------------
   updateAndDrawSparkles(ctx, 16);
 
   ctx.restore();
 }
+
 
 // ------------------------------------------------------------
 // 🧭 Controller Reset (for Try Again)

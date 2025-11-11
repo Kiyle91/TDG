@@ -93,6 +93,15 @@ export function playArrowSwish() { playSfx(arrowPath); }
 export function playSpellCast()  { playSfx(spellPath); }
 
 // ------------------------------------------------------------
+// 💥 Goblin Attack SFX
+// ------------------------------------------------------------
+const goblinAttackPath = "./assets/sounds/goblin_attack.mp3";
+export function playGoblinAttack() {
+  playSfx(goblinAttackPath);
+}
+
+
+// ------------------------------------------------------------
 // 🛑 Stop Music
 // ------------------------------------------------------------
 export function stopMusic() {
