@@ -193,21 +193,48 @@ function checkVictoryDefeat() {
 }
 
 // ============================================================
-// ♻️ RESET COMBAT STATE (used by main.resetGameplay())
+// ♻️ RESET COMBAT STATE (used by Try Again + New Story)
 // ------------------------------------------------------------
-// Resets counters and re-initializes combat subsystems fresh.
-// Keeps currencies because main.js preserved them in gameState.
+// Ensures both buttons fully reset the player and systems.
+// Keeps gold and diamonds intact while reinitializing combat.
 // ============================================================
 export function resetCombatState() {
   goblinsDefeated = 0;
 
   if (gameState.player) {
-    gameState.player.pos = { x: 1000, y: 500 };
-    gameState.player.hp = gameState.player.maxHp ?? 100;
-    gameState.player.lives = 10;
+    const p = gameState.player;
+    p.pos = { x: 1000, y: 500 }; // your normal spawn position
+    p.hp = p.maxHp ?? 100;
+    p.mana = p.maxMana ?? 50;
+    p.lives = 10;
+    p.dead = false;          // 💀 clear death flag
+    p.facing = "right";      // reset facing
   }
 
-  initGame();
+  // 🧭 Clear player controller state manually
+  if (typeof window !== "undefined") {
+    if (window.__enemies) window.__enemies.length = 0; // clear old enemies
+  }
+
+  // Internal flags reset
+  try {
+    import("./playerController.js").then(mod => {
+      if (mod && typeof mod.initPlayerController === "function" && canvas) {
+        mod.initPlayerController(canvas);
+      }
+    });
+  } catch (err) {
+    console.warn("⚠️ Could not refresh player controller:", err);
+  }
+
+  // 🧩 Re-initialize combat systems
+  initEnemies();
+  initTowers();
+  initProjectiles();
+
+  // UI refresh
+  updateHUD();
+  console.log("♻️ Combat state fully reset (Try Again / New Story).");
 }
 
 // ============================================================
