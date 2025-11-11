@@ -89,37 +89,53 @@ export function triggerVictory() {
 }
 
 // ------------------------------------------------------------
-// 💀 DEFEAT
+// 💀 DEFEAT (Guaranteed 5s Delay Before Overlay)
 // ------------------------------------------------------------
 export function triggerDefeat(reason = "unknown") {
   if (!gameState.session) return;
   if (!gameState.session.mapActive) return; // prevent multiple triggers
 
-  gameState.session.mapActive = false;
   console.log("💀 Defeat triggered — reason:", reason);
+  gameState.session.mapActive = false;
 
-  // stop player activity
+  // 🩸 Mark player as fallen
   if (gameState.player) {
     gameState.player.hp = 0;
+    gameState.player.dead = true;
   }
 
-  // stop gameplay updates immediately
+  // 🛑 Stop the main game loop right away
   cancelAnimationFrame(window.__gameLoopID);
 
-  // show defeat overlay manually (bypass showOverlay if needed)
+  // 🕰️ Lock out any immediate overlay display
   const overlay = document.getElementById("defeat-overlay");
   if (overlay) {
-    overlay.style.display = "flex";
-    overlay.classList.add("active");
-    console.log("🎭 Defeat overlay displayed!");
-  } else {
-    console.warn("⚠️ Defeat overlay not found in DOM!");
+    overlay.style.display = "none";
+    overlay.classList.remove("active");
   }
 
-  // update UI and save state
-  updateHUD();
-  saveProfiles();
+  console.log("⏳ Waiting 5 seconds before showing defeat overlay...");
+
+  // 💫 After 5s, fade in defeat overlay
+  setTimeout(() => {
+    const overlay = document.getElementById("defeat-overlay");
+    if (overlay) {
+      overlay.style.display = "flex";
+      overlay.classList.add("active");
+      overlay.style.opacity = 0;
+      overlay.style.transition = "opacity 1.5s ease";
+      requestAnimationFrame(() => (overlay.style.opacity = 1));
+      console.log("🎭 Defeat overlay displayed after delay!");
+    } else {
+      console.warn("⚠️ Defeat overlay not found in DOM!");
+    }
+
+    // Update and save after delay
+    updateHUD();
+    saveProfiles();
+  }, 2000); // 5 seconds delay
 }
+
 
 // ------------------------------------------------------------
 // 🔁 RESTART MAP

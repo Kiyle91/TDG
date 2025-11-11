@@ -108,6 +108,7 @@ function resetGameplay() {
   document.getElementById("end-screen")?.remove();
 
   resetCombatState();
+  gameState.paused = false;
   startGameplay();
   console.log("🌸 New battle started!");
 }

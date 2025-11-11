@@ -90,15 +90,17 @@ export async function startGoblinIntroStory() {
   console.log("🎬 Goblin scout intro story triggered!");
   gameState.paused = true;
 
-  const goblinText = `
-  🌙 Goblin scouts have found the paths to our Keep!
+  const goblinText = `  
+  Use WASD to move across the Crystal Plains.
 
-  Fifty march under the moonlight — the first wave of many.
-  Stand firm, Princess. The light of the crystals is your weapon.
-  `;
+  Press SPACE to strike with your glitter blade.  
+  Press F to cast a glitter spell.  
+  Press R to heal your wounds with fairy magic.  
+  Press E to unleash a ranged attack with your silver arrows.  
+`;
 
   await showStory({
-    portrait: "./assets/images/portraits/princess_ariana.png",
+    portrait: "./assets/images/portraits/controller.png",
     text: goblinText.trim(),
     autoStart: false,
   });
