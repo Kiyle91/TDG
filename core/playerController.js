@@ -16,6 +16,8 @@ import { playFairySprinkle, playMeleeSwing, playArrowSwish, playSpellCast } from
 
 import { spawnFloatingText } from "./floatingText.js";
 
+import { tryPlaceTower } from "./towerPlacement.js";
+
 // ------------------------------------------------------------
 // ✅ Shared enemy getter (same instance towers & player use)
 const getEnemies = () => window.__enemies || [];
@@ -160,6 +162,7 @@ function onKeyDown(e) {
       case "Space": performMeleeAttack(); break;
       case "KeyR":  performHeal();        break;
       case "KeyF":  performSpell();       break;
+      case "Digit1": tryPlaceTower();     break;
     }
   }
 }

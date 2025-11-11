@@ -53,6 +53,18 @@ export async function initTowers() {
 }
 
 // ------------------------------------------------------------
+// ➕ ADD A NEW TOWER
+// ------------------------------------------------------------
+export function addTower(data) {
+  towers.push({
+    ...data,
+    cooldown: 0,
+    activeFrameTimer: 0,
+  });
+}
+
+
+// ------------------------------------------------------------
 // 🕒 UPDATE TOWERS
 // ------------------------------------------------------------
 export function updateTowers(delta) {
