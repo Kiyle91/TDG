@@ -30,6 +30,8 @@ import {
   setEnemyPath
 } from "./enemies.js";
 
+import { initOgres, updateOgres, drawOgres } from "./ogre.js";
+
 import {
   initTowers,
   updateTowers,
