@@ -185,7 +185,14 @@ export function updateGame(delta) {
   const { width: mapW, height: mapH } = getMapPixelSize();
   cameraX = Math.max(0, Math.min(mapW - canvas.width, cameraX));
   cameraY = Math.max(0, Math.min(mapH - canvas.height, cameraY));
-
+  
+  // Keep globals in sync for input → world conversions
+  const rect = canvas.getBoundingClientRect();
+  window.cameraX = cameraX;
+  window.cameraY = cameraY;
+  window.canvasScaleX = canvas.width  / rect.width;
+  window.canvasScaleY = canvas.height / rect.height;
+  
   // Check win/loss
   checkVictoryDefeat();
 }

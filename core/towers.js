@@ -259,12 +259,14 @@ function updatePulseRings(dt) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW TOWERS + RINGS
+// 🎨 DRAW TOWERS + RINGS 
+// (Frost 5% Smaller, Basic Lowered Slightly, 
+//  Other Towers Have Lower Shadows by 10%)
 // ------------------------------------------------------------
 export function drawTowers(ctx) {
   if (!ctx) return;
 
-  // AoE rings behind towers
+  // 🌊 AoE rings behind towers
   pulseRings.forEach(ring => {
     ctx.save();
     ctx.globalAlpha = ring.life;
@@ -276,37 +278,58 @@ export function drawTowers(ctx) {
     ctx.restore();
   });
 
-  // Tower sprites
+  // 🏰 Tower sprites + ground shadows
   towers.forEach(tower => {
     const base = tower.type.replace("_turret", "");
     const spriteSet = turretSprites[base] || turretSprites.basic;
     const img = tower.activeFrameTimer > 0 ? spriteSet.active : spriteSet.idle;
     if (!img) return;
 
-    const drawX = tower.x - TOWER_SIZE / 2;
-    const drawY = tower.y - TOWER_SIZE / 2 + TOWER_SIZE * 0.1;
+    // ❄️ Frost Tower scale adjustment (5% smaller)
+    const scale = base === "frost" ? 0.85 : 1.0;
+    const size = TOWER_SIZE * scale;
+
+    // 🏰 Basic tower lowered slightly (your tuned offset)
+    const verticalShift = base === "basic" ? size * 0.03 : 0;
+
+    const drawX = tower.x - size / 2;
+    const drawY = tower.y - size / 2 + size * 0.1 + verticalShift;
 
     ctx.save();
     ctx.globalAlpha = tower.fadeOut > 0 ? tower.fadeOut : 1;
 
+    // 🌑 Ground shadow
+    // Frost + Basic = normal
+    // All others = pushed slightly lower
+    const shadowYOffset =
+      base === "basic" || base === "frost"
+        ? TOWER_SIZE * 0.38
+        : TOWER_SIZE * 0.46; // 👈 10% lower shadow
+
     ctx.beginPath();
     ctx.ellipse(
       tower.x,
-      tower.y + TOWER_SIZE * 0.35,
-      TOWER_SIZE * 0.25,
-      TOWER_SIZE * 0.1,
-      0, 0, Math.PI * 2
+      tower.y + shadowYOffset,
+      TOWER_SIZE * 0.35,
+      TOWER_SIZE * 0.15,
+      0,
+      0,
+      Math.PI * 2
     );
-    ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
     ctx.fill();
 
+    // 🖼️ Tower sprite (scaled + offset)
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(img, drawX, drawY, TOWER_SIZE, TOWER_SIZE);
+    ctx.drawImage(img, drawX, drawY, size, size);
 
     ctx.restore();
   });
 }
+
+
+
 
 // ------------------------------------------------------------
 // 🔍 ACCESSOR

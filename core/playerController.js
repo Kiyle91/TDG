@@ -287,13 +287,10 @@ function performMeleeAttack() {
 // ============================================================
 // 🏹 Ranged — Fires Arrow Toward Mouse (Goblins + Ogres)
 // ------------------------------------------------------------
-// ✦ Uses local projectile object (not global system)
-// ✦ Detects both Goblins + Ogres via explicit type flag
-// ✦ Uses exported OGRE_HIT_RADIUS for accurate collision
-// ✦ Handles animation, cooldown, flight, and collision
-// ✦ Fix: True canvas scaling for pinpoint accuracy
+// ✦ Fully camera-aware (world-space aim, scroll & zoom safe)
+// ✦ Retains all Goblin/Ogre logic and animation flow
+// ✦ Uses OGRE_HIT_RADIUS for accurate collisions
 // ============================================================
-
 function performRangedAttack(e) {
   const p = gameState.player;
   if (!p || !canvasRef) return;
@@ -304,16 +301,20 @@ function performRangedAttack(e) {
   const dmg = Math.max(1, (Number(p.rangedAttack) || 0) * DMG_RANGED);
 
   // ------------------------------------------------------------
-  // 🎯 CALCULATE ANGLE FROM PLAYER → MOUSE (accurate scaling)
+  // 🎯 CALCULATE ANGLE FROM PLAYER → MOUSE (world-space)
   // ------------------------------------------------------------
   const rect = canvasRef.getBoundingClientRect();
-  const scaleX = canvasRef.width / rect.width;
-  const scaleY = canvasRef.height / rect.height;
+  const scaleX = window.canvasScaleX || (canvasRef.width / rect.width);
+  const scaleY = window.canvasScaleY || (canvasRef.height / rect.height);
 
-  const mx = (e.clientX - rect.left) * scaleX;
-  const my = (e.clientY - rect.top) * scaleY;
-  const dx = mx - p.pos.x;
-  const dy = my - p.pos.y;
+  // Convert screen → canvas → world
+  const canvasX = (e.clientX - rect.left) * scaleX;
+  const canvasY = (e.clientY - rect.top) * scaleY;
+  const worldX = (window.cameraX || 0) + canvasX;
+  const worldY = (window.cameraY || 0) + canvasY;
+
+  const dx = worldX - p.pos.x;
+  const dy = worldY - p.pos.y;
   const angle = Math.atan2(dy, dx);
   const deg = ((angle * 180) / Math.PI + 360) % 360;
 
@@ -368,9 +369,7 @@ function performRangedAttack(e) {
     projectile.y += Math.sin(projectile.angle) * projectile.speed * dt;
     projectile.life += 16;
 
-    // Combine goblins + ogres into one target list
     const targets = [...getEnemies(), ...getOgres()];
-
     for (const t of targets) {
       if (!t.alive) continue;
 
@@ -378,30 +377,23 @@ function performRangedAttack(e) {
       const dy = t.y - projectile.y;
       const dist = Math.hypot(dx, dy);
 
-      // 🎯 Dynamic hit radius based on target type
+      // 🎯 Dynamic hit radius (larger for Ogre)
       const hitRadius =
         t.type === "ogre" || t.maxHp >= 400
           ? OGRE_HIT_RADIUS || 60
           : 26;
 
       if (dist < hitRadius) {
-        // 💥 Deal damage by type
-        if (t.type === "ogre" || t.maxHp >= 400) {
-          damageOgre(t, dmg, "player");
-        } else {
-          damageEnemy(t, dmg);
-        }
+        if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "player");
+        else damageEnemy(t, dmg);
 
-        // Mark projectile as spent
         projectile.alive = false;
         break;
       }
     }
 
-    // Continue flight until timeout or collision
-    if (projectile.alive && projectile.life < 1000) {
+    if (projectile.alive && projectile.life < 1000)
       requestAnimationFrame(checkArrowCollision);
-    }
   };
 
   // ------------------------------------------------------------
@@ -409,6 +401,9 @@ function performRangedAttack(e) {
   // ------------------------------------------------------------
   requestAnimationFrame(checkArrowCollision);
 }
+
+
+
 
 
 

@@ -1,15 +1,16 @@
 // ============================================================
-// 🏗️ towerPlacement.js — Olivia’s World: Crystal Keep (Full Multi-Turret System)
+// 🏗️ towerPlacement.js — Olivia’s World: Crystal Keep (Full Multi-Turret System + Overlap Check)
 // ------------------------------------------------------------
 // ✦ Handles player-triggered tower placement (keys 1–6)
 // ✦ Unlocks different turret types based on player level
 // ✦ Deducts gold using profile currencies via spendGold()
 // ✦ Uses addTower() to create turret instances
 // ✦ Integrates sounds, floating text, and HUD updates
+// ✦ 🆕 Spawns tower at player location, prevents overlap
 // ============================================================
 
 import { gameState, spendGold } from "../utils/gameState.js";
-import { addTower } from "./towers.js";
+import { addTower, getTowers } from "./towers.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { playFairySprinkle, playCancelSound } from "./soundtrack.js";
 import { updateHUD } from "./ui.js";
@@ -19,6 +20,7 @@ import { updateHUD } from "./ui.js";
 // ------------------------------------------------------------
 const TILE_SIZE = 64;
 const TOWER_COST = 50;
+const TOWER_RADIUS = 75;// 🛑 No other tower can be within this distance
 
 // ✨ Unlock levels + metadata for each turret
 const TOWER_UNLOCKS = {
@@ -33,8 +35,6 @@ const TOWER_UNLOCKS = {
 // ------------------------------------------------------------
 // 🧭 handleTowerKey()
 // ------------------------------------------------------------
-// Called from playerController.js when key 1–6 pressed.
-// ------------------------------------------------------------
 export function handleTowerKey(keyCode) {
   const num = parseInt(keyCode.replace("Digit", ""));
   if (num >= 1 && num <= 6) tryPlaceTower(num);
@@ -44,6 +44,7 @@ export function handleTowerKey(keyCode) {
 // 🩵 tryPlaceTower()
 // ------------------------------------------------------------
 // Handles placement, unlock checks, cost, and spawn.
+// Towers now spawn exactly where the player stands, unless blocked.
 // ------------------------------------------------------------
 function tryPlaceTower(num) {
   const p = gameState.player;
@@ -69,9 +70,24 @@ function tryPlaceTower(num) {
     return;
   }
 
-  // 🏗️ Determine spawn position (right tile for now)
-  const spawnX = p.pos.x + TILE_SIZE;
+  // 🏗️ Determine spawn position (exactly at player)
+  const spawnX = p.pos.x;
   const spawnY = p.pos.y;
+
+  // 🧱 Prevent overlapping towers
+  const towers = typeof getTowers === "function" ? getTowers() : [];
+  const overlapping = towers.some(t => {
+    const dx = t.x - spawnX;
+    const dy = t.y - spawnY;
+    return Math.hypot(dx, dy) < TOWER_RADIUS; // too close
+  });
+
+  if (overlapping) {
+    spawnFloatingText(spawnX, spawnY - 40, "❌ Too close to another tower", "#ff7aa8");
+    playCancelSound();
+    console.warn("🧱 Tower placement blocked — overlap detected.");
+    return;
+  }
 
   // 🏰 Create the new tower instance
   addTower({
@@ -88,11 +104,13 @@ function tryPlaceTower(num) {
     updateHUD();
     spawnFloatingText(spawnX, spawnY - 40, `-${TOWER_COST} G`, "#ffd6eb");
     playFairySprinkle();
-    console.log(`🏰 Placed ${towerData.name}!`);
+    console.log(`🏰 Placed ${towerData.name} at (${spawnX}, ${spawnY})`);
   } else {
     playCancelSound();
     console.warn("❌ spendGold() failed — possibly unsynced profile.");
   }
 }
 
+// ============================================================
+// 🌟 END OF FILE
 // ============================================================
