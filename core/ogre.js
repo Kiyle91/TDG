@@ -262,12 +262,16 @@ export function clearOgres() {
 
 
 // ------------------------------------------------------------
-// 🧙‍♂️ DEV COMMANDS — Manual Ogre Spawning from Console
+// 👹 DEV COMMAND — spawn Ogre from top-left offscreen
 // ------------------------------------------------------------
-window.spawnOgre = function (x = 1000, y = 500) {
+window.spawnOgre = function () {
+  // Slightly offscreen top-left spawn (negative X/Y)
+  const startX = -80;   // one or two tiles off screen
+  const startY = 0;
+
   const o = {
-    x,
-    y,
+    x: startX,
+    y: startY,
     hp: OGRE_HP,
     maxHp: OGRE_HP,
     alive: true,
@@ -279,9 +283,8 @@ window.spawnOgre = function (x = 1000, y = 500) {
     dir: "down",
     attacking: false,
   };
+
   ogres.push(o);
-  console.log(`👹 Ogre manually spawned at (${x}, ${y}) — HP: ${OGRE_HP}`);
+  console.log(`👹 Ogre spawned offscreen top-left (${startX}, ${startY}) — HP: ${OGRE_HP}`);
   return o;
 };
-
-window.getOgres = () => ogres;
