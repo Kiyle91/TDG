@@ -125,6 +125,31 @@ export function playGoblinDamage() {
 }
 
 // ------------------------------------------------------------
+// 👹 Ogre Enter (spawn roar)
+// ------------------------------------------------------------
+const ogreEnterPath = "./assets/sounds/ogre_enter.mp3";
+export function playOgreEnter() {
+  playSfx(ogreEnterPath);
+}
+
+// ------------------------------------------------------------
+// 👹 Ogre Attack (swing / smash)
+// ------------------------------------------------------------
+const ogreAttackPath = "./assets/sounds/ogre_attack.mp3";
+export function playOgreAttack() {
+  playSfx(ogreAttackPath);
+}
+
+// ------------------------------------------------------------
+// 💀 Ogre Slain (death roar)
+// ------------------------------------------------------------
+const ogreSlainPath = "./assets/sounds/ogre_slain.mp3";
+export function playOgreSlain() {
+  playSfx(ogreSlainPath);
+}
+
+
+// ------------------------------------------------------------
 // 🛑 Stop Music
 // ------------------------------------------------------------
 export function stopMusic() {

@@ -9,7 +9,7 @@
 
 import { gameState } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
-import { playGoblinAttack, playGoblinDamage, playGoblinDeath } from "./soundtrack.js";
+import { playOgreEnter, playOgreAttack, playOgreSlain, playGoblinDamage } from "./soundtrack.js";
 import { damageEnemy } from "./enemies.js"; // optional shared logic
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
@@ -163,7 +163,7 @@ function performOgreAttack(o, p) {
     if (!o.alive) return;
     p.hp = Math.max(0, p.hp - OGRE_DAMAGE);
     spawnFloatingText(p.pos.x, p.pos.y - 40, `-${OGRE_DAMAGE}`, "#ff5577");
-    playGoblinAttack();
+    playOgreAttack();
     spawnDamageSparkles(p.pos.x, p.pos.y);
     updateHUD();
   }, HIT_DELAY);
@@ -183,9 +183,9 @@ export function damageOgre(o, amount) {
     o.hp = 0;
     o.alive = false;
     o.fading = true;
-    playGoblinDeath();
-    awardXP(2000);
+    awardXP(100);
     spawnFloatingText(o.x, o.y - 50, "💀 Ogre Down!", "#ffccff");
+    playOgreSlain();
     updateHUD();
   }
 }
@@ -290,7 +290,9 @@ window.spawnOgre = function () {
   const startY = 0;
   spawnOgreInternal(startX, startY);
   console.log(`👹 Ogre spawned offscreen top-left (${startX}, ${startY}) — HP: ${OGRE_HP}`);
+  playOgreEnter();
   return ogres[ogres.length - 1];
+  
 };
 
 window.getOgres = () => ogres;
