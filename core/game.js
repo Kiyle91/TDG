@@ -91,6 +91,7 @@ import { getMapPixelSize } from "./map.js";
 import { stopGameplay } from "../main.js"; // used to stop game when win/lose
 import { initGoblinDrops, updateGoblinDrops, drawGoblinDrops } from "./goblinDrop.js";
 import { clearOgres } from "./ogre.js";
+import { spawnOgre } from "./ogre.js";
 
 // ------------------------------------------------------------
 // 🎥 LOCAL CAMERA STATE
@@ -229,48 +230,55 @@ export function renderGame() {
   }
 }
 
-// ============================================================
-// 🧠 VICTORY / DEFEAT CONDITIONS (with 5s Defeat Delay)
-// ============================================================
 function checkVictoryDefeat() {
   const playerHP = gameState.player?.hp ?? 100;
   const lives = gameState.player?.lives ?? 3;
 
   // 💀 Player HP reached 0
   if (playerHP <= 0) {
-    console.log("💀 Player defeated! Waiting 5 seconds before showing defeat screen...");
-    gameState.player.dead = true; // mark as dead so no re-trigger
-
-    // Stop player movement & input immediately
+    console.log("💀 Player defeated!");
+    gameState.player.dead = true;
     gameState.paused = true;
-
-    // ⏳ Delay defeat overlay
-    setTimeout(() => {
-      stopGameplay("defeat");
-    }, 2000); // 5-second cinematic delay
-
-    return; // prevent other checks
+    setTimeout(() => stopGameplay("defeat"), 2000);
+    return;
   }
 
   // 💔 All lives lost
   if (lives <= 0) {
-    console.log("💔 No lives remaining! Waiting 5 seconds before showing defeat screen...");
+    console.log("💔 No lives remaining!");
     gameState.player.dead = true;
     gameState.paused = true;
-
-    setTimeout(() => {
-      stopGameplay("lives");
-    }, 2000);
-
+    setTimeout(() => stopGameplay("lives"), 2000);
     return;
   }
 
-  // 🏆 Victory condition
-  if (goblinsDefeated >= 50) {
-    console.log("🏆 Victory condition reached!");
-    stopGameplay("victory");
+  // 👹 Boss Spawn Trigger — after 43 goblins slain
+  if (goblinsDefeated === 43 && !gameState.ogreSpawned) {
+    console.log("👹 43 goblins defeated — summoning the Ogre Boss!");
+    gameState.ogreSpawned = true;
+    spawnOgre();
+  }
+
+  // 🏆 Victory Trigger — all 50 goblins defeated AND Ogre dead
+  if (goblinsDefeated >= 50 && gameState.ogreSpawned) {
+    const ogres = window.getOgres ? window.getOgres() : [];
+    const aliveOgre = ogres.some(o => o.alive);
+
+    if (!aliveOgre && !gameState.victoryPending) {
+      console.log("💀 All goblins + Ogre defeated — preparing victory...");
+      gameState.victoryPending = true;
+
+      // ⏳ 5-second loot collection window before victory
+      setTimeout(() => {
+        console.log("🏆 Full wave cleared — Victory achieved!");
+        stopGameplay("victory");
+      }, 5000);
+    }
   }
 }
+
+
+
 
 
 // ============================================================
