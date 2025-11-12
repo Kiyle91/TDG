@@ -25,6 +25,7 @@ import { spawnFloatingText } from "./floatingText.js";
 
 
 import { handleTowerKey } from "./towerPlacement.js";
+import { getOgres, damageOgre } from "./ogre.js";
 
 window.addEventListener("keydown", (e) => {
   if (e.code.startsWith("Digit")) handleTowerKey(e.code);
@@ -248,23 +249,26 @@ function performMeleeAttack() {
     currentDir = prevDir; // 🔁 restore movement direction
   }, 400);
 
-  // ⚔️ Damage logic
+  // ⚔️ Damage logic (Goblins + Ogres)
   const range = 80;
   const ox = p.pos.x, oy = p.pos.y;
   let hit = false;
 
-  for (const g of getEnemies()) {
-    if (!g.alive) continue;
-    const dx = g.x - ox, dy = g.y - oy;
+  const allTargets = [...getEnemies(), ...getOgres()];
+
+  for (const t of allTargets) {
+    if (!t.alive) continue;
+    const dx = t.x - ox, dy = t.y - oy;
     const dist = Math.hypot(dx, dy);
-    if (dist <= range + g.width / 2) {
-      damageEnemy(g, dmg);
+    if (dist <= range + (t.width || 32) / 2) {
+      if (t.maxHp >= 400) damageOgre(t, dmg, "player");
+      else damageEnemy(t, dmg);
       hit = true;
 
-      // 💥 Knockback
+      // 💥 Knockback (same as before)
       const len = Math.max(1, dist);
-      g.x += (dx / len) * 50;
-      g.y += (dy / len) * 50;
+      t.x += (dx / len) * 50;
+      t.y += (dy / len) * 50;
     }
   }
 
@@ -272,9 +276,7 @@ function performMeleeAttack() {
   spawnCanvasSparkleBurst(p.pos.x, p.pos.y, 15, 60, ["#ffd6eb", "#b5e2ff", "#ffffff"]);
   playMeleeSwing();
 
-  console.log(
-    `🗡️ Melee → faced ${currentDir} for swing, then restored ${prevDir} | ${hit ? "Hit" : "Miss"}`
-  );
+  console.log(`🗡️ Melee attack executed | ${hit ? "Hit" : "Miss"}`);
 }
 
 
@@ -282,48 +284,76 @@ function performMeleeAttack() {
 
 
 
+// ------------------------------------------------------------
+// 🏹 Ranged — fires arrow toward mouse (Goblins + Ogres)
+// ------------------------------------------------------------
 function performRangedAttack(e) {
   const p = gameState.player;
   if (!p) return;
 
   const dmg = Math.max(1, (Number(p.rangedAttack) || 0) * DMG_RANGED);
 
-  // 🎯 Mouse angle (canvas coordinate space)
+  // 🎯 Mouse angle
   const rect = canvasRef.getBoundingClientRect();
   const mx = (e.clientX - rect.left) * (canvasRef.width / rect.width);
   const my = (e.clientY - rect.top) * (canvasRef.height / rect.height);
   const dx = mx - p.pos.x;
   const dy = my - p.pos.y;
   const angle = Math.atan2(dy, dx);
-  const deg = ((angle * 180) / Math.PI + 360) % 360; // normalize 0–360
+  const deg = ((angle * 180) / Math.PI + 360) % 360;
 
-  // 🧭 Define 6 sectors (each 60°)
-  // Note: 0° = right, 90° = down, 180° = left, 270° = up (canvas Y+ is down)
+  // 🧭 Facing for animation
   let facing;
-  if (deg >= 330 || deg < 30) facing = "right";           // ➡️
-  else if (deg >= 30 && deg < 90) facing = "bottomRight"; // ↘️
-  else if (deg >= 90 && deg < 150) facing = "bottomLeft"; // ↙️
-  else if (deg >= 150 && deg < 210) facing = "left";      // ⬅️
-  else if (deg >= 210 && deg < 270) facing = "topLeft";   // ↖️
-  else if (deg >= 270 && deg < 330) facing = "topRight";  // ↗️
+  if (deg >= 330 || deg < 30) facing = "right";
+  else if (deg >= 30 && deg < 90) facing = "bottomRight";
+  else if (deg >= 90 && deg < 150) facing = "bottomLeft";
+  else if (deg >= 150 && deg < 210) facing = "left";
+  else if (deg >= 210 && deg < 270) facing = "topLeft";
+  else if (deg >= 270 && deg < 330) facing = "topRight";
   else facing = "right";
-
   p.facing = facing;
 
-  // 🏹 Simple one-frame pose hold
+  // 🏹 Pose + cooldown
   isAttacking = true;
   attackType = "ranged";
   attackCooldown = CD_RANGED;
   setTimeout(() => { isAttacking = false; }, 300);
 
-  // 💫 Fire projectile
+  // 💫 Fire arrow (local projectile)
   const speed = 1200;
   const startX = p.pos.x + Math.cos(angle) * 30;
   const startY = p.pos.y + Math.sin(angle) * 30;
-  projectiles.push({ x: startX, y: startY, angle, speed, dmg, alive: true, life: 0 });
+  const projectile = { x: startX, y: startY, angle, speed, dmg, alive: true, life: 0 };
+  projectiles.push(projectile);
   playArrowSwish();
 
-  console.log(`🏹 Arrow fired (${facing}) — angle ${deg.toFixed(1)}°`);
+  // 🧠 Handle flight + collision
+  const checkArrowCollision = () => {
+    if (!projectile.alive) return;
+
+    const dt = 16 / 1000;
+    projectile.x += Math.cos(projectile.angle) * projectile.speed * dt;
+    projectile.y += Math.sin(projectile.angle) * projectile.speed * dt;
+    projectile.life += 16;
+
+    const targets = [...getEnemies(), ...getOgres()];
+    for (const t of targets) {
+      if (!t.alive) continue;
+      const dist = Math.hypot(t.x - projectile.x, t.y - projectile.y);
+      if (dist < 30) {
+        if (t.maxHp >= 400) damageOgre(t, dmg, "player");
+        else damageEnemy(t, dmg);
+        projectile.alive = false;
+        break;
+      }
+    }
+
+    if (projectile.alive && projectile.life < 1000) {
+      requestAnimationFrame(checkArrowCollision);
+    }
+  };
+
+  requestAnimationFrame(checkArrowCollision);
 }
 
 
@@ -380,9 +410,7 @@ function performHeal() {
 
 
 // ------------------------------------------------------------
-// 🔮 Spell — large pastel explosion + AoE damage
-// ------------------------------------------------------------
-// 🔮 Spell — numeric-safe AoE + spellPower scaling
+// 🔮 Spell — pastel AoE burst (Goblins + Ogres)
 // ------------------------------------------------------------
 function performSpell() {
   const p = gameState.player;
@@ -406,13 +434,16 @@ function performSpell() {
     const radius = 150;
     let hits = 0;
 
-    for (const g of window.__enemies || []) {
-      if (!g.alive) continue;
-      const dx = g.x - p.pos.x;
-      const dy = g.y - p.pos.y;
+    const targets = [...getEnemies(), ...getOgres()];
+
+    for (const t of targets) {
+      if (!t.alive) continue;
+      const dx = t.x - p.pos.x;
+      const dy = t.y - p.pos.y;
       const dist = Math.hypot(dx, dy);
       if (dist < radius) {
-        damageEnemy(g, dmg);
+        if (t.maxHp >= 400) damageOgre(t, dmg, "spell");
+        else damageEnemy(t, dmg);
         hits++;
       }
     }
@@ -426,9 +457,10 @@ function performSpell() {
     );
     updateHUD();
     playSpellCast();
-    console.log(`🔮 Spell cast! Hit ${hits} enemies for ${dmg.toFixed(1)} each.`);
+    console.log(`🔮 Spell hit ${hits} targets for ${dmg.toFixed(1)} each.`);
   }, 400);
 }
+
 
 
 // ------------------------------------------------------------
