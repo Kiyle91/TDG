@@ -162,14 +162,31 @@ function performOgreAttack(o, p) {
   setTimeout(() => { if (o.alive) o.attackPhase = 1; }, PHASE_SWITCH);
 
   // Apply damage
+  // Apply damage + KNOCKBACK
   setTimeout(() => {
     if (!o.alive) return;
+
+    // 💥 Damage
     p.hp = Math.max(0, p.hp - OGRE_DAMAGE);
     spawnFloatingText(p.pos.x, p.pos.y - 40, `-${OGRE_DAMAGE}`, "#ff5577");
     playOgreAttack();
     spawnDamageSparkles(p.pos.x, p.pos.y);
     updateHUD();
-  }, HIT_DELAY);
+
+    // ------------------------------------------------------------
+    // 💨 KNOCKBACK — push player 100px away from the ogre
+    // ------------------------------------------------------------
+    const dx = p.pos.x - o.x;
+    const dy = p.pos.y - o.y;
+    const dist = Math.hypot(dx, dy) || 1;
+
+    const KNOCKBACK_FORCE = 50; // ← adjust if needed
+
+    // Normalize and apply push
+    p.pos.x += (dx / dist) * KNOCKBACK_FORCE;
+    p.pos.y += (dy / dist) * KNOCKBACK_FORCE;
+
+    }, HIT_DELAY);
 
   setTimeout(() => { o.attacking = false; o.attackPhase = 0; }, END_ATTACK);
 }
