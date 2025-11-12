@@ -296,6 +296,15 @@ function performRangedAttack(e) {
   const p = gameState.player;
   if (!p || !canvasRef) return;
 
+  if (p.mana < 2) {
+    spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough mana!", "#77aaff");
+    playCancelSound?.();
+    return;
+  }
+
+  p.mana -= 2;
+  updateHUD();
+
   // ------------------------------------------------------------
   // ⚔️ DAMAGE SETUP
   // ------------------------------------------------------------
@@ -418,7 +427,13 @@ function performRangedAttack(e) {
 function performHeal() {
   const p = gameState.player;
   const cost = Number(COST_HEAL) || 0;
-  if (!p || p.mana < cost) return;
+
+  // ❌ Not enough mana → show popup & exit
+  if (!p || p.mana < cost) {
+    spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough mana!", "#77aaff");
+    playCancelSound?.();
+    return;
+  }
 
   isAttacking = true;
   attackType = "heal";
@@ -433,20 +448,18 @@ function performHeal() {
   const sp = Number(p.spellPower) || 0;
   const mh = Number(p.maxHp) || 0;
 
-  // Tweak coefficients to taste; these feel good early-game
   const rawHeal = sp * 1.2 + mh * 0.08 + 10; // base + SP + %MaxHP
   const amount = Math.max(1, Math.round(rawHeal));
 
   // Apply and clamp
   const prevHP = p.hp;
   p.hp = Math.min(p.maxHp, p.hp + amount);
-  const actual = Math.max(0, Math.round(p.hp - prevHP)); // in case we were almost full
+  const actual = Math.max(0, Math.round(p.hp - prevHP));
 
   // SFX + FX
   playFairySprinkle();
   spawnFloatingText(p.pos.x, p.pos.y - 40, `+${actual}`, "#7aff7a");
 
-  // Soft green sparkle burst
   spawnCanvasSparkleBurst(
     p.pos.x,
     p.pos.y,
@@ -461,12 +474,19 @@ function performHeal() {
 
 
 
+
 // ------------------------------------------------------------
 // 🔮 Spell — pastel AoE burst (Goblins + Ogres)
 // ------------------------------------------------------------
 function performSpell() {
   const p = gameState.player;
-  if (!p || p.mana < COST_SPELL) return;
+
+  // ❌ Not enough mana → show popup & exit
+  if (!p || p.mana < COST_SPELL) {
+    spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough mana!", "#77aaff");
+    playCancelSound?.();
+    return;
+  }
 
   isAttacking = true;
   attackType = "spell";
@@ -490,9 +510,11 @@ function performSpell() {
 
     for (const t of targets) {
       if (!t.alive) continue;
+
       const dx = t.x - p.pos.x;
       const dy = t.y - p.pos.y;
       const dist = Math.hypot(dx, dy);
+
       if (dist < radius) {
         if (t.maxHp >= 400) damageOgre(t, dmg, "spell");
         else damageEnemy(t, dmg);
@@ -507,12 +529,13 @@ function performSpell() {
       160,
       ["#ffb3e6", "#b3ecff", "#fff2b3", "#cdb3ff", "#b3ffd9", "#ffffff"]
     );
+
     updateHUD();
     playSpellCast();
+
     console.log(`🔮 Spell hit ${hits} targets for ${dmg.toFixed(1)} each.`);
   }, 400);
 }
-
 
 
 // ------------------------------------------------------------

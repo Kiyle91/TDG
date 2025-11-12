@@ -15,6 +15,7 @@ let ctx = null;
 let pegasusImg = null;
 let active = false;
 let flightTimer = 0;
+let nextFlightDelay = 30000 + Math.random() * 90000; 
 
 let pegasus = {
   x: -500,
@@ -65,11 +66,16 @@ export function updatePegasus(delta = 16) {
 
   flightTimer += delta;
 
-  // 🕒 Trigger a new flight every 5 seconds (testing)
-  if (!active && flightTimer >= 60000) {
+  // 🕒 Trigger a new flight on a random timer (1–3 minutes)
+  if (!active && flightTimer >= nextFlightDelay) {
     startPegasusFlight();
     playPegasusSpawn();
+    
+    // Reset timer + generate NEW random interval
     flightTimer = 0;
+    nextFlightDelay = 60000 + Math.random() * 120000; 
+    // 60,000ms = 1 minute
+    // 180,000ms = 3 minutes
   }
 
   if (active) {
@@ -100,9 +106,9 @@ export function updatePegasus(delta = 16) {
         (pegasus.direction === 1 && pegasus.x > halfway) ||
         (pegasus.direction === -1 && pegasus.x < halfway)
     )) {
-    spawnHealingDrop(pegasus.x, pegasus.y + 80);
-    pegasus.hasDropped = true;
-    console.log("💎 Pegasus dropped a healing gem mid-flight!");
+      spawnHealingDrop(pegasus.x, pegasus.y + 80);
+      pegasus.hasDropped = true;
+      console.log("💎 Pegasus dropped a healing gem mid-flight!");
     }
 
     // 🚫 End flight when completely off-screen
@@ -115,6 +121,7 @@ export function updatePegasus(delta = 16) {
     }
   }
 }
+
 
 // ------------------------------------------------------------
 // 🕊️ START FLIGHT — randomized motion setup

@@ -22,7 +22,7 @@ const drops = [];
 // ------------------------------------------------------------
 // ⚙️ CONFIG
 // ------------------------------------------------------------
-const DROP_CHANCE = 0.2;
+const DROP_CHANCE = 0.1;
 const GOLD_REWARD = 25;
 const DIAMOND_REWARD = 25;
 const LIFETIME = 15000;
