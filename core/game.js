@@ -122,6 +122,7 @@ export async function initGame() {
   // 4️⃣ Initialize subsystems
   initEnemies();
   initTowers();
+  initOgres();
   initProjectiles();
   
 
@@ -150,6 +151,7 @@ export function updateGame(delta) {
   // Update all systems
   updateEnemies(delta);
   updateTowers(delta);
+  updateOgres(delta);
   updateProjectiles(delta);
   updateHUD();
   updatePlayer(delta);
@@ -190,6 +192,7 @@ export function renderGame() {
 
   drawEnemies(ctx);
   drawTowers(ctx);
+  drawOgres(ctx);
   drawPlayer(ctx);
   drawProjectiles(ctx);
   drawFloatingText(ctx); // 💬 draw floating damage/heal numbers
