@@ -17,7 +17,8 @@ import {
   playMeleeSwing, 
   playArrowSwish, 
   playSpellCast, 
-  playPlayerDamage 
+  playPlayerDamage,
+  playCancelSound             // ✅ REQUIRED
 } from "./soundtrack.js";
 
 
