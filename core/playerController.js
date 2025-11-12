@@ -38,7 +38,7 @@ const getEnemies = () => window.__enemies || [];
 let canvasRef = null;
 const keys = new Set();
 
-const DEFAULT_SPEED = 220;
+const DEFAULT_SPEED = 120;
 const SPRITE_SIZE = 80;
 const WALK_FRAME_INTERVAL = 220;
 const SHADOW_OPACITY = 0.25;
