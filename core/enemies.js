@@ -130,8 +130,8 @@ function spawnEnemy() {
   enemies.push({
     x: pathPoints[0].x,
     y: pathPoints[0].y,
-    width: 64,
-    height: 64,
+    width: 42,
+    height: 42,
     hp: DEFAULT_HP,
     maxHp: DEFAULT_HP,
     targetIndex: 1,
@@ -291,7 +291,7 @@ export function updateEnemies(delta) {
       const dx = b.x - a.x;
       const dy = b.y - a.y;
       const dist = Math.hypot(dx, dy);
-      const minDist = 42;
+      const minDist = 38;
       if (dist > 0 && dist < minDist) {
         const overlap = (minDist - dist) / 2;
         const nx = dx / dist;
