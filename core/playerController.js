@@ -25,7 +25,7 @@ import { spawnFloatingText } from "./floatingText.js";
 
 
 import { handleTowerKey } from "./towerPlacement.js";
-import { getOgres, damageOgre } from "./ogre.js";
+import { getOgres, damageOgre, OGRE_HIT_RADIUS} from "./ogre.js";
 
 window.addEventListener("keydown", (e) => {
   if (e.code.startsWith("Digit")) handleTowerKey(e.code);
@@ -288,10 +288,11 @@ function performMeleeAttack() {
 // 🏹 Ranged — Fires Arrow Toward Mouse (Goblins + Ogres)
 // ------------------------------------------------------------
 // ✦ Uses local projectile object (not global system)
-// ✦ Detects both Goblins + Ogres via dynamic hit radius
-// ✦ Arrows now correctly hit larger Ogre hitbox
+// ✦ Detects both Goblins + Ogres via explicit type flag
+// ✦ Uses exported OGRE_HIT_RADIUS for accurate collision
 // ✦ Handles animation, cooldown, flight, and collision
 // ============================================================
+
 function performRangedAttack(e) {
   const p = gameState.player;
   if (!p) return;
@@ -368,17 +369,24 @@ function performRangedAttack(e) {
 
     for (const t of targets) {
       if (!t.alive) continue;
+
       const dx = t.x - projectile.x;
       const dy = t.y - projectile.y;
       const dist = Math.hypot(dx, dy);
 
-      // 🎯 Dynamic hit radius
-      const hitRadius = t.maxHp >= 400 ? 60 : 26; // 👈 larger radius for ogre
+      // 🎯 Dynamic hit radius based on target type
+      const hitRadius =
+        t.type === "ogre" || t.maxHp >= 400
+          ? OGRE_HIT_RADIUS || 60
+          : 26;
 
       if (dist < hitRadius) {
         // 💥 Deal damage by type
-        if (t.maxHp >= 400) damageOgre(t, dmg, "player");
-        else damageEnemy(t, dmg);
+        if (t.type === "ogre" || t.maxHp >= 400) {
+          damageOgre(t, dmg, "player");
+        } else {
+          damageEnemy(t, dmg);
+        }
 
         // Mark projectile as spent
         projectile.alive = false;
@@ -397,6 +405,7 @@ function performRangedAttack(e) {
   // ------------------------------------------------------------
   requestAnimationFrame(checkArrowCollision);
 }
+
 
 
 

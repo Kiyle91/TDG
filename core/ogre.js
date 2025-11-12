@@ -22,14 +22,15 @@ let ogreSprites = null;
 // ------------------------------------------------------------
 // ⚙️ CONFIG
 // ------------------------------------------------------------
-const OGRE_SIZE = 80;          // roughly double goblin size
+const OGRE_SIZE = 160;          // roughly double goblin size
 const OGRE_SPEED = 30;         // slower but heavy
 const OGRE_DAMAGE = 25;
 const OGRE_HP = 600;
 const ATTACK_RANGE = 120;
 const ATTACK_COOLDOWN = 1500;
 const FADE_OUT = 900;
-const OGRE_HIT_RADIUS = 120;
+export const OGRE_HIT_RADIUS = 85; 
+
 
 // ------------------------------------------------------------
 // 🖼️ LOAD SPRITES
@@ -78,6 +79,7 @@ export async function initOgres() {
 // ------------------------------------------------------------
 function spawnOgreInternal(x, y) {
   ogres.push({
+    type: "ogre",
     x,
     y,
     hp: OGRE_HP,
@@ -192,13 +194,15 @@ export function damageOgre(o, amount) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW OGRES — full-size, ground-aligned
+// 🎨 DRAW OGRES — full-size, ground-aligned (safe slain offset)
 // ------------------------------------------------------------
 export function drawOgres(ctx) {
   if (!ctx || !ogres || !ogreSprites) return;
 
   const OGRE_SIZE = 160;
   const FEET_OFFSET = 25;
+  const DEATH_DROP = 25; // smaller, subtle ground settle
+  const LIFT_WHEN_ALIVE = 10; // keep top half visible
   const FADE_OUT = 900;
 
   for (const o of ogres) {
@@ -222,8 +226,15 @@ export function drawOgres(ctx) {
 
     if (!img) continue;
 
+    // ✨ Base draw position (centered)
     const drawX = o.x - OGRE_SIZE / 2;
-    const drawY = o.y - OGRE_SIZE / 2 - FEET_OFFSET;
+    let drawY = o.y - OGRE_SIZE / 2 - FEET_OFFSET;
+
+    // 🩸 Adjust vertical placement
+    // alive → raise slightly so head visible
+    // dead  → lower slightly so corpse rests
+    if (o.alive) drawY -= LIFT_WHEN_ALIVE;
+    else drawY += DEATH_DROP;
 
     ctx.save();
 
@@ -244,6 +255,7 @@ export function drawOgres(ctx) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
+    // 🖼️ Draw sprite
     ctx.drawImage(
       img,
       0, 0, img.width, img.height,
@@ -253,6 +265,7 @@ export function drawOgres(ctx) {
 
     ctx.globalAlpha = 1;
 
+    // ❤️ HP bar (only when alive)
     if (o.alive) {
       const hpPct = Math.max(0, Math.min(1, o.hp / o.maxHp));
       const barWidth = 80;
@@ -267,6 +280,7 @@ export function drawOgres(ctx) {
     ctx.restore();
   }
 }
+
 
 // ------------------------------------------------------------
 // 🔍 ACCESSOR
