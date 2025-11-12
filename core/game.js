@@ -44,6 +44,13 @@ import {
   drawProjectiles
 } from "./projectiles.js";
 
+import {
+  loadLootImages,
+  updateLoot,
+  drawLoot,
+  clearLoot
+} from "./ogreLoot.js";
+
 // ------------------------------------------------------------
 // 🧭 PLAYER CONTROLLER
 // ------------------------------------------------------------
@@ -126,6 +133,8 @@ export async function initGame() {
   initTowers();
   initOgres();
   initProjectiles();
+
+  await loadLootImages();
   
 
   // 5️⃣ Player setup
@@ -161,6 +170,7 @@ export function updateGame(delta) {
   updatePegasus(delta);
   updateHealingDrops(delta);
   updateGoblinDrops(delta);
+  updateLoot(delta);
    // 💬 Floating text movement + fade
 
   // 🎥 Camera follow player
@@ -200,6 +210,7 @@ export function renderGame() {
   drawFloatingText(ctx); // 💬 draw floating damage/heal numbers
   drawHealingDrops(ctx);
   drawGoblinDrops(ctx);
+  drawLoot(ctx);
 
   ctx.restore();
 
@@ -299,6 +310,7 @@ export function resetCombatState() {
 
   // 🧩 Re-initialize combat systems
   clearOgres();
+  clearLoot();
   initEnemies();
   initTowers();
   initProjectiles();

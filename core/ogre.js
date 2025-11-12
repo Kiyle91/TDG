@@ -14,6 +14,7 @@ import { damageEnemy } from "./enemies.js"; // optional shared logic
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
 import { updateHUD } from "./ui.js";
+import { spawnOgreLoot } from "./ogreLoot.js"; // 💎 added for loot spawn on death
 
 let ctx = null;
 let ogres = [];
@@ -23,14 +24,13 @@ let ogreSprites = null;
 // ⚙️ CONFIG
 // ------------------------------------------------------------
 const OGRE_SIZE = 160;          // roughly double goblin size
-const OGRE_SPEED = 30;         // slower but heavy
+const OGRE_SPEED = 30;          // slower but heavy
 const OGRE_DAMAGE = 25;
 const OGRE_HP = 600;
 const ATTACK_RANGE = 120;
 const ATTACK_COOLDOWN = 1500;
 const FADE_OUT = 900;
 export const OGRE_HIT_RADIUS = 85; 
-
 
 // ------------------------------------------------------------
 // 🖼️ LOAD SPRITES
@@ -175,17 +175,31 @@ function performOgreAttack(o, p) {
 }
 
 // ------------------------------------------------------------
-// 💥 DAMAGE
+// 💥 DAMAGE (includes flash + delayed hit SFX like goblins)
 // ------------------------------------------------------------
 export function damageOgre(o, amount) {
   if (!o.alive) return;
+
   o.hp -= amount;
-  playGoblinDamage();
+  o.flashTimer = 150; // 💫 short visual flash duration
+
+  // Delay the SFX to line up with the visual impact frame
+  setTimeout(() => {
+    playGoblinDamage(); // 🔊 use same short delay as goblins
+  }, 100);
+
   spawnFloatingText(o.x, o.y - 50, `-${amount}`, "#ff9999");
+
+  // 💀 Handle death
   if (o.hp <= 0) {
     o.hp = 0;
     o.alive = false;
     o.fading = true;
+
+    // 🎁 Spawn loot (4 drops: chest, heart, diamond, mana)
+    try { spawnOgreLoot(o.x, o.y); } 
+    catch (err) { console.warn("⚠️ Failed to spawn ogre loot:", err); }
+
     awardXP(100);
     spawnFloatingText(o.x, o.y - 50, "💀 Ogre Down!", "#ffccff");
     playOgreSlain();
@@ -194,19 +208,22 @@ export function damageOgre(o, amount) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW OGRES — full-size, ground-aligned (safe slain offset)
+// 🎨 DRAW OGRES — full-size, ground-aligned (with hit flash)
 // ------------------------------------------------------------
 export function drawOgres(ctx) {
   if (!ctx || !ogres || !ogreSprites) return;
 
   const OGRE_SIZE = 160;
   const FEET_OFFSET = 25;
-  const DEATH_DROP = 25; // smaller, subtle ground settle
-  const LIFT_WHEN_ALIVE = 10; // keep top half visible
+  const DEATH_DROP = 25;
+  const LIFT_WHEN_ALIVE = 10;
   const FADE_OUT = 900;
 
   for (const o of ogres) {
     let img = ogreSprites.idle;
+
+    // 🕒 Reduce flash timer
+    if (o.flashTimer && o.flashTimer > 0) o.flashTimer -= 16;
 
     if (!o.alive) {
       img = ogreSprites.slain;
@@ -226,23 +243,18 @@ export function drawOgres(ctx) {
 
     if (!img) continue;
 
-    // ✨ Base draw position (centered)
     const drawX = o.x - OGRE_SIZE / 2;
     let drawY = o.y - OGRE_SIZE / 2 - FEET_OFFSET;
-
-    // 🩸 Adjust vertical placement
-    // alive → raise slightly so head visible
-    // dead  → lower slightly so corpse rests
     if (o.alive) drawY -= LIFT_WHEN_ALIVE;
     else drawY += DEATH_DROP;
 
     ctx.save();
 
-    // 🌑 shadow
+    // 🌑 shadow (lifted slightly)
     ctx.beginPath();
     ctx.ellipse(
       o.x,
-      o.y + OGRE_SIZE / 4.5,
+      o.y + OGRE_SIZE / 4.5,  
       OGRE_SIZE * 0.35,
       OGRE_SIZE * 0.15,
       0, 0, Math.PI * 2
@@ -255,14 +267,16 @@ export function drawOgres(ctx) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // 🖼️ Draw sprite
-    ctx.drawImage(
-      img,
-      0, 0, img.width, img.height,
-      drawX, drawY,
-      OGRE_SIZE, OGRE_SIZE
-    );
+    // 💫 Flash effect
+    if (o.alive && o.flashTimer > 0) {
+      const flashAlpha = o.flashTimer / 150;
+      ctx.filter = `contrast(1.2) brightness(${1 + flashAlpha * 0.5}) saturate(${1 + flashAlpha * 1.5})`;
+    } else ctx.filter = "none";
 
+    // 🖼️ Draw sprite
+    ctx.drawImage(img, 0, 0, img.width, img.height, drawX, drawY, OGRE_SIZE, OGRE_SIZE);
+
+    ctx.filter = "none";
     ctx.globalAlpha = 1;
 
     // ❤️ HP bar (only when alive)
@@ -280,7 +294,6 @@ export function drawOgres(ctx) {
     ctx.restore();
   }
 }
-
 
 // ------------------------------------------------------------
 // 🔍 ACCESSOR
@@ -307,7 +320,6 @@ window.spawnOgre = function () {
   console.log(`👹 Ogre spawned offscreen top-left (${startX}, ${startY}) — HP: ${OGRE_HP}`);
   playOgreEnter();
   return ogres[ogres.length - 1];
-  
 };
 
 window.getOgres = () => ogres;
