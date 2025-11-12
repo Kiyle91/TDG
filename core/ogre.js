@@ -242,7 +242,7 @@ export function drawOgres(ctx) {
     ctx.beginPath();
     ctx.ellipse(
       o.x,
-      o.y + OGRE_SIZE / 3.2,
+      o.y + OGRE_SIZE / 4.5,
       OGRE_SIZE * 0.35,
       OGRE_SIZE * 0.15,
       0, 0, Math.PI * 2
