@@ -380,8 +380,8 @@ export function damageEnemy(enemy, amount) {
     enemy.fadeTimer = 0;
     playGoblinDeath();
     incrementGoblinDefeated();
-    awardXP(1000);
-    addGold(1000);
+    awardXP(8);
+    addGold(5);
     updateHUD();
   }
 }
