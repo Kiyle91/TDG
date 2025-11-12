@@ -1,32 +1,38 @@
 // ============================================================
-// 🪙 goblinDrop.js — Olivia’s World: Crystal Keep (Golden Sparkle Edition)
+// 🎁 goblinDrop.js — Olivia’s World: Crystal Keep (Mystery Chest Edition)
 // ------------------------------------------------------------
-// ✦ 10% chance for goblins to drop glowing gold coins
-// ✦ Radiant gold–pink aura + subtle sparkle shimmer
-// ✦ Collect → +25 Gold + Fairy Sprinkle + Floating Text
+// ✦ 20% chance for goblins to drop a glowing treasure chest
+// ✦ On collect: 90% → +25 Gold | 10% → +25 Diamonds
+// ✦ Soft pink-gold aura + sparkle shimmer
+// ✦ Plays Fairy Sprinkle & floating text feedback
 // ============================================================
 
-import { gameState, addGold } from "../utils/gameState.js";
+import { gameState, addGold, addDiamonds } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { playFairySprinkle } from "./soundtrack.js";
 import { updateHUD } from "./ui.js";
 
 let ctx = null;
-let coinImg = null;
+let chestImg = null;
 const drops = [];
 
-const DROP_CHANCE = 0.10; // 10%
-const GOLD_AMOUNT = 25;
-const LIFETIME = 15000;   // 15s
+// ------------------------------------------------------------
+// ⚙️ CONFIGURATION
+// ------------------------------------------------------------
+const DROP_CHANCE = 0.2; // 20% chance to drop chest
+const GOLD_REWARD = 25;
+const DIAMOND_REWARD = 25;
+const LIFETIME = 15000; // ms
+const DIAMOND_CHANCE = 0.10; // 10% diamonds, 90% gold
 
 // ------------------------------------------------------------
-// ✨ INIT (called from game.js with canvas context)
+// ✨ INIT (called once from game.js with canvas context)
 // ------------------------------------------------------------
 export function initGoblinDrops(canvasContext) {
   ctx = canvasContext;
-  coinImg = new Image();
-  coinImg.src = "./assets/images/characters/loot.png";
-  console.log("🪙 Goblin drop system initialized (10% chance, gold sparkle).");
+  chestImg = new Image();
+  chestImg.src = "./assets/images/characters/loot.png"; // using your loot.png as chest sprite
+  console.log("🎁 Goblin drop system initialized (20% Mystery Chest chance).");
 }
 
 // ------------------------------------------------------------
@@ -34,6 +40,7 @@ export function initGoblinDrops(canvasContext) {
 // ------------------------------------------------------------
 export function trySpawnGoblinDrop(x, y) {
   if (Math.random() > DROP_CHANCE) return;
+
   drops.push({
     x,
     y,
@@ -41,7 +48,8 @@ export function trySpawnGoblinDrop(x, y) {
     life: 0,
     collected: false,
   });
-  console.log("🪙 Goblin dropped shimmering gold!");
+
+  console.log("🎁 Goblin dropped a mystery chest!");
 }
 
 // ------------------------------------------------------------
@@ -52,7 +60,7 @@ export function updateGoblinDrops(delta = 16) {
     const d = drops[i];
     d.life += delta;
 
-    // gentle bob motion
+    // soft float + fade-out
     if (d.life < 1000) d.y += 0.04 * delta;
     if (d.life > LIFETIME - 2000)
       d.opacity = Math.max(0, 1 - (d.life - (LIFETIME - 2000)) / 2000);
@@ -64,10 +72,10 @@ export function updateGoblinDrops(delta = 16) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW — pastel-gold aura + subtle sparkle shimmer
+// 🎨 DRAW — glowing chest + pastel gold-pink aura
 // ------------------------------------------------------------
 export function drawGoblinDrops(ctx) {
-  if (!ctx || !coinImg) return;
+  if (!ctx || !chestImg) return;
   const time = Date.now() / 1000;
 
   for (const d of drops) {
@@ -75,50 +83,50 @@ export function drawGoblinDrops(ctx) {
 
     const pulse = 1 + Math.sin(time * 3) * 0.08;
     const float = Math.sin(time * 2 + d.x * 0.1) * 4;
-    const glow = (Math.sin(time * 6) + 1) * 0.5;
-    const size = 56 * pulse;
+    const glow = (Math.sin(time * 5) + 1) * 0.5;
+    const size = 64 * pulse;
     const x = d.x;
     const y = d.y + float;
 
     ctx.globalAlpha = d.opacity;
 
-    // 🌈 Multilayered aura — golden core → pink crystal rim
-    const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 1.6);
-    gradient.addColorStop(0, `rgba(255, 240, 180, ${0.4 + glow * 0.3})`);
-    gradient.addColorStop(0.5, `rgba(255, 200, 220, ${0.25 + glow * 0.2})`);
-    gradient.addColorStop(1, `rgba(255, 180, 255, 0)`);
+    // 🌈 Golden–pink crystal aura
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 1.8);
+    gradient.addColorStop(0, `rgba(255, 230, 180, ${0.4 + glow * 0.3})`);
+    gradient.addColorStop(0.4, `rgba(255, 200, 220, ${0.25 + glow * 0.2})`);
+    gradient.addColorStop(1, "rgba(255, 180, 255, 0)");
 
     ctx.fillStyle = gradient;
     ctx.beginPath();
     ctx.arc(x, y, size * 1.1, 0, Math.PI * 2);
     ctx.fill();
 
-    // ✨ Inner sparkle flicker
-    const sparkleCount = 5;
+    // ✨ Gentle sparkle shimmer
+    const sparkleCount = 6;
     for (let i = 0; i < sparkleCount; i++) {
       const ang = (time * 2 + i) * Math.PI * 0.6;
-      const sx = x + Math.cos(ang) * 12;
-      const sy = y + Math.sin(ang) * 12;
-      const sAlpha = 0.5 + Math.sin(time * 5 + i) * 0.4;
+      const sx = x + Math.cos(ang) * 14;
+      const sy = y + Math.sin(ang) * 14;
+      const sAlpha = 0.5 + Math.sin(time * 6 + i) * 0.4;
       ctx.globalAlpha = d.opacity * sAlpha;
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = "#ffffff";
       ctx.beginPath();
       ctx.arc(sx, sy, 2 + Math.sin(time * 8 + i) * 1, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // 💎 Coin sprite with soft glow
+    // 💎 Draw chest with glow
     ctx.globalAlpha = d.opacity;
-    ctx.shadowColor = "#ffd966";
+    ctx.shadowColor = "#ffe066";
     ctx.shadowBlur = 25 + 10 * glow;
-    ctx.drawImage(coinImg, x - size / 2, y - size / 2, size, size);
+    ctx.drawImage(chestImg, x - size / 2, y - size / 2, size, size);
 
     ctx.restore();
   }
 }
 
 // ------------------------------------------------------------
-// 💰 COLLECTION HANDLING
+// 💰 COLLECTION HANDLING (Gold or Diamond reward)
 // ------------------------------------------------------------
 function checkPlayerCollection() {
   const player = gameState.player;
@@ -134,12 +142,20 @@ function checkPlayerCollection() {
       d.collected = true;
       drops.splice(i, 1);
 
-      // Reward
-      addGold(GOLD_AMOUNT);
-      spawnFloatingText(player.pos.x, player.pos.y - 40, `🪙 +${GOLD_AMOUNT} Gold!`, "#fff2b3", 22);
+      // 🪙 Determine reward
+      const diamondDrop = Math.random() < DIAMOND_CHANCE;
+      if (diamondDrop) {
+        addDiamonds(DIAMOND_REWARD);
+        spawnFloatingText(player.pos.x, player.pos.y - 40, `💎 +${DIAMOND_REWARD} Diamonds!`, "#b3f7ff", 22);
+        console.log(`💎 Chest reward: ${DIAMOND_REWARD} Diamonds`);
+      } else {
+        addGold(GOLD_REWARD);
+        spawnFloatingText(player.pos.x, player.pos.y - 40, `🪙 +${GOLD_REWARD} Gold!`, "#fff2b3", 22);
+        console.log(`🪙 Chest reward: ${GOLD_REWARD} Gold`);
+      }
+
       playFairySprinkle();
       updateHUD();
-      console.log(`💰 Player collected +${GOLD_AMOUNT} gold.`);
     }
   }
 }
