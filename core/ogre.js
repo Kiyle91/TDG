@@ -29,6 +29,7 @@ const OGRE_HP = 600;
 const ATTACK_RANGE = 120;
 const ATTACK_COOLDOWN = 1500;
 const FADE_OUT = 900;
+const OGRE_HIT_RADIUS = 120;
 
 // ------------------------------------------------------------
 // 🖼️ LOAD SPRITES

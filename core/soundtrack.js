@@ -148,6 +148,13 @@ export function playOgreSlain() {
   playSfx(ogreSlainPath);
 }
 
+// ------------------------------------------------------------
+// 🕊️ Pegasus Spawn (summon chime)
+// ------------------------------------------------------------
+const pegasusSpawnPath = "./assets/sounds/pegasus.mp3";
+export function playPegasusSpawn() {
+  playSfx(pegasusSpawnPath);
+}
 
 // ------------------------------------------------------------
 // 🛑 Stop Music

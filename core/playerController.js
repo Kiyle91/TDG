@@ -284,16 +284,26 @@ function performMeleeAttack() {
 
 
 
+// ============================================================
+// 🏹 Ranged — Fires Arrow Toward Mouse (Goblins + Ogres)
 // ------------------------------------------------------------
-// 🏹 Ranged — fires arrow toward mouse (Goblins + Ogres)
-// ------------------------------------------------------------
+// ✦ Uses local projectile object (not global system)
+// ✦ Detects both Goblins + Ogres via dynamic hit radius
+// ✦ Arrows now correctly hit larger Ogre hitbox
+// ✦ Handles animation, cooldown, flight, and collision
+// ============================================================
 function performRangedAttack(e) {
   const p = gameState.player;
   if (!p) return;
 
+  // ------------------------------------------------------------
+  // ⚔️ DAMAGE SETUP
+  // ------------------------------------------------------------
   const dmg = Math.max(1, (Number(p.rangedAttack) || 0) * DMG_RANGED);
 
-  // 🎯 Mouse angle
+  // ------------------------------------------------------------
+  // 🎯 CALCULATE ANGLE FROM PLAYER → MOUSE
+  // ------------------------------------------------------------
   const rect = canvasRef.getBoundingClientRect();
   const mx = (e.clientX - rect.left) * (canvasRef.width / rect.width);
   const my = (e.clientY - rect.top) * (canvasRef.height / rect.height);
@@ -302,7 +312,9 @@ function performRangedAttack(e) {
   const angle = Math.atan2(dy, dx);
   const deg = ((angle * 180) / Math.PI + 360) % 360;
 
-  // 🧭 Facing for animation
+  // ------------------------------------------------------------
+  // 🧭 DETERMINE FACING FOR ANIMATION
+  // ------------------------------------------------------------
   let facing;
   if (deg >= 330 || deg < 30) facing = "right";
   else if (deg >= 30 && deg < 90) facing = "bottomRight";
@@ -313,21 +325,36 @@ function performRangedAttack(e) {
   else facing = "right";
   p.facing = facing;
 
-  // 🏹 Pose + cooldown
+  // ------------------------------------------------------------
+  // 🏹 POSE + ATTACK COOLDOWN
+  // ------------------------------------------------------------
   isAttacking = true;
   attackType = "ranged";
   attackCooldown = CD_RANGED;
   setTimeout(() => { isAttacking = false; }, 300);
 
-  // 💫 Fire arrow (local projectile)
+  // ------------------------------------------------------------
+  // 💫 CREATE LOCAL PROJECTILE
+  // ------------------------------------------------------------
   const speed = 1200;
   const startX = p.pos.x + Math.cos(angle) * 30;
   const startY = p.pos.y + Math.sin(angle) * 30;
-  const projectile = { x: startX, y: startY, angle, speed, dmg, alive: true, life: 0 };
+  const projectile = {
+    x: startX,
+    y: startY,
+    angle,
+    speed,
+    dmg,
+    alive: true,
+    life: 0,
+  };
+
   projectiles.push(projectile);
   playArrowSwish();
 
-  // 🧠 Handle flight + collision
+  // ------------------------------------------------------------
+  // 🧠 HANDLE ARROW FLIGHT + COLLISION DETECTION
+  // ------------------------------------------------------------
   const checkArrowCollision = () => {
     if (!projectile.alive) return;
 
@@ -336,23 +363,38 @@ function performRangedAttack(e) {
     projectile.y += Math.sin(projectile.angle) * projectile.speed * dt;
     projectile.life += 16;
 
+    // Combine goblins + ogres into one target list
     const targets = [...getEnemies(), ...getOgres()];
+
     for (const t of targets) {
       if (!t.alive) continue;
-      const dist = Math.hypot(t.x - projectile.x, t.y - projectile.y);
-      if (dist < 30) {
+      const dx = t.x - projectile.x;
+      const dy = t.y - projectile.y;
+      const dist = Math.hypot(dx, dy);
+
+      // 🎯 Dynamic hit radius
+      const hitRadius = t.maxHp >= 400 ? 60 : 26; // 👈 larger radius for ogre
+
+      if (dist < hitRadius) {
+        // 💥 Deal damage by type
         if (t.maxHp >= 400) damageOgre(t, dmg, "player");
         else damageEnemy(t, dmg);
+
+        // Mark projectile as spent
         projectile.alive = false;
         break;
       }
     }
 
+    // Continue flight until timeout or collision
     if (projectile.alive && projectile.life < 1000) {
       requestAnimationFrame(checkArrowCollision);
     }
   };
 
+  // ------------------------------------------------------------
+  // 🚀 LAUNCH ARROW LOOP
+  // ------------------------------------------------------------
   requestAnimationFrame(checkArrowCollision);
 }
 

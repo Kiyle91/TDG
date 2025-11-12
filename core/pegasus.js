@@ -8,6 +8,7 @@
 
 import { gameState } from "../utils/gameState.js";
 import { spawnHealingDrop } from "./pegasusDrop.js"; // 💎 Healing gem system
+import { playPegasusSpawn } from "./soundtrack.js";
 
 
 let ctx = null;
@@ -67,6 +68,7 @@ export function updatePegasus(delta = 16) {
   // 🕒 Trigger a new flight every 5 seconds (testing)
   if (!active && flightTimer >= 60000) {
     startPegasusFlight();
+    playPegasusSpawn();
     flightTimer = 0;
   }
 
