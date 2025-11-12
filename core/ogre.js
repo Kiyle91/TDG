@@ -3,6 +3,7 @@
 // ------------------------------------------------------------
 // ✦ Independent AI — ignores path, hunts player directly
 // ✦ 2× goblin size, large HP pool, strong melee hits
+// ✦ Two-phase attack animation (attack → melee)
 // ✦ Uses ogre sprites from assets/images/sprites/ogre/
 // ============================================================
 
@@ -22,7 +23,7 @@ let ogreSprites = null;
 // ⚙️ CONFIG
 // ------------------------------------------------------------
 const OGRE_SIZE = 80;          // roughly double goblin size
-const OGRE_SPEED = 30;          // slower but heavy
+const OGRE_SPEED = 30;         // slower but heavy
 const OGRE_DAMAGE = 25;
 const OGRE_HP = 600;
 const ATTACK_RANGE = 120;
@@ -54,6 +55,10 @@ async function loadOgreSprites() {
       left: await loadImage("./assets/images/sprites/ogre/ogre_attack_left.png"),
       right: await loadImage("./assets/images/sprites/ogre/ogre_attack_right.png"),
     },
+    melee: { // ➕ extra phase
+      left: await loadImage("./assets/images/sprites/ogre/ogre_melee_left.png"),
+      right: await loadImage("./assets/images/sprites/ogre/ogre_melee_right.png"),
+    },
   };
   console.log("👹 Ogre sprites loaded.");
 }
@@ -68,12 +73,12 @@ export async function initOgres() {
 }
 
 // ------------------------------------------------------------
-// 💀 SPAWN
+// 💀 SPAWN (internal use)
 // ------------------------------------------------------------
-function spawnOgre() {
+function spawnOgreInternal(x, y) {
   ogres.push({
-    x: 800 + Math.random() * 800,
-    y: 600 + Math.random() * 600,
+    x,
+    y,
     hp: OGRE_HP,
     maxHp: OGRE_HP,
     alive: true,
@@ -84,6 +89,7 @@ function spawnOgre() {
     frameTimer: 0,
     dir: "down",
     attacking: false,
+    attackPhase: 0,
   });
 }
 
@@ -136,18 +142,33 @@ export function updateOgres(delta = 16) {
 }
 
 // ------------------------------------------------------------
-// ⚔️ ATTACK
+// ⚔️ ATTACK — two-phase (attack → melee)
 // ------------------------------------------------------------
 function performOgreAttack(o, p) {
   o.attacking = true;
-  setTimeout(() => (o.attacking = false), 600);
+  o.attackPhase = 0;
 
-  // Damage player
-  p.hp = Math.max(0, p.hp - OGRE_DAMAGE);
-  spawnFloatingText(p.pos.x, p.pos.y - 40, `-${OGRE_DAMAGE}`, "#ff5577");
-  playGoblinAttack();
-  spawnDamageSparkles(p.pos.x, p.pos.y);
-  updateHUD();
+  // Face the player
+  const dx = p.pos.x - o.x;
+  o.dir = Math.abs(dx) < 1 ? o.dir : (dx < 0 ? "left" : "right");
+
+  const HIT_DELAY = 220;     // when axe connects
+  const PHASE_SWITCH = 140;  // switch to melee frame
+  const END_ATTACK = 600;    // total duration
+
+  setTimeout(() => { if (o.alive) o.attackPhase = 1; }, PHASE_SWITCH);
+
+  // Apply damage
+  setTimeout(() => {
+    if (!o.alive) return;
+    p.hp = Math.max(0, p.hp - OGRE_DAMAGE);
+    spawnFloatingText(p.pos.x, p.pos.y - 40, `-${OGRE_DAMAGE}`, "#ff5577");
+    playGoblinAttack();
+    spawnDamageSparkles(p.pos.x, p.pos.y);
+    updateHUD();
+  }, HIT_DELAY);
+
+  setTimeout(() => { o.attacking = false; o.attackPhase = 0; }, END_ATTACK);
 }
 
 // ------------------------------------------------------------
@@ -170,37 +191,46 @@ export function damageOgre(o, amount) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW OGRES — Full-Size Ground-Aligned Version
+// 🎨 DRAW OGRES — full-size, ground-aligned
 // ------------------------------------------------------------
 export function drawOgres(ctx) {
   if (!ctx || !ogres || !ogreSprites) return;
 
-  const OGRE_SIZE = 160;     // 2× goblin size
-  const FEET_OFFSET = 25;    // pushes sprite down to touch ground
+  const OGRE_SIZE = 160;
+  const FEET_OFFSET = 25;
   const FADE_OUT = 900;
 
   for (const o of ogres) {
     let img = ogreSprites.idle;
-    if (!o.alive) img = ogreSprites.slain;
-    else if (o.attacking) {
-      img = o.dir === "left" ? ogreSprites.attack.left : ogreSprites.attack.right;
+
+    if (!o.alive) {
+      img = ogreSprites.slain;
+    } else if (o.attacking) {
+      if (o.dir === "left") {
+        img = (o.attackPhase === 0)
+          ? ogreSprites.attack.left
+          : (ogreSprites.melee?.left || ogreSprites.attack.left);
+      } else {
+        img = (o.attackPhase === 0)
+          ? ogreSprites.attack.right
+          : (ogreSprites.melee?.right || ogreSprites.attack.right);
+      }
     } else if (o.dir && ogreSprites.walk[o.dir]) {
       img = ogreSprites.walk[o.dir][o.frame] || ogreSprites.idle;
     }
 
     if (!img) continue;
 
-    // Position & offset so feet sit on ground
     const drawX = o.x - OGRE_SIZE / 2;
     const drawY = o.y - OGRE_SIZE / 2 - FEET_OFFSET;
 
     ctx.save();
 
-    // 🌑 Ground shadow (scaled for big size)
+    // 🌑 shadow
     ctx.beginPath();
     ctx.ellipse(
       o.x,
-      o.y + OGRE_SIZE / 3.2,    // a bit lower for large body
+      o.y + OGRE_SIZE / 3.2,
       OGRE_SIZE * 0.35,
       OGRE_SIZE * 0.15,
       0, 0, Math.PI * 2
@@ -208,14 +238,11 @@ export function drawOgres(ctx) {
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
 
-    // Fade while dying
     const alpha = o.fading ? Math.max(0, 1 - o.fadeTimer / FADE_OUT) : 1;
     ctx.globalAlpha = alpha;
-
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // Draw sprite
     ctx.drawImage(
       img,
       0, 0, img.width, img.height,
@@ -225,13 +252,11 @@ export function drawOgres(ctx) {
 
     ctx.globalAlpha = 1;
 
-    // ❤️ HP bar (scaled + repositioned)
     if (o.alive) {
       const hpPct = Math.max(0, Math.min(1, o.hp / o.maxHp));
       const barWidth = 80;
       const barHeight = 6;
-      const barY = drawY - 14; // just above head
-
+      const barY = drawY - 14;
       ctx.fillStyle = "rgba(0,0,0,0.4)";
       ctx.fillRect(o.x - barWidth / 2, barY, barWidth, barHeight);
       ctx.fillStyle = `hsl(${hpPct * 120}, 100%, 50%)`;
@@ -242,8 +267,6 @@ export function drawOgres(ctx) {
   }
 }
 
-
-
 // ------------------------------------------------------------
 // 🔍 ACCESSOR
 // ------------------------------------------------------------
@@ -252,39 +275,26 @@ export function getOgres() {
 }
 
 // ------------------------------------------------------------
-// ♻️ CLEAR OGRES — used when restarting or resetting the map
+// ♻️ CLEAR OGRES
 // ------------------------------------------------------------
 export function clearOgres() {
   ogres = [];
   console.log("🧹 All ogres cleared.");
 }
 
-
-
 // ------------------------------------------------------------
 // 👹 DEV COMMAND — spawn Ogre from top-left offscreen
 // ------------------------------------------------------------
 window.spawnOgre = function () {
-  // Slightly offscreen top-left spawn (negative X/Y)
-  const startX = -80;   // one or two tiles off screen
+  const startX = -80;
   const startY = 0;
-
-  const o = {
-    x: startX,
-    y: startY,
-    hp: OGRE_HP,
-    maxHp: OGRE_HP,
-    alive: true,
-    fading: false,
-    fadeTimer: 0,
-    attackCooldown: 0,
-    frame: 0,
-    frameTimer: 0,
-    dir: "down",
-    attacking: false,
-  };
-
-  ogres.push(o);
+  spawnOgreInternal(startX, startY);
   console.log(`👹 Ogre spawned offscreen top-left (${startX}, ${startY}) — HP: ${OGRE_HP}`);
-  return o;
+  return ogres[ogres.length - 1];
 };
+
+window.getOgres = () => ogres;
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================
