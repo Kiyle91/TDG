@@ -41,8 +41,9 @@
    💎 HUB CONTAINER
 ============================================================ */
 #hub-container {
-  bottom: 5%;
-  position: fixed;
+  position:fixed;
+  margin-top: 100px;
+  bottom: 0.5%;
   text-align: center;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(8px);
@@ -576,6 +577,38 @@
   }
 }
 
+/* ============================================================
+   🏹 HUB TURRET CARDS (Level Unlock Display)
+============================================================ */
+.turret-card {
+  opacity: 1;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  border: 2px solid rgba(91, 139, 230, 0.4);
+  padding: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+  color: #fff;
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.4),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.turret-card:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 25px rgba(224, 187, 255, 0.8),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.turret-card .unlock-info {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-top: 4px;
+  color: #ffe6f7;
+  text-shadow: 0 0 6px rgba(224, 187, 255, 0.6);
+}
 
 /* ============================================================
    🌟 END OF FILE

@@ -22,7 +22,7 @@ const TOWER_COST = 50;
 
 // ✨ Unlock levels + metadata for each turret
 const TOWER_UNLOCKS = {
-  1: { name: "Crystal Defender", key: "basic_turret", unlock: 2, projectile: "crystal" },
+  1: { name: "Crystal Defender", key: "basic_turret", unlock: 1, projectile: "crystal" },
   2: { name: "Frost Sentinel", key: "frost_turret", unlock: 6, projectile: "frost" },
   3: { name: "Flameheart", key: "flame_turret", unlock: 10, projectile: "flame" },
   4: { name: "Arcane Spire", key: "arcane_turret", unlock: 15, projectile: "arcane" },

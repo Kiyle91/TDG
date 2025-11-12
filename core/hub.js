@@ -1,17 +1,16 @@
 // ============================================================
-// 🌸 hub.js — Olivia’s World: Crystal Keep (FINAL POLISHED BUILD)
+// 🌸 hub.js — Olivia’s World: Crystal Keep (FINAL POLISHED BUILD + Turret Unlocks)
 // ------------------------------------------------------------
-// ✦ Main hub navigation screen
-// ✦ Handles transitions and overlay openings for all 8 buttons
-// ✦ Clean game start + proper story intro integration
-// ✦ Fixed: “New Story” resets everything properly (no overlay issues)
+// ✦ Handles all hub buttons, overlays, and transitions
+// ✦ Adds turret unlocks that update dynamically by level
+// ✦ Keeps full currency + profile updates
 // ============================================================
 
 import { showScreen } from "./screens.js";
 import { startGameplay, gameActive, stopGameplay } from "../main.js";
 import { getCurrencies, gameState } from "../utils/gameState.js";
 import { showOverlay } from "./ui.js";
-import { startIntroStory } from "./story.js"; // ✅ only import startIntroStory
+import { startIntroStory } from "./story.js";
 import { initChest } from "./chest.js";
 import { showConfirm } from "./alert.js";
 import { updateStatsOverlay } from "./ui.js";
@@ -39,6 +38,9 @@ export function initHub() {
 
   initChest();
   initSettingsMenu();
+  updateHubCurrencies();
+  updateHubProfile();
+  updateTurretUnlocks();
 
   // 🩵 Safety check
   if (
@@ -59,36 +61,29 @@ export function initHub() {
     console.log("🩷 Prompting story confirmation...");
     playFairySprinkle();
 
-    import("./alert.js").then(({ showConfirm }) => {
-      showConfirm(
-        "Are you sure you want to start a new story?",
-        () => {
-          console.log("📖 New Story confirmed — cleaning old session...");
+    showConfirm(
+      "Are you sure you want to start a new story?",
+      () => {
+        console.log("📖 New Story confirmed — cleaning old session...");
 
-          // 1️⃣ Stop any running gameplay loop
-          if (gameActive) stopGameplay("restart");
+        // 1️⃣ Stop any running gameplay loop
+        if (gameActive) stopGameplay("restart");
 
-          // 2️⃣ Remove leftover overlays (defeat/victory only)
-          document.querySelectorAll("#end-screen, .end-overlay").forEach(el => el.remove());
+        // 2️⃣ Remove leftover overlays (defeat/victory)
+        document.querySelectorAll("#end-screen, .end-overlay").forEach(el => el.remove());
 
-          // 3️⃣ Reset combat + player state
-          resetCombatState();
-          gameState.player = createPlayer();
-          gameState.player.pos = { x: 1000, y: 500 };
+        // 3️⃣ Reset combat + player state
+        resetCombatState();
+        gameState.player = createPlayer();
+        gameState.player.pos = { x: 1000, y: 500 };
 
-          
-
-          // 4️⃣ Switch to story overlay cleanly
-          startIntroStory();
-          playFairySprinkle();
-
-          console.log("✨ New Story sequence started fresh.");
-        },
-        () => {
-          console.log("❎ New Story cancelled");
-        }
-      );
-    });
+        // 4️⃣ Start fresh story intro
+        startIntroStory();
+        playFairySprinkle();
+        console.log("✨ New Story sequence started fresh.");
+      },
+      () => console.log("❎ New Story cancelled")
+    );
   });
 
   // 💾 LOAD GAME — open save overlay
@@ -105,10 +100,11 @@ export function initHub() {
     showOverlay("overlay-maps");
   });
 
-  // 🏹 TURRETS — open tower menu
+  // 🏹 TURRETS — open turret selection overlay
   turretsBtn.addEventListener("click", () => {
     console.log("🏹 Turrets overlay");
     playFairySprinkle();
+    updateTurretUnlocks();
     showOverlay("overlay-turrets");
   });
 
@@ -147,9 +143,7 @@ export function initHub() {
           showScreen("profile-screen");
         });
       },
-      () => {
-        console.log("❎ Exit cancelled");
-      }
+      () => console.log("❎ Exit cancelled")
     );
   });
 
@@ -162,7 +156,6 @@ export function initHub() {
 function fadeOut(element, callback) {
   element.style.transition = "opacity 0.8s ease";
   element.style.opacity = 0;
-
   setTimeout(() => {
     element.style.display = "none";
     if (callback) callback();
@@ -174,8 +167,10 @@ function fadeOut(element, callback) {
 // ------------------------------------------------------------
 export function updateHubCurrencies() {
   const { gold, diamonds } = getCurrencies();
-  document.getElementById("hub-gold").textContent = `Gold: ${gold}`;
-  document.getElementById("hub-diamonds").textContent = `Diamonds: ${diamonds}`;
+  const goldEl = document.getElementById("hub-gold");
+  const diamondEl = document.getElementById("hub-diamonds");
+  if (goldEl) goldEl.textContent = `Gold: ${gold}`;
+  if (diamondEl) diamondEl.textContent = `Diamonds: ${diamonds}`;
 }
 
 // ------------------------------------------------------------
@@ -184,7 +179,6 @@ export function updateHubCurrencies() {
 export function updateHubProfile() {
   const nameEl = document.getElementById("hub-profile-name");
   const levelEl = document.getElementById("hub-profile-level");
-
   if (!gameState.player) return;
 
   const displayName = gameState.player.name
@@ -192,6 +186,27 @@ export function updateHubProfile() {
     : "Princess (Unknown)";
   nameEl.textContent = displayName;
   levelEl.textContent = `Level ${gameState.player.level || 1}`;
+}
+
+// ------------------------------------------------------------
+// 🏹 UPDATE TURRET UNLOCKS BASED ON PLAYER LEVEL
+// ------------------------------------------------------------
+function updateTurretUnlocks() {
+  const playerLevel = gameState.player?.level ?? 1;
+  document.querySelectorAll(".turret-card").forEach(card => {
+    const unlockLevel = parseInt(card.dataset.unlock);
+    const info = card.querySelector(".unlock-info");
+
+    if (playerLevel >= unlockLevel) {
+      card.style.opacity = "1";
+      card.style.filter = "none";
+      if (info) info.textContent = `🔓 Unlocked at Level ${unlockLevel}`;
+    } else {
+      card.style.opacity = "0.6";
+      card.style.filter = "grayscale(0.5)";
+      if (info) info.textContent = `🔒 Unlocks at Level ${unlockLevel}`;
+    }
+  });
 }
 
 // ============================================================

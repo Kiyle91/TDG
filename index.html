@@ -198,55 +198,65 @@
           <h3 class="turret-title">Turrets</h3>
 
           <div class="turret-grid">
-            <!-- 6 turret cards (all locked for now) -->
-            <div class="turret-card locked" data-turret="1">
+            <!-- 6 turret cards with unlock levels -->
+            <div class="turret-card" data-turret="1" data-unlock="1">
               <img src="./assets/images/turrets/basic_turret.png" alt="Basic Turret" class="turret-image" />
               <div class="turret-info">
                 <h4>Crystal Defender</h4>
                 <p>Fires slow but powerful crystal bolts at enemies.</p>
+                <p class="unlock-info">🔓 Unlocks at Level 2</p>
               </div>
             </div>
 
-            <div class="turret-card locked" data-turret="2">
+            <div class="turret-card" data-turret="2" data-unlock="5">
               <img src="./assets/images/turrets/frost_turret.png" alt="Frost Turret" class="turret-image" />
               <div class="turret-info">
                 <h4>Frost Sentinel</h4>
                 <p>Slows enemies with shards of enchanted ice.</p>
+                <p class="unlock-info">🔒 Unlocks at Level 6</p>
               </div>
             </div>
 
-            <div class="turret-card locked" data-turret="3">
+            <div class="turret-card" data-turret="3" data-unlock="10">
               <img src="./assets/images/turrets/flame_turret.png" alt="Flame Turret" class="turret-image" />
               <div class="turret-info">
                 <h4>Flameheart</h4>
                 <p>Unleashes bursts of fire, dealing area damage.</p>
+                <p class="unlock-info">🔒 Unlocks at Level 10</p>
               </div>
             </div>
 
-            <div class="turret-card locked" data-turret="4">
+            <div class="turret-card" data-turret="4" data-unlock="15">
               <img src="./assets/images/turrets/light_turret.png" alt="Light Turret" class="turret-image" />
               <div class="turret-info">
                 <h4>Beacon of Light</h4>
-                <p>Increases nearby tower attack speed with radiant energy.</p>
+                <p>Heals players who are nearby</p>
+                <p class="unlock-info">🔒 Unlocks at Level 16</p>
               </div>
             </div>
 
-            <div class="turret-card locked" data-turret="5">
+            <div class="turret-card" data-turret="5" data-unlock="20">
               <img src="./assets/images/turrets/arcane_turret.png" alt="Arcane Turret" class="turret-image" />
               <div class="turret-info">
                 <h4>Arcane Spire</h4>
-                <p>Fires bolts of mana that chain between enemies.</p>
+                <p>Fires long distance bolts</p>
+                <p class="unlock-info">🔒 Unlocks at Level 20</p>
               </div>
             </div>
 
-            <div class="turret-card locked" data-turret="6">
+            <div class="turret-card" data-turret="6" data-unlock="25">
               <img src="./assets/images/turrets/moon_turret.png" alt="Moonlight Turret" class="turret-image" />
               <div class="turret-info">
                 <h4>Moonlight Aegis</h4>
-                <p>Summons a protective aura that regenerates ally health.</p>
+                <p>Fire gravity bolts that knock enemies back!</p>
+                <p class="unlock-info">🔒 Unlocks at Level 25</p>
               </div>
             </div>
           </div>
+
+          <button class="overlay-close">Close</button>
+        </div>
+      </div>
 
           <button class="overlay-close">Close</button>
         </div>
