@@ -325,11 +325,13 @@ export function updateEnemies(delta) {
     if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) enemies.splice(i, 1);
   }
 
-  // --- Continuous Spawning ---
+  // --- Continuous Spawning (stop after 50 total goblins) ---
   spawnTimer -= delta;
   if (spawnTimer <= 0) {
-    if (enemies.length < MAX_ACTIVE_ENEMIES) spawnEnemy();
-    spawnTimer = SPAWN_INTERVAL;
+    if (enemiesSpawned < 50 && enemies.length < MAX_ACTIVE_ENEMIES) {
+      spawnEnemy();
+      spawnTimer = SPAWN_INTERVAL;
+    }
   }
 
   window.__enemies = enemies;

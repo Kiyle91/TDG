@@ -324,6 +324,36 @@ window.spawnOgre = function () {
 
 window.getOgres = () => ogres;
 
+
+// ------------------------------------------------------------
+// 🧩 EXPORT — spawnOgre for boss integration
+// ------------------------------------------------------------
+export function spawnOgre() {
+  const startX = -80;
+  const startY = 0;
+  const ogre = {
+    type: "ogre",
+    x: startX,
+    y: startY,
+    hp: 600,
+    maxHp: 600,
+    alive: true,
+    fading: false,
+    fadeTimer: 0,
+    attackCooldown: 0,
+    frame: 0,
+    frameTimer: 0,
+    dir: "down",
+    attacking: false,
+    attackPhase: 0,
+  };
+
+  ogres.push(ogre);
+  console.log(`👹 Ogre spawned offscreen top-left (${startX}, ${startY}) — HP: 600`);
+  playOgreEnter();
+  return ogre;
+}
+
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================

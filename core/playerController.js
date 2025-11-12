@@ -39,7 +39,7 @@ const getEnemies = () => window.__enemies || [];
 let canvasRef = null;
 const keys = new Set();
 
-const DEFAULT_SPEED = 120;
+const DEFAULT_SPEED = 160;
 const SPRITE_SIZE = 80;
 const WALK_FRAME_INTERVAL = 220;
 const SHADOW_OPACITY = 0.25;
@@ -291,11 +291,12 @@ function performMeleeAttack() {
 // ✦ Detects both Goblins + Ogres via explicit type flag
 // ✦ Uses exported OGRE_HIT_RADIUS for accurate collision
 // ✦ Handles animation, cooldown, flight, and collision
+// ✦ Fix: True canvas scaling for pinpoint accuracy
 // ============================================================
 
 function performRangedAttack(e) {
   const p = gameState.player;
-  if (!p) return;
+  if (!p || !canvasRef) return;
 
   // ------------------------------------------------------------
   // ⚔️ DAMAGE SETUP
@@ -303,11 +304,14 @@ function performRangedAttack(e) {
   const dmg = Math.max(1, (Number(p.rangedAttack) || 0) * DMG_RANGED);
 
   // ------------------------------------------------------------
-  // 🎯 CALCULATE ANGLE FROM PLAYER → MOUSE
+  // 🎯 CALCULATE ANGLE FROM PLAYER → MOUSE (accurate scaling)
   // ------------------------------------------------------------
   const rect = canvasRef.getBoundingClientRect();
-  const mx = (e.clientX - rect.left) * (canvasRef.width / rect.width);
-  const my = (e.clientY - rect.top) * (canvasRef.height / rect.height);
+  const scaleX = canvasRef.width / rect.width;
+  const scaleY = canvasRef.height / rect.height;
+
+  const mx = (e.clientX - rect.left) * scaleX;
+  const my = (e.clientY - rect.top) * scaleY;
   const dx = mx - p.pos.x;
   const dy = my - p.pos.y;
   const angle = Math.atan2(dy, dx);
@@ -405,6 +409,7 @@ function performRangedAttack(e) {
   // ------------------------------------------------------------
   requestAnimationFrame(checkArrowCollision);
 }
+
 
 
 
