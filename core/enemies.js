@@ -22,6 +22,7 @@ import {
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
 import { triggerMidBattleStory } from "./story.js";
+import { trySpawnGoblinDrop } from "./goblinDrop.js";
 
 let enemies = [];
 let ctx = null;
@@ -46,7 +47,7 @@ const ATTACK_RANGE = 80;
 const AGGRO_RANGE = 150;
 const RETURN_DELAY = 1200;
 const ATTACK_COOLDOWN = 1000;
-const GOBLIN_DAMAGE = 10;
+const GOBLIN_DAMAGE = 8;
 const DEATH_LAY_DURATION = 600;
 
 let spawnTimer = 0;
@@ -129,8 +130,8 @@ function spawnEnemy() {
   enemies.push({
     x: pathPoints[0].x,
     y: pathPoints[0].y,
-    width: 42,
-    height: 42,
+    width: 64,
+    height: 64,
     hp: DEFAULT_HP,
     maxHp: DEFAULT_HP,
     targetIndex: 1,
@@ -383,6 +384,7 @@ export function damageEnemy(enemy, amount) {
     awardXP(8);
     addGold(5);
     updateHUD();
+    trySpawnGoblinDrop(enemy.x, enemy.y);
   }
 }
 

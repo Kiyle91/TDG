@@ -80,7 +80,7 @@ import { loadHealingGem, initHealingDrops, updateHealingDrops, drawHealingDrops 
 import { gameState } from "../utils/gameState.js";
 import { getMapPixelSize } from "./map.js";
 import { stopGameplay } from "../main.js"; // used to stop game when win/lose
-
+import { initGoblinDrops, updateGoblinDrops, drawGoblinDrops } from "./goblinDrop.js";
 // ------------------------------------------------------------
 // 🎥 LOCAL CAMERA STATE
 // ------------------------------------------------------------
@@ -121,10 +121,11 @@ export async function initGame() {
   initEnemies();
   initTowers();
   initProjectiles();
-  initUI();
+  
 
   // 5️⃣ Player setup
   initPlayerController(canvas);
+  initUI();
 
   // 6️⃣ Pegasus ambient flight (load once, then init with ctx)
   await loadPegasus();
@@ -133,6 +134,7 @@ export async function initGame() {
   initPegasus(ctx);
   await loadHealingGem();      // 💎 Load the gem image
   initHealingDrops(ctx);
+  initGoblinDrops(ctx);
 
   console.log("🌸 game.js — Initialization complete.");
 }
@@ -152,6 +154,7 @@ export function updateGame(delta) {
   updateFloatingText(delta);
   updatePegasus(delta);
   updateHealingDrops(delta);
+  updateGoblinDrops(delta);
    // 💬 Floating text movement + fade
 
   // 🎥 Camera follow player
@@ -189,6 +192,7 @@ export function renderGame() {
   drawProjectiles(ctx);
   drawFloatingText(ctx); // 💬 draw floating damage/heal numbers
   drawHealingDrops(ctx);
+  drawGoblinDrops(ctx);
 
   ctx.restore();
 

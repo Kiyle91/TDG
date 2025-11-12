@@ -53,7 +53,7 @@ export function initUI() {
 }
 
 // ------------------------------------------------------------
-// 💖 UPDATE HUD
+// 💖 UPDATE HUD (safe numeric fallback)
 // ------------------------------------------------------------
 export function updateHUD() {
   if (!waveDisplay || !goldDisplay || !diamondDisplay || !livesDisplay) return;
@@ -70,26 +70,33 @@ export function updateHUD() {
   livesDisplay.textContent = `Lives: ${playerLives}`;
 
   // 💖 HP + MANA BARS (via CSS variable --fill)
-  const hpBar = document.getElementById("hp-bar");
+  const hpBar   = document.getElementById("hp-bar");
   const manaBar = document.getElementById("mana-bar");
-  const hpText = document.getElementById("hp-text");
+  const hpText   = document.getElementById("hp-text");
   const manaText = document.getElementById("mana-text");
 
-  if (p && hpBar && manaBar) {
-    const hpPct = Math.max(0, Math.min(100, (p.hp / p.maxHp) * 100));
-    const manaPct = Math.max(0, Math.min(100, (p.mana / p.maxMana) * 100));
+  if (hpBar && manaBar) {
+    // ✅ numeric safety: avoid undefined / NaN
+    const hp       = Number(p.hp)       || 0;
+    const maxHp    = Number(p.maxHp)    || 100;
+    const mana     = Number(p.mana)     || 0;
+    const maxMana  = Number(p.maxMana)  || 50;
+
+    const hpPct   = Math.max(0, Math.min(100, (hp / maxHp) * 100));
+    const manaPct = Math.max(0, Math.min(100, (mana / maxMana) * 100));
 
     // Apply CSS variable fills
     hpBar.style.setProperty("--fill", `${hpPct}%`);
     manaBar.style.setProperty("--fill", `${manaPct}%`);
 
-    // Update text values
-    if (hpText) hpText.textContent = `${Math.round(p.hp)} / ${p.maxHp}`;
-    if (manaText) manaText.textContent = `${p.mana.toFixed(1)} / ${p.maxMana}`;
+    // Update text values safely
+    if (hpText)   hpText.textContent   = `${Math.round(hp)} / ${Math.round(maxHp)}`;
+    if (manaText) manaText.textContent = `${mana.toFixed(1)} / ${Math.round(maxMana)}`;
   }
 
   updateTurretBar();
 }
+
 
 // ------------------------------------------------------------
 // 📜 GET GAME STATS
