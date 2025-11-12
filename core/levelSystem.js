@@ -1,10 +1,10 @@
 // ============================================================
-// 🌟 levelSystem.js — Olivia’s World: Crystal Keep (Pause + Full Upgrade + Tower Unlock Integration)
+// 🌟 levelSystem.js — Olivia’s World: Crystal Keep (Auto HP/Mana + Limited Stat Choice)
 // ------------------------------------------------------------
 // ✦ Handles XP gain, level-ups, and stat upgrades
-// ✦ Pauses gameplay and opens a proper overlay for upgrades
-// ✦ Awards 3 points per level with real-time HUD updates
-// ✦ Automatically checks and displays tower unlock popups
+// ✦ HP & Mana now increase +10 automatically every level
+// ✦ Player can only allocate to Attack, Spell Power, or Ranged Attack
+// ✦ Full pause/resume + tower unlock integration preserved
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
@@ -48,6 +48,12 @@ function checkLevelUp() {
     p.level = (p.level || 1) + 1;
     p.statPoints = (p.statPoints || 0) + POINTS_PER_LEVEL;
 
+    // 🩷 Auto-boost HP and Mana every level
+    p.maxHp = (p.maxHp || 100) + 10;
+    p.maxMana = (p.maxMana || 50) + 10;
+    p.hp = p.maxHp;
+    p.mana = p.maxMana;
+
     spawnFloatingText(p.pos.x, p.pos.y - 60, `⭐ Level ${p.level}!`, "#fff2b3", 22);
 
     // ✅ Pause gameplay for stat upgrades
@@ -85,16 +91,14 @@ function showLevelUpOverlay(p, onClose) {
     <div class="levelup-box">
       <h2>✨ Level Up!</h2>
       <p>You reached <strong>Level ${p.level}</strong>!<br>
-      You have <strong>${p.statPoints}</strong> points to allocate.</p>
+      You have <strong>${p.statPoints}</strong> point${p.statPoints > 1 ? "s" : ""} to allocate.</p>
       <div class="levelup-buttons"></div>
     </div>
   `;
   document.body.appendChild(overlay);
 
-  // Build stat buttons
+  // Build stat buttons (HP and Mana removed)
   const stats = [
-    { name: "HP", key: "maxHp" },
-    { name: "Mana", key: "maxMana" },
     { name: "Attack", key: "attack" },
     { name: "Spell Power", key: "spellPower" },
     { name: "Ranged Attack", key: "rangedAttack" },
@@ -123,12 +127,8 @@ function handleStatUpgrade(p, key, overlay, onClose) {
   p[key] = (Number(p[key]) || 0) + 5;
   p.statPoints--;
 
-  // Auto-boost current HP/Mana if max increased
-  if (key === "maxHp")   p.hp   = Math.min(p.maxHp,   p.hp + 5);
-  if (key === "maxMana") p.mana = Math.min(p.maxMana, p.mana + 5);
-
   // Floating feedback
-  spawnFloatingText(p.pos.x, p.pos.y - 30, `+${key.replace("max", "")}`, "#b5e2ff");
+  spawnFloatingText(p.pos.x, p.pos.y - 30, `+${key}`, "#b5e2ff");
 
   // Update HUD
   updateHUD();
@@ -155,8 +155,6 @@ function closeLevelUpOverlay(overlay, onClose) {
   // Don’t unpause yet — wait for tower unlock alert
   if (typeof onClose === "function") onClose();
 }
-
-
 
 // ============================================================
 // 🌟 END OF FILE
