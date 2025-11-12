@@ -83,6 +83,8 @@ import { gameState } from "../utils/gameState.js";
 import { getMapPixelSize } from "./map.js";
 import { stopGameplay } from "../main.js"; // used to stop game when win/lose
 import { initGoblinDrops, updateGoblinDrops, drawGoblinDrops } from "./goblinDrop.js";
+import { clearOgres } from "./ogre.js";
+
 // ------------------------------------------------------------
 // 🎥 LOCAL CAMERA STATE
 // ------------------------------------------------------------
@@ -296,6 +298,7 @@ export function resetCombatState() {
   }
 
   // 🧩 Re-initialize combat systems
+  clearOgres();
   initEnemies();
   initTowers();
   initProjectiles();
@@ -329,6 +332,8 @@ export function resetPlayerState() {
   updateHUD();
   console.log("🎮 Player revived — soft reset (Try Again).");
 }
+
+import("./ogre.js").then(() => console.log("👹 Ogre dev commands ready."));
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================

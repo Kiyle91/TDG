@@ -22,6 +22,7 @@ import { updateHUD } from "./core/ui.js";
 import { startGoblinIntroStory } from "./core/story.js";
 import { initNavbar } from "./core/navbar.js";
 
+
 let lastTime = 0;
 const FPS = 60;
 const FRAME_DURATION = 1000 / FPS;

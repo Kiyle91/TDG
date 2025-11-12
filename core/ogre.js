@@ -22,10 +22,10 @@ let ogreSprites = null;
 // ⚙️ CONFIG
 // ------------------------------------------------------------
 const OGRE_SIZE = 80;          // roughly double goblin size
-const OGRE_SPEED = 60;          // slower but heavy
+const OGRE_SPEED = 30;          // slower but heavy
 const OGRE_DAMAGE = 25;
 const OGRE_HP = 600;
-const ATTACK_RANGE = 90;
+const ATTACK_RANGE = 120;
 const ATTACK_COOLDOWN = 1500;
 const FADE_OUT = 900;
 
@@ -251,7 +251,13 @@ export function getOgres() {
   return ogres;
 }
 
-
+// ------------------------------------------------------------
+// ♻️ CLEAR OGRES — used when restarting or resetting the map
+// ------------------------------------------------------------
+export function clearOgres() {
+  ogres = [];
+  console.log("🧹 All ogres cleared.");
+}
 
 
 
