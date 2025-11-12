@@ -266,9 +266,10 @@ function performMeleeAttack() {
       hit = true;
 
       // 💥 Knockback (same as before)
-      const len = Math.max(1, dist);
-      t.x += (dx / len) * 50;
-      t.y += (dy / len) * 50;
+      if (t.type !== "ogre") {
+        const len = Math.max(1, dist);
+        t.x += (dx / len) * 50;
+        t.y += (dy / len) * 50;}
     }
   }
 
