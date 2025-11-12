@@ -1,5 +1,6 @@
 // ============================================================
-// 🏗️ towerPlacement.js — Olivia’s World: Crystal Keep (Full Multi-Turret System + Overlap Check)
+// 🏗️ towerPlacement.js — Olivia’s World: Crystal Keep 
+//    (Full Multi-Turret System + Overlap Check)
 // ------------------------------------------------------------
 // ✦ Handles player-triggered tower placement (keys 1–6)
 // ✦ Unlocks different turret types based on player level
@@ -7,6 +8,7 @@
 // ✦ Uses addTower() to create turret instances
 // ✦ Integrates sounds, floating text, and HUD updates
 // ✦ 🆕 Spawns tower at player location, prevents overlap
+// ✦ 🆕 Placement cooldown (anti-spam)
 // ============================================================
 
 import { gameState, spendGold } from "../utils/gameState.js";
@@ -16,11 +18,17 @@ import { playFairySprinkle, playCancelSound } from "./soundtrack.js";
 import { updateHUD } from "./ui.js";
 
 // ------------------------------------------------------------
+// 🕒 Tower Placement Cooldown (anti-spam safeguard)
+// ------------------------------------------------------------
+let towerPlaceCooldown = 0;   // ms remaining
+const TOWER_PLACE_DELAY = 300; // 300ms between placements
+
+// ------------------------------------------------------------
 // ⚙️ CONFIGURATION
 // ------------------------------------------------------------
 const TILE_SIZE = 64;
 const TOWER_COST = 50;
-const TOWER_RADIUS = 75;// 🛑 No other tower can be within this distance
+const TOWER_RADIUS = 75; // 🛑 No other tower can be within this distance
 
 // ✨ Unlock levels + metadata for each turret
 const TOWER_UNLOCKS = {
@@ -36,15 +44,18 @@ const TOWER_UNLOCKS = {
 // 🧭 handleTowerKey()
 // ------------------------------------------------------------
 export function handleTowerKey(keyCode) {
+  // Cooldown check
+  if (towerPlaceCooldown > 0) return;
+
   const num = parseInt(keyCode.replace("Digit", ""));
-  if (num >= 1 && num <= 6) tryPlaceTower(num);
+  if (num >= 1 && num <= 6) {
+    tryPlaceTower(num);
+    towerPlaceCooldown = TOWER_PLACE_DELAY; // Start cooldown
+  }
 }
 
 // ------------------------------------------------------------
 // 🩵 tryPlaceTower()
-// ------------------------------------------------------------
-// Handles placement, unlock checks, cost, and spawn.
-// Towers now spawn exactly where the player stands, unless blocked.
 // ------------------------------------------------------------
 function tryPlaceTower(num) {
   const p = gameState.player;
@@ -61,35 +72,33 @@ function tryPlaceTower(num) {
     return;
   }
 
-  // 💰 Check gold (profile currencies)
+  // 💰 Check gold
   const gold = gameState.profile?.currencies?.gold ?? 0;
   if (gold < TOWER_COST) {
     spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough gold", "#ff7aa8");
     playCancelSound();
-    console.log(`💰 Not enough gold (${gold}/${TOWER_COST}).`);
     return;
   }
 
-  // 🏗️ Determine spawn position (exactly at player)
+  // 🏗️ Position (player location)
   const spawnX = p.pos.x;
   const spawnY = p.pos.y;
 
   // 🧱 Prevent overlapping towers
-  const towers = typeof getTowers === "function" ? getTowers() : [];
+  const towers = getTowers();
   const overlapping = towers.some(t => {
     const dx = t.x - spawnX;
     const dy = t.y - spawnY;
-    return Math.hypot(dx, dy) < TOWER_RADIUS; // too close
+    return Math.hypot(dx, dy) < TOWER_RADIUS;
   });
 
   if (overlapping) {
     spawnFloatingText(spawnX, spawnY - 40, "❌ Too close to another tower", "#ff7aa8");
     playCancelSound();
-    console.warn("🧱 Tower placement blocked — overlap detected.");
     return;
   }
 
-  // 🏰 Create the new tower instance
+  // 🏰 Create new tower
   addTower({
     name: towerData.name,
     type: towerData.key,
@@ -98,18 +107,31 @@ function tryPlaceTower(num) {
     y: spawnY,
   });
 
-  // 💸 Deduct gold & refresh HUD
+  // 💸 Deduct gold
   const success = spendGold(TOWER_COST);
   if (success) {
     updateHUD();
     spawnFloatingText(spawnX, spawnY - 40, `-${TOWER_COST} G`, "#ffd6eb");
     playFairySprinkle();
-    console.log(`🏰 Placed ${towerData.name} at (${spawnX}, ${spawnY})`);
   } else {
     playCancelSound();
-    console.warn("❌ spendGold() failed — possibly unsynced profile.");
   }
 }
+
+// ------------------------------------------------------------
+// 📤 Export cooldown
+// ------------------------------------------------------------
+export { towerPlaceCooldown, TOWER_PLACE_DELAY };
+
+// ------------------------------------------------------------
+// ⏳ Auto-cooldown tick (60fps)
+// ------------------------------------------------------------
+setInterval(() => {
+  if (towerPlaceCooldown > 0) {
+    towerPlaceCooldown -= 16;
+    if (towerPlaceCooldown < 0) towerPlaceCooldown = 0;
+  }
+}, 16);
 
 // ============================================================
 // 🌟 END OF FILE

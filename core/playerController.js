@@ -780,6 +780,28 @@ export function updatePlayer(delta) {
     }
   }
 
+      // ------------------------------------------------------------
+    // 👹 Ogre Collision (Prevents walking through the ogre)
+    // ------------------------------------------------------------
+    const ogres = getOgres ? getOgres() : [];
+    for (const o of ogres) {
+      if (!o.alive) continue;
+
+      const dx = o.x - p.pos.x;
+      const dy = o.y - p.pos.y;
+      const dist = Math.hypot(dx, dy);
+
+      const combinedRadius = 60; // tweak for your ogre size
+
+      if (dist < combinedRadius) {
+        // Push player away from the ogre
+        const pushStrength = 4;
+        p.pos.x -= (dx / dist) * pushStrength;
+        p.pos.y -= (dy / dist) * pushStrength;
+      }
+    }
+
+
   // ------------------------------------------------------------
   // 🕺 ANIMATION ADVANCE
   // ------------------------------------------------------------
