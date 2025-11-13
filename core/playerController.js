@@ -697,7 +697,7 @@ export function updatePlayer(delta) {
   // ------------------------------------------------------------
   // 🔮 PASSIVE MANA REGENERATION
   // ------------------------------------------------------------
-  const regenRate = 0.1 + (p.level ?? 1) * 0.02; // base 0.1 + 0.02 per level
+  const regenRate = 0.8+ (p.level ?? 1) * 0.05; // base 0.1 + 0.02 per level
   p.mana = Math.min(p.maxMana, p.mana + regenRate * dt);
 
   // ------------------------------------------------------------
