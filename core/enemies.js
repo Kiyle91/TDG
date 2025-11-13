@@ -54,6 +54,21 @@ let spawnTimer = 0;
 const SPAWN_INTERVAL = 5000;
 const MAX_ACTIVE_ENEMIES = 50;
 
+
+function getChaseSpread() {
+  // Count goblins currently in chase
+  let chasing = 0;
+  for (const g of enemies) {
+    if (g.state === "chase" && g.alive) chasing++;
+  }
+
+  // Spread scaling
+  if (chasing < 5) return 10;     // small pack
+  if (chasing < 10) return 20;    // medium pack
+  if (chasing < 20) return 32;    // large pack
+  return 48;                       // massive horde
+}
+
 // ============================================================
 // 🧩 LOAD SPRITES
 // ============================================================
@@ -152,6 +167,7 @@ function spawnEnemy() {
     burnDamage: 0,
     knockback: 0,
     speed: BASE_SPEED,
+    laneOffset: 0,
   });
 
   enemiesSpawned++;
@@ -170,7 +186,7 @@ function spawnEnemy() {
 }
 
 // ============================================================
-// 🧠 UPDATE ENEMIES (includes collision)
+// 🧠 UPDATE ENEMIES (Ultimate Anti-Jam + MergeOffset Edition)
 // ============================================================
 export function updateEnemies(delta) {
   delta = Math.min(delta, 100);
@@ -181,85 +197,196 @@ export function updateEnemies(delta) {
   const px = player?.pos?.x ?? player.x ?? 0;
   const py = player?.pos?.y ?? player.y ?? 0;
 
+  // Count active enemies for dynamic chase spread
+  let activeCount = 0;
   for (const e of enemies) {
+    if (e.alive) activeCount++;
+  }
+
+  // Wider spread for large hordes
+  let chaseSpread = 12;
+  if (activeCount >= 10 && activeCount < 20) chaseSpread = 22;
+  else if (activeCount >= 20 && activeCount < 30) chaseSpread = 32;
+  else if (activeCount >= 30) chaseSpread = 42;
+
+  // ----------------------------------------------------------
+  // MAIN UPDATE LOOP
+  // ----------------------------------------------------------
+  for (const e of enemies) {
+
+    // Death & fade logic
     if (!e.alive) {
       if (!e.fading) {
         e.deathTimer += delta;
         if (e.deathTimer >= DEATH_LAY_DURATION) e.fading = true;
-      } else e.fadeTimer += delta;
+      } else {
+        e.fadeTimer += delta;
+      }
       continue;
     }
 
     handleElementalEffects(e, dt);
 
-    // --- AI + Attack ---
+    // Distance to player
     const dxp = px - e.x;
     const dyp = py - e.y;
     const distToPlayer = Math.hypot(dxp, dyp);
 
-    if (distToPlayer < AGGRO_RANGE && e.state === "path") e.state = "chase";
+    // Acquire aggro
+    if (distToPlayer < AGGRO_RANGE && e.state === "path") {
+      e.state = "chase";
+    }
 
+    // ==========================================================
+    // CHASE MODE
+    // ==========================================================
     if (e.state === "chase") {
+
       if (distToPlayer > AGGRO_RANGE * 1.5) {
+        // Lose line of sight → Return mode
         e.state = "return";
         e.returnTimer = 0;
+
+        // Spread returning goblins horizontally
+        e.returnOffset = (Math.random() * 60 - 30);  // -30..+30 px
+
       } else if (distToPlayer > ATTACK_RANGE) {
+
         const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
-        e.x += (dxp / distToPlayer) * moveSpeed * dt;
-        e.y += (dyp / distToPlayer) * moveSpeed * dt;
+
+        // Spread goblins around the player (perpendicular offset)
+        const dirX = dxp / (distToPlayer || 1);
+        const dirY = dyp / (distToPlayer || 1);
+        const perpX = -dirY;
+        const perpY = dirX;
+
+        const laneOffset = e.laneOffset ?? 0;
+        const extraSpread = Math.random() * chaseSpread - chaseSpread / 2;
+        const sideOffset = laneOffset + extraSpread;
+
+        const chaseTX = px + perpX * sideOffset;
+        const chaseTY = py + perpY * sideOffset;
+
+        const ddx = chaseTX - e.x;
+        const ddy = chaseTY - e.y;
+        const chaseDist = Math.hypot(ddx, ddy) || 1;
+
+        e.x += (ddx / chaseDist) * moveSpeed * dt;
+        e.y += (ddy / chaseDist) * moveSpeed * dt;
+
       } else {
+
+        // --- Attack player ---
         e.attackCooldown -= delta;
         if (e.attackCooldown <= 0) {
           e.attackCooldown = ATTACK_COOLDOWN;
           player.hp = Math.max(0, (player.hp ?? 0) - GOBLIN_DAMAGE);
+
           playGoblinAttack();
           setTimeout(() => playPlayerDamage(), 350);
           spawnDamageSparkles(px, py);
+
           e.attacking = true;
           e.attackDir = px < e.x ? "left" : "right";
           e.attackFrame = 0;
+
           setTimeout(() => (e.attackFrame = 1), 150);
           setTimeout(() => (e.attacking = false), 350);
         }
       }
     }
 
-    // --- Return to path ---
+    // ==========================================================
+    // RETURN MODE
+    // ==========================================================
     if (e.state === "return") {
       e.returnTimer += delta;
+
       if (e.returnTimer > RETURN_DELAY) {
+
         let nearestIndex = 0;
         let nearestDist = Infinity;
+
         for (let i = 0; i < pathPoints.length; i++) {
-          const dx = pathPoints[i].x - e.x;
+          const dx = (pathPoints[i].x + (e.returnOffset || 0)) - e.x;
           const dy = pathPoints[i].y - e.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
+
           if (dist < nearestDist) {
             nearestDist = dist;
             nearestIndex = i;
           }
         }
-        e.targetIndex = nearestIndex;
+
+        // Random nearby path point = NO MORE JAM
+        let nearby = nearestIndex + Math.floor(Math.random() * 3) - 1; // -1..+1
+        nearby = Math.max(0, Math.min(pathPoints.length - 1, nearby));
+
+        e.targetIndex = nearby;
         e.state = "path";
+
+        // ⭐ NEW: MergeOffset for smooth rejoin
+        e.mergeOffset = (Math.random() * 80 - 40); // -40..+40 px
+        e.mergeSteps = 2; // apply for 2 nodes
       }
     }
 
-    // --- Follow path ---
+    // ==========================================================
+    // FOLLOW PATH MODE
+    // ==========================================================
     if (e.state === "path") {
+
       const target = pathPoints[e.targetIndex];
       if (!target) continue;
-      const dx = target.x - e.x;
-      const dy = target.y - e.y;
+
+      const laneOffset = e.laneOffset ?? 0;
+
+      // Apply laneOffset + returnOffset + mergeOffset
+      const tx =
+        target.x +
+        laneOffset +
+        (e.returnOffset || 0) +
+        (e.mergeOffset || 0);
+
+      const ty = target.y;
+
+      const dx = tx - e.x;
+      const dy = ty - e.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
+
+      // Animate sprite direction
       e.dir =
         Math.abs(dx) > Math.abs(dy)
           ? dx > 0 ? "right" : "left"
           : dy > 0 ? "down" : "up";
+
       if (dist > 1) {
+
         e.x += (dx / dist) * e.speed * dt;
         e.y += (dy / dist) * e.speed * dt;
+
+        // ⭐ Anti-corner wedge nudging
+        if (dist < 12) {
+          const perpX = -dy / (dist || 1);
+          const perpY = dx / (dist || 1);
+          e.x += perpX * 16 * dt;
+          e.y += perpY * 16 * dt;
+        }
+
       } else {
+
+        // Arrived at this node → move to next
         e.targetIndex++;
+
+        // Remove returnOffset after merging in
+        if (e.returnOffset) e.returnOffset = 0;
+
+        // MergeOffset lasts 2 nodes only
+        if (e.mergeSteps > 0) {
+          e.mergeSteps--;
+          if (e.mergeSteps === 0) e.mergeOffset = 0;
+        }
+
         if (e.targetIndex >= pathPoints.length) {
           handleGoblinEscape(e);
           continue;
@@ -267,11 +394,13 @@ export function updateEnemies(delta) {
       }
     }
 
+    // Knockback
     if (e.knockback > 0) {
       e.knockback -= dt * 20;
       e.y -= e.knockback;
     }
 
+    // Animation
     e.frameTimer += delta;
     if (e.frameTimer >= WALK_FRAME_INTERVAL) {
       e.frameTimer = 0;
@@ -281,21 +410,28 @@ export function updateEnemies(delta) {
     if (e.flashTimer > 0) e.flashTimer -= delta;
   }
 
-  // --- Goblin ↔ Goblin Collision ---
+  // ==========================================================
+  // GOBLIN ↔ GOBLIN COLLISION (widened)
+  // ==========================================================
   for (let i = 0; i < enemies.length; i++) {
     const a = enemies[i];
     if (!a.alive) continue;
+
     for (let j = i + 1; j < enemies.length; j++) {
       const b = enemies[j];
       if (!b.alive) continue;
+
       const dx = b.x - a.x;
       const dy = b.y - a.y;
       const dist = Math.hypot(dx, dy);
-      const minDist = 38;
+
+      const minDist = 38; // upgraded personal space
+
       if (dist > 0 && dist < minDist) {
         const overlap = (minDist - dist) / 2;
         const nx = dx / dist;
         const ny = dy / dist;
+
         a.x -= nx * overlap;
         a.y -= ny * overlap;
         b.x += nx * overlap;
@@ -303,32 +439,43 @@ export function updateEnemies(delta) {
       }
     }
 
-    // --- Goblin ↔ Player Collision Pushback ---
+    // Player pushback
     if (player && !player.dead) {
-      const dxp = a.x - player.pos.x;
-      const dyp = a.y - player.pos.y;
-      const distP = Math.hypot(dxp, dyp);
+      const dxp2 = a.x - player.pos.x;
+      const dyp2 = a.y - player.pos.y;
+      const distP = Math.hypot(dxp2, dyp2);
+
       const minDistP = 45;
       if (distP > 0 && distP < minDistP) {
         const push = (minDistP - distP) / 8;
-        const nx = dxp / distP;
-        const ny = dyp / distP;
+        const nx = dxp2 / distP;
+        const ny = dyp2 / distP;
+
         a.x += nx * push;
         a.y += ny * push;
       }
     }
   }
 
-  // --- Remove faded enemies ---
+  // ==========================================================
+  // REMOVE FADED CORPSES
+  // ==========================================================
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
-    if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) enemies.splice(i, 1);
+    if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) {
+      enemies.splice(i, 1);
+    }
   }
 
-  // --- Continuous Spawning (stop after 50 total goblins) ---
+  // ==========================================================
+  // CONTINUOUS SPAWNING
+  // ==========================================================
   spawnTimer -= delta;
   if (spawnTimer <= 0) {
-    if (enemiesSpawned < 50 && enemies.length < MAX_ACTIVE_ENEMIES) {
+    if (
+      enemiesSpawned < 50 &&
+      enemies.length < MAX_ACTIVE_ENEMIES
+    ) {
       spawnEnemy();
       spawnTimer = SPAWN_INTERVAL;
     }
@@ -336,6 +483,9 @@ export function updateEnemies(delta) {
 
   window.__enemies = enemies;
 }
+
+
+
 
 // ============================================================
 // 🌡️ ELEMENTAL EFFECTS (Frost Slow + Burn DOT — Non-stacking, Emoji-only)
