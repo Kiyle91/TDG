@@ -33,10 +33,10 @@ const TOWER_RADIUS = 75; // 🛑 No other tower can be within this distance
 // ✨ Unlock levels + metadata for each turret
 const TOWER_UNLOCKS = {
   1: { name: "Crystal Defender", key: "basic_turret", unlock: 1, projectile: "crystal" },
-  2: { name: "Frost Sentinel", key: "frost_turret", unlock: 6, projectile: "frost" },
-  3: { name: "Flameheart", key: "flame_turret", unlock: 10, projectile: "flame" },
+  2: { name: "Frost Sentinel", key: "frost_turret", unlock: 1, projectile: "frost" },
+  3: { name: "Flameheart", key: "flame_turret", unlock: 1, projectile: "flame" },
   4: { name: "Arcane Spire", key: "arcane_turret", unlock: 15, projectile: "arcane" },
-  5: { name: "Beacon of Light", key: "light_turret", unlock: 20, projectile: "light" },
+  5: { name: "Beacon of Light", key: "light_turret", unlock: 1, projectile: "light" },
   6: { name: "Moonlight Aegis", key: "moon_turret", unlock: 25, projectile: "moon" },
 };
 
