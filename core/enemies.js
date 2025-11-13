@@ -580,7 +580,7 @@ function handleGoblinEscape(enemy) {
 }
 
 // ============================================================
-// 🎨 DRAW
+// 🎨 DRAW ENEMIES (Fire + Frost Overlay Effects)
 // ============================================================
 export function drawEnemies(context) {
   if (!goblinSprites) return;
@@ -589,40 +589,167 @@ export function drawEnemies(context) {
   for (const e of enemies) {
     const img = getEnemySprite(e);
     if (!img) continue;
+
     const drawX = e.x - ENEMY_SIZE / 2;
     const drawY = e.y - ENEMY_SIZE / 2;
 
     ctx.save();
+
+    // 🕳 Shadow
     ctx.beginPath();
-    ctx.ellipse(e.x, e.y + ENEMY_SIZE / 2.3, ENEMY_SIZE * 0.35, ENEMY_SIZE * 0.15, 0, 0, Math.PI * 2);
+    ctx.ellipse(
+      e.x,
+      e.y + ENEMY_SIZE / 2.3,
+      ENEMY_SIZE * 0.35,
+      ENEMY_SIZE * 0.15,
+      0, 0, Math.PI * 2
+    );
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
+
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
+    // ✨ Hit Flash
     if (e.alive && e.flashTimer > 0) {
       const flashAlpha = e.flashTimer / 150;
       ctx.filter = `contrast(1.2) brightness(${1 + flashAlpha * 0.5}) saturate(${1 + flashAlpha * 1.5})`;
-    } else ctx.filter = "none";
+    } else {
+      ctx.filter = "none";
+    }
 
-    if (!e.alive && e.fading) ctx.globalAlpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
+    // 🫥 Fade-out for death
+    if (!e.alive && e.fading) {
+      ctx.globalAlpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
+    }
 
+    // 🧌 Draw base goblin sprite
     ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, ENEMY_SIZE, ENEMY_SIZE);
+
+    // ====================================================================
+    // 🔥 FIRE EFFECT (burn over time)
+    // ====================================================================
+    if (e.isBurning && e.alive) {
+      ctx.save();
+
+      const flicker = 0.85 + Math.random() * 0.3;
+
+      // Warm tint
+      ctx.globalCompositeOperation = "screen";
+      ctx.globalAlpha = 0.25 * flicker;
+      ctx.fillStyle = "rgba(255,150,80,0.5)";
+      ctx.beginPath();
+      ctx.ellipse(e.x, e.y, ENEMY_SIZE * 0.35, ENEMY_SIZE * 0.45, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer flame aura
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = 0.22 * flicker;
+      ctx.fillStyle = "rgba(255,120,60,0.5)";
+      ctx.beginPath();
+      ctx.ellipse(e.x, e.y - ENEMY_SIZE * 0.1, ENEMY_SIZE * 0.55, ENEMY_SIZE * 0.7, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Small inner flame
+      ctx.globalAlpha = 0.15 * flicker;
+      ctx.fillStyle = "rgba(255,200,80,0.5)";
+      ctx.beginPath();
+      ctx.ellipse(e.x, e.y - ENEMY_SIZE * 0.25, ENEMY_SIZE * 0.25, ENEMY_SIZE * 0.35, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Embers
+      for (let i = 0; i < 2; i++) {
+        const ox = (Math.random() - 0.5) * ENEMY_SIZE * 0.2;
+        const oy = -Math.random() * ENEMY_SIZE * 0.3;
+
+        ctx.globalAlpha = 0.15 * Math.random();
+        ctx.beginPath();
+        ctx.arc(e.x + ox, e.y + oy, 2 + Math.random() * 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    // ====================================================================
+    // ❄ FROST EFFECT (slow debuff)
+    // ====================================================================
+    if (e.slowTimer > 0 && e.alive) {
+      ctx.save();
+
+      // Soft icy glow (no flicker — frost is stable)
+      const frostPulse = 0.8 + Math.sin(Date.now() / 200) * 0.15;
+
+      // Cool tint (screen blend)
+      ctx.globalCompositeOperation = "screen";
+      ctx.globalAlpha = 0.25 * frostPulse;
+      ctx.fillStyle = "rgba(160,200,255,0.5)"; // soft pastel ice-blue
+      ctx.beginPath();
+      ctx.ellipse(e.x, e.y, ENEMY_SIZE * 0.38, ENEMY_SIZE * 0.48, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Frost aura (lighter)
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = 0.18 * frostPulse;
+      ctx.fillStyle = "rgba(120,170,255,0.5)";
+      ctx.beginPath();
+      ctx.ellipse(
+        e.x,
+        e.y - ENEMY_SIZE * 0.1,
+        ENEMY_SIZE * 0.6,
+        ENEMY_SIZE * 0.75,
+        0, 0, Math.PI * 2
+      );
+      ctx.fill();
+
+      // Sparkle flakes (gentle particles)
+      for (let i = 0; i < 2; i++) {
+        const ox = (Math.random() - 0.5) * ENEMY_SIZE * 0.3;
+        const oy = -Math.random() * ENEMY_SIZE * 0.3;
+
+        ctx.globalAlpha = 0.12 * Math.random();
+        ctx.fillStyle = "rgba(210,240,255,0.8)";
+        ctx.beginPath();
+        ctx.arc(e.x + ox, e.y + oy, 2 + Math.random(), 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    // ============================================================
+    // Reset filters, draw health bar
+    // ============================================================
     ctx.filter = "none";
     ctx.globalAlpha = 1;
+
     if (e.alive) drawHealthBar(ctx, e.x, e.y, e.hp, e.maxHp);
+
     ctx.restore();
   }
 }
 
+// ============================================================
+// ❤️ HEALTH BAR
+// ============================================================
 function drawHealthBar(ctx, x, y, hp, maxHp) {
   const barWidth = 40, barHeight = 5, offsetY = 20;
   const hpPct = Math.max(0, Math.min(1, hp / maxHp));
+
   ctx.fillStyle = "rgba(0,0,0,0.4)";
   ctx.fillRect(x - barWidth / 2, y - ENEMY_SIZE / 2 - offsetY, barWidth, barHeight);
+
   ctx.fillStyle = `hsl(${hpPct * 120},100%,50%)`;
-  ctx.fillRect(x - barWidth / 2, y - ENEMY_SIZE / 2 - offsetY, barWidth * hpPct, barHeight);
+  ctx.fillRect(
+    x - barWidth / 2,
+    y - ENEMY_SIZE / 2 - offsetY,
+    barWidth * hpPct,
+    barHeight
+  );
 }
+
+
+
 
 // ============================================================
 // 🧩 SPRITE SELECTOR
