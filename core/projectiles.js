@@ -2,22 +2,23 @@
 // 💫 projectiles.js — Olivia’s World: Crystal Keep (Elemental Projectiles)
 // ------------------------------------------------------------
 // ✦ Crystal, Frost, Flame, Arcane, Moon, Heal projectiles
-// ✦ Proper player targeting (uses player.pos.x / player.pos.y)
-// ✦ Per-type colors + impacts
-// ✦ Heal bolts heal player on hit
-// ✦ Pure canvas drawing (no images required)
+// ✦ Heal bolts target player correctly (player.pos.x / pos.y)
+// ✦ Flame DOT ticks once per second (non-stacking)
+// ✦ Frost slow applies cleanly once
+// ✦ Pure canvas glow projectiles (no images)
 // ============================================================
 
 import { damageEnemy } from "./enemies.js";
 import { gameState } from "../utils/gameState.js";
+import { spawnFloatingText } from "./floatingText.js";
 
 const PROJECTILE_SPEED = 480;
 
-// Per-type damage table (heal = 0 dmg)
+// Per-type damage table
 const PROJECTILE_DAMAGE = {
   crystal: 25,
   frost: 15,
-  flame: 15,
+  flame: 12,
   arcane: 30,
   moon: 20,
   heal: 0
@@ -37,11 +38,9 @@ export function initProjectiles() {
 // 💥 SPAWN PROJECTILE
 // ------------------------------------------------------------
 export function spawnProjectile(x, y, target, type = "crystal") {
-
   if (!target) return;
 
-  // ⭐ Player targeting fix: we don't pass player object anymore
-  //   — instead we create a virtual target containing x/y + flag
+  // Player targeting → convert to virtual target
   if (target === gameState.player) {
     target = {
       x: gameState.player.pos.x,
@@ -50,7 +49,7 @@ export function spawnProjectile(x, y, target, type = "crystal") {
     };
   }
 
-  // Enemies still need .alive
+  // Enemy check
   if (!target.isPlayer && !target.alive) return;
 
   projectiles.push({
@@ -73,11 +72,11 @@ export function updateProjectiles(delta) {
     const p = projectiles[i];
     const t = p.target;
 
-    // Determine real target coords
+    // Get real target coordinates
     const tx = t.isPlayer ? gameState.player.pos.x : t.x;
     const ty = t.isPlayer ? gameState.player.pos.y : t.y;
 
-    // If target invalid (enemy died)
+    // If enemy died
     if (!t.isPlayer && !t.alive) {
       projectiles.splice(i, 1);
       continue;
@@ -90,41 +89,74 @@ export function updateProjectiles(delta) {
     const step = PROJECTILE_SPEED * dt;
 
     p.angle = Math.atan2(dy, dx);
-    p.life += delta;
 
-    // 🎯 On Hit
+    // 🎯 ON HIT
     if (dist < 8) {
 
+      // --------------------------------------------------------
+      // 💛 HEAL PROJECTILE
+      // --------------------------------------------------------
       if (p.type === "heal") {
-        // ⭐ Heal the player
         const player = gameState.player;
         if (player) {
-          player.hp = Math.min(player.maxHp, player.hp + 10);
+          player.hp = Math.min(player.maxHp, player.hp + 15);
+          spawnFloatingText(player.pos.x, player.pos.y - 30, "✨ +15 HP!", "#ffee88");
         }
+      }
 
-      } else if (p.type === "frost") {
-        // ⭐ Slow enemy
-        t.slowTimer = 2000;
-        if (!t._owFrostSlowed) {
-          t.speed *= 0.5;
-          t._owFrostSlowed = true;
-        }
+      // --------------------------------------------------------
+      // ❄ FROST PROJECTILE — apply slow once, emoji-only
+      // --------------------------------------------------------
+      else if (p.type === "frost") {
 
-        damageEnemy(t, PROJECTILE_DAMAGE.frost);
+          // Apply / refresh slow duration
+          t.slowTimer = 2000;
 
-      } else if (p.type === "flame") {
-        // ⭐ Apply burn DOT
-        t.burnTimer = 3000;
-        t.burnDamage = 3;
-        damageEnemy(t, PROJECTILE_DAMAGE.flame);
+          // Only apply speed reduction once per slow cycle
+          if (!t._owFrostSlowed) {
+              t.speed *= 0.5;
+              t._owFrostSlowed = true;
 
-      } else if (p.type === "moon") {
-        // ⭐ Knockback
+              // Minimal one-time frost emoji
+              spawnFloatingText(t.x, t.y - 20, "❄");
+          }
+
+          // Single hit damage for frost (kept)
+          damageEnemy(t, PROJECTILE_DAMAGE.frost);
+      }
+
+      // --------------------------------------------------------
+      // 🔥 FLAME PROJECTILE — apply burn only once, emoji-only
+      // --------------------------------------------------------
+      else if (p.type === "flame") {
+
+          // First time flame hits this goblin
+          if (!t.isBurning) {
+              t.isBurning = true;
+              t.burnTimer = 3000;   // 3s total duration
+              t.burnTick = 0;       // tick immediately on next update
+              t.burnDamage = 3;
+
+              // Minimal floating text (one-time)
+              spawnFloatingText(t.x, t.y - 20, "🔥");
+          }
+
+          // ❌ Removed the extra "hit" damage — burn handles damage over time
+          // damageEnemy(t, PROJECTILE_DAMAGE.flame);
+      }
+
+      // --------------------------------------------------------
+      // 🌙 MOON PROJECTILE — knockback + damage
+      // --------------------------------------------------------
+      else if (p.type === "moon") {
         t.knockback = 15;
         damageEnemy(t, PROJECTILE_DAMAGE.moon);
+      }
 
-      } else {
-        // 💎 Other types (crystal, arcane)
+      // --------------------------------------------------------
+      // 💎 CRYSTAL + 💜 ARCANE
+      // --------------------------------------------------------
+      else {
         const dmg = PROJECTILE_DAMAGE[p.type] ?? 10;
         damageEnemy(t, dmg);
       }
@@ -144,47 +176,41 @@ export function updateProjectiles(delta) {
 // ------------------------------------------------------------
 function getProjectileColors(type) {
   switch (type) {
-    case "frost":
-      return {
-        inner: "rgba(180, 230, 255, 0.95)",
-        mid:   "rgba(120, 200, 255, 0.5)",
-        outer: "rgba(120, 200, 255, 0)"
-      };
+    case "frost": return {
+      inner: "rgba(180, 230, 255, 0.95)",
+      mid:   "rgba(120, 200, 255, 0.5)",
+      outer: "rgba(120, 200, 255, 0)"
+    };
 
-    case "flame":
-      return {
-        inner: "rgba(255, 150, 80, 0.95)",
-        mid:   "rgba(255, 100, 50, 0.5)",
-        outer: "rgba(255, 80, 40, 0)"
-      };
+    case "flame": return {
+      inner: "rgba(255, 150, 80, 0.95)",
+      mid:   "rgba(255, 100, 50, 0.5)",
+      outer: "rgba(255, 80, 40, 0)"
+    };
 
-    case "arcane":
-      return {
-        inner: "rgba(220, 160, 255, 0.95)",
-        mid:   "rgba(180, 120, 255, 0.5)",
-        outer: "rgba(160, 80, 255, 0)"
-      };
+    case "arcane": return {
+      inner: "rgba(220, 160, 255, 0.95)",
+      mid:   "rgba(180, 120, 255, 0.5)",
+      outer: "rgba(160, 80, 255, 0)"
+    };
 
-    case "moon":
-      return {
-        inner: "rgba(200, 220, 255, 0.95)",
-        mid:   "rgba(150, 180, 255, 0.5)",
-        outer: "rgba(130, 160, 255, 0)"
-      };
+    case "moon": return {
+      inner: "rgba(200, 220, 255, 0.95)",
+      mid:   "rgba(150, 180, 255, 0.5)",
+      outer: "rgba(130, 160, 255, 0)"
+    };
 
-    case "heal":
-      return {
-        inner: "rgba(255, 240, 120, 0.95)",
-        mid:   "rgba(255, 220, 100, 0.5)",
-        outer: "rgba(255, 200, 80, 0)"
-      };
+    case "heal": return {
+      inner: "rgba(255, 240, 120, 0.95)",
+      mid:   "rgba(255, 220, 100, 0.5)",
+      outer: "rgba(255, 200, 80, 0)"
+    };
 
-    default:
-      return {
-        inner: "rgba(190, 240, 255, 0.9)",
-        mid:   "rgba(160, 210, 255, 0.5)",
-        outer: "rgba(255,255,255,0)"
-      };
+    default: return {
+      inner: "rgba(190, 240, 255, 0.9)",
+      mid:   "rgba(160, 210, 255, 0.5)",
+      outer: "rgba(255,255,255,0)"
+    };
   }
 }
 
@@ -201,7 +227,6 @@ export function drawProjectiles(ctx) {
     ctx.translate(p.x, p.y);
     ctx.rotate(p.angle);
 
-    // Outer orb glow
     const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 20);
     gradient.addColorStop(0, col.inner);
     gradient.addColorStop(0.5, col.mid);
@@ -212,7 +237,6 @@ export function drawProjectiles(ctx) {
     ctx.arc(0, 0, 10, 0, Math.PI * 2);
     ctx.fill();
 
-    // Inner streak
     ctx.strokeStyle = "rgba(255,255,255,0.9)";
     ctx.lineWidth = 2;
     ctx.beginPath();

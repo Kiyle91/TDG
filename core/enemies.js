@@ -41,7 +41,7 @@ const ENEMY_SIZE = 80;
 const BASE_SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;
-const DEFAULT_HP = 100;
+const DEFAULT_HP = 500;
 const HITBOX_OFFSET_Y = 15;
 const ATTACK_RANGE = 80;
 const AGGRO_RANGE = 150;
@@ -338,29 +338,56 @@ export function updateEnemies(delta) {
 }
 
 // ============================================================
-// 🌡️ ELEMENTAL EFFECTS
+// 🌡️ ELEMENTAL EFFECTS (Frost Slow + Burn DOT — Non-stacking, Emoji-only)
 // ============================================================
 function handleElementalEffects(e, dt) {
+
+  // ------------------------------------------------------------
+  // ❄ FROST SLOW (non-stacking, clean expire)
+  // ------------------------------------------------------------
   if (e.slowTimer > 0) {
     e.slowTimer -= dt * 1000;
+
     if (e.slowTimer <= 0) {
       e.slowTimer = 0;
-      e.speed = BASE_SPEED;
+      e.speed = BASE_SPEED;        // restore normal speed
+      e._owFrostSlowed = false;    // allow slow to be applied again
     }
   }
 
-  if (e.burnTimer > 0) {
+  // ------------------------------------------------------------
+  // 🔥 BURN DOT (single instance per goblin, ticks every 1s)
+  // ------------------------------------------------------------
+  if (e.isBurning) {
+
+    // Count down total burn duration
     e.burnTimer -= dt * 1000;
-    if (Math.random() < 0.05) {
-      damageEnemy(e, e.burnDamage ?? 2);
-      spawnFloatingText(e.x, e.y - 40, "🔥", "#ff6633");
+
+    // Tick timer
+    e.burnTick -= dt * 1000;
+
+    // Time for next tick
+    if (e.burnTick <= 0) {
+      e.burnTick = 1000;   // reset for 1 second
+
+      // Apply burn tick damage
+      damageEnemy(e, e.burnDamage);
+
+      // Minimal emoji for tick
+      spawnFloatingText(e.x, e.y - 35, "🔥");
     }
+
+    // Burn expired
     if (e.burnTimer <= 0) {
-      e.burnTimer = 0;
+      e.isBurning = false;
       e.burnDamage = 0;
+      // tick counter left alone intentionally
     }
   }
 }
+
+
+
 
 // ============================================================
 // 🎯 DAMAGE
