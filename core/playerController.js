@@ -859,6 +859,7 @@ export function updatePlayer(delta) {
 // ✦ Handles movement, combat, heal, spell, and death frames
 // ✦ Includes red flash overlay when damaged
 // ✦ Adds compact HP bar under player sprite
+// ✦ ⭐ Walking UP + DOWN frames scaled 20% larger & shifted up 10%
 // ============================================================
 export function drawPlayer(ctx) {
   if (!ctx) return;
@@ -869,13 +870,14 @@ export function drawPlayer(ctx) {
   let img = sprites.idle;
 
   // ------------------------------------------------------------
-  // 💀 Death frame override
+  // 💀 Death override
   // ------------------------------------------------------------
   if (p.dead) {
     img = sprites.dead;
-  } 
+  }
+
   else if (isAttacking) {
-    // 🗡️ / 🏹 / 🔮 / 💖 Attack Sequences
+    // 🗡️ MELEE
     if (attackType === "melee") {
       const dir = currentDir === "left" ? "left" : "right";
       img = currentFrame === 0
@@ -883,55 +885,37 @@ export function drawPlayer(ctx) {
         : sprites.attack[dir][1];
     }
 
+    // 🏹 RANGED
     else if (attackType === "ranged") {
       const facing = p.facing || "right";
-
       switch (facing) {
-        case "left":
-          img = sprites.shoot.left[1];        // glitter_shoot_left.png
-          break;
-
-        case "right":
-          img = sprites.shoot.right[1];       // glitter_shoot_right.png
-          break;
-
-        case "topLeft":
-          img = sprites.shoot.left[0];        // glitter_raise_left.png
-          break;
-
-        case "topRight":
-          img = sprites.shoot.right[0];       // glitter_raise_right.png
-          break;
-
-        case "bottomLeft":
-          img = sprites.shoot.lowerLeft;      // glitter_lower_left.png
-          break;
-
-        case "bottomRight":
-          img = sprites.shoot.lowerRight;     // glitter_lower_right.png
-          break;
-
-        default:
-          img = sprites.shoot.right[1];
-          break;
+        case "left":        img = sprites.shoot.left[1];  break;
+        case "right":       img = sprites.shoot.right[1]; break;
+        case "topLeft":     img = sprites.shoot.left[0];  break;
+        case "topRight":    img = sprites.shoot.right[0]; break;
+        case "bottomLeft":  img = sprites.shoot.lowerLeft; break;
+        case "bottomRight": img = sprites.shoot.lowerRight; break;
+        default:            img = sprites.shoot.right[1]; break;
       }
     }
 
-
-
+    // 🔮 SPELL
     else if (attackType === "spell") {
       img = currentFrame === 0
         ? sprites.spell.charge
         : sprites.spell.explode;
     }
 
+    // 💖 HEAL
     else if (attackType === "heal") {
       img = sprites.heal;
     }
-  } 
+  }
+
   else if (isMoving) {
     img = sprites.walk[currentDir][currentFrame];
-  } 
+  }
+
   else {
     img = sprites.idle;
   }
@@ -939,14 +923,13 @@ export function drawPlayer(ctx) {
   if (!img) return;
 
   // ------------------------------------------------------------
-  // 🩶 Shadow + Character Base
+  // 🩶 Shadow location
   // ------------------------------------------------------------
   const drawX = x - SPRITE_SIZE / 2;
   const drawY = y - SPRITE_SIZE / 2;
 
   ctx.save();
 
-  // 🩶 Soft drop shadow under player
   ctx.beginPath();
   ctx.ellipse(
     x,
@@ -962,54 +945,79 @@ export function drawPlayer(ctx) {
   ctx.imageSmoothingQuality = "high";
 
   // ------------------------------------------------------------
-  // ✨ Draw player sprite (scaled for melee)
+  // ✨ DRAW LOGIC
   // ------------------------------------------------------------
+
   if (isAttacking && attackType === "melee" && currentFrame === 0) {
+    // MELEE SLASH 1.5x
     const scale = 1.5;
     const w = SPRITE_SIZE * scale;
     const h = SPRITE_SIZE * scale;
-    const offsetX = x - w / 2;
-    const offsetY = y - h / 2;
-    ctx.drawImage(img, 0, 0, 1024, 1024, offsetX, offsetY, w, h);
-  } else {
-    ctx.drawImage(
-      img,
-      0, 0, 1024, 1024,
-      drawX, drawY,
-      SPRITE_SIZE, SPRITE_SIZE
-    );
+    ctx.drawImage(img, 0, 0, 1024, 1024, x - w/2, y - h/2, w, h);
+  }
+
+  else {
+    // ⭐ UP & DOWN WALKING SCALE
+    const isDownWalk = isMoving && currentDir === "down";
+    const isUpWalk   = isMoving && currentDir === "up";
+
+    if (isDownWalk || isUpWalk) {
+      const scale = 1.20;
+      const w = SPRITE_SIZE * scale;
+      const h = SPRITE_SIZE * scale;
+
+      // Feet anchor: lower sprite ~18%
+      // Alignment fix: raise sprite ~10%
+      const lowerFeet = SPRITE_SIZE * 0.18;
+      const raiseUp   = SPRITE_SIZE * 0.20;
+
+      const offsetX = x - w / 2;
+      const offsetY = y - h / 2 + lowerFeet - raiseUp;
+
+      ctx.drawImage(
+        img,
+        0, 0, 1024, 1024,
+        offsetX, offsetY,
+        w, h
+      );
+    }
+
+    else {
+      // NORMAL DRAW for all other states
+      ctx.drawImage(
+        img,
+        0, 0, 1024, 1024,
+        drawX, drawY,
+        SPRITE_SIZE, SPRITE_SIZE
+      );
+    }
   }
 
   // ------------------------------------------------------------
-  // 💖 Compact Player HP Bar (under feet)
+  // ❤️ Player HP Bar
   // ------------------------------------------------------------
   if (!p.dead) {
     const barWidth = 42;
     const barHeight = 4;
-    const offsetY = SPRITE_SIZE * 0.5 + 12; // 🔽 places it just below sprite + above shadow
+    const offsetY = SPRITE_SIZE * 0.5 + 12;
     const hpPct = Math.max(0, Math.min(1, p.hp / p.maxHp));
 
-    // Background
     ctx.fillStyle = "rgba(0,0,0,0.4)";
     ctx.fillRect(x - barWidth / 2, y + offsetY, barWidth, barHeight);
 
-    // Foreground gradient
     const grad = ctx.createLinearGradient(x - barWidth / 2, 0, x + barWidth / 2, 0);
     grad.addColorStop(0, "#ff66b3");
     grad.addColorStop(1, "#ff99cc");
     ctx.fillStyle = grad;
     ctx.fillRect(x - barWidth / 2, y + offsetY, barWidth * hpPct, barHeight);
 
-    // Glow outline
     ctx.strokeStyle = "rgba(255,182,193,0.6)";
     ctx.lineWidth = 1;
     ctx.strokeRect(x - barWidth / 2, y + offsetY, barWidth, barHeight);
   }
 
-  
-
   // ------------------------------------------------------------
-  // 🏹 Silver Arrows (projectiles)
+  // 🏹 Silver Arrow projectiles
   // ------------------------------------------------------------
   ctx.fillStyle = "rgba(240,240,255,0.9)";
   for (const a of projectiles) {
@@ -1021,12 +1029,14 @@ export function drawPlayer(ctx) {
   }
 
   // ------------------------------------------------------------
-  // 🌈 Sparkles (magic bursts)
+  // 🌈 Sparkles
   // ------------------------------------------------------------
   updateAndDrawSparkles(ctx, 16);
 
   ctx.restore();
 }
+
+
 
 
 
