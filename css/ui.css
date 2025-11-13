@@ -1,181 +1,232 @@
 /* ============================================================
    💖 HUD — Balanced layout + capped bars
-   ============================================================ */
+============================================================ */
 
 #hud {
   position: absolute;
   top: 0;
   left: 0;
-  height: 50px;
-  width: 100%;
-  background: linear-gradient(180deg, #ffe4f7 0%, #e3caff 100%);
-  border-bottom: 2px solid rgba(255,255,255,0.4);
 
-  /* Center the middle block perfectly, regardless of bar widths */
-  position: absolute;
+  width: 100%;
+  height: 50px;
+
+  background: linear-gradient(180deg, #ffe4f7 0%, #e3caff 100%);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
 }
 
+/* Center stats block */
 #center-stats {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+
   height: 50px;
   display: flex;
   align-items: center;
   gap: 18px;
+
   font-family: "Comic Sans MS", cursive;
-  color: #bb3ebb;
   font-weight: bold;
+  color: #bb3ebb;
   text-shadow: 0 0 4px #bb3ebb;
 }
 
-/* Bars anchored to edges */
-#mana-bar, #hp-bar {
+/* Bar containers */
+#hp-bar,
+#mana-bar {
   position: absolute;
   top: 8px;
+
+  width: 350px;      /* capped size */
   height: 30px;
-  width: 350px;              /* cap size here */
-  border-radius: 10px;
+
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.9);
-  background: rgba(255,255,255,0.45);
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.15);
 }
 
-/* 🔁 Swap sides: HP → LEFT, Mana → RIGHT */
-#hp-bar   { left: 20px;  right: auto; }
-#mana-bar { right: 20px; left:  auto; }
+/* HP left, Mana right */
+#hp-bar   { left: 20px; }
+#mana-bar { right: 20px; }
 
-/* Text inside bars */
+/* Text overlay */
 .bar-text {
   position: absolute;
   inset: 0;
+
   display: grid;
   place-items: center;
-  color: #ffffff;
+
   font-size: 13px;
-  line-height: 1;
-  font-family: "Comic Sans MS", cursive;
   font-weight: bold;
+  font-family: "Comic Sans MS", cursive;
+
+  color: #ffffff;
   text-shadow: 0 0 4px #bb3ebb;
+
   pointer-events: none;
 }
 
-/* Fill uses a CSS variable we set from JS: --fill */
+/* Fill layer (width controlled by JS via --fill) */
 #hp-bar::before,
 #mana-bar::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; bottom: 0;
-  width: var(--fill, 100%);   /* <- only this changes from JS */
-  transition: width 0.25s ease-out;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: var(--fill, 100%);
   border-radius: inherit;
+
+  transition: width 0.25s ease-out;
 }
 
-/* Brighter gradients (per your request) */
-#hp-bar::before   { background: linear-gradient(90deg, #ff3164, #ff94d2); }
-#mana-bar::before { background: linear-gradient(90deg, #33aaff, #99e0ff); }
+/* Gradient fills */
+#hp-bar::before {
+  background: linear-gradient(90deg, #ff3164, #ff94d2);
+}
 
+#mana-bar::before {
+  background: linear-gradient(90deg, #33aaff, #99e0ff);
+}
 
 /* ============================================================
-   🩷 END SCREEN OVERLAY — Olivia’s World Pastel Theme
-   ============================================================ */
+   🩷 END SCREEN OVERLAY
+============================================================ */
 .end-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(25, 15, 35, 0.75);
-  backdrop-filter: blur(8px);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   opacity: 0;
+  background: rgba(25, 15, 35, 0.75);
+  backdrop-filter: blur(8px);
+
   transition: opacity 0.9s ease;
   z-index: 9999;
 }
-.end-overlay.visible { opacity: 1; }
+
+.end-overlay.visible {
+  opacity: 1;
+}
 
 .end-panel {
+  max-width: 600px;
+
+  padding: 40px 60px;
+
   background: linear-gradient(145deg, #ffe6f9, #d6c6ff, #b5e2ff);
   background-size: 400% 400%;
+
   animation: panelGlow 10s ease infinite;
-  border: 2px solid rgba(255,255,255,0.8);
-  box-shadow: 0 0 30px rgba(255,255,255,0.4);
+
+  border: 2px solid rgba(255, 255, 255, 0.8);
   border-radius: 20px;
-  padding: 40px 60px;
+
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+
   text-align: center;
   color: #5b338c;
-  max-width: 600px;
+
   font-family: "Princess Sofia", cursive;
 }
+
 .end-panel h1 {
-  font-size: 2.4rem;
   margin-bottom: 0.5rem;
-  text-shadow: 0 0 10px rgba(255,255,255,0.8);
+  font-size: 2.4rem;
+
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
 }
+
 .end-panel p {
-  font-size: 1.3rem;
   margin-bottom: 2rem;
+  font-size: 1.3rem;
+
   color: #4b2b6f;
 }
+
 .end-buttons button {
+  margin: 0 8px;
+  padding: 10px 22px;
+
+  font-size: 1.1rem;
   font-family: "Comic Sans MS", cursive;
+
   background: linear-gradient(90deg, #ffb3e6, #b3d8ff);
+
   border: none;
   border-radius: 12px;
-  padding: 10px 22px;
-  margin: 0 8px;
-  font-size: 1.1rem;
+
   color: #4a2b6d;
   cursor: pointer;
+
   transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
+
 .end-buttons button:hover {
   transform: scale(1.06);
-  box-shadow: 0 0 12px rgba(255,255,255,0.6);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
 }
+
 @keyframes panelGlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-
-
 /* ============================================================
-   🧭 GAME NAVBAR — Pastel Crystal UI
+   🧭 GAME NAVBAR
 ============================================================ */
 .game-navbar {
   position: absolute;
   bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(8px);
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-radius: 14px;
+
   display: flex;
   justify-content: center;
   align-items: center;
+
   padding: 6px 12px;
   gap: 10px;
+
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 14px;
+
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+
   z-index: 9000;
 }
 
 .game-navbar button {
   font-size: 20px;
+
+  padding: 6px 10px;
+  cursor: pointer;
+
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 8px;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+
   color: #555;
+  transition: all 0.2s ease;
 }
 
 .game-navbar button:hover {
-  background: linear-gradient(180deg, #fff0ff, #e3d4ff);
   transform: translateY(-2px);
+
+  background: linear-gradient(180deg, #fff0ff, #e3d4ff);
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
@@ -184,40 +235,51 @@
   box-shadow: none;
 }
 
-
 /* ============================================================
    🏰 TURRET BAR HUD
 ============================================================ */
 .turret-bar {
   position: absolute;
-  right: 12px;
   top: 50%;
+  right: 12px;
   transform: translateY(-50%);
+
   width: 96px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
+
+  padding: 10px 6px;
+
   background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
+
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
-  padding: 10px 6px;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 0 10px rgba(255,255,255,0.2);
+
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+
   z-index: 9999;
 }
 
 .turret-slot {
   width: 64px;
   height: 64px;
+
   position: relative;
-  border-radius: 8px;
-  overflow: hidden;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  overflow: hidden;
+  border-radius: 8px;
+
   filter: grayscale(1) brightness(0.6);
   opacity: 0.6;
+
   transition: all 0.3s ease;
 }
 
@@ -228,60 +290,76 @@
   pointer-events: none;
 }
 
+/* Quantity label bottom-right */
 .turret-slot span {
   position: absolute;
   bottom: 2px;
   right: 4px;
+
   font-size: 12px;
   font-weight: bold;
+
   color: #fff;
   text-shadow: 0 0 3px #000;
 }
 
-
-
+/* Unlocked slot glow */
 .turret-slot.unlocked {
   filter: none;
   opacity: 1;
+
   box-shadow: 0 0 10px rgba(255, 223, 95, 0.6);
 }
+
 .turret-slot.unlocked span {
   color: #fff;
-  text-shadow: 0 0 6px #ffdf5f, 0 0 12px #ffdf5f;
+  text-shadow:
+    0 0 6px #ffdf5f,
+    0 0 12px #ffdf5f;
 }
 
 /* ============================================================
    🔢 TURRET HOTKEY LABELS
-   ------------------------------------------------------------
-   ✦ Small pastel badges showing spawn key (1-6)
-   ✦ Top-left corner of each turret slot
 ============================================================ */
 .key-label {
   position: absolute;
   top: 4px;
   left: 4px;
+
   width: 22px;
   height: 22px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 13px;
   font-weight: bold;
+
   color: #fff;
+
   background: linear-gradient(135deg, #8cd5ff, #d4b5ff);
-  border: 1px solid rgba(255,255,255,0.8);
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 6px;
-  text-shadow: 0 0 6px rgba(0,0,0,0.4);
-  box-shadow: 0 0 8px rgba(181,226,255,0.5),
-              inset 0 0 4px rgba(255,255,255,0.4);
+
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+
+  box-shadow:
+    0 0 8px rgba(181, 226, 255, 0.5),
+    inset 0 0 4px rgba(255, 255, 255, 0.4);
+
   pointer-events: none;
   z-index: 2;
 }
 
-/* When turret unlocked, gold glow for key too */
+/* Gold key when turret unlocked */
 .turret-slot.unlocked .key-label {
   background: linear-gradient(135deg, #ffe37f, #ffd3a0);
   color: #fff;
-  text-shadow: 0 0 6px rgba(255,215,90,0.8);
+  text-shadow: 0 0 6px rgba(255, 215, 90, 0.8);
 }
 
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

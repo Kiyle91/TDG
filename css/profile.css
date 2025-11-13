@@ -21,9 +21,9 @@
   overflow: hidden;
   transition: opacity 0.8s ease;
 
-  /* 🌈 Pastel fantasy gradient */
   background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 40%, #e0bbff 100%);
   animation: profileGlow 22s ease-in-out infinite alternate;
+
   color: #d63384;
   font-family: "Princess Sofia", "Comic Sans MS", cursive;
 }
@@ -37,18 +37,25 @@
   }
 }
 
+/* ============================================================
+   💎 PROFILE FRAME
+============================================================ */
 .profile-frame {
   position: relative;
   width: 95vw;
   height: 95vh;
+
   border: 8px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
   overflow: hidden;
+
   box-shadow:
     0 0 25px rgba(255, 182, 224, 0.8),
     0 0 50px rgba(224, 187, 255, 0.6),
     inset 0 0 25px rgba(255, 255, 255, 0.3);
+
   animation: frameGlow 6s ease-in-out infinite alternate;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -67,11 +74,6 @@
   z-index: 0;
 }
 
-
-
-
-
-
 /* ============================================================
    💎 PROFILE CONTAINER
 ============================================================ */
@@ -80,32 +82,35 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
   width: 50vw;
   height: 80vh;
 
+  padding: 40px 70px;
+
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
-  border: 2px solid  rgba(91, 139, 230, 0.6);
+
+  border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
-  padding: 40px 70px;
 
   box-shadow:
     0 0 25px rgba(255, 182, 224, 0.8),
     inset 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
-
 /* ============================================================
-   💫 PROFILE PAGE TITLE — Crystal Keep style
+   💫 PROFILE PAGE TITLE
 ============================================================ */
 .profile-title {
-  font-family:  "Comic Sans MS", cursive;
+  font-family: "Comic Sans MS", cursive;
   font-size: 2.8rem;
   font-weight: 900;
   color: rgba(255, 0, 149, 0.6);
   letter-spacing: 1px;
-  margin-bottom: 30px;
+
   text-align: center;
+
   margin-top: 2%;
   margin-bottom: 15%;
 }
@@ -128,22 +133,34 @@
 .profile-slot {
   position: relative;
   overflow: visible;
+
   width: 220px;
   height: 120px;
 
-  background: linear-gradient(145deg,  #8cd5ff, hsl(273, 100%, 87%), #8cd5ff,  #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
-  border: 2px solid  rgba(91, 139, 230, 0.6);
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+
+  background: linear-gradient(
+    145deg,
+    #8cd5ff,
+    hsl(273, 100%, 87%),
+    #8cd5ff,
+    #8cd5ff,
+    hsl(273, 100%, 87%),
+    #8cd5ff
+  );
+
+  border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 15px;
   backdrop-filter: blur(8px);
-  text-align: center;
-  padding: 15px;
   color: #ffffff;
 
   box-shadow:
     0 0 20px rgba(255, 204, 238, 0.4),
     inset 0 0 10px rgba(255, 255, 255, 0.3);
+
   transition: all 0.3s ease;
-  cursor: pointer;
 }
 
 .profile-slot strong {
@@ -169,31 +186,36 @@
   opacity: 0.3;
   color: #ffffff;
   font-style: italic;
-  border: 2px dashed  rgba(91, 139, 230, 0.6);
+  border: 2px dashed rgba(91, 139, 230, 0.6);
 }
 
 /* ============================================================
-   🗑️ DELETE BUTTON — glowing and clickable
+   🗑️ DELETE BUTTON
 ============================================================ */
 .profile-delete {
   position: absolute;
   top: 6px;
   right: 6px;
-  background: linear-gradient(145deg, #ff8ac9, #ffbde3);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
+
   width: 26px;
   height: 26px;
 
   display: flex;
   justify-content: center;
   align-items: center;
+
+  background: linear-gradient(145deg, #ff8ac9, #ffbde3);
+  border: none;
+  border-radius: 50%;
+
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+
   opacity: 0.9;
   z-index: 10;
+
   transition: all 0.3s ease;
 
   box-shadow:
@@ -204,6 +226,7 @@
 .profile-delete:hover {
   transform: scale(1.15);
   opacity: 1;
+
   box-shadow:
     0 0 20px rgba(255, 182, 224, 1),
     inset 0 0 8px rgba(255, 255, 255, 0.5);
@@ -213,27 +236,30 @@
    💎 CREATE NEW PROFILE BUTTON
 ============================================================ */
 .profile-btn {
-  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
-  border: 2px solid  rgba(91, 139, 230, 0.6);
-  border-radius: 12px;
   margin-top: 5%;
+  padding: 12px 32px;
+
+  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 12px;
+
   color: #ffffff;
   font-size: 1.1rem;
-  padding: 12px 32px;
   cursor: pointer;
+
+  transition: all 0.3s ease;
 
   box-shadow:
     0 0 15px rgba(255, 204, 238, 0.6),
     inset 0 0 10px rgba(255, 255, 255, 0.4);
-  transition: all 0.3s ease;
 }
 
 .profile-btn:hover {
   transform: scale(1.06);
+  filter: brightness(1.05);
   box-shadow:
     0 0 25px rgba(255, 204, 238, 0.9),
     inset 0 0 15px rgba(255, 255, 255, 0.5);
-  filter: brightness(1.05);
 }
 
 /* ============================================================
@@ -243,10 +269,13 @@
   width: clamp(260px, 40vw, 520px);
   height: auto;
   margin-bottom: 40px;
+
   transform: scale(1.25);
   transform-origin: center;
+
   filter: drop-shadow(0 0 20px rgba(224, 187, 255, 0.6))
           drop-shadow(0 0 30px rgba(255, 182, 224, 0.4));
+
   animation: logoGlow 6s ease-in-out infinite alternate;
 }
 

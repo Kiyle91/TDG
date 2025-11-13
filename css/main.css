@@ -12,21 +12,15 @@
 * {
   user-select: none;
   -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* Old IE */
-}
-
-
-
-/* ============================================================
-   🌷 GLOBAL RESET & BASE
-============================================================ */
-
-* {
+  -ms-user-select: none;     /* Old IE */
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* ============================================================
+   🌷 GLOBAL RESET & BASE
+============================================================ */
 html,
 body {
   width: 100%;
@@ -43,23 +37,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-
-  /* 💎 soft blue–lilac–magenta gradient */
   background: linear-gradient(270deg, #8cd5ff, #d4b5ff, #ffbde3, #8cd5ff);
   background-size: 800% 800%;
   animation: crystalBG 24s ease infinite;
 }
 
 @keyframes crystalBG {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* ============================================================
@@ -86,8 +72,6 @@ body {
   display: flex;
 }
 
-
-
 /* ============================================================
    💖 GLOW UTILITY CLASSES (Updated Tones)
 ============================================================ */
@@ -103,10 +87,14 @@ body {
   box-shadow: 0 0 20px rgba(255, 182, 224, 0.9);
 }
 
+/* ============================================================
+   🎨 CANVAS RENDERING
+============================================================ */
 canvas {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
+
 /* ============================================================
    🌟 END OF FILE
 ============================================================ */

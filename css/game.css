@@ -1,79 +1,75 @@
+/* ============================================================
+   💖 HUD — Balanced layout + capped bars
+============================================================ */
+
 #hud {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   padding: 0 60px;
   height: 60px;
   width: 100%;
-  background: linear-gradient(90deg, rgba(140,213,255,0.4), rgba(212,181,255,0.35), rgba(255,189,227,0.4));
-  border-bottom: 2px solid rgba(91,139,230,0.6);
+
+  background: linear-gradient(
+    90deg,
+    rgba(140, 213, 255, 0.4),
+    rgba(212, 181, 255, 0.35),
+    rgba(255, 189, 227, 0.4)
+  );
+
+  border-bottom: 2px solid rgba(91, 139, 230, 0.6);
   backdrop-filter: blur(8px);
+
   color: #fff;
   font-weight: bold;
 }
 
-#gold-display, #diamond-display {
+/* ============================================================
+   🎀 SHARED BADGE STYLES (gold, diamonds, wave, lives)
+============================================================ */
+#gold-display,
+#diamond-display,
+#wave-display,
+#lives-display {
   padding: 6px 12px;
-  background: rgba(255,255,255,0.15);
+  font-weight: 600;
+
+  color: #fff;
+
+  background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 182, 224, 0.6);
   border-radius: 10px;
+
   box-shadow: 0 0 10px rgba(224, 187, 255, 0.5);
-  font-weight: 600;
-  color: #fff;
 }
 
-#wave-display, #diamond-display {
-  padding: 6px 12px;
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255, 182, 224, 0.6);
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(224, 187, 255, 0.5);
-  font-weight: 600;
-  color: #fff;
-}
-
-#lives-display, #diamond-display {
-  padding: 6px 12px;
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255, 182, 224, 0.6);
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(224, 187, 255, 0.5);
-  font-weight: 600;
-  color: #fff;
-}
-
-#gold-display::before {
-  content: "💰 ";
-}
-#diamond-display::before {
-  content: "💎 ";
-}
-#wave-display::before {
-  content: "🌀 ";
-}
-#lives-display::before{
-  content:"❤️ ";
-}
+/* Prefixed emojis */
+#gold-display::before    { content: "💰 "; }
+#diamond-display::before { content: "💎 "; }
+#wave-display::before    { content: "🌀 "; }
+#lives-display::before   { content: "❤️ "; }
 
 /* ============================================================
-   🏰 GAME CONTAINER — 1920×1080 crystal frame
+   🏰 GAME CONTAINER — Crystal Frame
 ============================================================ */
 #game-container {
   position: relative;
   width: 80vw;
   height: auto;
+
   border-radius: 20px;
   overflow: hidden;
 
-  /* 💠 Soft glowing blue–lilac frame */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+
   border: 4px solid rgba(91, 139, 230, 0.8);
+
   box-shadow:
     0 0 30px rgba(181, 226, 255, 0.8),
     inset 0 0 25px rgba(224, 187, 255, 0.4),
     0 0 50px rgba(255, 182, 224, 0.5);
-
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
 }
 
 /* ============================================================
@@ -82,6 +78,10 @@
 #game-canvas {
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at center, #f0f8ff 0%, #e0ccff 100%);
-  
+
+  background: radial-gradient(
+    circle at center,
+    #f0f8ff 0%,
+    #e0ccff 100%
+  );
 }

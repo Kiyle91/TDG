@@ -5,9 +5,13 @@
    ✦ Each skin shows a portrait, name, and unlock requirement
 ============================================================ */
 
+/* ============================================================
+   🌸 CONTAINER + TITLE
+============================================================ */
 .skins-container {
   width: 900px;
   max-width: 95vw;
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -17,19 +21,21 @@
 .skins-title {
   font-size: 1.8rem;
   margin-bottom: 30px;
-  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
-  font-family: "Princess Sofia", cursive;
+
   color: #ffffff;
+  font-family: "Princess Sofia", cursive;
+  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
 }
 
 /* ============================================================
    🌸 GRID LAYOUT
 ============================================================ */
 .skins-grid {
+  width: 100%;
+
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 25px;
-  width: 100%;
 }
 
 /* ============================================================
@@ -37,36 +43,53 @@
 ============================================================ */
 .skin-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(91, 139, 230, 0.6);
-  border-radius: 20px;
+
   padding: 16px;
   text-align: center;
+  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+
+  transition: all 0.3s ease;
+
   box-shadow:
     0 0 20px rgba(181, 226, 255, 0.5),
     inset 0 0 10px rgba(255, 255, 255, 0.3);
-  transition: all 0.3s ease;
-  cursor: pointer;
 }
 
-/* 🖼️ Portrait Image */
+/* ============================================================
+   🖼️ PORTRAIT IMAGE
+============================================================ */
 .skin-image {
   width: 180px;
   height: 220px;
-  border-radius: 16px;
+
+  margin-bottom: 10px;
+
   object-fit: cover;
+  border-radius: 16px;
+
+  background: rgba(255, 255, 255, 0.1);
+
   border: 2px solid rgba(181, 226, 255, 0.6);
+
   box-shadow:
     0 0 15px rgba(181, 226, 255, 0.6),
     inset 0 0 8px rgba(255, 255, 255, 0.4);
-  margin-bottom: 10px;
 }
 
-/* 💬 Info text */
+/* ============================================================
+   💬 INFO TEXT
+============================================================ */
 .skin-info h4 {
-  font-family: "Comic Sans MS", cursive;
-  font-size: 1.1rem;
   margin-bottom: 4px;
+
+  font-size: 1.1rem;
+  font-family: "Comic Sans MS", cursive;
+
   text-shadow: 0 0 8px rgba(224, 187, 255, 0.8);
 }
 
@@ -87,14 +110,18 @@
 .skin-placeholder {
   width: 180px;
   height: 220px;
-  border-radius: 16px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.08);
-  border: 2px dashed rgba(181, 226, 255, 0.4);
+
   font-size: 2rem;
   color: rgba(255, 255, 255, 0.6);
+
+  background: rgba(255, 255, 255, 0.08);
+
+  border-radius: 16px;
+  border: 2px dashed rgba(181, 226, 255, 0.4);
 }
 
 /* ============================================================

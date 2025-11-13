@@ -20,8 +20,10 @@
 .hub-bg {
   position: absolute;
   inset: 0;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
   object-position: center;
   z-index: 0;
@@ -30,10 +32,12 @@
 .magic-sparkle {
   position: absolute;
   inset: 0;
-  z-index: 2;
-  pointer-events: none;
+
   overflow: hidden;
+  pointer-events: none;
+
   opacity: 1;
+  z-index: 2;
 }
 
 #landing-container,
@@ -48,30 +52,41 @@
 ------------------------------------------------------------ */
 .magic-particle {
   position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle, #ffffff 0%, rgba(181, 226, 255, 0.5) 50%, transparent 80%);
+
   width: 8px;
   height: 8px;
-  filter: blur(3px) brightness(1.8);
-  mix-blend-mode: screen;
+
+  border-radius: 50%;
   opacity: 1;
-  animation: sparkleDrift 18s linear infinite, sparkleFlicker 3s ease-in-out infinite;
+  mix-blend-mode: screen;
+
+  background: radial-gradient(
+    circle,
+    #ffffff 0%,
+    rgba(181, 226, 255, 0.5) 50%,
+    transparent 80%
+  );
+
+  filter: blur(3px) brightness(1.8);
+
+  animation: sparkleDrift 18s linear infinite,
+             sparkleFlicker 3s ease-in-out infinite;
 }
 
 /* ------------------------------------------------------------
-   Animations
+   Sparkle animations
 ------------------------------------------------------------ */
 @keyframes sparkleDrift {
   0%   { transform: translate(40px, -40px) scale(1.1); opacity: 1; }
   25%  { transform: translate(-30px, -60px) scale(1.2); opacity: 0.9; }
-  50%  { transform: translate(-60px, 20px) scale(1); opacity: 1; }
-  75%  { transform: translate(40px, 40px) scale(1.1); opacity: 1; }
-  100% { transform: translate(0, 0) scale(1); opacity: 1; }
+  50%  { transform: translate(-60px, 20px) scale(1);   opacity: 1; }
+  75%  { transform: translate(40px, 40px) scale(1.1);  opacity: 1; }
+  100% { transform: translate(0, 0) scale(1);          opacity: 1; }
 }
 
 @keyframes sparkleFlicker {
   0%, 100% { filter: blur(3px) brightness(1.5); }
-  50% { filter: blur(2px) brightness(3); }
+  50%      { filter: blur(2px) brightness(3);   }
 }
 
 /* ============================================================
@@ -79,28 +94,35 @@
 ============================================================ */
 .pegasus-fly {
   position: absolute;
-  top: -5%;              /* start slightly above view */
-  left: -250px;          /* off-screen to the left */
+  top: -5%;
+  left: -250px;
+
   width: 150px;
   height: auto;
-  z-index: 2;
+
   opacity: 1;
   pointer-events: none;
+
+  z-index: 2;
+
   filter: drop-shadow(0 0 18px rgba(224, 187, 255, 0.8))
           brightness(1.15);
 
-  /* ✨ One smooth continuous glide */
-  animation: pegasusGlide 4s linear ;
+  /* ✨ Continuous glide */
+  animation: pegasusGlide 4s linear;
   animation-delay: 0.5s;
 }
 
-/* 🌈 Simple diagonal flight path */
+/* 🌈 Diagonal flight path */
 @keyframes pegasusGlide {
   0% {
-    transform: translate(-250px, -100px);  /* start off top-left */
+    transform: translate(-250px, -100px);
   }
   100% {
-    transform: translate(120vw, 300px);   /* end off middle-right */
+    transform: translate(120vw, 300px);
   }
 }
 
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

@@ -37,7 +37,7 @@
   animation: frameGlow 6s ease-in-out infinite alternate;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end; /* content sits at the bottom */
+  justify-content: flex-end;
   align-items: center;
 }
 
@@ -45,12 +45,12 @@
    🌄 BACKGROUND IMAGE
 ============================================================ */
 .landing-frame .landing-bg {
-  display: flex;
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-position: center;
+  display: flex;
   z-index: 0;
 }
 
@@ -58,48 +58,45 @@
    🎀 LANDING CONTAINER (Button + Footer)
 ============================================================ */
 #landing-container {
-  bottom: 5%;
   position: relative;
   z-index: 1;
   width: 100%;
-  padding-bottom: 0.vh; /* consistent gap from bottom */
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  /* Corrected invalid unit */
+  padding-bottom: 0vh;
+  bottom: 5%;
 }
-
-
-
-
 
 /* ============================================================
    🌷 START BUTTON
 ============================================================ */
 .landing-btn {
-
-  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
   position: fixed;
+  bottom: 5vh;
+  padding: 0.8em 2.2em;
+  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 16px;
   color: #ffffff;
   font-size: clamp(1.1rem, 1.8vw, 1.6rem);
   font-weight: 600;
-  padding: 0.8em 2.2em;
   cursor: pointer;
+  transition: all 0.3s ease;
   box-shadow:
     0 0 20px rgba(255, 204, 238, 0.6),
     inset 0 0 12px rgba(255, 255, 255, 0.4);
-  transition: all 0.3s ease;
-  bottom: 5vh;
 }
 
 .landing-btn:hover {
   transform: scale(1.05);
+  filter: brightness(1.05);
   box-shadow:
     0 0 30px rgba(255, 204, 238, 0.9),
     inset 0 0 18px rgba(255, 255, 255, 0.5);
-  filter: brightness(1.05);
 }
 
 /* ============================================================

@@ -11,18 +11,21 @@
 .settings-container {
   width: 700px;
   max-width: 90vw;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   padding: 20px;
 }
 
 .settings-title {
   font-size: 1.8rem;
   margin-bottom: 30px;
-  font-family: "Princess Sofia", cursive;
   color: #ffffff;
+
+  font-family: "Princess Sofia", cursive;
   text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
 }
 
@@ -30,14 +33,17 @@
    🌈 SETTINGS GRID BOX
 ============================================================ */
 .settings-grid {
+  width: 100%;
+  padding: 30px 40px;
+
   display: flex;
   flex-direction: column;
   gap: 25px;
-  width: 100%;
+
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
-  padding: 30px 40px;
+
   box-shadow:
     0 0 20px rgba(181, 226, 255, 0.5),
     inset 0 0 15px rgba(255, 255, 255, 0.3);
@@ -50,9 +56,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   color: #ffffff;
-  font-family: "Comic Sans MS", cursive;
   font-size: 1rem;
+  font-family: "Comic Sans MS", cursive;
   text-shadow: 0 0 6px rgba(224, 187, 255, 0.8);
 }
 
@@ -64,8 +71,9 @@
 .setting-item span {
   width: 70px;
   text-align: right;
-  color: #b5e2ff;
+
   font-weight: bold;
+  color: #b5e2ff;
 }
 
 /* ============================================================
@@ -73,23 +81,27 @@
 ============================================================ */
 .slider {
   flex: 2;
-  appearance: none;
   height: 8px;
-  border-radius: 6px;
-  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
-  outline: none;
-  cursor: pointer;
   margin: 0 15px;
+
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  border-radius: 6px;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
   transition: all 0.3s ease;
 }
 
 .slider::-webkit-slider-thumb {
-  appearance: none;
   width: 18px;
   height: 18px;
+
+  appearance: none;
   border-radius: 50%;
   background: #ffffff;
   border: 2px solid rgba(91, 139, 230, 0.6);
+
   box-shadow: 0 0 10px rgba(224, 187, 255, 0.8);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -103,15 +115,20 @@
    🌈 TOGGLE SWITCHES
 ============================================================ */
 .setting-item.toggle input[type="checkbox"] {
-  appearance: none;
   width: 50px;
   height: 26px;
-  background: linear-gradient(90deg, #8cd5ff, #d4b5ff);
-  border-radius: 20px;
+
+  appearance: none;
   position: relative;
   cursor: pointer;
+
+  border-radius: 20px;
   border: 2px solid rgba(91, 139, 230, 0.6);
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff);
+
   transition: all 0.3s ease;
+
   box-shadow:
     0 0 12px rgba(181, 226, 255, 0.6),
     inset 0 0 8px rgba(255, 255, 255, 0.3);
@@ -123,15 +140,18 @@
   position: absolute;
   top: 2px;
   left: 3px;
+
   width: 18px;
   height: 18px;
+
   background: #ffffff;
   border-radius: 50%;
+
   transition: all 0.3s ease;
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
-/* when enabled */
+/* enabled */
 .setting-item.toggle input[type="checkbox"]:checked {
   background: linear-gradient(90deg, #8cd5ff, #d4b5ff);
   box-shadow: 0 0 15px rgba(181, 226, 255, 0.7);
@@ -142,10 +162,11 @@
   box-shadow: 0 0 10px rgba(255, 189, 227, 0.8);
 }
 
-/* when disabled (unchecked) */
+/* disabled */
 .setting-item.toggle input[type="checkbox"]:not(:checked) {
   background: #5b5b66;
   border-color: rgba(150, 150, 150, 0.5);
+
   box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -154,12 +175,13 @@
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
-/* label text color matches toggle state */
+/* label color when enabled */
 .setting-item.toggle input[type="checkbox"]:checked ~ span {
   color: #b5e2ff;
   text-shadow: 0 0 6px rgba(140, 213, 255, 0.7);
 }
 
+/* label color when disabled */
 .setting-item.toggle input[type="checkbox"]:not(:checked) ~ span {
   color: #999999;
   text-shadow: none;

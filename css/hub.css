@@ -21,9 +21,9 @@
   overflow: hidden;
   transition: opacity 0.8s ease;
 
-  /* 💎 Crystal pastel gradient background */
   background: radial-gradient(circle at center, #8cd5ff 0%, #d4b5ff 40%, #ffbde3 100%);
   animation: hubGlow 20s ease-in-out infinite alternate;
+
   color: #ffffff;
   font-family: "Princess Sofia", "Comic Sans MS", cursive;
 }
@@ -41,16 +41,20 @@
    💎 HUB CONTAINER
 ============================================================ */
 #hub-container {
-  position:fixed;
-  margin-top: 100px;
+  position: fixed;
   bottom: 0.5%;
+  margin-top: 100px;
+
   text-align: center;
+
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(8px);
-  padding: 40px 80px;
-  border-radius: 20px;
 
+  padding: 40px 80px;
+
+  border-radius: 20px;
   border: 2px solid rgba(91, 139, 230, 0.6);
+
   box-shadow:
     0 0 25px rgba(181, 226, 255, 0.8),
     0 0 40px rgba(224, 187, 255, 0.6),
@@ -62,8 +66,8 @@
 ============================================================ */
 .hub-buttons {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 buttons per row */
-  gap: 10px 10px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
   justify-items: center;
   align-items: center;
 }
@@ -73,52 +77,58 @@
 ============================================================ */
 .hub-buttons button {
   width: 240px;
+  padding: 12px 0;
+
   background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 12px;
+
   color: #ffffff;
   font-size: 1.1rem;
-  padding: 12px 0;
   cursor: pointer;
+
+  transition: all 0.3s ease;
+
   box-shadow:
     0 0 15px rgba(181, 226, 255, 0.6),
     inset 0 0 10px rgba(255, 255, 255, 0.4);
-  transition: all 0.3s ease;
 }
 
 .hub-buttons button:hover {
   transform: scale(1.05);
+  filter: brightness(1.05);
   box-shadow:
     0 0 25px rgba(224, 187, 255, 0.9),
     inset 0 0 15px rgba(255, 255, 255, 0.5);
-  filter: brightness(1.05);
 }
 
-
 /* ============================================================
-   💎 HUB FRAME — glowing border + background layer
+   💎 HUB FRAME
 ============================================================ */
 .hub-frame {
   position: relative;
   width: 95vw;
   height: 95vh;
+
   border: 8px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
   overflow: hidden;
+
   box-shadow:
     0 0 25px rgba(181, 226, 255, 0.8),
     0 0 50px rgba(224, 187, 255, 0.6),
     inset 0 0 25px rgba(255, 255, 255, 0.3);
+
   animation: frameGlow 6s ease-in-out infinite alternate;
 
   display: flex;
+  flex-direction: column;
   justify-content: flex-end;
   align-items: center;
-  flex-direction: column;
 }
 
 /* ============================================================
-   🌄 HUB BACKGROUND IMAGE
+   🌄 BACKGROUND IMAGE
 ============================================================ */
 .hub-frame .hub-bg {
   position: absolute;
@@ -137,14 +147,16 @@
   position: absolute;
   bottom: 1.5vh;
   right: 2vw;
+
   font-size: clamp(0.7rem, 1vw, 0.9rem);
   color: rgba(255, 255, 255, 0.85);
   text-shadow: 0 0 6px rgba(224, 187, 255, 0.6);
+
   z-index: 2;
 }
 
 /* ============================================================
-   ✨ FRAME GLOW ANIMATION (shared)
+   ✨ FRAME GLOW ANIMATION
 ============================================================ */
 @keyframes frameGlow {
   0% {
@@ -162,19 +174,22 @@
 }
 
 /* ============================================================
-   🌸 UNIVERSAL OVERLAY LAYER (applies to story + hub)
+   🌸 UNIVERSAL OVERLAY LAYER
 ============================================================ */
 .overlay {
-  position: fixed; /* 👈 crucial: fixed to viewport */
+  position: fixed;
   inset: 0;
+
   display: none;
   justify-content: center;
   align-items: center;
+
+  background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(14px);
-  background: rgba(0, 0, 0, 0.45); /* subtle dark fade behind */
-  z-index: 999; /* 👈 ensures it's above all screens */
+
   opacity: 0;
   transition: opacity 0.6s ease;
+  z-index: 999;
 }
 
 .overlay.active {
@@ -182,7 +197,7 @@
   opacity: 1;
 }
 
-/* 🌷 Overlay Box */
+/* Overlay box */
 .overlay-box {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(91, 139, 230, 0.6);
@@ -190,9 +205,11 @@
   padding: 40px 80px;
   text-align: center;
   color: #fff;
+
   box-shadow:
     0 0 25px rgba(181, 226, 255, 0.8),
     inset 0 0 20px rgba(255, 255, 255, 0.4);
+
   animation: overlayPop 0.4s ease;
 }
 
@@ -201,20 +218,24 @@
   to   { transform: scale(1); opacity: 1; }
 }
 
-/* ✨ Close button */
+/* Close button */
 .overlay-close {
   margin-top: 50px;
   padding: 10px 30px;
+
   font-size: 1.2rem;
-  border-radius: 12px;
+  color: #fff;
+
   background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
   border: 2px solid rgba(91, 139, 230, 0.6);
-  color: #fff;
+  border-radius: 12px;
+
   cursor: pointer;
+  transition: all 0.3s ease;
+
   box-shadow:
     0 0 15px rgba(181, 226, 255, 0.6),
     inset 0 0 10px rgba(255, 255, 255, 0.4);
-  transition: all 0.3s ease;
 }
 
 .overlay-close:hover {
@@ -225,69 +246,85 @@
 }
 
 /* ============================================================
-   📜 STORY INTRO OVERLAY — fixed-size cinematic box
+   📜 STORY INTRO OVERLAY
 ============================================================ */
 .story-box {
   position: relative;
-  width: 900px;       /* fixed width for consistent layout */
-  height: 350px;      /* fixed height so it never resizes */
+  width: 900px;
+  height: 350px;
+
+  padding: 50px 70px;
+
   background: rgba(255, 255, 255, 0.15);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
-  padding: 50px 70px;
-  text-align: center;
-  color: #fff;
+
   font-size: 1.2rem;
+  color: #fff;
+  text-align: center;
   line-height: 1.6;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  z-index: 1000;
+
+  animation: overlayPop 0.5s ease;
+
   box-shadow:
     0 0 25px rgba(181, 226, 255, 0.8),
     inset 0 0 20px rgba(255, 255, 255, 0.4);
-  animation: overlayPop 0.5s ease;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* text on top, button on bottom */
-  align-items: center;
 }
 
-/* 🩵 The text area inside stays centered and constrained */
+/* Story text */
 .story-text {
   width: 100%;
-  height: 200px;       /* fixed readable space for text */
-  overflow: hidden;    /* prevent overflow on long lines */
+  height: 200px;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
-  font-family: "Comic Sans MS", cursive;
+
   margin-bottom: 15px;
-  line-height: 1.6;
+
+  overflow: hidden;
   white-space: pre-wrap;
+  line-height: 1.6;
+
+  font-family: "Comic Sans MS", cursive;
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
 }
 
-
-
-/* ============================================================
-   💫 STORY CONTINUE BUTTON — pastel crystal style
-============================================================ */
+/* Story continue button — FIXED BROKEN RULE */
 .story-next-btn {
   display: inline-block;
-  margin-top: 25px;
   padding: 12px 36px;
+  margin-top: 25px;
+
   font-size: 1.1rem;
   font-weight: bold;
   color: #ffffff;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+
   background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 16px;
-  cursor: pointer;
-  font-family: "Comic Sans MS", cursive;
-  letter-spacing: 0.5px;
+
+  transition: all 0.3s ease;
+
   box-shadow:
-    0 0
+    0 0 20px rgba(181, 226, 255, 0.6),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
 }
 
+.story-next-btn:hover {
+  transform: scale(1.05);
+}
 
+/* Story content row */
 .story-content {
   display: flex;
   align-items: center;
@@ -295,71 +332,83 @@
   height: 260px;
 }
 
+/* Story portrait */
 .story-portrait {
   width: 180px;
   height: 240px;
+
   border-radius: 12px;
   object-fit: cover;
+
+  background: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(181, 226, 255, 0.6);
+
   box-shadow:
     0 0 15px rgba(181, 226, 255, 0.6),
     inset 0 0 8px rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.1);
 }
 
 /* ============================================================
-   💎 HUB LOGO — centered top
+   💎 HUB LOGO
 ============================================================ */
 .hub-logo {
   display: block;
   position: fixed;
   top: 1%;
   width: 30vw;
-  height: auto; 
-  margin: 0 auto 40px auto;      
-  filter: drop-shadow(0 0 20px rgba(224, 187, 255, 0.6))
-          drop-shadow(0 0 30px rgba(255, 182, 224, 0.4));
+  height: auto;
+
+  margin: 0 auto 40px auto;
 
   transform: scale(1.15);
   transform-origin: center;
 
+  filter: drop-shadow(0 0 20px rgba(224, 187, 255, 0.6))
+          drop-shadow(0 0 30px rgba(255, 182, 224, 0.4));
 
   animation: hubLogoGlow 8s ease-in-out infinite alternate;
 }
 
 @keyframes hubLogoGlow {
   0% {
+    transform: scale(1.1);
     filter: drop-shadow(0 0 20px rgba(224, 187, 255, 0.6))
             drop-shadow(0 0 30px rgba(255, 182, 224, 0.4));
-    transform: scale(1.1);
   }
   100% {
+    transform: scale(1.18);
     filter: drop-shadow(0 0 35px rgba(224, 187, 255, 0.9))
             drop-shadow(0 0 45px rgba(255, 182, 224, 0.6));
-    transform: scale(1.18);
   }
 }
 
 /* ============================================================
-   📰 HUB NEWS FEED — fixed top-left overlay
+   📰 HUB NEWS FEED (Right)
 ============================================================ */
 #hub-news {
   position: absolute;
   top: 20vh;
   right: 1vw;
+
   width: clamp(280px, 22vw, 200px);
+  padding: 16px 20px;
+
   background: rgba(255, 255, 255, 0.05);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 16px;
+
   backdrop-filter: blur(4px);
+
+  color: #ffffff;
+  text-align: right;
+
+  z-index: 10;
+
+  animation: newsGlow 6s ease-in-out infinite alternate;
+
   box-shadow:
     0 0 20px rgba(255, 182, 224, 0.5),
     inset 0 0 12px rgba(255, 255, 255, 0.4);
-  padding: 16px 20px;
-  color: #ffffff;
-  animation: newsGlow 6s ease-in-out infinite alternate;
-  z-index: 10;               /* stays above background */
-  text-align: right;
 }
 
 .news-title {
@@ -376,17 +425,21 @@
   max-height: 320px;
   overflow-y: auto;
   padding-right: 6px;
+
   scrollbar-width: thin;
   scrollbar-color: rgba(91, 139, 230, 0.6) transparent;
 }
 
 .news-feed p {
   margin-bottom: 8px;
+  padding: 4px 8px;
+
   line-height: 1.45;
   font-size: 0.9rem;
+
   background: rgba(255, 255, 255, 0.08);
   border-left: 3px solid rgba(224, 187, 255, 0.6);
-  padding: 4px 8px;
+
   border-radius: 6px;
 }
 
@@ -406,38 +459,48 @@
 .news-feed::-webkit-scrollbar {
   width: 5px;
 }
+
 .news-feed::-webkit-scrollbar-thumb {
   background-color: rgba(91, 139, 230, 0.6);
   border-radius: 6px;
 }
 
 /* ============================================================
-   📜 HUB JOURNAL FEED — fixed top-left overlay (mirror)
+   📜 HUB NEWS FEED (Left Mirror)
 ============================================================ */
 #hub-news-left {
   position: absolute;
   top: 20vh;
-  left: 1vw; /* 👈 mirrored to left side */
+  left: 1vw;
+
   width: clamp(280px, 22vw, 200px);
+  padding: 16px 20px;
+
   background: rgba(255, 255, 255, 0.05);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 16px;
+
   backdrop-filter: blur(4px);
+
+  color: #ffffff;
+  text-align: left;
+
+  z-index: 10;
+
+  animation: newsGlowLeft 6s ease-in-out infinite alternate;
+
   box-shadow:
     0 0 20px rgba(255, 182, 224, 0.5),
     inset 0 0 12px rgba(255, 255, 255, 0.4);
-  padding: 16px 20px;
-  color: #ffffff;
-  animation: newsGlowLeft 6s ease-in-out infinite alternate;
-  z-index: 10;
-  text-align: left;
 }
 
 #hub-news-left .news-title {
   font-size: 1.1rem;
   margin-bottom: 10px;
+
   color: #ffffff;
   text-align: left;
+
   text-shadow:
     0 0 8px rgba(91, 139, 230, 0.6),
     0 0 16px rgba(91, 139, 230, 0.6);
@@ -447,19 +510,24 @@
   max-height: 320px;
   overflow-y: auto;
   padding-right: 6px;
+
+  direction: rtl;
+  text-align: left;
+
   scrollbar-width: thin;
   scrollbar-color: rgba(91, 139, 230, 0.6) transparent;
-  direction: rtl;              /* visually swaps scrollbar side */
-  text-align: left; 
 }
 
 #hub-news-left .news-feed p {
   margin-bottom: 8px;
-  line-height: 1.45;
+  padding: 4px 8px;
+
   font-size: 0.9rem;
+  line-height: 1.45;
+
   background: rgba(255, 255, 255, 0.05);
   border-left: 3px solid rgba(91, 139, 230, 0.6);
-  padding: 4px 8px;
+
   border-radius: 6px;
 }
 
@@ -485,28 +553,34 @@
 }
 
 /* ============================================================
-   💰 HUB CURRENCY DISPLAY — top-left overlay
+   💰 HUB CURRENCY DISPLAY
 ============================================================ */
 #hub-currencies {
   position: absolute;
   top: 3vh;
   right: 1vw;
+
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(91, 139, 230, 0.4);
-  border-radius: 12px;
+
   padding: 10px 16px;
+
+  font-size: 1rem;
   font-weight: 600;
   color: #fff;
   text-shadow: 0 0 10px rgba(91, 139, 230, 0.4);
+
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(91, 139, 230, 0.4);
+  border-radius: 12px;
+
+  z-index: 12;
+
   box-shadow:
     0 0 15px rgba(91, 139, 230, 0.4),
     inset 0 0 8px rgba(255, 255, 255, 0.3);
-  z-index: 12;
-  font-size: 1rem;
 }
 
 #hub-gold::before {
@@ -518,32 +592,37 @@
 }
 
 /* ============================================================
-   👑 HUB PROFILE DISPLAY — top-left overlay
+   👑 HUB PROFILE DISPLAY
 ============================================================ */
 #hub-profile {
   position: absolute;
   top: 3vh;
   left: 1vw;
+
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
 
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(91, 139, 230, 0.4);
-  border-radius: 12px;
   padding: 10px 16px;
+
+  font-size: 1rem;
   font-weight: 600;
   color: #fff;
   text-shadow: 0 0 10px rgba(91, 139, 230, 0.4);
+
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(91, 139, 230, 0.4);
+  border-radius: 12px;
+
+  z-index: 12;
+
   box-shadow:
     0 0 15px rgba(91, 139, 230, 0.4),
     inset 0 0 8px rgba(255, 255, 255, 0.3);
-  z-index: 12;
-  font-size: 1rem;
 }
 
-/* ✨ inner text styling */
+/* Inner text */
 #hub-profile-name {
   font-size: 1.5rem;
   color: #ffe6f7;
@@ -555,14 +634,17 @@
   opacity: 0.9;
 }
 
+/* Sparkle effect */
 .sparkle {
   position: fixed;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  pointer-events: none;
-  animation: sparkleFly 1s ease-out forwards;
   opacity: 0.9;
+  pointer-events: none;
+
+  animation: sparkleFly 1s ease-out forwards;
+
   z-index: 999;
 }
 
@@ -578,18 +660,24 @@
 }
 
 /* ============================================================
-   🏹 HUB TURRET CARDS (Level Unlock Display)
+   🏹 HUB TURRET CARDS
 ============================================================ */
 .turret-card {
+  padding: 10px;
+  text-align: center;
+
   opacity: 1;
   pointer-events: none;
+
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+
   border: 2px solid rgba(91, 139, 230, 0.4);
-  padding: 10px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  text-align: center;
+  border-radius: 16px;
+
   color: #fff;
+
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
   box-shadow:
     0 0 15px rgba(181, 226, 255, 0.4),
     inset 0 0 10px rgba(255, 255, 255, 0.3);
@@ -603,9 +691,10 @@
 }
 
 .turret-card .unlock-info {
+  margin-top: 4px;
   font-size: 0.9rem;
   opacity: 0.9;
-  margin-top: 4px;
+
   color: #ffe6f7;
   text-shadow: 0 0 6px rgba(224, 187, 255, 0.6);
 }
