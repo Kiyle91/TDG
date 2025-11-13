@@ -41,7 +41,7 @@ const ENEMY_SIZE = 80;
 const BASE_SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;
-const DEFAULT_HP = 500;
+const DEFAULT_HP = 175;
 const HITBOX_OFFSET_Y = 15;
 const ATTACK_RANGE = 80;
 const AGGRO_RANGE = 150;
@@ -522,9 +522,7 @@ function handleElementalEffects(e, dt) {
 
       // Apply burn tick damage
       damageEnemy(e, e.burnDamage);
-
-      // Minimal emoji for tick
-      spawnFloatingText(e.x, e.y - 35, "🔥");
+      
     }
 
     // Burn expired
@@ -560,8 +558,8 @@ export function damageEnemy(enemy, amount) {
     enemy.fadeTimer = 0;
     playGoblinDeath();
     incrementGoblinDefeated();
-    awardXP(10000);
-    addGold(500);
+    awardXP(10);
+    addGold(5);
     updateHUD();
     trySpawnGoblinDrop(enemy.x, enemy.y);
   }

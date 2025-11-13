@@ -100,7 +100,7 @@ export function updateProjectiles(delta) {
         const player = gameState.player;
         if (player) {
           player.hp = Math.min(player.maxHp, player.hp + 15);
-          spawnFloatingText(player.pos.x, player.pos.y - 30, "✨ +15 HP!", "#ffee88");
+          spawnFloatingText(player.pos.x, player.pos.y - 60, "✨");
         }
       }
 
@@ -118,7 +118,7 @@ export function updateProjectiles(delta) {
               t._owFrostSlowed = true;
 
               // Minimal one-time frost emoji
-              spawnFloatingText(t.x, t.y - 20, "❄");
+              spawnFloatingText(t.x, t.y - 60, "❄️");
           }
 
           // Single hit damage for frost (kept)
@@ -133,13 +133,15 @@ export function updateProjectiles(delta) {
           // First time flame hits this goblin
           if (!t.isBurning) {
               t.isBurning = true;
-              t.burnTimer = 3000;   // 3s total duration
-              t.burnTick = 0;       // tick immediately on next update
+              t.burnTimer = 15000;   // 3s total duration
+              t.burnTick = 1;       // tick immediately on next update
               t.burnDamage = 3;
 
               // Minimal floating text (one-time)
-              spawnFloatingText(t.x, t.y - 20, "🔥");
+              spawnFloatingText(t.x, t.y - 60, "🔥");
           }
+
+          damageEnemy(t, 20);
 
           // ❌ Removed the extra "hit" damage — burn handles damage over time
           // damageEnemy(t, PROJECTILE_DAMAGE.flame);

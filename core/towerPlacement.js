@@ -35,9 +35,9 @@ const TOWER_UNLOCKS = {
   1: { name: "Crystal Defender", key: "basic_turret", unlock: 1, projectile: "crystal" },
   2: { name: "Frost Sentinel", key: "frost_turret", unlock: 1, projectile: "frost" },
   3: { name: "Flameheart", key: "flame_turret", unlock: 1, projectile: "flame" },
-  4: { name: "Arcane Spire", key: "arcane_turret", unlock: 15, projectile: "arcane" },
+  4: { name: "Arcane Spire", key: "arcane_turret", unlock: 1, projectile: "arcane" },
   5: { name: "Beacon of Light", key: "light_turret", unlock: 1, projectile: "light" },
-  6: { name: "Moonlight Aegis", key: "moon_turret", unlock: 25, projectile: "moon" },
+  6: { name: "Moonlight Aegis", key: "moon_turret", unlock: 1, projectile: "moon" },
 };
 
 // ------------------------------------------------------------
@@ -111,7 +111,7 @@ function tryPlaceTower(num) {
   const success = spendGold(TOWER_COST);
   if (success) {
     updateHUD();
-    spawnFloatingText(spawnX, spawnY - 40, `-${TOWER_COST} G`, "#ffd6eb");
+    
     playFairySprinkle();
   } else {
     playCancelSound();
