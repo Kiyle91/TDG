@@ -22,7 +22,6 @@ import { updateHUD } from "./core/ui.js";
 import { startGoblinIntroStory } from "./core/story.js";
 import { initNavbar } from "./core/navbar.js";
 
-
 let lastTime = 0;
 const FPS = 60;
 const FRAME_DURATION = 1000 / FPS;
@@ -230,6 +229,18 @@ function showEndScreen(reason) {
       subtitle.textContent = "";
   }
 
+  // ⭐ Slain Glitter image (defeat / lives only)
+  let defeatImg = null;
+  if (reason === "defeat" || reason === "lives") {
+    defeatImg = document.createElement("img");
+    defeatImg.src = "./assets/images/sprites/glitter/glitter_slain.png";
+    defeatImg.alt = "Glitter has fallen";
+    defeatImg.style.display = "block";
+    defeatImg.style.margin = "20px auto 50px auto";
+    defeatImg.style.width = "180px";
+    defeatImg.style.filter = "drop-shadow(0 0 12px #ffffffaa)";
+  }
+
   const retryBtn = document.createElement("button");
   retryBtn.textContent = reason === "victory" ? "Continue" : "Try Again";
   retryBtn.onclick = resetGameplay;
@@ -257,10 +268,14 @@ function showEndScreen(reason) {
     buttons.append(continueBtn, retryBtn, hubBtn);
   }
 
-  panel.append(title, subtitle, buttons);
+  if (defeatImg) {
+    panel.append(title, subtitle, defeatImg, buttons);
+  } else {
+    panel.append(title, subtitle, buttons);
+  }
+
   requestAnimationFrame(() => overlay.classList.add("visible"));
 }
-
 
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
