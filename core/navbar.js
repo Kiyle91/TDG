@@ -28,6 +28,25 @@ export function initNavbar() {
   console.log("🧭 Navbar initialized (safe exit + restart confirm).");
 }
 
+function showConfirmOverlay(message, onYes, onNo) {
+  const overlay = document.getElementById("overlay-confirm");
+  document.getElementById("confirm-message").textContent = message;
+
+  overlay.classList.add("active");
+
+  const yes = document.getElementById("confirm-yes");
+  const no = document.getElementById("confirm-no");
+
+  const cleanup = () => {
+    yes.onclick = null;
+    no.onclick = null;
+    overlay.classList.remove("active");
+  };
+
+  yes.onclick = () => { cleanup(); onYes?.(); };
+  no.onclick = () => { cleanup(); onNo?.(); };
+}
+
 // ------------------------------------------------------------
 // 💖 ACTION HANDLER
 // ------------------------------------------------------------
@@ -39,32 +58,31 @@ function handleNavAction(action) {
     // 🏠 HOME — Confirm safe hub exit
     // --------------------------------------------------------
     case "home":
-      showConfirm(
-        "Return to the Crystal Hub? Your progress will be saved safely.",
-        () => {
-          console.log("🏠 Confirmed: graceful exit to hub.");
-          const gameContainer = document.getElementById("game-container");
-          fadeOut(gameContainer, () => stopGameplay("exit"));
-        },
-        () => console.log("❎ Cancelled hub return.")
-      );
-      break;
+    showConfirmOverlay(
+      "Return to the Crystal Hub? Your progress will be saved safely.",
+      () => {
+        console.log("🏠 Confirmed: graceful exit to hub.");
+        const gameContainer = document.getElementById("game-container");
+        fadeOut(gameContainer, () => stopGameplay("exit"));
+      },
+      () => console.log("❎ Cancelled hub return.")
+    );
+    break;
 
     // --------------------------------------------------------
     // 🔄 RESTART MAP — Confirm + ResetGameplay
     // --------------------------------------------------------
     case "restart":
-      showConfirm(
-        "Restart this map? You’ll keep your player stats, but towers and enemies will reset.",
-        () => {
-          console.log("🔄 Confirmed: restarting map...");
-          // No fadeOut — just flash effect for visual feedback
-          flashScreen();
-          resetGameplay(); // identical to Try Again from defeat overlay
-        },
-        () => console.log("❎ Restart cancelled.")
-      );
-      break;
+    showConfirmOverlay(
+      "Restart this map? You’ll keep your player stats, but towers and enemies will reset.",
+      () => {
+        console.log("🔄 Confirmed: restarting map...");
+        flashScreen();
+        resetGameplay();
+      },
+      () => console.log("❎ Restart cancelled.")
+    );
+    break;
 
     // --------------------------------------------------------
     // 💾 SAVE / LOAD

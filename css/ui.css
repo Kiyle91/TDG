@@ -106,9 +106,9 @@
   align-items: center;
   justify-content: center;
 
-  opacity: 0;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.75);  /* darken background */
+  backdrop-filter: blur(20px);      /* strong blur */
+  -webkit-backdrop-filter: blur(30px);
 
   transition: opacity 0.9s ease;
   z-index: 9999;
@@ -360,6 +360,20 @@
   text-shadow: 0 0 6px rgba(255, 215, 90, 0.8);
 }
 
+
+#overlay-settings-game, #overlay-game-controls, #overlay-player-stats, #overlay-confirm {
+  background: rgba(0, 0, 0, 0.75);  /* darken background */
+  backdrop-filter: blur(20px);      /* strong blur */
+  -webkit-backdrop-filter: blur(30px);
+}
+
+
+.confirm-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
 /* ============================================================
    🌟 END OF FILE
 ============================================================ */
