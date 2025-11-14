@@ -29,7 +29,7 @@ let enemies = [];
 let ctx = null;
 let pathPoints = [];
 let goblinSprites = null;
-
+let crowdCollisionTimer = 0;   // throttle goblin↔goblin collision
 let enemiesSpawned = 0;
 let storyTriggered = false;
 
@@ -187,7 +187,7 @@ function spawnEnemy() {
 }
 
 // ============================================================
-// 🧠 UPDATE ENEMIES (Ultimate Anti-Jam + MergeOffset Edition)
+// 🧠 UPDATE ENEMIES — Full Logic + Throttled Crowd Collision
 // ============================================================
 export function updateEnemies(delta) {
   delta = Math.min(delta, 100);
@@ -198,13 +198,10 @@ export function updateEnemies(delta) {
   const px = player?.pos?.x ?? player.x ?? 0;
   const py = player?.pos?.y ?? player.y ?? 0;
 
-  // Count active enemies for dynamic chase spread
+  // Count active enemies to widen spread dynamically
   let activeCount = 0;
-  for (const e of enemies) {
-    if (e.alive) activeCount++;
-  }
+  for (const e of enemies) if (e.alive) activeCount++;
 
-  // Wider spread for large hordes
   let chaseSpread = 12;
   if (activeCount >= 10 && activeCount < 20) chaseSpread = 22;
   else if (activeCount >= 20 && activeCount < 30) chaseSpread = 32;
@@ -215,14 +212,14 @@ export function updateEnemies(delta) {
   // ----------------------------------------------------------
   for (const e of enemies) {
 
-    // 🌙 Moon Stun Effect
+    // 🌙 Moon Stun
     if (e.stunTimer > 0) {
       e.stunTimer -= delta;
       e.state = "stunned";
-      continue; // enemy is frozen
+      continue;
     }
 
-    // Death & fade logic
+    // Death
     if (!e.alive) {
       if (!e.fading) {
         e.deathTimer += delta;
@@ -233,9 +230,10 @@ export function updateEnemies(delta) {
       continue;
     }
 
+    // Elemental (Burn + Frost)
     handleElementalEffects(e, dt);
 
-    // Distance to player
+    // PLAYER DISTANCE
     const dxp = px - e.x;
     const dyp = py - e.y;
     const distToPlayer = Math.hypot(dxp, dyp);
@@ -246,7 +244,7 @@ export function updateEnemies(delta) {
     }
 
     // ==========================================================
-    // CHASE MODE
+    // 🐺 CHASE MODE
     // ==========================================================
     if (e.state === "chase") {
 
@@ -254,15 +252,11 @@ export function updateEnemies(delta) {
         // Lose line of sight → Return mode
         e.state = "return";
         e.returnTimer = 0;
-
-        // Spread returning goblins horizontally
-        e.returnOffset = (Math.random() * 60 - 30);  // -30..+30 px
+        e.returnOffset = (Math.random() * 60 - 30);
 
       } else if (distToPlayer > ATTACK_RANGE) {
 
         const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
-
-        // Spread goblins around the player (perpendicular offset)
         const dirX = dxp / (distToPlayer || 1);
         const dirY = dyp / (distToPlayer || 1);
         const perpX = -dirY;
@@ -283,7 +277,6 @@ export function updateEnemies(delta) {
         e.y += (ddy / chaseDist) * moveSpeed * dt;
 
       } else {
-
         // --- Attack player ---
         e.attackCooldown -= delta;
         if (e.attackCooldown <= 0) {
@@ -305,75 +298,66 @@ export function updateEnemies(delta) {
     }
 
     // ==========================================================
-    // RETURN MODE
+    // 🔄 RETURN MODE
     // ==========================================================
     if (e.state === "return") {
       e.returnTimer += delta;
 
       if (e.returnTimer > RETURN_DELAY) {
-
         let nearestIndex = 0;
         let nearestDist = Infinity;
 
         for (let i = 0; i < pathPoints.length; i++) {
           const dx = (pathPoints[i].x + (e.returnOffset || 0)) - e.x;
           const dy = pathPoints[i].y - e.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < nearestDist) {
-            nearestDist = dist;
+          const d = dx * dx + dy * dy;
+          if (d < nearestDist) {
+            nearestDist = d;
             nearestIndex = i;
           }
         }
 
-        // Random nearby path point = NO MORE JAM
-        let nearby = nearestIndex + Math.floor(Math.random() * 3) - 1; // -1..+1
+        let nearby = nearestIndex + Math.floor(Math.random() * 3) - 1;
         nearby = Math.max(0, Math.min(pathPoints.length - 1, nearby));
 
         e.targetIndex = nearby;
         e.state = "path";
 
-        // ⭐ NEW: MergeOffset for smooth rejoin
-        e.mergeOffset = (Math.random() * 80 - 40); // -40..+40 px
-        e.mergeSteps = 2; // apply for 2 nodes
+        e.mergeOffset = (Math.random() * 80 - 40);
+        e.mergeSteps = 2;
       }
     }
 
     // ==========================================================
-    // FOLLOW PATH MODE
-    // ==========================================================
+    // 🛣 PATH MODE (NO TILE COLLISION)
+// ==========================================================
     if (e.state === "path") {
 
       const target = pathPoints[e.targetIndex];
       if (!target) continue;
 
-      const laneOffset = e.laneOffset ?? 0;
-
-      // Apply laneOffset + returnOffset + mergeOffset
       const tx =
         target.x +
-        laneOffset +
+        (e.laneOffset ?? 0) +
         (e.returnOffset || 0) +
         (e.mergeOffset || 0);
 
       const ty = target.y;
-
       const dx = tx - e.x;
       const dy = ty - e.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      const distSq = dx * dx + dy * dy;
 
-      // Animate sprite direction
+      let dist = Math.sqrt(distSq);
+
       e.dir =
         Math.abs(dx) > Math.abs(dy)
           ? dx > 0 ? "right" : "left"
           : dy > 0 ? "down" : "up";
 
       if (dist > 1) {
-
         e.x += (dx / dist) * e.speed * dt;
         e.y += (dy / dist) * e.speed * dt;
 
-        // ⭐ Anti-corner wedge nudging
         if (dist < 12) {
           const perpX = -dy / (dist || 1);
           const perpY = dx / (dist || 1);
@@ -382,14 +366,10 @@ export function updateEnemies(delta) {
         }
 
       } else {
-
-        // Arrived at this node → move to next
         e.targetIndex++;
 
-        // Remove returnOffset after merging in
         if (e.returnOffset) e.returnOffset = 0;
 
-        // MergeOffset lasts 2 nodes only
         if (e.mergeSteps > 0) {
           e.mergeSteps--;
           if (e.mergeSteps === 0) e.mergeOffset = 0;
@@ -419,42 +399,59 @@ export function updateEnemies(delta) {
   }
 
   // ==========================================================
-  // GOBLIN ↔ GOBLIN COLLISION (widened)
-  // ==========================================================
-  for (let i = 0; i < enemies.length; i++) {
-    const a = enemies[i];
-    if (!a.alive) continue;
+  // 🧊 THROTTLED GOBLIN↔GOBLIN COLLISION (every ~80ms)
+// ==========================================================
+  crowdCollisionTimer += delta;
+  const doCrowdCollision = crowdCollisionTimer >= 80;
+  if (doCrowdCollision) crowdCollisionTimer = 0;
 
-    for (let j = i + 1; j < enemies.length; j++) {
-      const b = enemies[j];
-      if (!b.alive) continue;
+  if (doCrowdCollision && enemies.length > 1) {
+    const minDist = 38;
+    const minDistSq = minDist * minDist;
 
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const dist = Math.hypot(dx, dy);
+    for (let i = 0; i < enemies.length; i++) {
+      const a = enemies[i];
+      if (!a.alive) continue;
 
-      const minDist = 38; // upgraded personal space
+      for (let j = i + 1; j < enemies.length; j++) {
+        const b = enemies[j];
+        if (!b.alive) continue;
 
-      if (dist > 0 && dist < minDist) {
-        const overlap = (minDist - dist) / 2;
-        const nx = dx / dist;
-        const ny = dy / dist;
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const distSq = dx * dx + dy * dy;
 
-        a.x -= nx * overlap;
-        a.y -= ny * overlap;
-        b.x += nx * overlap;
-        b.y += ny * overlap;
+        if (distSq > 0 && distSq < minDistSq) {
+          const dist = Math.sqrt(distSq);
+          const overlap = (minDist - dist) / 2;
+          const nx = dx / dist;
+          const ny = dy / dist;
+
+          a.x -= nx * overlap;
+          a.y -= ny * overlap;
+          b.x += nx * overlap;
+          b.y += ny * overlap;
+        }
       }
     }
+  }
 
-    // Player pushback
-    if (player && !player.dead) {
+  // ==========================================================
+  // PLAYER PUSHBACK (still every frame, but cheaper math)
+// ==========================================================
+  if (player && !player.dead) {
+    const minDistP = 45;
+    const minDistPSq = minDistP * minDistP;
+
+    for (const a of enemies) {
+      if (!a.alive) continue;
+
       const dxp2 = a.x - player.pos.x;
       const dyp2 = a.y - player.pos.y;
-      const distP = Math.hypot(dxp2, dyp2);
+      const distPSq = dxp2 * dxp2 + dyp2 * dyp2;
 
-      const minDistP = 45;
-      if (distP > 0 && distP < minDistP) {
+      if (distPSq > 0 && distPSq < minDistPSq) {
+        const distP = Math.sqrt(distPSq);
         const push = (minDistP - distP) / 8;
         const nx = dxp2 / distP;
         const ny = dyp2 / distP;
@@ -476,14 +473,11 @@ export function updateEnemies(delta) {
   }
 
   // ==========================================================
-  // CONTINUOUS SPAWNING
-  // ==========================================================
+  // CONTINUOUS SPAWNING (unchanged)
+// ==========================================================
   spawnTimer -= delta;
   if (spawnTimer <= 0) {
-    if (
-      enemiesSpawned < 50 &&
-      enemies.length < MAX_ACTIVE_ENEMIES
-    ) {
+    if (enemiesSpawned < 50 && enemies.length < MAX_ACTIVE_ENEMIES) {
       spawnEnemy();
       spawnTimer = SPAWN_INTERVAL;
     }
@@ -491,6 +485,8 @@ export function updateEnemies(delta) {
 
   window.__enemies = enemies;
 }
+
+
 
 
 
