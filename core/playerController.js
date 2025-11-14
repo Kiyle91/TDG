@@ -32,6 +32,7 @@ window.addEventListener("keydown", (e) => {
   if (e.code.startsWith("Digit")) handleTowerKey(e.code);
 });
 
+import { getWorg } from "./worg.js";
 // ------------------------------------------------------------
 // ✅ Shared enemy getter (same instance towers & player use)
 const getEnemies = () => window.__enemies || [];
@@ -237,45 +238,73 @@ function performMeleeAttack() {
     currentDir = dxToEnemy < 0 ? "left" : "right";
   }
 
-  // 🎬 Begin attack sequence
+  // 🎬 Begin attack animation sequence
   isAttacking = true;
   attackType = "melee";
   attackCooldown = CD_MELEE;
   currentFrame = 0;
 
   setTimeout(() => { currentFrame = 1; }, 180);
+
   setTimeout(() => {
     isAttacking = false;
     currentFrame = 0;
     currentDir = prevDir; // 🔁 restore movement direction
   }, 400);
 
-  // ⚔️ Damage logic (Goblins + Ogres)
+  // ------------------------------------------------------------
+  // ⚔️ DAMAGE LOGIC (Goblins + Ogres + Worgs)
+  // ------------------------------------------------------------
   const range = 80;
-  const ox = p.pos.x, oy = p.pos.y;
+  const ox = p.pos.x;
+  const oy = p.pos.y;
   let hit = false;
 
-  const allTargets = [...getEnemies(), ...getOgres()];
+  // 👹 Collect ALL melee-valid targets
+  const goblins = getEnemies();
+  const ogres = getOgres();
+  const worgs = getWorg();   // ⭐ New addition
 
+  const allTargets = [...goblins, ...ogres, ...worgs];
+
+  // 👊 Melee collision loop
   for (const t of allTargets) {
     if (!t.alive) continue;
-    const dx = t.x - ox, dy = t.y - oy;
+
+    const dx = t.x - ox;
+    const dy = t.y - oy;
     const dist = Math.hypot(dx, dy);
+
     if (dist <= range + (t.width || 32) / 2) {
-      if (t.maxHp >= 400) damageOgre(t, dmg, "player");
-      else damageEnemy(t, dmg);
+      // Large HP threshold → Ogre
+      if (t.maxHp >= 400) {
+        damageOgre(t, dmg, "player");
+      } else {
+        damageEnemy(t, dmg); // Goblins + Worgs
+      }
+
       hit = true;
 
-      // 💥 Knockback (same as before)
+      // 💥 Knockback (Ogres stay firm)
       if (t.type !== "ogre") {
         const len = Math.max(1, dist);
         t.x += (dx / len) * 50;
-        t.y += (dy / len) * 50;}
+        t.y += (dy / len) * 50;
+      }
     }
   }
 
+  // ------------------------------------------------------------
   // ✨ FX + SFX
-  spawnCanvasSparkleBurst(p.pos.x, p.pos.y, 15, 60, ["#ffd6eb", "#b5e2ff", "#ffffff"]);
+  // ------------------------------------------------------------
+  spawnCanvasSparkleBurst(
+    p.pos.x,
+    p.pos.y,
+    15,
+    60,
+    ["#ffd6eb", "#b5e2ff", "#ffffff"]
+  );
+
   playMeleeSwing();
 
   console.log(`🗡️ Melee attack executed | ${hit ? "Hit" : "Miss"}`);
@@ -380,7 +409,7 @@ function performRangedAttack(e) {
     projectile.y += Math.sin(projectile.angle) * projectile.speed * dt;
     projectile.life += 16;
 
-    const targets = [...getEnemies(), ...getOgres()];
+    const targets = [...getEnemies(), ...getOgres(), ...getWorg()];
     for (const t of targets) {
       if (!t.alive) continue;
 
@@ -507,7 +536,7 @@ function performSpell() {
     const radius = 150;
     let hits = 0;
 
-    const targets = [...getEnemies(), ...getOgres()];
+    const targets = [...getEnemies(), ...getOgres(), ...getWorg()];
 
     for (const t of targets) {
       if (!t.alive) continue;

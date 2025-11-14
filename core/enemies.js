@@ -23,6 +23,7 @@ import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
 import { triggerMidBattleStory } from "./story.js";
 import { trySpawnGoblinDrop } from "./goblinDrop.js";
+import { getWorg } from "./worg.js";
 
 let enemies = [];
 let ctx = null;
