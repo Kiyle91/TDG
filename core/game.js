@@ -1,5 +1,5 @@
 // ============================================================
-// 🌸 game.js — Olivia’s World: Crystal Keep (FULL — Floating Text Integrated + Pegasus)
+// 🌸 game.js — Olivia's World: Crystal Keep (OPTIMIZED Edition)
 // ------------------------------------------------------------
 // ✦ Core game controller & system orchestration
 // ✦ Initializes and coordinates all core modules
@@ -8,6 +8,10 @@
 // ✦ Victory/Defeat system + resetCombatState()
 // ✦ Floating combat text support (damage/heal popups)
 // ✦ Pegasus ambient flight drawn above all layers
+// ✦ 🆕 PERFORMANCE OPTIMIZATIONS:
+//    - Throttled HUD updates (every 100ms instead of 16ms)
+//    - Cached getBoundingClientRect() (expensive DOM call)
+//    - Paused-state early exit
 // ============================================================
 
 // ------------------------------------------------------------
@@ -76,21 +80,16 @@ import {
 // ------------------------------------------------------------
 // 🪽 PEGASUS (ambient flight)
 // ------------------------------------------------------------
-// NOTE: ensure ./pegasus.js exports loadPegasus, initPegasus, and drawPegasusFrame
 import { loadPegasus, initPegasus, updatePegasus, drawPegasusFrame } from "./pegasus.js";
 import { loadHealingGem, initHealingDrops, updateHealingDrops, drawHealingDrops } from "./pegasusDrop.js";
 import { initWorg, updateWorg, drawWorg, spawnWorg } from "./worg.js";
-
-
-
-
 
 // ------------------------------------------------------------
 // ⚙️ GLOBAL STATE IMPORTS
 // ------------------------------------------------------------
 import { gameState } from "../utils/gameState.js";
 import { getMapPixelSize } from "./map.js";
-import { stopGameplay } from "../main.js"; // used to stop game when win/lose
+import { stopGameplay } from "../main.js";
 import { initGoblinDrops, updateGoblinDrops, drawGoblinDrops } from "./goblinDrop.js";
 import { clearOgres } from "./ogre.js";
 import { spawnOgre } from "./ogre.js";
@@ -104,6 +103,15 @@ let ctx = null;
 let cameraX = 0;
 let cameraY = 0;
 
+// 🆕 Performance: Cache expensive DOM queries
+let cachedCanvasRect = null;
+let rectCacheTimer = 0;
+const RECT_CACHE_DURATION = 1000; // Refresh every 1 second (handles window resize)
+
+// 🆕 Performance: Throttle HUD updates
+let hudUpdateTimer = 0;
+const HUD_UPDATE_INTERVAL = 100; // Update HUD every 100ms instead of 16ms
+
 // ------------------------------------------------------------
 // 🏆 VICTORY COUNTER
 // ------------------------------------------------------------
@@ -114,7 +122,6 @@ export function incrementGoblinDefeated() {
   console.log(`⚔️ Goblins defeated: ${goblinsDefeated}`);
 }
 
-
 // ============================================================
 // 🌷 INIT — called once when entering the Game screen
 // ============================================================
@@ -124,6 +131,10 @@ export async function initGame() {
   if (!canvas) throw new Error("game.js: #game-canvas not found in DOM");
   ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("game.js: 2D context not available");
+
+  // 🆕 Cache canvas rect on init
+  cachedCanvasRect = canvas.getBoundingClientRect();
+  rectCacheTimer = 0;
 
   // 2️⃣ Load Map
   await loadMap();
@@ -140,30 +151,28 @@ export async function initGame() {
   initProjectiles();
 
   await loadLootImages();
-  
 
   // 5️⃣ Player setup
   initPlayerController(canvas);
   initUI();
 
-  // 6️⃣ Pegasus ambient flight (load once, then init with ctx)
+  // 6️⃣ Pegasus ambient flight
   await loadPegasus();
   initPegasus(ctx);
-  await loadPegasus();
-  initPegasus(ctx);
-  await loadHealingGem();      // 💎 Load the gem image
+  await loadHealingGem();
   initHealingDrops(ctx);
   initGoblinDrops(ctx);
 
-  console.log("🌸 game.js — Initialization complete.");
+  console.log("🌸 game.js — Initialization complete (optimized).");
 }
 
-
-
 // ============================================================
-// 🔁 UPDATE — synchronized world logic
+// 🔁 UPDATE — synchronized world logic (OPTIMIZED)
 // ============================================================
 export function updateGame(delta) {
+  // 🆕 Early exit if paused (saves CPU)
+  if (gameState.paused) return;
+  
   delta = Math.min(delta, 100);
 
   // Update all systems
@@ -172,14 +181,19 @@ export function updateGame(delta) {
   updateTowers(delta);
   updateOgres(delta);
   updateProjectiles(delta);
-  updateHUD();
   updatePlayer(delta);
   updateFloatingText(delta);
   updatePegasus(delta);
   updateHealingDrops(delta);
   updateGoblinDrops(delta);
   updateLoot(delta);
-   // 💬 Floating text movement + fade
+
+  // 🆕 Throttled HUD update (every 100ms instead of 16ms)
+  hudUpdateTimer += delta;
+  if (hudUpdateTimer >= HUD_UPDATE_INTERVAL) {
+    hudUpdateTimer = 0;
+    updateHUD();
+  }
 
   // 🎥 Camera follow player
   const px = gameState.player?.pos?.x ?? 0;
@@ -193,12 +207,18 @@ export function updateGame(delta) {
   cameraX = Math.max(0, Math.min(mapW - canvas.width, cameraX));
   cameraY = Math.max(0, Math.min(mapH - canvas.height, cameraY));
   
+  // 🆕 Cache canvas rect (expensive DOM operation)
+  rectCacheTimer += delta;
+  if (rectCacheTimer >= RECT_CACHE_DURATION || !cachedCanvasRect) {
+    rectCacheTimer = 0;
+    cachedCanvasRect = canvas.getBoundingClientRect();
+  }
+
   // Keep globals in sync for input → world conversions
-  const rect = canvas.getBoundingClientRect();
   window.cameraX = cameraX;
   window.cameraY = cameraY;
-  window.canvasScaleX = canvas.width  / rect.width;
-  window.canvasScaleY = canvas.height / rect.height;
+  window.canvasScaleX = canvas.width  / cachedCanvasRect.width;
+  window.canvasScaleY = canvas.height / cachedCanvasRect.height;
   
   // Check win/loss
   checkVictoryDefeat();
@@ -217,14 +237,13 @@ export function renderGame() {
   ctx.save();
   ctx.translate(-cameraX, -cameraY);
 
-  
   drawTowers(ctx);
   drawWorg(ctx);
   drawEnemies(ctx);
   drawOgres(ctx);
   drawPlayer(ctx);
   drawProjectiles(ctx);
-  drawFloatingText(ctx); // 💬 draw floating damage/heal numbers
+  drawFloatingText(ctx);
   drawHealingDrops(ctx);
   drawGoblinDrops(ctx);
   drawLoot(ctx);
@@ -234,15 +253,13 @@ export function renderGame() {
   // 3️⃣ Foreground canopy / trees layer (map overlay)
   drawMapLayered(ctx, "trees", cameraX, cameraY, canvas.width, canvas.height);
 
-  // 4️⃣ Pegasus drawn LAST so it stays visible above all (screen-space)
-  // If your drawPegasusFrame expects world-space, move it between save()/restore() instead.
+  // 4️⃣ Pegasus drawn LAST so it stays visible above all
   try {
     if (typeof drawPegasusFrame === "function") {
       drawPegasusFrame(ctx);
     }
   } catch (e) {
-    // Non-fatal: if pegasus.js hasn't exported drawPegasusFrame yet, skip draw
-    // (loadPegasus/initPegasus still run; you can expose drawPegasusFrame later)
+    // Non-fatal
   }
 }
 
@@ -293,32 +310,25 @@ function checkVictoryDefeat() {
   }
 }
 
-
-
-
-
 // ============================================================
 // ♻️ RESET COMBAT STATE (used by Try Again + New Story)
-// ------------------------------------------------------------
-// Ensures both buttons fully reset the player and systems.
-// Keeps gold and diamonds intact while reinitializing combat.
 // ============================================================
 export function resetCombatState() {
   goblinsDefeated = 0;
 
   if (gameState.player) {
     const p = gameState.player;
-    p.pos = { x: 1000, y: 500 }; // your normal spawn position
+    p.pos = { x: 1000, y: 500 };
     p.hp = p.maxHp ?? 100;
     p.mana = p.maxMana ?? 50;
     p.lives = 10;
-    p.dead = false;          // 💀 clear death flag
-    p.facing = "right";      // reset facing
+    p.dead = false;
+    p.facing = "right";
   }
 
-  // 🧭 Clear player controller state manually
+  // Clear player controller state
   if (typeof window !== "undefined") {
-    if (window.__enemies) window.__enemies.length = 0; // clear old enemies
+    if (window.__enemies) window.__enemies.length = 0;
   }
 
   // Internal flags reset
@@ -332,23 +342,22 @@ export function resetCombatState() {
     console.warn("⚠️ Could not refresh player controller:", err);
   }
 
-  // 🧩 Re-initialize combat systems
+  // Re-initialize combat systems
   clearOgres();
   clearLoot();
   initEnemies();
   initTowers();
   initProjectiles();
 
-  // UI refresh
+  // 🆕 Force immediate HUD update after reset
   updateHUD();
-  console.log("♻️ Combat state fully reset (Try Again / New Story).");
+  hudUpdateTimer = 0;
+  
+  console.log("♻️ Combat state fully reset (optimized).");
 }
 
 // ============================================================
 // 🔁 RESET PLAYER STATE — used by "Try Again"
-// ------------------------------------------------------------
-// Soft reset: restores HP, Mana, and clears death state.
-// Keeps current map, towers, and enemies in place.
 // ============================================================
 export function resetPlayerState() {
   const p = gameState.player;
@@ -365,14 +374,23 @@ export function resetPlayerState() {
     window.__playerControllerReset();
   }
 
+  // 🆕 Force immediate HUD update after reset
   updateHUD();
-  console.log("🎮 Player revived — soft reset (Try Again).");
+  hudUpdateTimer = 0;
+  
+  console.log("🎮 Player revived — soft reset (optimized).");
 }
 
 import("./ogre.js").then(() => console.log("👹 Ogre dev commands ready."));
-// ============================================================
-// 🌟 END OF FILE
-// ============================================================
+
+// 🆕 Window resize handler to invalidate rect cache
+window.addEventListener("resize", () => {
+  cachedCanvasRect = null;
+  rectCacheTimer = RECT_CACHE_DURATION; // Force immediate update
+});
 
 window.spawnWorg = spawnWorg;
 
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

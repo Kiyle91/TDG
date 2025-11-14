@@ -234,7 +234,7 @@ function getNearbyFromGrid(grid, x, y) {
 }
 
 // ============================================================
-// 🧠 UPDATE ENEMIES — Optimized with Spatial Partitioning
+// 🧠 UPDATE ENEMIES — Clean, Simple, No Lag
 // ============================================================
 export function updateEnemies(delta) {
   delta = Math.min(delta, 100);
@@ -245,36 +245,22 @@ export function updateEnemies(delta) {
   const px = player?.pos?.x ?? player.x ?? 0;
   const py = player?.pos?.y ?? player.y ?? 0;
 
-  // Count active enemies to widen spread dynamically
   let activeCount = 0;
   for (const e of enemies) if (e.alive) activeCount++;
 
-  let chaseSpread = 12;
-  if (activeCount >= 10 && activeCount < 20) chaseSpread = 22;
-  else if (activeCount >= 20 && activeCount < 30) chaseSpread = 32;
-  else if (activeCount >= 30) chaseSpread = 42;
-
-  // 🆕 Build spatial grid ONCE per frame
-  const spatialGrid = buildSpatialGrid(enemies);
-
-  // 🆕 Throttle crowd collision
-  crowdCollisionTimer += delta;
-  const doCrowdCollision = crowdCollisionTimer >= CROWD_COLLISION_INTERVAL;
-  if (doCrowdCollision) crowdCollisionTimer = 0;
-
   // ----------------------------------------------------------
-  // MAIN UPDATE LOOP
+  // MAIN LOOP — No spatial grid, no collision, no spread
   // ----------------------------------------------------------
   for (const e of enemies) {
 
-    // 🌙 Moon Stun
+    // Moon stun
     if (e.stunTimer > 0) {
       e.stunTimer -= delta;
       e.state = "stunned";
       continue;
     }
 
-    // Death
+    // Death fade timing
     if (!e.alive) {
       if (!e.fading) {
         e.deathTimer += delta;
@@ -285,64 +271,53 @@ export function updateEnemies(delta) {
       continue;
     }
 
-    // Elemental (Burn + Frost)
+    // Burn + frost effects
     handleElementalEffects(e, dt);
 
-    // 🆕 Calculate player distance ONCE per enemy
+    // Distance to player
     const dxp = px - e.x;
     const dyp = py - e.y;
     const distToPlayer = Math.hypot(dxp, dyp);
 
-    // Acquire aggro
+    // Trigger chase
     if (distToPlayer < AGGRO_RANGE && e.state === "path") {
       e.state = "chase";
     }
 
-    // ==========================================================
-    // 🐺 CHASE MODE
-    // ==========================================================
+    // ----------------------------------------------------------
+    // CHASE MODE — simple, no spread
+    // ----------------------------------------------------------
     if (e.state === "chase") {
 
       if (distToPlayer > AGGRO_RANGE * 1.5) {
-        // Lose line of sight → Return mode
+        // Too far → go back to path
         e.state = "return";
-        e.returnTimer = 0;
-        e.returnOffset = (Math.random() * 60 - 30);
+      }
 
-      } else if (distToPlayer > ATTACK_RANGE) {
-
+      else if (distToPlayer > ATTACK_RANGE) {
         const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
-        const dirX = dxp / (distToPlayer || 1);
-        const dirY = dyp / (distToPlayer || 1);
 
-        // Apply spread
-        const spreadAngle = (Math.random() - 0.5) * 0.5;
-        const cos = Math.cos(spreadAngle);
-        const sin = Math.sin(spreadAngle);
-        const finalDX = dirX * cos - dirY * sin;
-        const finalDY = dirX * sin + dirY * cos;
+        e.x += (dxp / distToPlayer) * moveSpeed * dt;
+        e.y += (dyp / distToPlayer) * moveSpeed * dt;
 
-        e.x += finalDX * moveSpeed * dt;
-        e.y += finalDY * moveSpeed * dt;
-
-        // Direction for sprite
-        if (Math.abs(finalDX) > Math.abs(finalDY)) {
-          e.dir = finalDX > 0 ? "right" : "left";
-        } else {
-          e.dir = finalDY > 0 ? "down" : "up";
-        }
+        // Sprite direction
+        if (Math.abs(dxp) > Math.abs(dyp))
+          e.dir = dxp > 0 ? "right" : "left";
+        else
+          e.dir = dyp > 0 ? "down" : "up";
 
         e.attacking = false;
 
-        // Animate walk cycle
+        // Animate
         e.frameTimer += delta;
         if (e.frameTimer >= WALK_FRAME_INTERVAL) {
           e.frameTimer = 0;
           e.frame = (e.frame + 1) % 2;
         }
+      }
 
-      } else {
-        // In attack range
+      else {
+        // Attack the player
         e.attacking = true;
         if (e.attackCooldown <= 0) {
           attackPlayer(e, player);
@@ -352,51 +327,53 @@ export function updateEnemies(delta) {
       }
     }
 
-    // ==========================================================
-    // 🔙 RETURN MODE
-    // ==========================================================
+    // ----------------------------------------------------------
+    // RETURN MODE — minimal logic
+    // ----------------------------------------------------------
     else if (e.state === "return") {
-      e.returnTimer += delta;
+      const target = pathPoints[e.targetIndex];
 
-      if (e.returnTimer > RETURN_DELAY) {
-        const target = pathPoints[e.targetIndex];
+      if (!target) {
+        e.state = "path";
+        continue;
+      }
 
-        if (target) {
-          const dx = target.x - e.x;
-          const dy = target.y - e.y;
-          const dist = Math.hypot(dx, dy);
+      const dx = target.x - e.x;
+      const dy = target.y - e.y;
+      const dist = Math.hypot(dx, dy);
 
-          if (dist < 10) {
-            e.targetIndex++;
-            if (e.targetIndex >= pathPoints.length) {
-              handleGoblinEscape(e);
-            }
-          } else {
-            const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
-            e.x += (dx / dist) * moveSpeed * dt;
-            e.y += (dy / dist) * moveSpeed * dt;
-          }
-        }
+      if (dist < 6) {
+        // Back on path
+        e.state = "path";
+        continue;
+      }
 
-        e.attacking = false;
+      const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
 
-        // Animate walk
-        e.frameTimer += delta;
-        if (e.frameTimer >= WALK_FRAME_INTERVAL) {
-          e.frameTimer = 0;
-          e.frame = (e.frame + 1) % 2;
-        }
+      e.x += (dx / dist) * moveSpeed * dt;
+      e.y += (dy / dist) * moveSpeed * dt;
 
-        // Check if player re-entered aggro
-        if (distToPlayer < AGGRO_RANGE) {
-          e.state = "chase";
-        }
+      if (Math.abs(dx) > Math.abs(dy))
+        e.dir = dx > 0 ? "right" : "left";
+      else
+        e.dir = dy > 0 ? "down" : "up";
+
+      // Animate
+      e.frameTimer += delta;
+      if (e.frameTimer >= WALK_FRAME_INTERVAL) {
+        e.frameTimer = 0;
+        e.frame = (e.frame + 1) % 2;
+      }
+
+      // Re-aggro if player gets close again
+      if (distToPlayer < AGGRO_RANGE) {
+        e.state = "chase";
       }
     }
 
-    // ==========================================================
-    // 🛣️ PATH MODE
-    // ==========================================================
+    // ----------------------------------------------------------
+    // FOLLOW PATH
+    // ----------------------------------------------------------
     else if (e.state === "path") {
       const target = pathPoints[e.targetIndex];
 
@@ -415,11 +392,10 @@ export function updateEnemies(delta) {
           e.x += (dx / dist) * moveSpeed * dt;
           e.y += (dy / dist) * moveSpeed * dt;
 
-          if (Math.abs(dx) > Math.abs(dy)) {
+          if (Math.abs(dx) > Math.abs(dy))
             e.dir = dx > 0 ? "right" : "left";
-          } else {
+          else
             e.dir = dy > 0 ? "down" : "up";
-          }
         }
       }
 
@@ -433,51 +409,22 @@ export function updateEnemies(delta) {
       }
     }
 
-    // ==========================================================
-    // 🆕 OPTIMIZED CROWD COLLISION (Throttled + Spatial Grid)
-    // ==========================================================
-    if (doCrowdCollision && e.alive) {
-      // Use spatial grid to only check nearby goblins
-      const nearbyGoblins = getNearbyFromGrid(spatialGrid, e.x, e.y);
-      
-      for (const other of nearbyGoblins) {
-        if (other === e || !other.alive) continue;
-
-        const dx = other.x - e.x;
-        const dy = other.y - e.y;
-        const distSq = dx * dx + dy * dy; // Use squared distance (faster)
-        const minDist = 30;
-        const minDistSq = minDist * minDist;
-
-        if (distSq < minDistSq && distSq > 0) {
-          const dist = Math.sqrt(distSq);
-          const pushX = (dx / dist) * 0.3;
-          const pushY = (dy / dist) * 0.3;
-
-          e.x -= pushX;
-          e.y -= pushY;
-          other.x += pushX;
-          other.y += pushY;
-        }
-      }
-    }
-
-    // Flash decay
+    // Flash effect fade
     if (e.flashTimer > 0) e.flashTimer -= delta;
   }
 
-  // ==========================================================
-  // ⏰ SPAWN TIMER
-  // ==========================================================
+  // ----------------------------------------------------------
+  // SPAWNING
+  // ----------------------------------------------------------
   spawnTimer -= delta;
   if (spawnTimer <= 0 && activeCount < MAX_ACTIVE_ENEMIES) {
     spawnEnemy();
     spawnTimer = SPAWN_INTERVAL;
   }
 
-  // ==========================================================
-  // 🧹 CLEANUP
-  // ==========================================================
+  // ----------------------------------------------------------
+  // CLEANUP DEAD
+  // ----------------------------------------------------------
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
     if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) {
@@ -485,6 +432,7 @@ export function updateEnemies(delta) {
     }
   }
 }
+
 
 // ============================================================
 // 🔥 ELEMENTAL EFFECTS

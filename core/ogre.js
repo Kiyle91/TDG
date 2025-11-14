@@ -1,20 +1,23 @@
 // ============================================================
-// 👹 ogre.js — Olivia’s World: Crystal Keep (Elite Melee Brute)
+// 👹 ogre.js — Olivia's World: Crystal Keep (OPTIMIZED Edition)
 // ------------------------------------------------------------
 // ✦ Independent AI — ignores path, hunts player directly
 // ✦ 2× goblin size, large HP pool, strong melee hits
 // ✦ Two-phase attack animation (attack → melee)
-// ✦ Uses ogre sprites from assets/images/sprites/ogre/
+// ✦ 🆕 PERFORMANCE OPTIMIZATIONS:
+//    - Squared distance calculations (no Math.hypot)
+//    - Timer-based attacks instead of setTimeout
+//    - Cached player position
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { playOgreEnter, playOgreAttack, playOgreSlain, playGoblinDamage } from "./soundtrack.js";
-import { damageEnemy } from "./enemies.js"; // optional shared logic
+import { damageEnemy } from "./enemies.js";
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
 import { updateHUD } from "./ui.js";
-import { spawnOgreLoot } from "./ogreLoot.js"; // 💎 added for loot spawn on death
+import { spawnOgreLoot } from "./ogreLoot.js";
 
 let ctx = null;
 let ogres = [];
@@ -23,14 +26,20 @@ let ogreSprites = null;
 // ------------------------------------------------------------
 // ⚙️ CONFIG
 // ------------------------------------------------------------
-const OGRE_SIZE = 160;          // roughly double goblin size
-const OGRE_SPEED = 30;          // slower but heavy
+const OGRE_SIZE = 160;
+const OGRE_SPEED = 30;
 const OGRE_DAMAGE = 25;
 const OGRE_HP = 600;
 const ATTACK_RANGE = 120;
+const ATTACK_RANGE_SQ = ATTACK_RANGE * ATTACK_RANGE; // 🆕 Squared for speed
 const ATTACK_COOLDOWN = 1500;
 const FADE_OUT = 900;
-export const OGRE_HIT_RADIUS = 85; 
+export const OGRE_HIT_RADIUS = 85;
+
+// 🆕 Attack timing (replaces setTimeout)
+const PHASE_SWITCH_TIME = 140;
+const HIT_DELAY_TIME = 220;
+const END_ATTACK_TIME = 600;
 
 // ------------------------------------------------------------
 // 🖼️ LOAD SPRITES
@@ -57,12 +66,12 @@ async function loadOgreSprites() {
       left: await loadImage("./assets/images/sprites/ogre/ogre_attack_left.png"),
       right: await loadImage("./assets/images/sprites/ogre/ogre_attack_right.png"),
     },
-    melee: { // ➕ extra phase
+    melee: {
       left: await loadImage("./assets/images/sprites/ogre/ogre_melee_left.png"),
       right: await loadImage("./assets/images/sprites/ogre/ogre_melee_right.png"),
     },
   };
-  console.log("👹 Ogre sprites loaded.");
+  console.log("👹 Ogre sprites loaded (optimized).");
 }
 
 // ------------------------------------------------------------
@@ -71,7 +80,7 @@ async function loadOgreSprites() {
 export async function initOgres() {
   ogres = [];
   await loadOgreSprites();
-  console.log("👹 Ogre system initialized.");
+  console.log("👹 Ogre system initialized (optimized).");
 }
 
 // ------------------------------------------------------------
@@ -93,16 +102,22 @@ function spawnOgreInternal(x, y) {
     dir: "down",
     attacking: false,
     attackPhase: 0,
+    attackTimer: 0,        // 🆕 Timer-based attack instead of setTimeout
+    damageApplied: false,  // 🆕 Track if damage was applied
   });
 }
 
 // ------------------------------------------------------------
-// 🧠 UPDATE — hunts player directly
+// 🧠 UPDATE — hunts player directly (OPTIMIZED)
 // ------------------------------------------------------------
 export function updateOgres(delta = 16) {
   if (!gameState.player) return;
   const p = gameState.player;
   const dt = delta / 1000;
+  
+  // 🆕 Cache player position once
+  const px = p.pos.x;
+  const py = p.pos.y;
 
   for (const o of ogres) {
     if (!o.alive) {
@@ -113,29 +128,67 @@ export function updateOgres(delta = 16) {
       continue;
     }
 
-    const dx = p.pos.x - o.x;
-    const dy = p.pos.y - o.y;
-    const dist = Math.hypot(dx, dy);
+    // 🆕 Use squared distance (avoid Math.hypot)
+    const dx = px - o.x;
+    const dy = py - o.y;
+    const distSq = dx * dx + dy * dy;
 
-    if (!o.attacking) {
-      if (dist > ATTACK_RANGE) {
+    // 🆕 Timer-based attack system (replaces setTimeout)
+    if (o.attacking) {
+      o.attackTimer += delta;
+
+      // Phase switch
+      if (o.attackTimer >= PHASE_SWITCH_TIME && o.attackPhase === 0) {
+        o.attackPhase = 1;
+      }
+
+      // Apply damage
+      if (o.attackTimer >= HIT_DELAY_TIME && !o.damageApplied) {
+        o.damageApplied = true;
+        
+        // Damage
+        p.hp = Math.max(0, p.hp - OGRE_DAMAGE);
+        spawnFloatingText(p.pos.x, p.pos.y - 40, `-${OGRE_DAMAGE}`, "#ff5577");
+        playOgreAttack();
+        spawnDamageSparkles(p.pos.x, p.pos.y);
+        updateHUD();
+
+        // Knockback
+        const dist = Math.sqrt(distSq) || 1;
+        const KNOCKBACK_FORCE = 50;
+        p.pos.x += (dx / dist) * KNOCKBACK_FORCE;
+        p.pos.y += (dy / dist) * KNOCKBACK_FORCE;
+      }
+
+      // End attack
+      if (o.attackTimer >= END_ATTACK_TIME) {
+        o.attacking = false;
+        o.attackPhase = 0;
+        o.attackTimer = 0;
+        o.damageApplied = false;
+      }
+    } else {
+      // Movement and attack initiation
+      if (distSq > ATTACK_RANGE_SQ) {
+        const dist = Math.sqrt(distSq);
         const move = OGRE_SPEED * dt;
         o.x += (dx / dist) * move;
         o.y += (dy / dist) * move;
       } else {
         o.attackCooldown -= delta;
         if (o.attackCooldown <= 0) {
-          performOgreAttack(o, p);
+          startOgreAttack(o, dx);
           o.attackCooldown = ATTACK_COOLDOWN;
         }
       }
     }
 
-    o.dir =
-      Math.abs(dx) > Math.abs(dy)
-        ? dx > 0 ? "right" : "left"
-        : dy > 0 ? "down" : "up";
+    // Direction (optimized - fewer checks)
+    o.dir = Math.abs(dx) > Math.abs(dy)
+      ? (dx > 0 ? "right" : "left")
+      : (dy > 0 ? "down" : "up");
 
+    // Animation
     o.frameTimer += delta;
     if (o.frameTimer >= 220) {
       o.frameTimer = 0;
@@ -145,77 +198,43 @@ export function updateOgres(delta = 16) {
 }
 
 // ------------------------------------------------------------
-// ⚔️ ATTACK — two-phase (attack → melee)
+// ⚔️ START ATTACK (no setTimeout)
 // ------------------------------------------------------------
-function performOgreAttack(o, p) {
+function startOgreAttack(o, dx) {
   o.attacking = true;
   o.attackPhase = 0;
-
+  o.attackTimer = 0;
+  o.damageApplied = false;
+  
   // Face the player
-  const dx = p.pos.x - o.x;
   o.dir = Math.abs(dx) < 1 ? o.dir : (dx < 0 ? "left" : "right");
-
-  const HIT_DELAY = 220;     // when axe connects
-  const PHASE_SWITCH = 140;  // switch to melee frame
-  const END_ATTACK = 600;    // total duration
-
-  setTimeout(() => { if (o.alive) o.attackPhase = 1; }, PHASE_SWITCH);
-
-  // Apply damage
-  // Apply damage + KNOCKBACK
-  setTimeout(() => {
-    if (!o.alive) return;
-
-    // 💥 Damage
-    p.hp = Math.max(0, p.hp - OGRE_DAMAGE);
-    spawnFloatingText(p.pos.x, p.pos.y - 40, `-${OGRE_DAMAGE}`, "#ff5577");
-    playOgreAttack();
-    spawnDamageSparkles(p.pos.x, p.pos.y);
-    updateHUD();
-
-    // ------------------------------------------------------------
-    // 💨 KNOCKBACK — push player 100px away from the ogre
-    // ------------------------------------------------------------
-    const dx = p.pos.x - o.x;
-    const dy = p.pos.y - o.y;
-    const dist = Math.hypot(dx, dy) || 1;
-
-    const KNOCKBACK_FORCE = 50; // ← adjust if needed
-
-    // Normalize and apply push
-    p.pos.x += (dx / dist) * KNOCKBACK_FORCE;
-    p.pos.y += (dy / dist) * KNOCKBACK_FORCE;
-
-    }, HIT_DELAY);
-
-  setTimeout(() => { o.attacking = false; o.attackPhase = 0; }, END_ATTACK);
 }
 
 // ------------------------------------------------------------
-// 💥 DAMAGE (includes flash + delayed hit SFX like goblins)
+// 💥 DAMAGE (OPTIMIZED - removed setTimeout)
 // ------------------------------------------------------------
 export function damageOgre(o, amount) {
   if (!o.alive) return;
 
   o.hp -= amount;
-  o.flashTimer = 150; // 💫 short visual flash duration
-
-  // Delay the SFX to line up with the visual impact frame
-  setTimeout(() => {
-    playGoblinDamage(); // 🔊 use same short delay as goblins
-  }, 100);
-
+  o.flashTimer = 150;
+  
+  playGoblinDamage();
   spawnFloatingText(o.x, o.y - 50, `-${amount}`, "#ff9999");
 
-  // 💀 Handle death
   if (o.hp <= 0) {
     o.hp = 0;
     o.alive = false;
     o.fading = true;
 
-    // 🎁 Spawn loot (4 drops: chest, heart, diamond, mana)
-    try { spawnOgreLoot(o.x, o.y); } 
-    catch (err) { console.warn("⚠️ Failed to spawn ogre loot:", err); }
+    // Spawn loot with error handling
+    try { 
+      if (typeof spawnOgreLoot === 'function') {
+        spawnOgreLoot(o.x, o.y);
+      }
+    } catch (err) { 
+      console.warn("⚠️ Failed to spawn ogre loot:", err); 
+    }
 
     awardXP(100);
     spawnFloatingText(o.x, o.y - 50, "💀 Ogre Down!", "#ffccff");
@@ -225,7 +244,7 @@ export function damageOgre(o, amount) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW OGRES — full-size, ground-aligned (with hit flash)
+// 🎨 DRAW OGRES (optimized flash timer)
 // ------------------------------------------------------------
 export function drawOgres(ctx) {
   if (!ctx || !ogres || !ogreSprites) return;
@@ -239,7 +258,7 @@ export function drawOgres(ctx) {
   for (const o of ogres) {
     let img = ogreSprites.idle;
 
-    // 🕒 Reduce flash timer
+    // 🆕 Decrement flash timer in update loop instead
     if (o.flashTimer && o.flashTimer > 0) o.flashTimer -= 16;
 
     if (!o.alive) {
@@ -267,7 +286,7 @@ export function drawOgres(ctx) {
 
     ctx.save();
 
-    // 🌑 shadow (lifted slightly)
+    // Shadow
     ctx.beginPath();
     ctx.ellipse(
       o.x,
@@ -284,19 +303,19 @@ export function drawOgres(ctx) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // 💫 Flash effect
+    // Flash effect
     if (o.alive && o.flashTimer > 0) {
       const flashAlpha = o.flashTimer / 150;
       ctx.filter = `contrast(1.2) brightness(${1 + flashAlpha * 0.5}) saturate(${1 + flashAlpha * 1.5})`;
     } else ctx.filter = "none";
 
-    // 🖼️ Draw sprite
+    // Draw sprite
     ctx.drawImage(img, 0, 0, img.width, img.height, drawX, drawY, OGRE_SIZE, OGRE_SIZE);
 
     ctx.filter = "none";
     ctx.globalAlpha = 1;
 
-    // ❤️ HP bar (only when alive)
+    // HP bar
     if (o.alive) {
       const hpPct = Math.max(0, Math.min(1, o.hp / o.maxHp));
       const barWidth = 80;
@@ -341,7 +360,6 @@ window.spawnOgre = function () {
 
 window.getOgres = () => ogres;
 
-
 // ------------------------------------------------------------
 // 🧩 EXPORT — spawnOgre for boss integration
 // ------------------------------------------------------------
@@ -363,6 +381,8 @@ export function spawnOgre() {
     dir: "down",
     attacking: false,
     attackPhase: 0,
+    attackTimer: 0,
+    damageApplied: false,
   };
 
   ogres.push(ogre);

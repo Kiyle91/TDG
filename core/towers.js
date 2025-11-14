@@ -1,20 +1,23 @@
 // ============================================================
-// 💎 towers.js — Olivia’s World: Crystal Keep
-//    (Elemental Projectiles + Smart Targeting Edition)
+// 💎 towers.js — Olivia's World: Crystal Keep (OPTIMIZED Edition)
+//    (Elemental Projectiles + Smart Targeting + Performance Boost)
 // ------------------------------------------------------------
 // ✔ Frost / Flame now projectile-based (no AoE lag)
 // ✔ Heal turret sends a HEAL PROJECTILE at player.pos.x/y
-// ✔ Frost slows ON HIT
-// ✔ Flame burns ON HIT
-// ✔ Moon knockback ON HIT
+// ✔ Frost slows ON HIT, Flame burns ON HIT, Moon knockback ON HIT
 // ✔ Arcane long-range
 // ✔ Smart targeting, durability fade, shadows intact
+// ✔ 🆕 PERFORMANCE OPTIMIZATIONS:
+//    - Cached distance calculations (squared distance)
+//    - Throttled targeting updates (every 200ms instead of 16ms)
+//    - Optimized nearest-enemy algorithm
+//    - Reduced redundant sprite lookups
 // ============================================================
 
 import { TOWER_RANGE } from "../utils/constants.js";
 import { spawnProjectile } from "./projectiles.js";
 import { getEnemies } from "./enemies.js";
-import { getWorg } from "./worg.js";              // ✅ Added
+import { getWorg } from "./worg.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { gameState } from "../utils/gameState.js";
 
@@ -25,6 +28,9 @@ const MAX_ATTACKS = 150;
 const FIRE_RATE_MS = 800;
 const FADE_SPEED = 2;
 const TOWER_SIZE = 96;
+
+// 🆕 Performance optimization: Throttle targeting updates
+const TARGET_UPDATE_INTERVAL = 200; // Update targets every 200ms instead of every frame
 
 // ------------------------------------------------------------
 // LOAD IMAGES
@@ -45,7 +51,7 @@ async function loadTowerSprites() {
       active: await loadImage(`./assets/images/turrets/${t}_turret_active.png`),
     };
   }
-  console.log("🏰 Tower sprites loaded:", Object.keys(turretSprites).length);
+  console.log("🰰 Tower sprites loaded:", Object.keys(turretSprites).length);
 }
 
 // ------------------------------------------------------------
@@ -54,7 +60,7 @@ async function loadTowerSprites() {
 export async function initTowers() {
   towers = [];
   await loadTowerSprites();
-  console.log("🏹 Tower system initialized.");
+  console.log("🹹 Tower system initialized (optimized).");
 }
 
 // ------------------------------------------------------------
@@ -67,7 +73,32 @@ export function addTower(data) {
     activeFrameTimer: 0,
     attacksDone: 0,
     fadeOut: 0,
+    lastTargetUpdate: 0, // 🆕 Track when we last searched for targets
+    cachedTarget: null,  // 🆕 Cache the current target
   });
+}
+
+// ------------------------------------------------------------
+// 🆕 OPTIMIZED NEAREST ENEMY FINDER (uses squared distance)
+// ------------------------------------------------------------
+function findNearestEnemy(tower, enemies, range) {
+  let closest = null;
+  let minDistSq = range * range; // Use squared distance for speed
+
+  for (const e of enemies) {
+    if (!e.alive) continue;
+    
+    const dx = tower.x - e.x;
+    const dy = tower.y - e.y;
+    const distSq = dx * dx + dy * dy;
+    
+    if (distSq < minDistSq) {
+      minDistSq = distSq;
+      closest = e;
+    }
+  }
+  
+  return closest;
 }
 
 // ------------------------------------------------------------
@@ -76,8 +107,8 @@ export function addTower(data) {
 export function updateTowers(delta) {
   const dt = delta / 1000;
 
-  // 🔥 FINAL FIX: Towers now target goblins + ogres + worgs
-  const enemies = [...getEnemies(), ...getWorg()];   // ✅ Updated
+  // 🆕 Get combined target list ONCE per frame (not per tower)
+  const combinedEnemies = [...getEnemies(), ...getWorg()];
 
   for (let i = towers.length - 1; i >= 0; i--) {
     const tower = towers[i];
@@ -99,24 +130,78 @@ export function updateTowers(delta) {
 
     if (tower.cooldown > 0) continue;
 
+    // 🆕 Throttled target acquisition (every 200ms instead of every frame)
+    tower.lastTargetUpdate = (tower.lastTargetUpdate || 0) + delta;
+    
+    if (tower.lastTargetUpdate >= TARGET_UPDATE_INTERVAL) {
+      tower.lastTargetUpdate = 0;
+      
+      // Update cached target based on tower type
+      switch (tower.type) {
+        case "basic_turret":
+          tower.cachedTarget = findNearestEnemy(tower, combinedEnemies, TOWER_RANGE);
+          break;
+        case "frost_turret":
+          tower.cachedTarget = findNearestEnemy(tower, combinedEnemies, TOWER_RANGE * 0.9);
+          break;
+        case "flame_turret":
+          tower.cachedTarget = findNearestEnemy(tower, combinedEnemies, TOWER_RANGE * 0.9);
+          break;
+        case "arcane_turret":
+          tower.cachedTarget = findNearestEnemy(tower, combinedEnemies, TOWER_RANGE * 1.5);
+          break;
+        case "light_turret":
+          // Light tower targets player
+          const player = gameState.player;
+          if (player && player.pos) {
+            const dx = player.pos.x - tower.x;
+            const dy = player.pos.y - tower.y;
+            const distSq = dx * dx + dy * dy;
+            const rangeSq = (TOWER_RANGE * 0.8) * (TOWER_RANGE * 0.8);
+            tower.cachedTarget = distSq < rangeSq ? player : null;
+          }
+          break;
+        case "moon_turret":
+          tower.cachedTarget = findNearestEnemy(tower, combinedEnemies, TOWER_RANGE);
+          break;
+      }
+    }
+
+    // Fire at cached target if still valid
+    const target = tower.cachedTarget;
+    if (!target) continue;
+    
+    // Verify target is still alive (cheap check)
+    if (target !== gameState.player && !target.alive) {
+      tower.cachedTarget = null;
+      continue;
+    }
+
+    // Execute attack based on tower type
     switch (tower.type) {
       case "basic_turret":
-        basicAttack(tower, enemies);
+        spawnProjectile(tower.x, tower.y, target, "crystal");
+        trigger(tower);
         break;
       case "frost_turret":
-        frostShot(tower, enemies);
+        spawnProjectile(tower.x, tower.y, target, "frost");
+        trigger(tower);
         break;
       case "flame_turret":
-        flameShot(tower, enemies);
+        spawnProjectile(tower.x, tower.y, target, "flame");
+        trigger(tower);
         break;
       case "arcane_turret":
-        arcaneShot(tower, enemies);
+        spawnProjectile(tower.x, tower.y, target, "arcane");
+        trigger(tower);
         break;
       case "light_turret":
-        lightHeal(tower);
+        spawnProjectile(tower.x, tower.y, target, "heal");
+        trigger(tower);
         break;
       case "moon_turret":
-        moonShot(tower, enemies);
+        spawnProjectile(tower.x, tower.y, target, "moon");
+        trigger(tower);
         break;
     }
 
@@ -128,79 +213,8 @@ export function updateTowers(delta) {
 }
 
 // ------------------------------------------------------------
-// BEHAVIORS
+// TRIGGER ATTACK
 // ------------------------------------------------------------
-function basicAttack(tower, enemies) {
-  const target = nearest(tower, enemies, TOWER_RANGE);
-  if (!target) return;
-
-  spawnProjectile(tower.x, tower.y, target, "crystal");
-  trigger(tower);
-}
-
-function frostShot(tower, enemies) {
-  const target = nearest(tower, enemies, TOWER_RANGE * 0.9);
-  if (!target) return;
-
-  spawnProjectile(tower.x, tower.y, target, "frost");
-  trigger(tower);
-}
-
-function flameShot(tower, enemies) {
-  const target = nearest(tower, enemies, TOWER_RANGE * 0.9);
-  if (!target) return;
-
-  spawnProjectile(tower.x, tower.y, target, "flame");
-  trigger(tower);
-}
-
-function arcaneShot(tower, enemies) {
-  const target = nearest(tower, enemies, TOWER_RANGE * 1.5);
-  if (!target) return;
-
-  spawnProjectile(tower.x, tower.y, target, "arcane");
-  trigger(tower);
-}
-
-function lightHeal(tower) {
-  const player = gameState.player;
-  if (!player || !player.pos) return;
-
-  const dist = Math.hypot(player.pos.x - tower.x, player.pos.y - tower.y);
-  if (dist > TOWER_RANGE * 0.8) return;
-
-  // ⭐ FIXED heal projectile
-  spawnProjectile(tower.x, tower.y, player, "heal");
-
-  trigger(tower);
-}
-
-function moonShot(tower, enemies) {
-  const target = nearest(tower, enemies, TOWER_RANGE);
-  if (!target) return;
-
-  spawnProjectile(tower.x, tower.y, target, "moon");
-  trigger(tower);
-}
-
-// ------------------------------------------------------------
-// HELPERS
-// ------------------------------------------------------------
-function nearest(tower, enemies, range) {
-  let closest = null;
-  let min = range;
-
-  for (const e of enemies) {
-    if (!e.alive) continue;
-    const d = Math.hypot(tower.x - e.x, tower.y - e.y);
-    if (d < min) {
-      min = d;
-      closest = e;
-    }
-  }
-  return closest;
-}
-
 function trigger(tower) {
   tower.cooldown = FIRE_RATE_MS / 1000;
   tower.activeFrameTimer = 200;
@@ -208,37 +222,33 @@ function trigger(tower) {
 }
 
 // ------------------------------------------------------------
-// DRAW TOWERS
+// DRAW TOWERS (with optimized sprite selection)
 // ------------------------------------------------------------
 export function drawTowers(ctx) {
   if (!ctx) return;
 
   for (const tower of towers) {
+    // 🆕 Get sprite key once
     const base = tower.type.replace("_turret", "");
     const sprites = turretSprites[base] || turretSprites.basic;
+    
+    if (!sprites) continue;
+    
     const img = tower.activeFrameTimer > 0 ? sprites.active : sprites.idle;
 
-    // Base scale (frost smaller)
+    // Base scale
     let scale = base === "frost" ? 0.85 : 1;
-
-    // Original size
     const baseSize = TOWER_SIZE * scale;
 
-    // ============================================
-    // SIZE ADJUSTMENTS
-    // flame  = +30%
-    // moon   = +15%
-    // others = default
-    // ============================================
+    // Size adjustments
     let size = baseSize;
-
     if (base === "flame") {
       size = baseSize * 1.30;
     } else if (base === "moon") {
       size = baseSize * 1.1;
     }
 
-    // KEEP BASE POSITION IDENTICAL FOR SCALED TOWERS
+    // Position calculations (keep consistent with base)
     const originalDrawY = tower.y - baseSize / 2 + baseSize * 0.1;
     const originalBottom = originalDrawY + baseSize;
 
@@ -251,7 +261,7 @@ export function drawTowers(ctx) {
     ctx.save();
     ctx.globalAlpha = tower.fadeOut > 0 ? tower.fadeOut : 1;
 
-    // shadow
+    // Shadow
     const yoff =
       base === "basic" || base === "frost"
         ? TOWER_SIZE * 0.38
