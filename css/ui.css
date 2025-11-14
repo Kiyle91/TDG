@@ -361,19 +361,107 @@
 }
 
 
-#overlay-settings-game, #overlay-game-controls, #overlay-player-stats, #overlay-confirm {
+#overlay-settings-game, #overlay-game-controls, #overlay-player-stats, #overlay-confirm, #tower-unlock-overlay {
   background: rgba(0, 0, 0, 0.75);  /* darken background */
   backdrop-filter: blur(20px);      /* strong blur */
   -webkit-backdrop-filter: blur(30px);
 }
 
 
-.confirm-buttons {
-  margin-top: 20px;
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-}
 /* ============================================================
-   🌟 END OF FILE
+   ✨ LEVEL UP OVERLAY
 ============================================================ */
+
+#overlay-levelup.overlay {
+  display: none; /* default */
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 99999;
+}
+
+#overlay-levelup.active {
+  display: flex;
+}
+
+.levelup-box {
+  width: 820px;
+  padding: 40px 60px;
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 0 25px rgba(120, 200, 255, 0.9),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+
+  text-align: center;
+  animation: overlayPop 0.4s ease;
+}
+
+.levelup-title {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.levelup-message {
+  margin-bottom: 20px;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.levelup-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.levelup-btn {
+  position: relative;      /* IMPORTANT — prevents overlap */
+  width: 160px;
+  height: 190px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px;
+  border-radius: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  background: linear-gradient(145deg, #b3d8ff, #ffd6ef);
+  color: #4b2b6f;
+
+  font-size: 1.1rem;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  box-shadow:
+    0 0 18px rgba(200,180,255,0.6),
+    inset 0 0 10px rgba(255,255,255,0.4);
+}
+
+.levelup-btn:hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 0 30px rgba(255, 255, 255, 0.9),
+    inset 0 0 14px rgba(255,255,255,0.5);
+}
+
+.levelup-icon {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  margin-bottom: 10px;
+
+  filter:
+    drop-shadow(0 0 12px rgba(120,200,255,0.8))
+    drop-shadow(0 0 20px rgba(240,180,255,0.7));
+}

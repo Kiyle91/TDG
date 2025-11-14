@@ -41,19 +41,18 @@ function showConfirmOverlay(message, onYes, onNo) {
   const yes = document.getElementById("confirm-yes");
   const no = document.getElementById("confirm-no");
 
-  const cleanup = () => {
+  const cleanup = (shouldResume = true) => {
     yes.onclick = null;
     no.onclick = null;
-
     overlay.classList.remove("active");
 
-    // 👉 Resume the game only if user CANCELS or overlay closes
-    // (Home/Restart have their own flow after the confirm resolves)
-    resumeGame();
+    if (shouldResume) {
+        resumeGame(); 
+    }
   };
 
-  yes.onclick = () => { cleanup(); onYes?.(); };
-  no.onclick = () => { cleanup(); onNo?.(); };
+  yes.onclick = () => { cleanup(false); onYes?.(); };
+  no.onclick = () => { cleanup(true); onNo?.(); };
 }
 
 // ------------------------------------------------------------
@@ -83,7 +82,7 @@ function handleNavAction(action) {
     // --------------------------------------------------------
     case "restart":
     showConfirmOverlay(
-      "** GAME IS NOT PAUSED ** \nRestart this map? You’ll keep your player stats, but towers and enemies will reset.",
+      "Restart this map? You’ll keep your player stats, but towers and enemies will reset.",
       () => {
         console.log("🔄 Confirmed: restarting map...");
         flashScreen();

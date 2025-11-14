@@ -17,37 +17,37 @@ const towerInfo = {
   1: {
     name: "Crystal Defender",
     img: "./assets/images/turrets/basic_turret.png",
-    desc: "A steady crystal cannon that fires glowing bolts of energy to protect the Keep.",
+    desc: "CRYSTAL DEFENDER \n\nA steady crystal cannon that fires glowing bolts of energy to protect the Keep \n\nPress 1 on your keyboard to deply this crystal!",
     unlockLevel: 2,
   },
   2: {
     name: "Frost Sentinel",
     img: "./assets/images/turrets/frost_turret.png",
-    desc: "Emits waves of freezing air, slowing all nearby goblins with a shimmering frost aura.",
+    desc: "FROST SENTINEL \n\nEmits waves of freezing air, slowing all nearby goblins with a shimmering frost aura \n\nPress 2 on your keyboard to deply this crystal!",
     unlockLevel: 6,
   },
   3: {
     name: "Flameheart",
     img: "./assets/images/turrets/flame_turret.png",
-    desc: "Unleashes searing bursts of flame that burn enemies over time — hotter the longer they burn!",
+    desc: "FLAMEHEART \n\nUnleashes searing bursts of flame that burn enemies over time — hotter the longer they burn! \n\nPress 3 on your keyboard to deply this crystal!",
     unlockLevel: 10,
   },
   4: {
     name: "Arcane Spire",
     img: "./assets/images/turrets/arcane_turret.png",
-    desc: "A majestic spire that channels pure arcane energy, striking distant foes with great power.",
+    desc: "ARCANE SPIRE \n\nA majestic spire that channels pure arcane energy, striking distant foes with great power \n\nPress 4 on your keyboard to deply this crystal!",
     unlockLevel: 15,
   },
   5: {
     name: "Beacon of Light",
     img: "./assets/images/turrets/light_turret.png",
-    desc: "Blesses nearby allies and heals the Princess when she stands close. Radiant and serene.",
+    desc: "BEACON OF LIGHT \n\nBlesses nearby allies and heals the Princess when she stands close. Radiant and serene \n\nPress 5 on your keyboard to deply this crystal!",
     unlockLevel: 20,
   },
   6: {
     name: "Moonlight Aegis",
     img: "./assets/images/turrets/moon_turret.png",
-    desc: "Channels lunar energy to knock back goblins and shield nearby defenders under moonlight.",
+    desc: "MOONLIGHT AEGIS \n\nChannels lunar energy to knock back goblins and shield nearby defenders under moonlight \n\nPress 6 on your keyboard to deply this crystal!",
     unlockLevel: 25,
   },
 };
@@ -71,7 +71,6 @@ export async function showTowerUnlock(towerId) {
       <div class="story-content">
         <img src="${data.img}" alt="${data.name}" class="story-portrait tower-img" />
         <div class="story-text">
-          <h2>✨ ${data.name} Unlocked!</h2>
           <p>${data.desc}</p>
         </div>
       </div>

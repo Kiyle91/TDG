@@ -30,8 +30,7 @@
 /* ============================================================
    🌈 FIX — Make LEVEL-UP and TOWER-UNLOCK match controller popup
 ============================================================ */
-.levelup-overlay,
-#tower-unlock-overlay {
+.levelup-overlay {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -59,7 +58,6 @@
    ✨ Updated to match controller tutorial box
 ============================================================ */
 .story-box,
-.tower-unlock-box,
 .levelup-box {
   position: relative;
 
@@ -94,7 +92,6 @@
 
 /* ✨ Soft Aura */
 .story-box::before,
-.tower-unlock-box::before,
 .levelup-box::before {
   content: "";
   position: absolute;
@@ -173,8 +170,6 @@
 ============================================================ */
 .story-next-btn,
 .levelup-btn {
-  position: absolute;
-  bottom: 8%;
   font-size: 1.1rem;
   font-weight: bold;
   letter-spacing: 0.5px;

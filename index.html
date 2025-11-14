@@ -629,6 +629,43 @@
   </div>
 
   <!-- ============================================================
+      ✨ LEVEL UP OVERLAY
+  ============================================================ -->
+  <div id="overlay-levelup" class="overlay">
+    <div class="levelup-box">
+      <h2 class="levelup-title">✨ YOUR POWER GROWS! ✨ <br><br></h2>
+
+      <p id="levelup-message" class="levelup-message">
+        You reached <strong>Level 1</strong>!<br><br><br>
+        You have <strong>1</strong> point available!
+      </p>
+
+      <div class="levelup-buttons">
+
+        <!-- Attack -->
+        <button class="levelup-btn" data-key="attack">
+          <img src="assets/images/icons/attack_level_up.png" class="levelup-icon" />
+          <span>Attack</span>
+        </button>
+
+        <!-- Spell Power -->
+        <button class="levelup-btn" data-key="spellPower">
+          <img src="assets/images/icons/spell_level_up.png" class="levelup-icon" />
+          <span>Spell Power</span>
+        </button>
+
+        <!-- Ranged Attack -->
+        <button class="levelup-btn" data-key="rangedAttack">
+          <img src="assets/images/icons/ranged_level_up.png" class="levelup-icon" />
+          <span>Ranged Attack</span>
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================
        💬 TOOLTIP (FIXED)
   ============================================================= -->
   <div id="tooltip-box-fixed" class="tooltip-fixed hidden">

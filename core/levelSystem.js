@@ -1,5 +1,6 @@
 // ============================================================
-// 🌟 levelSystem.js — Olivia’s World: Crystal Keep (Auto HP/Mana + Limited Stat Choice)
+// 🌟 levelSystem.js — Olivia’s World: Crystal Keep
+//   (Static Overlay + 3 Choices: Attack / Spell / Ranged)
 // ------------------------------------------------------------
 // ✦ Handles XP gain, level-ups, and stat upgrades
 // ✦ HP & Mana now increase +10 automatically every level
@@ -8,7 +9,7 @@
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
-import { updateHUD } from "./ui.js";
+import { updateHUD, pauseGame, resumeGame } from "./ui.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { checkTowerUnlocks } from "./towerUnlock.js";
 
@@ -41,11 +42,12 @@ function checkLevelUp() {
   const p = gameState.player;
   if (!p) return;
 
-  const xpToNext = getXpForLevel(p.level || 1);
+  const currentLevel = p.level || 1;
+  const xpToNext = getXpForLevel(currentLevel);
 
   if (p.xp >= xpToNext) {
     p.xp -= xpToNext;
-    p.level = (p.level || 1) + 1;
+    p.level = currentLevel + 1;
     p.statPoints = (p.statPoints || 0) + POINTS_PER_LEVEL;
 
     // 🩷 Auto-boost HP and Mana every level
@@ -56,15 +58,15 @@ function checkLevelUp() {
 
     spawnFloatingText(p.pos.x, p.pos.y - 60, `⭐ Level ${p.level}!`, "#fff2b3", 22);
 
-    // ✅ Pause gameplay for stat upgrades
-    gameState.paused = true;
+    // Pause gameplay while choosing stats
+    pauseGame();
     console.log("⏸️ Gameplay paused for Level Up");
 
     // 🔧 Pass a callback that runs once stat allocation is complete
     showLevelUpOverlay(p, async () => {
       console.log("🎯 Stat allocation complete — checking tower unlocks...");
       await checkTowerUnlocks(); // will show tower popup if new tower unlocked
-      gameState.paused = false;
+      resumeGame();
       console.log("▶️ Gameplay resumed after tower unlock popup");
     });
   }
@@ -78,43 +80,39 @@ function getXpForLevel(level) {
 }
 
 // ------------------------------------------------------------
-// 💫 LEVEL UP OVERLAY (with callback)
+// 💫 LEVEL UP OVERLAY (static DOM version)
 // ------------------------------------------------------------
 function showLevelUpOverlay(p, onClose) {
-  // Remove any existing overlay first
-  document.querySelector(".levelup-overlay")?.remove();
+  const overlay = document.getElementById("overlay-levelup");
+  if (!overlay) {
+    console.warn("⚠️ overlay-levelup not found in DOM.");
+    if (typeof onClose === "function") onClose();
+    return;
+  }
 
-  const overlay = document.createElement("div");
-  overlay.className = "levelup-overlay";
-  overlay.innerHTML = `
-    <div class="levelup-backdrop"></div>
-    <div class="levelup-box">
-      <h2>✨ Level Up!</h2>
-      <p>You reached <strong>Level ${p.level}</strong>!<br>
-      You have <strong>${p.statPoints}</strong> point${p.statPoints > 1 ? "s" : ""} to allocate.</p>
-      <div class="levelup-buttons"></div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
+  // Update message
+  const msg = overlay.querySelector(".levelup-message");
+  if (msg) {
+    msg.innerHTML = `
+      You reached <strong>Level ${p.level}</strong>!<br>
+      You have <strong>${p.statPoints}</strong> point${p.statPoints > 1 ? "s" : ""} to allocate.
+    `;
+  }
 
-  // Build stat buttons (HP and Mana removed)
-  const stats = [
-    { name: "Attack", key: "attack" },
-    { name: "Spell Power", key: "spellPower" },
-    { name: "Ranged Attack", key: "rangedAttack" },
-  ];
+  // Wire buttons
+  const buttons = overlay.querySelectorAll(".levelup-btn");
+  buttons.forEach((btn) => {
+    const key = btn.dataset.key;
+    if (!key) return;
 
-  const btnContainer = overlay.querySelector(".levelup-buttons");
-  stats.forEach((s) => {
-    const btn = document.createElement("button");
-    btn.className = "levelup-btn";
-    btn.textContent = s.name;
-    btn.dataset.key = s.key;
-    btn.addEventListener("click", () => handleStatUpgrade(p, s.key, overlay, onClose));
-    btnContainer.appendChild(btn);
+    // Overwrite any existing handler
+    btn.onclick = () => handleStatUpgrade(p, key, overlay, onClose);
   });
 
-  requestAnimationFrame(() => overlay.classList.add("visible"));
+  // Show overlay (without using generic showOverlay, so we fully control it)
+  overlay.classList.remove("hidden");
+  overlay.style.display = "flex";
+  requestAnimationFrame(() => overlay.classList.add("active"));
 }
 
 // ------------------------------------------------------------
@@ -123,21 +121,34 @@ function showLevelUpOverlay(p, onClose) {
 function handleStatUpgrade(p, key, overlay, onClose) {
   if (!p || p.statPoints <= 0) return;
 
-  // Upgrade stat
+  // Upgrade stat (same +5 as before)
   p[key] = (Number(p[key]) || 0) + 5;
   p.statPoints--;
 
   // Floating feedback
-  spawnFloatingText(p.pos.x, p.pos.y - 30, `+${key}`, "#b5e2ff");
+  const label =
+    key === "attack"
+      ? "Attack"
+      : key === "spellPower"
+      ? "Spell Power"
+      : key === "rangedAttack"
+      ? "Ranged Attack"
+      : key;
+
+  spawnFloatingText(p.pos.x, p.pos.y - 30, `+${label}`, "#b5e2ff");
 
   // Update HUD
   updateHUD();
 
   // Update overlay text
-  const text = overlay.querySelector("p");
+  const text = overlay.querySelector(".levelup-message");
   if (p.statPoints > 0) {
-    text.innerHTML = `You reached <strong>Level ${p.level}</strong>!<br>
-    You have <strong>${p.statPoints}</strong> points left.`;
+    if (text) {
+      text.innerHTML = `
+        You reached <strong>Level ${p.level}</strong>!<br>
+        You have <strong>${p.statPoints}</strong> point${p.statPoints > 1 ? "s" : ""} left.
+      `;
+    }
   } else {
     closeLevelUpOverlay(overlay, onClose);
   }
@@ -149,10 +160,12 @@ function handleStatUpgrade(p, key, overlay, onClose) {
 function closeLevelUpOverlay(overlay, onClose) {
   if (!overlay) return;
 
-  overlay.classList.remove("visible");
-  setTimeout(() => overlay.remove(), 250);
+  overlay.classList.remove("active");
+  setTimeout(() => {
+    overlay.style.display = "none";
+    overlay.classList.add("hidden");
+  }, 250);
 
-  // Don’t unpause yet — wait for tower unlock alert
   if (typeof onClose === "function") onClose();
 }
 
