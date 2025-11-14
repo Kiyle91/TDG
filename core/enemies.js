@@ -214,6 +214,13 @@ export function updateEnemies(delta) {
   // ----------------------------------------------------------
   for (const e of enemies) {
 
+    // 🌙 Moon Stun Effect
+    if (e.stunTimer > 0) {
+      e.stunTimer -= delta;
+      e.state = "stunned";
+      continue; // enemy is frozen
+    }
+
     // Death & fade logic
     if (!e.alive) {
       if (!e.fading) {

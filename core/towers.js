@@ -20,7 +20,7 @@ import { gameState } from "../utils/gameState.js";
 let turretSprites = {};
 let towers = [];
 
-const MAX_ATTACKS = 25;
+const MAX_ATTACKS = 150;
 const FIRE_RATE_MS = 800;
 const FADE_SPEED = 2;
 const TOWER_SIZE = 96;

@@ -148,13 +148,14 @@ export function updateProjectiles(delta) {
       }
 
       // --------------------------------------------------------
-      // 🌙 MOON PROJECTILE — knockback + damage
+      // 🌙 MOON PROJECTILE — STUN + damage
       // --------------------------------------------------------
       else if (p.type === "moon") {
-        t.knockback = 15;
+        t.stunTimer = 1000;  // 1 second stun
+        spawnFloatingText(t.x, t.y - 60, "🌙", "#ccbbff");
         damageEnemy(t, PROJECTILE_DAMAGE.moon);
       }
-
+      
       // --------------------------------------------------------
       // 💎 CRYSTAL + 💜 ARCANE
       // --------------------------------------------------------
