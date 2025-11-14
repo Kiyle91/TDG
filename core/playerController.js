@@ -986,10 +986,9 @@ export function drawPlayer(ctx) {
   }
 
   else {
-    // ⭐ UP & DOWN WALKING SCALE
-    const isDownWalk = isMoving && currentDir === "down";
-    const isUpWalk   = isMoving && currentDir === "up";
-
+    // ⭐ Only scale walk frames (W1/W2), never attacks/spells/heals
+    const isDownWalk = !isAttacking && isMoving && currentDir === "down";
+    const isUpWalk   = !isAttacking && isMoving && currentDir === "up";
     if (isDownWalk || isUpWalk) {
       const scale = 1.20;
       const w = SPRITE_SIZE * scale;
