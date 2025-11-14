@@ -14,6 +14,7 @@
 import { TOWER_RANGE } from "../utils/constants.js";
 import { spawnProjectile } from "./projectiles.js";
 import { getEnemies } from "./enemies.js";
+import { getWorg } from "./worg.js";              // ✅ Added
 import { spawnFloatingText } from "./floatingText.js";
 import { gameState } from "../utils/gameState.js";
 
@@ -69,13 +70,14 @@ export function addTower(data) {
   });
 }
 
-
 // ------------------------------------------------------------
 // UPDATE TOWERS
 // ------------------------------------------------------------
 export function updateTowers(delta) {
   const dt = delta / 1000;
-  const enemies = getEnemies();
+
+  // 🔥 FINAL FIX: Towers now target goblins + ogres + worgs
+  const enemies = [...getEnemies(), ...getWorg()];   // ✅ Updated
 
   for (let i = towers.length - 1; i >= 0; i--) {
     const tower = towers[i];
@@ -170,7 +172,6 @@ function lightHeal(tower) {
   // ⭐ FIXED heal projectile
   spawnProjectile(tower.x, tower.y, player, "heal");
 
-  
   trigger(tower);
 }
 
@@ -237,9 +238,7 @@ export function drawTowers(ctx) {
       size = baseSize * 1.1;
     }
 
-    // --------------------------------------------------------
     // KEEP BASE POSITION IDENTICAL FOR SCALED TOWERS
-    // --------------------------------------------------------
     const originalDrawY = tower.y - baseSize / 2 + baseSize * 0.1;
     const originalBottom = originalDrawY + baseSize;
 
@@ -277,9 +276,6 @@ export function drawTowers(ctx) {
     ctx.restore();
   }
 }
-
-
-
 
 // ------------------------------------------------------------
 // ACCESSOR
