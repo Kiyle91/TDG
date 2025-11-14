@@ -149,7 +149,15 @@ function ensurePlayerRuntime() {
 
   if (!p.name) p.name = gameState.profile?.name || "Princess";
 
-  if (!p.pos) p.pos = { x: 400, y: 400 };
+  if (
+    !p.pos ||
+    typeof p.pos.x !== "number" ||
+    typeof p.pos.y !== "number"
+  ) {
+    // Fallback only if spawn is missing or corrupted
+    p.pos = { x: 400, y: 400 };
+  }
+  
   if (typeof p.speed   !== "number") p.speed   = DEFAULT_SPEED;
   if (typeof p.attack  !== "number" || isNaN(p.attack))  p.attack  = 15;
   if (typeof p.hp      !== "number" || isNaN(p.hp))      p.hp      = 100;

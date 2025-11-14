@@ -1,5 +1,5 @@
 // ============================================================
-// 🌸 game.js — Olivia's World: Crystal Keep (OPTIMIZED Edition)
+// 🌸 game.js — Olivia's World: Crystal Keep (OPTIMIZED + Multi-Map Spawns)
 // ------------------------------------------------------------
 // ✦ Core game controller & system orchestration
 // ✦ Initializes and coordinates all core modules
@@ -12,6 +12,8 @@
 //    - Throttled HUD updates (every 100ms instead of 16ms)
 //    - Cached getBoundingClientRect() (expensive DOM call)
 //    - Paused-state early exit
+// ✦ 🆕 MAP-AWARE SPAWN:
+//    - Spawns player differently per map (map_one / map_two)
 // ============================================================
 
 // ------------------------------------------------------------
@@ -122,6 +124,28 @@ export function incrementGoblinDefeated() {
   console.log(`⚔️ Goblins defeated: ${goblinsDefeated}`);
 }
 
+// ------------------------------------------------------------
+// 🧭 MAP-AWARE PLAYER SPAWN
+// ------------------------------------------------------------
+// Centralised spawn logic so all systems use the same positions
+function applyMapSpawn() {
+  if (!gameState.player) return;
+
+  const p = gameState.player;
+  const mapId = gameState.progress?.currentMap || 1;
+
+  if (mapId === 1) {
+    // 📍 MAP ONE spawn (existing default)
+    p.pos = { x: 1000, y: 500 };
+  } else if (mapId === 2) {
+    // 📍 MAP TWO spawn — tweak after testing new map layout
+    p.pos = { x: 250, y: 1650 };
+  } else {
+    // Fallback for any future maps
+    if (!p.pos) p.pos = { x: 1000, y: 500 };
+  }
+}
+
 // ============================================================
 // 🌷 INIT — called once when entering the Game screen
 // ============================================================
@@ -136,7 +160,7 @@ export async function initGame() {
   cachedCanvasRect = canvas.getBoundingClientRect();
   rectCacheTimer = 0;
 
-  // 2️⃣ Load Map
+  // 2️⃣ Load Map (map_one / map_two based on gameState.progress.currentMap)
   await loadMap();
 
   // 3️⃣ Extract enemy path + apply
@@ -149,10 +173,23 @@ export async function initGame() {
   initTowers();
   initOgres();
   initProjectiles();
-
   await loadLootImages();
 
   // 5️⃣ Player setup
+  //    Ensure player object exists, THEN apply map-based spawn.
+  if (!gameState.player) {
+    gameState.player = {
+      name: "Glitter Guardian",
+      pos: { x: 1000, y: 500 },
+      hp: 100,
+      maxHp: 100,
+      mana: 50,
+      maxMana: 50,
+      lives: 10,
+      facing: "right",
+    };
+  }
+  applyMapSpawn();             // 🔑 Map-aware spawn
   initPlayerController(canvas);
   initUI();
 
@@ -163,7 +200,7 @@ export async function initGame() {
   initHealingDrops(ctx);
   initGoblinDrops(ctx);
 
-  console.log("🌸 game.js — Initialization complete (optimized).");
+  console.log("🌸 game.js — Initialization complete (optimized, multi-map).");
 }
 
 // ============================================================
@@ -318,7 +355,7 @@ export function resetCombatState() {
 
   if (gameState.player) {
     const p = gameState.player;
-    p.pos = { x: 1000, y: 500 };
+    applyMapSpawn();          // 🔑 Map-based spawn on reset
     p.hp = p.maxHp ?? 100;
     p.mana = p.maxMana ?? 50;
     p.lives = 10;
@@ -353,7 +390,7 @@ export function resetCombatState() {
   updateHUD();
   hudUpdateTimer = 0;
   
-  console.log("♻️ Combat state fully reset (optimized).");
+  console.log("♻️ Combat state fully reset (optimized, multi-map).");
 }
 
 // ============================================================
@@ -363,11 +400,11 @@ export function resetPlayerState() {
   const p = gameState.player;
   if (!p) return;
 
+  applyMapSpawn();            // 🔑 Map-based respawn
   p.hp = p.maxHp ?? 100;
   p.mana = p.maxMana ?? 50;
   p.dead = false;
   p.lives = 10;
-  p.pos = { x: 1000, y: 500 };
   p.facing = "right";
 
   if (typeof window.__playerControllerReset === "function") {
@@ -378,7 +415,7 @@ export function resetPlayerState() {
   updateHUD();
   hudUpdateTimer = 0;
   
-  console.log("🎮 Player revived — soft reset (optimized).");
+  console.log("🎮 Player revived — soft reset (optimized, multi-map).");
 }
 
 import("./ogre.js").then(() => console.log("👹 Ogre dev commands ready."));

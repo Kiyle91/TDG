@@ -1,14 +1,19 @@
 // ============================================================
-// 🌸 main.js — Olivia’s World: Crystal Keep (Final Stable Loop Edition)
+// 🌸 main.js — Olivia’s World: Crystal Keep (Fixed Timestep + Map System)
 // ------------------------------------------------------------
-// ✦ Master control flow for Olivia’s World
-// ✦ Fixes freeze when going New Game → Home → New Game
-// ✦ Adds window.__gameLoopID assignments for safe restart
-// ✦ Keeps safe exit path (no defeat overlay)
-// ✦ Supports Continue / Try Again / Victory / Defeat flows
+// ✦ Stutter-free fixed timestep game loop (60Hz update / RAF render)
+// ✦ Complete multi-map support (Map One → Map Two)
+// ✦ Victory Continue now unlocks Map One + moves player to Map Two
+// ✦ Fully compatible with all overlays, hub, story, navbar
 // ============================================================
 
-import { initGame, updateGame, renderGame, resetCombatState } from "./core/game.js";
+import { 
+  initGame, 
+  updateGame, 
+  renderGame,
+  resetCombatState
+} from "./core/game.js";
+
 import { initLanding } from "./core/landing.js";
 import { initProfiles } from "./core/profile.js";
 import { initHub } from "./core/hub.js";
@@ -17,100 +22,123 @@ import { initSettings } from "./core/settings.js";
 import { initMusic } from "./core/soundtrack.js";
 import { initTooltipSystem } from "./core/tooltip.js";
 import { showScreen } from "./core/screens.js";
-import { gameState, getCurrencies, spendDiamonds } from "./utils/gameState.js";
+import { 
+  gameState, 
+  getCurrencies, 
+  spendDiamonds, 
+  unlockMap,
+  setCurrentMap,
+  saveProfiles
+} from "./utils/gameState.js";
 import { updateHUD } from "./core/ui.js";
 import { startGoblinIntroStory } from "./core/story.js";
 import { initNavbar } from "./core/navbar.js";
 
-let lastTime = 0;
-const FPS = 60;
-const FRAME_DURATION = 1000 / FPS;
+
+// ============================================================
+// 🎮 GLOBAL GAME LOOP STATE
+// ============================================================
 export let gameActive = false;
 
-// ------------------------------------------------------------
-// 🕒 GAME LOOP
-// ------------------------------------------------------------
+
+// ============================================================
+// ⏱ FIXED TIMESTEP VARIABLES
+// ============================================================
+
+let lastTimestamp = 0;
+let accumulator = 0;
+const FIXED_DT = 1000 / 60; // 60Hz update interval
+
+
+// ============================================================
+// 🎯 MAIN GAME LOOP
+// ============================================================
+
 function gameLoop(timestamp) {
   if (!gameActive) return;
-  const delta = timestamp - lastTime;
-  if (delta >= FRAME_DURATION) {
-    if (!gameState.paused) updateGame(delta);
-    renderGame();
-    lastTime = timestamp;
+
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  let delta = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+
+  if (delta > 100) delta = 100; // avoid tab-switch jumps
+  accumulator += delta;
+
+  // 🔁 FIXED 60Hz update loop
+  while (accumulator >= FIXED_DT) {
+    if (!gameState.paused) updateGame(FIXED_DT);
+    accumulator -= FIXED_DT;
   }
-  // ✅ Always store the loop ID for future cancel calls
+
+  // 🎨 Render once per RAF
+  renderGame();
+
   window.__gameLoopID = requestAnimationFrame(gameLoop);
 }
 
-// ------------------------------------------------------------
-// 🎮 START GAMEPLAY LOOP
-// ------------------------------------------------------------
-export function startGameplay() {
-  // 💡 Stop any lingering loop from prior session
-  cancelAnimationFrame(window.__gameLoopID);
-  gameActive = false;
 
-  // 🧹 Remove old overlays
-  document.getElementById("end-screen")?.remove();
+// ============================================================
+// ▶️ START GAMEPLAY
+// ============================================================
+
+export function startGameplay() {
+  cancelAnimationFrame(window.__gameLoopID);
 
   gameActive = true;
   gameState.paused = false;
-  lastTime = performance.now();
 
-  // ✅ Store new loop ID
+  lastTimestamp = performance.now();
+  accumulator = 0;
+
   window.__gameLoopID = requestAnimationFrame(gameLoop);
 
   console.log("🎮 Gameplay loop started!");
 
-  // 📖 Goblin intro only once
+  // Intro story once
   if (!gameState.goblinIntroPlayed) {
     gameState.goblinIntroPlayed = true;
     gameState.paused = true;
     startGoblinIntroStory().then(() => {
       gameState.paused = false;
-      console.log("📖 Goblin intro finished — resuming battle!");
+      console.log("📖 Goblin intro finished — battle continues.");
     });
   }
 }
 
-// ------------------------------------------------------------
-// 🛑 STOP GAMEPLAY LOOP (defeat / exit / victory)
-// ------------------------------------------------------------
+
+// ============================================================
+// ⛔ STOP GAMEPLAY (victory / defeat / exit)
+// ============================================================
+
 export function stopGameplay(reason = "unknown") {
   if (!gameActive) return;
 
-  // 🚪 SAFE EXIT — return to hub without defeat overlay
+  cancelAnimationFrame(window.__gameLoopID);
+  gameActive = false;
+  gameState.paused = true;
+
+  console.log(`🛑 Gameplay stopped: ${reason}`);
+
+  // Safe exit to hub
   if (reason === "exit") {
-    console.log("🏠 Graceful exit triggered — returning to Hub safely.");
-    cancelAnimationFrame(window.__gameLoopID);
-    gameActive = false;
-    gameState.paused = true;
-    gameState.session = null;
-
-    try {
-      import("./core/save.js").then((mod) => mod.manualSave?.());
-    } catch {}
-
+    document.getElementById("end-screen")?.remove();
     showScreen("hub-screen");
     setTimeout(() => initHub(), 50);
-    console.log("✨ Returned to Hub (no defeat overlay).");
+    console.log("🏠 Returned to Hub (safe exit).");
     return;
   }
 
-  // Normal defeat/victory handling
-  cancelAnimationFrame(window.__gameLoopID);
-  gameActive = false;
-  console.log(`🛑 Gameplay stopped due to: ${reason}`);
   showEndScreen(reason);
 }
 
-// ------------------------------------------------------------
-// 🔁 RESET GAMEPLAY (Try Again / Restart / New Game)
-// ------------------------------------------------------------
-export function resetGameplay() {
-  console.log("🔄 Restarting combat loop (fresh battle, keep currency).");
 
-  // 🧩 Stop any old loop safely
+// ============================================================
+// 🔁 RESET GAMEPLAY (Try Again / Restart)
+// ============================================================
+
+export function resetGameplay() {
+  console.log("🔄 Combat reset!");
+
   cancelAnimationFrame(window.__gameLoopID);
   gameActive = false;
   gameState.paused = false;
@@ -118,44 +146,46 @@ export function resetGameplay() {
   const savedGold = gameState.player?.gold ?? 0;
   const savedDiamonds = gameState.player?.diamonds ?? 0;
 
-  if (!gameState.player) gameState.player = {};
+  const p = gameState.player || (gameState.player = {});
+  p.hp = p.maxHp ?? 100;
+  p.lives = 10;
+  p.wave = 1;
+  p.gold = savedGold;
+  p.diamonds = savedDiamonds;
 
-  gameState.player.hp = gameState.player.maxHp ?? 100;
-  gameState.player.lives = 10;
-  gameState.player.wave = 1;
-  gameState.player.gold = savedGold;
-  gameState.player.diamonds = savedDiamonds;
-  gameState.player.pos = { x: 1000, y: 500 };
+  // Default respawn
+  p.pos = { x: 1000, y: 500 };
 
   document.getElementById("end-screen")?.remove();
-
-  // 🧩 Reset combat subsystems
   resetCombatState();
 
-  // ⏱ Restart loop
-  lastTime = performance.now();
-  gameActive = true;
-  gameState.paused = false;
+  lastTimestamp = performance.now();
+  accumulator = 0;
 
+  gameActive = true;
   window.__gameLoopID = requestAnimationFrame(gameLoop);
 
-  console.log("🌸 New battle started cleanly!");
+  console.log("🌸 Restart complete.");
 }
 
-// ------------------------------------------------------------
-// 💎 CONTINUE USING DIAMONDS
-// ------------------------------------------------------------
+
+// ============================================================
+// 💎 CONTINUE WITH DIAMONDS
+// ============================================================
+
 function tryContinueWithDiamonds() {
-  const player = gameState.player;
+  const p = gameState.player;
   const c = getCurrencies();
 
   if (c.diamonds >= 25 && spendDiamonds(25)) {
-    console.log("💎 Continue purchased — restoring player!");
+    console.log("💎 Continue purchased!");
+
     document.getElementById("end-screen")?.remove();
 
-    player.hp = player.maxHp;
-    player.lives = 10;
-    player.dead = false;
+    p.hp = p.maxHp;
+    p.lives = 10;
+    p.dead = false;
+
     updateHUD();
     gameState.paused = false;
     startGameplay();
@@ -173,8 +203,8 @@ function tryContinueWithDiamonds() {
     });
     document.body.appendChild(msg);
     setTimeout(() => msg.remove(), 2000);
+
   } else {
-    console.log("❌ Not enough diamonds to continue.");
     const warn = document.createElement("div");
     warn.textContent = "💎 You need 25 diamonds to continue!";
     Object.assign(warn.style, {
@@ -191,9 +221,11 @@ function tryContinueWithDiamonds() {
   }
 }
 
-// ------------------------------------------------------------
-// 🎭 END SCREEN OVERLAY
-// ------------------------------------------------------------
+
+// ============================================================
+// 🕯 END SCREEN (Victory / Defeat)
+// ============================================================
+
 function showEndScreen(reason) {
   const overlay = document.createElement("div");
   overlay.id = "end-screen";
@@ -209,55 +241,67 @@ function showEndScreen(reason) {
   const buttons = document.createElement("div");
   buttons.className = "end-buttons";
 
-  switch (reason) {
-    case "defeat":
-      title.textContent = "Sorry, Princess…";
-      subtitle.textContent = "Your strength fades as the goblins overwhelm you.";
-      break;
-    case "lives":
-      title.textContent = "Sorry, Princess…";
-      subtitle.textContent = "The goblins broke through your defenses.";
-      break;
-    case "victory":
-      title.textContent = "You have held back the goblin forces — for now…";
-      subtitle.textContent = "You return to the Crystal Keep to regroup.";
-      break;
-    default:
-      title.textContent = "Game Ended";
-      subtitle.textContent = "";
-  }
-
-  // ============================================================
-  // ⭐ defeat image (slain)
-  // ============================================================
-  let defeatImg = null;
-  if (reason === "defeat" || reason === "lives") {
-    defeatImg = document.createElement("img");
-    defeatImg.src = "./assets/images/sprites/glitter/glitter_slain.png";
-    defeatImg.alt = "Glitter has fallen";
-    defeatImg.style.display = "block";
-    defeatImg.style.margin = "20px auto 35px auto";
-    defeatImg.style.width = "180px";
-    defeatImg.style.filter = "drop-shadow(0 0 12px #ffffffaa)";
-  }
-
-  // ============================================================
-  // ⭐ victory image
-  // ============================================================
-  let victoryImg = null;
+  // ---------------------------
+  // Victory / Defeat messages
+  // ---------------------------
   if (reason === "victory") {
-    victoryImg = document.createElement("img");
-    victoryImg.src = "./assets/images/sprites/glitter/glitter_attack_right.png";
-    victoryImg.alt = "Glitter stands victorious!";
-    victoryImg.style.display = "block";
-    victoryImg.style.margin = "20px auto 35px auto";
-    victoryImg.style.width = "180px";
-    victoryImg.style.filter = "drop-shadow(0 0 12px #ffffffaa)";
+    title.textContent = "You have held back the goblin forces — for now…";
+    subtitle.textContent = "You return to the Crystal Keep to regroup.";
+  } else if (reason === "defeat" || reason === "lives") {
+    title.textContent = "Sorry, Princess…";
+    subtitle.textContent = "Your strength fades as the goblins overwhelm you.";
+  } else {
+    title.textContent = "Game Ended";
+    subtitle.textContent = "";
   }
 
+  // ---------------------------
+  // Image
+  // ---------------------------
+  let img = document.createElement("img");
+  if (reason === "victory") {
+    img.src = "./assets/images/sprites/glitter/glitter_attack_right.png";
+  } else {
+    img.src = "./assets/images/sprites/glitter/glitter_slain.png";
+  }
+  img.style.display = "block";
+  img.style.margin = "20px auto 35px auto";
+  img.style.width = "180px";
+  img.style.filter = "drop-shadow(0 0 12px #ffffffaa)";
+
+  // ---------------------------
+  // Buttons
+  // ---------------------------
   const retryBtn = document.createElement("button");
   retryBtn.textContent = reason === "victory" ? "Continue" : "Try Again";
-  retryBtn.onclick = resetGameplay;
+
+  if (reason === "victory") {
+    retryBtn.onclick = async () => {
+
+      // Unlock Map 2
+      unlockMap(2);
+
+      // Switch to Map 2
+      gameState.progress.currentMap = 2;
+
+      // Save
+      saveProfiles();
+
+      console.log("🌍 Switching to Map Two...");
+
+      // Remove end screen
+      document.getElementById("end-screen")?.remove();
+
+      // Load game screen
+      showScreen("game-container");
+
+      // 💥 FULL RELOAD OF GAME SYSTEMS
+      await initGame();
+
+      // Start loop
+      startGameplay();
+    };
+  }
 
   const hubBtn = document.createElement("button");
   hubBtn.textContent = "Return to Hub";
@@ -265,39 +309,29 @@ function showEndScreen(reason) {
     document.getElementById("end-screen")?.remove();
     showScreen("hub-screen");
     setTimeout(() => initHub(), 50);
-    console.log("🏰 Returned to Hub via End Screen.");
   };
 
   const continueBtn = document.createElement("button");
   continueBtn.textContent = "Continue (25 💎)";
   continueBtn.onclick = tryContinueWithDiamonds;
 
-  // ------------------------------------------------------------
-  // button visibility rules
-  // ------------------------------------------------------------
+  // Victory screen = only Continue to next map
   if (reason === "victory") {
     buttons.append(retryBtn);
   } else {
     buttons.append(continueBtn, retryBtn, hubBtn);
   }
 
-  // ------------------------------------------------------------
-  // append logic depending on victory/defeat/other
-  // ------------------------------------------------------------
-  if (defeatImg) {
-    panel.append(title, subtitle, defeatImg, buttons);
-  } else if (victoryImg) {
-    panel.append(title, subtitle, victoryImg, buttons);
-  } else {
-    panel.append(title, subtitle, buttons);
-  }
+  panel.append(title, subtitle, img, buttons);
 
   requestAnimationFrame(() => overlay.classList.add("visible"));
 }
 
-// ------------------------------------------------------------
-// 🌷 INITIALIZATION
-// ------------------------------------------------------------
+
+// ============================================================
+// 🌼 INITIALISATION — runs once on page load
+// ============================================================
+
 window.addEventListener("DOMContentLoaded", () => {
   initMusic();
   initLanding();

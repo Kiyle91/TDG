@@ -6,21 +6,6 @@
    ✦ Matches new blue–lilac–magenta theme
 ============================================================ */
 
-#game-canvas {
-  z-index: 0;
-  position: relative;
-  will-change: transform; /* keep the performance win! */
-}
-
-#hud-container,
-#hud,
-#player-hud,
-#hud-bars,
-.hud-layer {
-  position: relative;
-  z-index: 999999; /* massive to ensure top */
-  pointer-events: none; /* keeps clicking working */
-}
 
 /* ============================================================
    🪄 Disable text selection across the entire game UI

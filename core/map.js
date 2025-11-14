@@ -1,15 +1,16 @@
 // ============================================================
-// 🗺️ map.js — Olivia’s World: Crystal Keep (Real Map Loader)
+// 🗺️ map.js — Olivia’s World: Crystal Keep (Multi-Map Loader)
 // ------------------------------------------------------------
-// ✦ Loads data/map_one.json
+// ✦ Loads data/map_one.json or data/map_two.json dynamically
 // ✦ Resolves external .tsx tilesets
 // ✦ Draws visible area for current viewport
 // ✦ Extracts enemy path polyline from Tiled "path" layer
-// ✦ Adds safe drawMapLayered() for layer-specific rendering
+// ✦ Supports group-filtered drawMapLayered()
 // ============================================================
 
 import { TILE_SIZE, GRID_COLS, GRID_ROWS } from "../utils/constants.js";
 import { initCollision } from "../utils/mapCollision.js";
+import { gameState } from "../utils/gameState.js";
 
 let mapData = null;
 let layers = [];
@@ -18,16 +19,16 @@ let mapPixelWidth = GRID_COLS * TILE_SIZE;
 let mapPixelHeight = GRID_ROWS * TILE_SIZE;
 let pathPoints = [];
 
-
 // ------------------------------------------------------------
 // 🔗 PATH UTILITIES
 // ------------------------------------------------------------
 function resolveRelative(pathFromMap) {
+  // convert "../" to "./" so assets load correctly
   return pathFromMap.replace(/^..\//, "./");
 }
 
 // ------------------------------------------------------------
-// 📦 LOAD TSX FILE
+// 📦 LOAD TSX FILE (external tileset XML)
 // ------------------------------------------------------------
 async function loadTSX(tsxUrl) {
   const res = await fetch(tsxUrl);
@@ -49,20 +50,35 @@ async function loadTSX(tsxUrl) {
 }
 
 // ------------------------------------------------------------
-// 🌷 LOAD MAP (JSON)
+// 🌷 LOAD MAP (supports Map 1 + Map 2)
 // ------------------------------------------------------------
 export async function loadMap() {
-  const res = await fetch("./data/map_one.json");
+  // 1️⃣ Choose correct map based on profile progress
+  let id = gameState.progress?.currentMap || 1;
+  let mapFile = "map_one.json";
+
+  if (id === 2) mapFile = "map_two.json";
+
+  console.log(`🗺️ Loading map ID ${id} → ${mapFile}`);
+
+  // 2️⃣ Load the JSON file
+  const res = await fetch(`./data/${mapFile}`);
   mapData = await res.json();
   layers = mapData.layers || [];
+
+  // 3️⃣ Collision layer
   initCollision(mapData, TILE_SIZE);
 
+  // 4️⃣ Pixel dimensions
   mapPixelWidth = (mapData.width || GRID_COLS) * TILE_SIZE;
   mapPixelHeight = (mapData.height || GRID_ROWS) * TILE_SIZE;
 
+  // 5️⃣ Load tilesets (TSX or inline PNG)
   tilesets = [];
+
   for (const ts of mapData.tilesets) {
     if (ts.source) {
+      // TSX tileset
       const tsxUrl = resolveRelative(ts.source);
       const parsed = await loadTSX(tsxUrl);
       tilesets.push({
@@ -73,9 +89,11 @@ export async function loadMap() {
         imageHeight: parsed.imageHeight,
       });
     } else {
+      // JSON-included tileset
       const image = new Image();
       image.src = resolveRelative(ts.image);
       await new Promise((r) => (image.onload = r));
+
       tilesets.push({
         firstgid: ts.firstgid,
         columns: ts.columns,
@@ -87,7 +105,7 @@ export async function loadMap() {
   }
 
   console.log(
-    `✅ Loaded map_one.json — ${mapData.width}×${mapData.height} tiles @ ${TILE_SIZE}px`
+    `✅ Loaded ${mapFile} — ${mapData.width}×${mapData.height} tiles @ ${TILE_SIZE}px`
   );
 }
 
@@ -103,7 +121,7 @@ function getTilesetForGid(gid) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW MAP (all layers)
+// 🎨 DRAW MAP (all tile layers)
 // ------------------------------------------------------------
 export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
   if (!mapData) return;
@@ -113,6 +131,7 @@ export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
     mapData.width - 1,
     Math.floor((cameraX + viewportWidth) / TILE_SIZE)
   );
+
   const startRow = Math.floor(cameraY / TILE_SIZE);
   const endRow = Math.min(
     mapData.height - 1,
@@ -166,7 +185,7 @@ export function extractPathFromMap() {
     return [];
   }
 
-  const pathLayer = (mapData.layers || []).find(
+  const pathLayer = layers.find(
     (l) => l.type === "objectgroup" && l.name.toLowerCase() === "path"
   );
   if (!pathLayer) {
@@ -204,9 +223,16 @@ export function getPathPoints() {
 }
 
 // ------------------------------------------------------------
-// 🪄 drawMapLayered — NEW additive safe helper
+// 🪄 drawMapLayered — safe filtered rendering
 // ------------------------------------------------------------
-export function drawMapLayered(ctx, group = "all", cameraX = 0, cameraY = 0, viewportWidth = 1920, viewportHeight = 1080) {
+export function drawMapLayered(
+  ctx,
+  group = "all",
+  cameraX = 0,
+  cameraY = 0,
+  viewportWidth = 1920,
+  viewportHeight = 1080
+) {
   if (!mapData || !ctx) return;
 
   const startCol = Math.floor(cameraX / TILE_SIZE);
@@ -214,6 +240,7 @@ export function drawMapLayered(ctx, group = "all", cameraX = 0, cameraY = 0, vie
     mapData.width - 1,
     Math.floor((cameraX + viewportWidth) / TILE_SIZE)
   );
+
   const startRow = Math.floor(cameraY / TILE_SIZE);
   const endRow = Math.min(
     mapData.height - 1,
@@ -222,15 +249,15 @@ export function drawMapLayered(ctx, group = "all", cameraX = 0, cameraY = 0, vie
 
   ctx.imageSmoothingEnabled = false;
 
-  // Filter by group keywords
+  // Filter by group keyword
   let filteredLayers = layers;
   if (group === "ground") {
-    filteredLayers = layers.filter(l => {
+    filteredLayers = layers.filter((l) => {
       const n = l.name.toLowerCase();
       return n.includes("ground") || n.includes("base") || n.includes("floor");
     });
   } else if (group === "trees") {
-    filteredLayers = layers.filter(l => {
+    filteredLayers = layers.filter((l) => {
       const n = l.name.toLowerCase();
       return n.includes("tree") || n.includes("foliage") || n.includes("above");
     });
@@ -238,6 +265,7 @@ export function drawMapLayered(ctx, group = "all", cameraX = 0, cameraY = 0, vie
 
   for (const layer of filteredLayers) {
     if (!layer.visible || layer.type !== "tilelayer") continue;
+
     const data = layer.data;
     const width = layer.width;
 
