@@ -79,6 +79,8 @@ import {
 // NOTE: ensure ./pegasus.js exports loadPegasus, initPegasus, and drawPegasusFrame
 import { loadPegasus, initPegasus, updatePegasus, drawPegasusFrame } from "./pegasus.js";
 import { loadHealingGem, initHealingDrops, updateHealingDrops, drawHealingDrops } from "./pegasusDrop.js";
+import { initWorg, updateWorg, drawWorg, spawnWorg } from "./worg.js";
+
 
 
 
@@ -112,6 +114,7 @@ export function incrementGoblinDefeated() {
   console.log(`⚔️ Goblins defeated: ${goblinsDefeated}`);
 }
 
+
 // ============================================================
 // 🌷 INIT — called once when entering the Game screen
 // ============================================================
@@ -131,6 +134,7 @@ export async function initGame() {
 
   // 4️⃣ Initialize subsystems
   initEnemies();
+  await initWorg(pathPoints);
   initTowers();
   initOgres();
   initProjectiles();
@@ -154,6 +158,8 @@ export async function initGame() {
   console.log("🌸 game.js — Initialization complete.");
 }
 
+
+
 // ============================================================
 // 🔁 UPDATE — synchronized world logic
 // ============================================================
@@ -162,6 +168,7 @@ export function updateGame(delta) {
 
   // Update all systems
   updateEnemies(delta);
+  updateWorg(delta);
   updateTowers(delta);
   updateOgres(delta);
   updateProjectiles(delta);
@@ -212,6 +219,7 @@ export function renderGame() {
 
   
   drawTowers(ctx);
+  drawWorg(ctx);
   drawEnemies(ctx);
   drawOgres(ctx);
   drawPlayer(ctx);
@@ -365,3 +373,6 @@ import("./ogre.js").then(() => console.log("👹 Ogre dev commands ready."));
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================
+
+window.spawnWorg = spawnWorg;
+
