@@ -139,7 +139,7 @@ async function loadPlayerSprites() {
 function ensurePlayerRuntime() {
   if (!gameState.player) {
     gameState.player = {
-      name: "Glitter Guardian",
+      name: gameState.profile?.name || "Princess",
       pos: { x: 400, y: 400 },
       speed: DEFAULT_SPEED,
       hp: 100, maxHp: 100,
@@ -149,6 +149,9 @@ function ensurePlayerRuntime() {
   }
 
   const p = gameState.player;
+
+  if (!p.name) p.name = gameState.profile?.name || "Princess";
+
   if (!p.pos) p.pos = { x: 400, y: 400 };
   if (typeof p.speed   !== "number") p.speed   = DEFAULT_SPEED;
   if (typeof p.attack  !== "number" || isNaN(p.attack))  p.attack  = 15;
@@ -164,7 +167,7 @@ function ensurePlayerRuntime() {
     const bh = SPRITE_SIZE * 0.38;
     const ox = -bw / 2;
     const oy = SPRITE_SIZE * 0.20;
-    p.body = { bw, bh, ox, oy }; // feet rect
+    p.body = { bw, bh, ox, oy };
   }
 }
 

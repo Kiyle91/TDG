@@ -1,33 +1,31 @@
 // ============================================================
 // 🌸 gameState.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Central global state for the entire game
-// ✦ Tracks active player, profiles, and persistent progress
-// ✦ Integrates Glitter Guardian as the default playable hero
-// ✦ Now supports per-profile gold and diamonds
+// ✦ Central global state
+// ✦ Profiles now correctly inject name into player
 // ============================================================
 
 import { createPlayer } from "../core/player.js";
 
 export const gameState = {
   // 🧚‍♀️ Runtime entities
-  player: null,   // active player object (Glitter Guardian)
-  profile: null,  // selected save profile
-  paused: false,  
+  player: null,
+  profile: null,
+  paused: false,
 
   // 💾 Stored save data
-  profiles: [], // up to 6 profiles
+  profiles: [],
 
   // 🗺️ Core progress and unlocks
   progress: {
     mapsUnlocked: [1],
     currentMap: null,
-    storyCompleted: false
+    storyCompleted: false,
   },
 
-  // 💰 Global resources (for the current play session)
+  // 💰 Global resources
   resources: {
-    xp: 0
+    xp: 0,
   },
 
   // 🎧 Settings
@@ -35,8 +33,8 @@ export const gameState = {
     volume: 0.8,
     music: true,
     sfx: true,
-    visualEffects: true
-  }
+    visualEffects: true,
+  },
 };
 
 // ============================================================
@@ -45,9 +43,14 @@ export const gameState = {
 
 export function setProfile(profile) {
   gameState.profile = profile;
-  gameState.player = profile.player || createPlayer(); // ✅ sync player on select
 
-  // 💎 Ensure this profile has currencies
+  // Load or create player object
+  gameState.player = profile.player || createPlayer();
+
+  // ⭐ Inject profile name into player
+  gameState.player.name = profile.name;
+
+  // ⭐ Ensure currencies exist
   if (!profile.currencies) {
     profile.currencies = { gold: 0, diamonds: 0 };
     saveProfiles();
@@ -61,7 +64,7 @@ export function getProfile() {
 export function addProfile(name) {
   if (gameState.profiles.length >= 6) return false;
 
-  // 🩷 Prevent duplicate names (case-insensitive)
+  // Prevent duplicates
   const exists = gameState.profiles.some(
     (p) => p.name.toLowerCase() === name.toLowerCase()
   );
@@ -74,10 +77,13 @@ export function addProfile(name) {
     id: gameState.profiles.length + 1,
     name,
     created: Date.now(),
+
+    // ⬇ Player created with empty name — profile will set it
     player: createPlayer(),
+
     progress: { ...gameState.progress },
     resources: { ...gameState.resources },
-    currencies: { gold: 0, diamonds: 0 }
+    currencies: { gold: 0, diamonds: 0 },
   };
 
   gameState.profiles.push(newProfile);
@@ -129,16 +135,12 @@ export function setCurrentMap(id) {
 }
 
 // ============================================================
-// 💰 RESOURCE CONTROL
+// 💰 RESOURCE / CURRENCY CONTROL
 // ============================================================
 
 export function addXP(amount) {
   gameState.resources.xp += amount;
 }
-
-// ============================================================
-// 💰 CURRENCY CONTROL (Per-Profile, Safe + Persistent)
-// ============================================================
 
 export function addGold(amount) {
   if (!gameState.profile) return;
@@ -195,23 +197,7 @@ export function getCurrencies() {
 }
 
 // ============================================================
-// 🎧 SETTINGS CONTROL
-// ============================================================
-
-export function setVolume(value) {
-  gameState.settings.volume = Math.max(0, Math.min(1, value));
-}
-
-export function toggleMusic(on) {
-  gameState.settings.music = on;
-}
-
-export function toggleSFX(on) {
-  gameState.settings.sfx = on;
-}
-
-// ============================================================
-// 🚀 AUTO-LOAD PROFILES ON INIT
+// 🚀 AUTO-LOAD PROFILES
 // ============================================================
 
 loadProfiles();
