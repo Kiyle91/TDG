@@ -300,7 +300,7 @@ export function drawOgres(ctx) {
 
     const alpha = o.fading ? Math.max(0, 1 - o.fadeTimer / FADE_OUT) : 1;
     ctx.globalAlpha = alpha;
-    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingEnabled = false;
     ctx.imageSmoothingQuality = "high";
 
     // Flash effect

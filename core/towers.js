@@ -280,7 +280,7 @@ export function drawTowers(ctx) {
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
 
-    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingEnabled = false;
     ctx.drawImage(img, drawX, drawY, size, size);
 
     ctx.restore();
