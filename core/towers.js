@@ -217,11 +217,37 @@ export function drawTowers(ctx) {
     const sprites = turretSprites[base] || turretSprites.basic;
     const img = tower.activeFrameTimer > 0 ? sprites.active : sprites.idle;
 
-    const scale = base === "frost" ? 0.85 : 1;
-    const size = TOWER_SIZE * scale;
+    // Base scale (frost smaller)
+    let scale = base === "frost" ? 0.85 : 1;
+
+    // Original size
+    const baseSize = TOWER_SIZE * scale;
+
+    // ============================================
+    // SIZE ADJUSTMENTS
+    // flame  = +30%
+    // moon   = +15%
+    // others = default
+    // ============================================
+    let size = baseSize;
+
+    if (base === "flame") {
+      size = baseSize * 1.30;
+    } else if (base === "moon") {
+      size = baseSize * 1.1;
+    }
+
+    // --------------------------------------------------------
+    // KEEP BASE POSITION IDENTICAL FOR SCALED TOWERS
+    // --------------------------------------------------------
+    const originalDrawY = tower.y - baseSize / 2 + baseSize * 0.1;
+    const originalBottom = originalDrawY + baseSize;
 
     const drawX = tower.x - size / 2;
-    const drawY = tower.y - size / 2 + size * 0.1;
+    const drawY =
+      base === "flame" || base === "moon"
+        ? originalBottom - size
+        : originalDrawY;
 
     ctx.save();
     ctx.globalAlpha = tower.fadeOut > 0 ? tower.fadeOut : 1;
@@ -251,6 +277,9 @@ export function drawTowers(ctx) {
     ctx.restore();
   }
 }
+
+
+
 
 // ------------------------------------------------------------
 // ACCESSOR

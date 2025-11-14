@@ -247,10 +247,20 @@ function showEndScreen(reason) {
   continueBtn.textContent = "Continue (25 💎)";
   continueBtn.onclick = tryContinueWithDiamonds;
 
-  buttons.append(continueBtn, retryBtn, hubBtn);
+  // ------------------------------------------------------------
+  // ✔ Only show diamonds + hub on defeat
+  // ✔ Only show clean "Continue" on victory
+  // ------------------------------------------------------------
+  if (reason === "victory") {
+    buttons.append(retryBtn);
+  } else {
+    buttons.append(continueBtn, retryBtn, hubBtn);
+  }
+
   panel.append(title, subtitle, buttons);
   requestAnimationFrame(() => overlay.classList.add("visible"));
 }
+
 
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION

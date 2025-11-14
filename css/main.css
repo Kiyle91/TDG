@@ -98,3 +98,1981 @@ canvas {
 /* ============================================================
    🌟 END OF FILE
 ============================================================ */
+
+/* ============================================================
+   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — landing.css (Responsive Final)
+   ------------------------------------------------------------
+   ✦ Fully responsive crystal frame landing screen
+   ✦ Start button stays centered inside frame bottom area
+   ✦ Footer anchored neatly in the lower-right corner
+============================================================ */
+
+/* ============================================================
+   🩰 LANDING SCREEN BASE
+============================================================ */
+#landing-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #ffe6f7 0%, #e0bbff 100%);
+}
+
+/* ============================================================
+   💎 CRYSTAL FRAME
+============================================================ */
+.landing-frame {
+  position: relative;
+  width: 95vw;
+  height: 95vh;
+  border: 8px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow:
+    0 0 25px rgba(255, 182, 224, 0.8),
+    0 0 50px rgba(224, 187, 255, 0.6),
+    inset 0 0 25px rgba(255, 255, 255, 0.3);
+  animation: frameGlow 6s ease-in-out infinite alternate;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* ============================================================
+   🌄 BACKGROUND IMAGE
+============================================================ */
+.landing-frame .landing-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-position: center;
+  display: flex;
+  z-index: 0;
+}
+
+/* ============================================================
+   🎀 LANDING CONTAINER (Button + Footer)
+============================================================ */
+#landing-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  /* Corrected invalid unit */
+  padding-bottom: 0vh;
+  bottom: 5%;
+}
+
+/* ============================================================
+   🌷 START BUTTON
+============================================================ */
+.landing-btn {
+  position: fixed;
+  bottom: 5vh;
+  padding: 0.8em 2.2em;
+  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 16px;
+  color: #ffffff;
+  font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow:
+    0 0 20px rgba(255, 204, 238, 0.6),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.landing-btn:hover {
+  transform: scale(1.05);
+  filter: brightness(1.05);
+  box-shadow:
+    0 0 30px rgba(255, 204, 238, 0.9),
+    inset 0 0 18px rgba(255, 255, 255, 0.5);
+}
+
+/* ============================================================
+   🌸 FOOTER (Bottom-right inside frame)
+============================================================ */
+.landing-footer {
+  position: absolute;
+  bottom: 1.5vh;
+  right: 2vw;
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 0 6px rgba(255, 192, 230, 0.6);
+  opacity: 0.85;
+  z-index: 2;
+}
+
+/* ============================================================
+   ✨ FRAME GLOW ANIMATION
+============================================================ */
+@keyframes frameGlow {
+  0% {
+    box-shadow:
+      0 0 25px rgba(255, 182, 224, 0.8),
+      0 0 50px rgba(224, 187, 255, 0.6),
+      inset 0 0 25px rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    box-shadow:
+      0 0 35px rgba(255, 182, 224, 1),
+      0 0 60px rgba(224, 187, 255, 0.8),
+      inset 0 0 35px rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */
+
+
+/* ============================================================
+   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — profile.css
+   ------------------------------------------------------------
+   ✦ Player profile selection & creation screen
+   ✦ 2×3 glowing pastel grid with hover animations
+   ✦ Always-visible delete buttons and soft transitions
+============================================================ */
+
+/* ============================================================
+   👑 PROFILE SCREEN BASE — centered layout
+============================================================ */
+#profile-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  width: 100vw;
+  height: 100vh;
+  text-align: center;
+  overflow: hidden;
+  transition: opacity 0.8s ease;
+
+  background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 40%, #e0bbff 100%);
+  animation: profileGlow 22s ease-in-out infinite alternate;
+
+  color: #d63384;
+  font-family: "Princess Sofia", "Comic Sans MS", cursive;
+}
+
+@keyframes profileGlow {
+  0% {
+    background: radial-gradient(circle at center, #ffe6f7 0%, #ffd6eb 40%, #e0bbff 100%);
+  }
+  100% {
+    background: radial-gradient(circle at center, #ffd6eb 0%, #e0bbff 35%, #b5e2ff 100%);
+  }
+}
+
+/* ============================================================
+   💎 PROFILE FRAME
+============================================================ */
+.profile-frame {
+  position: relative;
+  width: 95vw;
+  height: 95vh;
+
+  border: 8px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+  overflow: hidden;
+
+  box-shadow:
+    0 0 25px rgba(255, 182, 224, 0.8),
+    0 0 50px rgba(224, 187, 255, 0.6),
+    inset 0 0 25px rgba(255, 255, 255, 0.3);
+
+  animation: frameGlow 6s ease-in-out infinite alternate;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ============================================================
+   🌄 BACKGROUND IMAGE
+============================================================ */
+.profile-frame .profile-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-position: center;
+  z-index: 0;
+}
+
+/* ============================================================
+   💎 PROFILE CONTAINER
+============================================================ */
+#profile-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 50vw;
+  height: 80vh;
+
+  padding: 40px 70px;
+
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+
+  box-shadow:
+    0 0 25px rgba(255, 182, 224, 0.8),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   💫 PROFILE PAGE TITLE
+============================================================ */
+.profile-title {
+  font-family: "Comic Sans MS", cursive;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: rgba(255, 0, 149, 0.6);
+  letter-spacing: 1px;
+
+  text-align: center;
+
+  margin-top: 2%;
+  margin-bottom: 15%;
+}
+
+/* ============================================================
+   🌸 PROFILE GRID
+============================================================ */
+.profile-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  justify-items: center;
+  align-items: center;
+  margin-bottom: 35px;
+}
+
+/* ============================================================
+   💖 PROFILE SLOT CARDS
+============================================================ */
+.profile-slot {
+  position: relative;
+  overflow: visible;
+
+  width: 220px;
+  height: 120px;
+
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+
+  background: linear-gradient(
+    145deg,
+    #8cd5ff,
+    hsl(273, 100%, 87%),
+    #8cd5ff,
+    #8cd5ff,
+    hsl(273, 100%, 87%),
+    #8cd5ff
+  );
+
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 15px;
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+
+  box-shadow:
+    0 0 20px rgba(255, 204, 238, 0.4),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+
+  transition: all 0.3s ease;
+}
+
+.profile-slot strong {
+  font-size: 1.2rem;
+}
+
+.profile-slot small {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-top: 6px;
+}
+
+.profile-slot:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 35px rgba(255, 204, 238, 0.8),
+    inset 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+/* Empty slot style */
+.profile-slot.empty {
+  opacity: 0.3;
+  color: #ffffff;
+  font-style: italic;
+  border: 2px dashed rgba(91, 139, 230, 0.6);
+}
+
+/* ============================================================
+   🗑️ DELETE BUTTON
+============================================================ */
+.profile-delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+
+  width: 26px;
+  height: 26px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(145deg, #ff8ac9, #ffbde3);
+  border: none;
+  border-radius: 50%;
+
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+
+  opacity: 0.9;
+  z-index: 10;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 10px rgba(255, 182, 224, 0.7),
+    inset 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+.profile-delete:hover {
+  transform: scale(1.15);
+  opacity: 1;
+
+  box-shadow:
+    0 0 20px rgba(255, 182, 224, 1),
+    inset 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+/* ============================================================
+   💎 CREATE NEW PROFILE BUTTON
+============================================================ */
+.profile-btn {
+  margin-top: 5%;
+  padding: 12px 32px;
+
+  background: linear-gradient(90deg, #8cd5ff, hsl(273, 100%, 87%), #8cd5ff);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 12px;
+
+  color: #ffffff;
+  font-size: 1.1rem;
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 15px rgba(255, 204, 238, 0.6),
+    inset 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.profile-btn:hover {
+  transform: scale(1.06);
+  filter: brightness(1.05);
+  box-shadow:
+    0 0 25px rgba(255, 204, 238, 0.9),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* ============================================================
+   💎 PROFILE LOGO
+============================================================ */
+.profile-logo {
+  width: clamp(260px, 40vw, 520px);
+  height: auto;
+  margin-bottom: 40px;
+
+  transform: scale(1.25);
+  transform-origin: center;
+
+  filter: drop-shadow(0 0 20px rgba(224, 187, 255, 0.6))
+          drop-shadow(0 0 30px rgba(255, 182, 224, 0.4));
+
+  animation: logoGlow 6s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow {
+  0% {
+    filter: drop-shadow(0 0 20px rgba(224, 187, 255, 0.6))
+            drop-shadow(0 0 30px rgba(255, 182, 224, 0.4));
+  }
+  100% {
+    filter: drop-shadow(0 0 30px rgba(224, 187, 255, 0.9))
+            drop-shadow(0 0 40px rgba(255, 182, 224, 0.6));
+  }
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */
+
+
+/* ============================================================
+   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — hub.css (Updated Palette)
+   ------------------------------------------------------------
+   ✦ Main hub / map selection screen
+   ✦ Crystal blue–lilac theme with glowing buttons
+   ✦ Centered layout and smooth fade transitions
+============================================================ */
+
+/* ============================================================
+   🏰 HUB SCREEN BASE
+============================================================ */
+#hub-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  transition: opacity 0.8s ease;
+
+  background: radial-gradient(circle at center, #8cd5ff 0%, #d4b5ff 40%, #ffbde3 100%);
+  animation: hubGlow 20s ease-in-out infinite alternate;
+
+  color: #ffffff;
+  font-family: "Princess Sofia", "Comic Sans MS", cursive;
+}
+
+@keyframes hubGlow {
+  0% {
+    background: radial-gradient(circle at center, #8cd5ff 0%, #d4b5ff 40%, #ffbde3 100%);
+  }
+  100% {
+    background: radial-gradient(circle at center, #d4b5ff 0%, #8cd5ff 35%, #ffbde3 100%);
+  }
+}
+
+/* ============================================================
+   💎 HUB CONTAINER
+============================================================ */
+#hub-container {
+  position: fixed;
+  bottom: 0.5%;
+  margin-top: 100px;
+
+  text-align: center;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+
+  padding: 40px 80px;
+
+  border-radius: 20px;
+  border: 2px solid rgba(91, 139, 230, 0.6);
+
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    0 0 40px rgba(224, 187, 255, 0.6),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   💖 BUTTON CONTAINER
+============================================================ */
+.hub-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  justify-items: center;
+  align-items: center;
+}
+
+/* ============================================================
+   🌸 BUTTONS
+============================================================ */
+.hub-buttons button {
+  width: 240px;
+  padding: 12px 0;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 12px;
+
+  color: #ffffff;
+  font-size: 1.1rem;
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.6),
+    inset 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.hub-buttons button:hover {
+  transform: scale(1.05);
+  filter: brightness(1.05);
+  box-shadow:
+    0 0 25px rgba(224, 187, 255, 0.9),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* ============================================================
+   💎 HUB FRAME
+============================================================ */
+.hub-frame {
+  position: relative;
+  width: 95vw;
+  height: 95vh;
+
+  border: 8px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+  overflow: hidden;
+
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    0 0 50px rgba(224, 187, 255, 0.6),
+    inset 0 0 25px rgba(255, 255, 255, 0.3);
+
+  animation: frameGlow 6s ease-in-out infinite alternate;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* ============================================================
+   🌄 BACKGROUND IMAGE
+============================================================ */
+.hub-frame .hub-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+/* ============================================================
+   🌸 HUB FOOTER
+============================================================ */
+.hub-footer {
+  position: absolute;
+  bottom: 1.5vh;
+  right: 2vw;
+
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 0 6px rgba(224, 187, 255, 0.6);
+
+  z-index: 2;
+}
+
+/* ============================================================
+   ✨ FRAME GLOW ANIMATION
+============================================================ */
+@keyframes frameGlow {
+  0% {
+    box-shadow:
+      0 0 25px rgba(181, 226, 255, 0.8),
+      0 0 50px rgba(224, 187, 255, 0.6),
+      inset 0 0 25px rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    box-shadow:
+      0 0 35px rgba(181, 226, 255, 1),
+      0 0 60px rgba(224, 187, 255, 0.8),
+      inset 0 0 35px rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* ============================================================
+   🌸 UNIVERSAL OVERLAY LAYER
+============================================================ */
+.overlay {
+  position: fixed;
+  inset: 0;
+
+  display: none;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(14px);
+
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 999;
+}
+
+.overlay.active {
+  display: flex;
+  opacity: 1;
+}
+
+/* Overlay box */
+.overlay-box {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+  padding: 40px 80px;
+  text-align: center;
+  color: #fff;
+
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+
+  animation: overlayPop 0.4s ease;
+}
+
+@keyframes overlayPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* Close button */
+.overlay-close {
+  margin-top: 50px;
+  padding: 10px 30px;
+
+  font-size: 1.2rem;
+  color: #fff;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 12px;
+
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.6),
+    inset 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.overlay-close:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 25px rgba(224, 187, 255, 0.9),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* ============================================================
+   📜 STORY INTRO OVERLAY
+============================================================ */
+.story-box {
+  position: relative;
+  width: 900px;
+  height: 350px;
+
+  padding: 50px 70px;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+
+  font-size: 1.2rem;
+  color: #fff;
+  text-align: center;
+  line-height: 1.6;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  z-index: 1000;
+
+  animation: overlayPop 0.5s ease;
+
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+/* Story text */
+.story-text {
+  width: 100%;
+  height: 200px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin-bottom: 15px;
+
+  overflow: hidden;
+  white-space: pre-wrap;
+  line-height: 1.6;
+
+  font-family: "Comic Sans MS", cursive;
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
+}
+
+/* Story continue button — FIXED BROKEN RULE */
+.story-next-btn {
+  display: inline-block;
+  padding: 12px 36px;
+  margin-top: 25px;
+
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ffffff;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 16px;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.6),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.story-next-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Story content row */
+.story-content {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  height: 260px;
+}
+
+/* Story portrait */
+.story-portrait {
+  width: 180px;
+  height: 240px;
+
+  border-radius: 12px;
+  object-fit: cover;
+
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(181, 226, 255, 0.6);
+
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.6),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   💎 HUB LOGO
+============================================================ */
+.hub-logo {
+  display: block;
+  position: fixed;
+  top: 1%;
+  width: 30vw;
+  height: auto;
+
+  margin: 0 auto 40px auto;
+
+  transform: scale(1.15);
+  transform-origin: center;
+
+  filter: drop-shadow(0 0 20px rgba(224, 187, 255, 0.6))
+          drop-shadow(0 0 30px rgba(255, 182, 224, 0.4));
+
+  animation: hubLogoGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes hubLogoGlow {
+  0% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 20px rgba(224, 187, 255, 0.6))
+            drop-shadow(0 0 30px rgba(255, 182, 224, 0.4));
+  }
+  100% {
+    transform: scale(1.18);
+    filter: drop-shadow(0 0 35px rgba(224, 187, 255, 0.9))
+            drop-shadow(0 0 45px rgba(255, 182, 224, 0.6));
+  }
+}
+
+/* ============================================================
+   📰 HUB NEWS FEED (Right)
+============================================================ */
+#hub-news {
+  position: absolute;
+  top: 20vh;
+  right: 1vw;
+
+  width: clamp(280px, 22vw, 200px);
+  padding: 16px 20px;
+
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 16px;
+
+  backdrop-filter: blur(4px);
+
+  color: #ffffff;
+  text-align: right;
+
+  z-index: 10;
+
+  animation: newsGlow 6s ease-in-out infinite alternate;
+
+  box-shadow:
+    0 0 20px rgba(255, 182, 224, 0.5),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.news-title {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: #ffffff;
+  text-align: right;
+  text-shadow:
+    0 0 8px rgba(91, 139, 230, 0.6),
+    0 0 16px rgba(91, 139, 230, 0.6);
+}
+
+.news-feed {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(91, 139, 230, 0.6) transparent;
+}
+
+.news-feed p {
+  margin-bottom: 8px;
+  padding: 4px 8px;
+
+  line-height: 1.45;
+  font-size: 0.9rem;
+
+  background: rgba(255, 255, 255, 0.08);
+  border-left: 3px solid rgba(224, 187, 255, 0.6);
+
+  border-radius: 6px;
+}
+
+@keyframes newsGlow {
+  0% {
+    box-shadow:
+      0 0 18px rgba(255, 182, 224, 0.4),
+      inset 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    box-shadow:
+      0 0 28px rgba(91, 139, 230, 0.6),
+      inset 0 0 14px rgba(255, 255, 255, 0.5);
+  }
+}
+
+.news-feed::-webkit-scrollbar {
+  width: 5px;
+}
+
+.news-feed::-webkit-scrollbar-thumb {
+  background-color: rgba(91, 139, 230, 0.6);
+  border-radius: 6px;
+}
+
+/* ============================================================
+   📜 HUB NEWS FEED (Left Mirror)
+============================================================ */
+#hub-news-left {
+  position: absolute;
+  top: 20vh;
+  left: 1vw;
+
+  width: clamp(280px, 22vw, 200px);
+  padding: 16px 20px;
+
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 16px;
+
+  backdrop-filter: blur(4px);
+
+  color: #ffffff;
+  text-align: left;
+
+  z-index: 10;
+
+  animation: newsGlowLeft 6s ease-in-out infinite alternate;
+
+  box-shadow:
+    0 0 20px rgba(255, 182, 224, 0.5),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+#hub-news-left .news-title {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+
+  color: #ffffff;
+  text-align: left;
+
+  text-shadow:
+    0 0 8px rgba(91, 139, 230, 0.6),
+    0 0 16px rgba(91, 139, 230, 0.6);
+}
+
+#hub-news-left .news-feed {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
+
+  direction: rtl;
+  text-align: left;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(91, 139, 230, 0.6) transparent;
+}
+
+#hub-news-left .news-feed p {
+  margin-bottom: 8px;
+  padding: 4px 8px;
+
+  font-size: 0.9rem;
+  line-height: 1.45;
+
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid rgba(91, 139, 230, 0.6);
+
+  border-radius: 6px;
+}
+
+@keyframes newsGlowLeft {
+  0% {
+    box-shadow:
+      0 0 18px rgba(91, 139, 230, 0.4),
+      inset 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    box-shadow:
+      0 0 28px rgba(91, 139, 230, 0.7),
+      inset 0 0 14px rgba(255, 255, 255, 0.5);
+  }
+}
+
+#hub-news-left .news-feed::-webkit-scrollbar {
+  width: 5px;
+}
+#hub-news-left .news-feed::-webkit-scrollbar-thumb {
+  background-color: rgba(91, 139, 230, 0.6);
+  border-radius: 6px;
+}
+
+/* ============================================================
+   💰 HUB CURRENCY DISPLAY
+============================================================ */
+#hub-currencies {
+  position: absolute;
+  top: 3vh;
+  right: 1vw;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+
+  padding: 10px 16px;
+
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(91, 139, 230, 0.4);
+
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(91, 139, 230, 0.4);
+  border-radius: 12px;
+
+  z-index: 12;
+
+  box-shadow:
+    0 0 15px rgba(91, 139, 230, 0.4),
+    inset 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+#hub-gold::before {
+  content: "💰 ";
+}
+
+#hub-diamonds::before {
+  content: "💎 ";
+}
+
+/* ============================================================
+   👑 HUB PROFILE DISPLAY
+============================================================ */
+#hub-profile {
+  position: absolute;
+  top: 3vh;
+  left: 1vw;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+
+  padding: 10px 16px;
+
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(91, 139, 230, 0.4);
+
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(91, 139, 230, 0.4);
+  border-radius: 12px;
+
+  z-index: 12;
+
+  box-shadow:
+    0 0 15px rgba(91, 139, 230, 0.4),
+    inset 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+/* Inner text */
+#hub-profile-name {
+  font-size: 1.5rem;
+  color: #ffe6f7;
+  text-shadow: 0 0 6px rgba(91, 139, 230, 0.4);
+}
+
+#hub-profile-level {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* Sparkle effect */
+.sparkle {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  opacity: 0.9;
+  pointer-events: none;
+
+  animation: sparkleFly 1s ease-out forwards;
+
+  z-index: 999;
+}
+
+@keyframes sparkleFly {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), var(--y)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   🏹 HUB TURRET CARDS
+============================================================ */
+.turret-card {
+  padding: 10px;
+  text-align: center;
+
+  opacity: 1;
+  pointer-events: none;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  border: 2px solid rgba(91, 139, 230, 0.4);
+  border-radius: 16px;
+
+  color: #fff;
+
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.4),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.turret-card:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 25px rgba(224, 187, 255, 0.8),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.turret-card .unlock-info {
+  margin-top: 4px;
+  font-size: 0.9rem;
+  opacity: 0.9;
+
+  color: #ffe6f7;
+  text-shadow: 0 0 6px rgba(224, 187, 255, 0.6);
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */
+
+/* ============================================================
+   💖 OLIVIA’S WORLD: CRYSTAL KEEP — skins.css
+   ------------------------------------------------------------
+   ✦ Character skins overlay
+   ✦ Each skin shows a portrait, name, and unlock requirement
+============================================================ */
+
+/* ============================================================
+   🌸 CONTAINER + TITLE
+============================================================ */
+.skins-container {
+  width: 900px;
+  max-width: 95vw;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.skins-title {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+
+  color: #ffffff;
+  font-family: "Princess Sofia", cursive;
+  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
+}
+
+/* ============================================================
+   🌸 GRID LAYOUT
+============================================================ */
+.skins-grid {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+/* ============================================================
+   💎 SKIN CARD BASE
+============================================================ */
+.skin-card {
+  position: relative;
+
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================================
+   🖼️ PORTRAIT IMAGE
+============================================================ */
+.skin-image {
+  width: 180px;
+  height: 220px;
+
+  margin-bottom: 10px;
+
+  object-fit: cover;
+  border-radius: 16px;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  border: 2px solid rgba(181, 226, 255, 0.6);
+
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.6),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   💬 INFO TEXT
+============================================================ */
+.skin-info h4 {
+  margin-bottom: 4px;
+
+  font-size: 1.1rem;
+  font-family: "Comic Sans MS", cursive;
+
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.8);
+}
+
+.skin-info p {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* ============================================================
+   🔒 LOCKED STATE
+============================================================ */
+.skin-card.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(80%) brightness(0.8);
+}
+
+.skin-placeholder {
+  width: 180px;
+  height: 220px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.6);
+
+  background: rgba(255, 255, 255, 0.08);
+
+  border-radius: 16px;
+  border: 2px dashed rgba(181, 226, 255, 0.4);
+}
+
+/* ============================================================
+   ✨ UNLOCKED HOVER EFFECT
+============================================================ */
+.skin-card.unlocked:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 30px rgba(224, 187, 255, 1),
+    inset 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */
+
+/* ============================================================
+   ⚙️ OLIVIA’S WORLD: CRYSTAL KEEP — settings.css
+   ------------------------------------------------------------
+   ✦ Settings overlay for music, sound, visuals, and tooltips
+   ✦ Pastel crystal aesthetic with glowing sliders and toggles
+============================================================ */
+
+/* ============================================================
+   🌸 CONTAINER + TITLE
+============================================================ */
+.settings-container {
+  width: 700px;
+  max-width: 90vw;
+  
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+
+  padding: 20px;
+}
+
+.settings-title {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  color: #ffffff;
+
+  font-family: "Princess Sofia", cursive;
+  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
+}
+
+/* ============================================================
+   🌈 SETTINGS GRID BOX
+============================================================ */
+.settings-grid {
+  width: 100%;
+  padding: 30px 40px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.5),
+    inset 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================================
+   🎚️ SETTING ITEM BASE
+============================================================ */
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  color: #ffffff;
+  font-size: 1rem;
+  font-family: "Comic Sans MS", cursive;
+  text-shadow: 0 0 6px rgba(224, 187, 255, 0.8);
+}
+
+.setting-item label {
+  flex: 1;
+  text-align: left;
+}
+
+.setting-item span {
+  width: 70px;
+  text-align: right;
+
+  font-weight: bold;
+  color: #b5e2ff;
+}
+
+/* ============================================================
+   🎵 SLIDERS
+============================================================ */
+.slider {
+  flex: 2;
+  height: 8px;
+  margin: 0 15px;
+
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  border-radius: 6px;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  transition: all 0.3s ease;
+}
+
+.slider::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+
+  appearance: none;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid rgba(91, 139, 230, 0.6);
+
+  box-shadow: 0 0 10px rgba(224, 187, 255, 0.8);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 15px rgba(255, 204, 238, 0.9);
+}
+
+/* ============================================================
+   🌈 TOGGLE SWITCHES
+============================================================ */
+.setting-item.toggle input[type="checkbox"] {
+  width: 50px;
+  height: 26px;
+
+  appearance: none;
+  position: relative;
+  cursor: pointer;
+
+  border-radius: 20px;
+  border: 2px solid rgba(91, 139, 230, 0.6);
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff);
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 12px rgba(181, 226, 255, 0.6),
+    inset 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+/* toggle knob */
+.setting-item.toggle input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 3px;
+
+  width: 18px;
+  height: 18px;
+
+  background: #ffffff;
+  border-radius: 50%;
+
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* enabled */
+.setting-item.toggle input[type="checkbox"]:checked {
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff);
+  box-shadow: 0 0 15px rgba(181, 226, 255, 0.7);
+}
+
+.setting-item.toggle input[type="checkbox"]:checked::before {
+  left: 26px;
+  box-shadow: 0 0 10px rgba(255, 189, 227, 0.8);
+}
+
+/* disabled */
+.setting-item.toggle input[type="checkbox"]:not(:checked) {
+  background: #5b5b66;
+  border-color: rgba(150, 150, 150, 0.5);
+
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.setting-item.toggle input[type="checkbox"]:not(:checked)::before {
+  background: #d8d8d8;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+/* label color when enabled */
+.setting-item.toggle input[type="checkbox"]:checked ~ span {
+  color: #b5e2ff;
+  text-shadow: 0 0 6px rgba(140, 213, 255, 0.7);
+}
+
+/* label color when disabled */
+.setting-item.toggle input[type="checkbox"]:not(:checked) ~ span {
+  color: #999999;
+  text-shadow: none;
+}
+
+/* ============================================================
+   ✨ MAGIC SPARKLES FADE
+============================================================ */
+.magic-sparkle {
+  transition: opacity 0.6s ease;
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */
+
+/* ============================================================
+   👑 PLAYER STATS — Princess Layout
+============================================================ */
+
+.stats-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 30px 40px;
+  text-align: center;
+  color: #fff;
+}
+
+.stats-title {
+  margin-bottom: 24px;
+
+  font-size: 1.6rem;
+  font-family: "Comic Sans MS", cursive;
+  color: #ffffff;
+
+  text-shadow: 0 0 10px rgba(255, 192, 230, 0.9);
+}
+
+/* ============================================================
+   🧚 MAIN STATS LAYOUT
+============================================================ */
+.stats-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   🌸 PORTRAIT PANEL
+============================================================ */
+.stats-portrait {
+  width: 220px;
+  height: 280px;
+
+  flex-shrink: 0;
+  overflow: hidden;
+
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.6),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+
+  animation: portraitGlow 6s ease-in-out infinite alternate;
+}
+
+.stats-portrait img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  user-select: none;
+}
+
+/* ============================================================
+   📋 STATS TABLE
+============================================================ */
+.stats-table {
+  min-width: 280px;
+
+  padding: 25px 40px;
+
+  display: flex;
+  flex-direction: column;
+
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+
+  box-shadow:
+    0 0 15px rgba(255, 182, 224, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+
+  margin: 8px 0;
+  font-size: 1.05rem;
+}
+
+.stat-label {
+  font-weight: 600;
+  color: #ffd6eb;
+
+  text-shadow: 0 0 6px rgba(255, 182, 224, 0.7);
+}
+
+.stat-row span:last-child {
+  font-weight: 500;
+  color: #bde0ff;
+
+  text-shadow: 0 0 4px rgba(140, 213, 255, 0.8);
+}
+
+/* ============================================================
+   ✨ GLOW ANIMATION
+============================================================ */
+@keyframes portraitGlow {
+  0%   { box-shadow: 0 0 20px rgba(140, 213, 255, 0.6); }
+  100% { box-shadow: 0 0 35px rgba(255, 189, 227, 0.8); }
+}
+
+
+/* ============================================================
+   💫 OLIVIA’S WORLD: CRYSTAL KEEP — animations.css (Final)
+   ------------------------------------------------------------
+   ✦ Reusable sparkle layer (JS-generated)
+   ✦ Shared across landing, profile, hub
+============================================================ */
+
+/* ------------------------------------------------------------
+   Layer control
+------------------------------------------------------------ */
+.landing-frame,
+.profile-frame,
+.hub-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-bg,
+.profile-bg,
+.hub-bg {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.magic-sparkle {
+  position: absolute;
+  inset: 0;
+
+  overflow: hidden;
+  pointer-events: none;
+
+  opacity: 1;
+  z-index: 2;
+}
+
+#landing-container,
+#profile-container,
+#hub-container {
+  position: relative;
+  z-index: 3;
+}
+
+/* ------------------------------------------------------------
+   Sparkle particles
+------------------------------------------------------------ */
+.magic-particle {
+  position: absolute;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+  opacity: 1;
+  mix-blend-mode: screen;
+
+  background: radial-gradient(
+    circle,
+    #ffffff 0%,
+    rgba(181, 226, 255, 0.5) 50%,
+    transparent 80%
+  );
+
+  filter: blur(3px) brightness(1.8);
+
+  animation: sparkleDrift 18s linear infinite,
+             sparkleFlicker 3s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------
+   Sparkle animations
+------------------------------------------------------------ */
+@keyframes sparkleDrift {
+  0%   { transform: translate(40px, -40px) scale(1.1); opacity: 1; }
+  25%  { transform: translate(-30px, -60px) scale(1.2); opacity: 0.9; }
+  50%  { transform: translate(-60px, 20px) scale(1);   opacity: 1; }
+  75%  { transform: translate(40px, 40px) scale(1.1);  opacity: 1; }
+  100% { transform: translate(0, 0) scale(1);          opacity: 1; }
+}
+
+@keyframes sparkleFlicker {
+  0%, 100% { filter: blur(3px) brightness(1.5); }
+  50%      { filter: blur(2px) brightness(3);   }
+}
+
+/* ============================================================
+   🪽 PEGASUS GLIDE — Continuous Flight Across the Screen
+============================================================ */
+.pegasus-fly {
+  position: absolute;
+  top: -5%;
+  left: -250px;
+
+  width: 150px;
+  height: auto;
+
+  opacity: 1;
+  pointer-events: none;
+
+  z-index: 2;
+
+  filter: drop-shadow(0 0 18px rgba(224, 187, 255, 0.8))
+          brightness(1.15);
+
+  /* ✨ Continuous glide */
+  animation: pegasusGlide 4s linear;
+  animation-delay: 0.5s;
+}
+
+/* 🌈 Diagonal flight path */
+@keyframes pegasusGlide {
+  0% {
+    transform: translate(-250px, -100px);
+  }
+  100% {
+    transform: translate(120vw, 300px);
+  }
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */
+
+/* ============================================================
+   🎁 DAILY REWARD CHEST — Center Screen
+============================================================ */
+#daily-chest {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  transform: translate(-50%, -50%);
+  z-index: 15;
+}
+
+#chest-img {
+  display: block;
+  width: clamp(140px, 20vw, 220px);
+
+  cursor: pointer;
+  transform-origin: center;
+
+  transition: transform 0.3s ease, filter 0.3s ease;
+
+  filter: drop-shadow(0 0 25px rgba(255, 192, 230, 0.7));
+  animation: chestPulse 4s ease-in-out infinite alternate;
+
+  will-change: transform, filter;
+}
+
+#chest-img:hover {
+  transform: scale(1.06);
+  filter: drop-shadow(0 0 40px rgba(255, 192, 230, 0.9));
+}
+
+/* Disabled state */
+#daily-chest.disabled #chest-img {
+  opacity: 0.5;
+  cursor: default;
+
+  filter: grayscale(0.9) brightness(0.7);
+  animation: none;
+}
+
+#chest-timer {
+  font-size: 1rem;
+  color: #df85da;
+
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 6px rgba(255, 192, 230, 0.6);
+}
+
+/* ============================================================
+   ✨ CHEST PULSE ANIMATION
+============================================================ */
+@keyframes chestPulse {
+  0%   { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+/* ============================================================
+   ✨ Sparkles — Enhanced Burst
+============================================================ */
+.sparkle {
+  position: fixed;
+
+  opacity: 0.95;
+  pointer-events: none;
+  mix-blend-mode: screen;
+
+  transform: translate(-50%, -50%) scale(1);
+  animation: sparkleFly 1.5s ease-out forwards,
+             sparkleFade 1.5s ease-in forwards;
+
+  z-index: 9999;
+}
+
+@keyframes sparkleFly {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(calc(var(--x) - 50%), calc(var(--y) - 50%))
+                scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(var(--x) - 50%), calc(var(--y) - 50%))
+                scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkleFade {
+  0%   { filter: blur(0px); }
+  100% { filter: blur(8px); }
+}
+
+/* ============================================================
+   🗺️ OLIVIA’S WORLD: CRYSTAL KEEP — maps.css
+   ------------------------------------------------------------
+   ✦ Map selection overlay (3×3 grid)
+   ✦ Locked/unlocked visual states
+   ✦ Pastel crystal aesthetic
+============================================================ */
+
+/* ============================================================
+   🌸 CONTAINER
+============================================================ */
+.map-grid-container {
+  width: 700px;
+  max-width: 90vw;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-title {
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+
+  color: #ffffff;
+  font-family: "Princess Sofia", cursive;
+  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
+}
+
+/* ============================================================
+   🌈 GRID LAYOUT (3×3)
+============================================================ */
+.map-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* ============================================================
+   💎 MAP TILE BASE
+============================================================ */
+.map-tile {
+  width: 140px;
+  height: 140px;
+
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 2rem;
+  font-weight: bold;
+  color: #fff;
+
+  border-radius: 16px;
+  border: 2px solid rgba(91, 139, 230, 0.6);
+
+  background: linear-gradient(
+    145deg,
+    rgba(140, 213, 255, 0.25),
+    rgba(212, 181, 255, 0.25)
+  );
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================================
+   🔒 LOCKED TILE
+============================================================ */
+.map-tile.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+
+  background: radial-gradient(
+    circle,
+    rgba(100, 100, 100, 0.3),
+    rgba(40, 40, 40, 0.4)
+  );
+
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.1),
+    inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.map-tile.locked::after {
+  content: "🔒";
+  position: absolute;
+
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.85);
+
+  text-shadow: 0 0 10px rgba(224, 187, 255, 0.7);
+}
+
+/* ============================================================
+   ✅ UNLOCKED TILE
+============================================================ */
+.map-tile.unlocked {
+  opacity: 1;
+  cursor: pointer;
+
+  background: linear-gradient(145deg, #8cd5ff, #d4b5ff, #ffbde3);
+
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.map-tile.unlocked:hover {
+  transform: scale(1.05);
+
+  box-shadow:
+    0 0 35px rgba(224, 187, 255, 1),
+    inset 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================================
+   🌟 TILE CONTENT
+============================================================ */
+.map-tile span {
+  z-index: 2;
+  pointer-events: none;
+
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.8);
+}
+
+/* ============================================================
+   💫 HOVER GLOW ANIMATION
+============================================================ */
+@keyframes tilePulse {
+  0%   { box-shadow: 0 0 20px rgba(181, 226, 255, 0.6); }
+  50%  { box-shadow: 0 0 35px rgba(224, 187, 255, 0.9); }
+  100% { box-shadow: 0 0 20px rgba(181, 226, 255, 0.6); }
+}
+
+.map-tile.unlocked:hover {
+  animation: tilePulse 1.8s infinite ease-in-out;
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

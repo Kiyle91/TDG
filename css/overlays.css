@@ -1,0 +1,1114 @@
+/* ============================================================
+   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — alert.css (Controller Style)
+   ------------------------------------------------------------
+   ✦ Matches the controller popup & level-up overlays exactly
+   ✦ Darkened blurred backdrop + glowing crystal box
+============================================================ */
+
+/* ============================================================
+   💖 MODAL BACKDROP (Dark + Blurred)
+============================================================ */
+#ow-alert-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  background: rgba(0, 0, 0, 0.35);       /* ✔ darker */
+  backdrop-filter: blur(22px);           /* ✔ strong blur */
+  -webkit-backdrop-filter: blur(22px);
+
+  display: none;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+  animation: fadeIn 0.3s ease forwards;
+
+  /* REMOVE border + box-shadow (should not be on the backdrop) */
+  border: none;
+  box-shadow: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ============================================================
+   💎 ALERT / INPUT BOX — Crystal Glow (Matching Controller Popup)
+============================================================ */
+.ow-alert-box {
+  background: rgba(255, 255, 255, 0.15);   /* same translucent glass */
+  border: 2px solid rgba(181, 226, 255, 0.6);
+  border-radius: 20px;
+
+  padding: 40px 60px;
+  text-align: center;
+
+  color: #ffffff;
+  font-family: "Princess Sofia", "Comic Sans MS", cursive;
+
+  /* ✔ EXACT neon glow like your controller popup */
+  box-shadow:
+    0 0 25px rgba(120, 200, 255, 0.9),     /* strong outer glow */
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+
+  min-width: 360px;
+  max-width: 90vw;
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  animation: popIn 0.25s ease;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   🌷 TEXT + INPUT
+============================================================ */
+#ow-alert-text {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+
+  color: #ffe6f7;
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
+}
+
+.ow-alert-input {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 14px;
+
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  font-family: "Comic Sans MS", "Princess Sofia", cursive;
+  font-size: 1rem;
+  color: #000;
+
+  background: #ffffff;
+  outline: none;
+
+  box-shadow:
+    inset 0 0 8px rgba(255, 255, 255, 0.4),
+    0 0 8px rgba(255, 204, 238, 0.5);
+
+  transition: all 0.3s ease;
+}
+
+.ow-alert-input:focus {
+  box-shadow:
+    0 0 12px rgba(255, 204, 238, 0.8),
+    inset 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================================
+   🌸 BUTTONS — Yes / No / OK
+============================================================ */
+.ow-alert-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 25px;
+}
+
+.ow-alert-btn {
+  padding: 12px 34px;
+
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: inherit;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  color: #ffffff;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 15px rgba(120, 200, 255, 0.8),
+    inset 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.ow-alert-btn:hover {
+  transform: scale(1.05);
+  filter: brightness(1.05);
+
+  box-shadow:
+    0 0 25px rgba(120, 200, 255, 1),
+    inset 0 0 12px rgba(255, 255, 255, 0.5);
+}
+
+.ow-alert-btn:active {
+  transform: scale(0.97);
+}
+
+/* Variants */
+.ow-alert-btn.ok { color: #e7fff9; }
+.ow-alert-btn.cancel { color: #ffe6f7; opacity: 0.9; }
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */
+
+/* ============================================================
+   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — story.css (Unified Crystal Aesthetic)
+   ------------------------------------------------------------
+   ✦ One crystal-glass system for all cinematic overlays
+   ✦ Story, Tower Unlock, and Level-Up use the same look
+   ✦ Matching controller popup visuals
+============================================================ */
+
+/* ============================================================
+   🌈 UNIVERSAL OVERLAY BACKGROUND — Story only
+============================================================ */
+.story-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  z-index: 99999;
+  animation: fadeIn 0.4s ease;
+}
+
+/* ============================================================
+   🌈 FIX — Make LEVEL-UP and TOWER-UNLOCK match controller popup
+============================================================ */
+.levelup-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.45);     /* dim background like controller */
+  backdrop-filter: blur(20px);         /* strong blur */
+  -webkit-backdrop-filter: blur(20px);
+
+  z-index: 99999;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ============================================================
+   💎 CRYSTAL BOX BASE — Story, Tower Unlock, Level-Up
+   ✨ Updated to match controller tutorial box
+============================================================ */
+.story-box,
+.levelup-box {
+  position: relative;
+
+  width: 900px;
+  min-height: 280px;
+  padding: 40px 60px;
+
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  color: #ffffff;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  font-family: "Comic Sans MS", cursive;
+
+  /* MATCH controller popup glow */
+  box-shadow:
+    0 0 25px rgba(120, 200, 255, 0.9),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+
+  backdrop-filter: blur(20px);
+
+  animation: overlayPop 0.5s ease;
+}
+
+@keyframes overlayPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+/* ✨ Soft Aura */
+.story-box::before,
+.levelup-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  border-radius: 22px;
+  background: radial-gradient(circle, rgba(255,255,255,0.25), transparent 70%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   👑 PORTRAITS (Story) + Tower Images
+============================================================ */
+.story-portrait,
+.tower-img {
+  width: 180px;
+  height: 220px;
+  object-fit: contain;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  box-shadow:
+    0 0 20px rgba(120, 200, 255, 0.9),
+    inset 0 0 10px rgba(255, 255, 255, 0.4);
+
+  pointer-events: none;
+}
+
+/* ============================================================
+   🩵 STORY CONTENT LAYOUT
+============================================================ */
+.story-box .story-content,
+.tower-unlock-box .story-content {
+  display: flex;
+  flex-direction: row;
+
+  justify-content: flex-start;
+  align-items: center;
+
+  gap: 40px;
+  text-align: left;
+}
+
+/* Level-Up uses centered text & no portrait */
+.levelup-box .story-content {
+  display: block;
+  text-align: center;
+}
+
+/* ============================================================
+   💬 TEXT
+============================================================ */
+.story-text {
+  color: #ffffff;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
+}
+
+.story-text h2 {
+  margin-bottom: 10px;
+  font-size: 26px;
+  font-family: "Princess Sofia", cursive;
+
+  color: #ffffff;
+  text-shadow:
+    0 0 8px #fff,
+    0 0 16px #c8b3ff;
+}
+
+/* ============================================================
+   ✨ BUTTONS — Continue / OK / Level-up Stat Buttons
+============================================================ */
+.story-next-btn,
+.levelup-btn {
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  font-family: "Comic Sans MS", cursive;
+
+  color: #ffffff;
+  cursor: pointer;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(120, 200, 255, 0.9),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.story-next-btn:hover,
+.levelup-btn:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 30px rgba(224, 187, 255, 0.9),
+    inset 0 0 18px rgba(255, 255, 255, 0.5);
+}
+
+.story-next-btn:active,
+.levelup-btn:active {
+  transform: scale(0.97);
+  box-shadow:
+    0 0 18px rgba(120, 200, 255, 0.8),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   💫 LEVEL UP — Button Group
+============================================================ */
+.levelup-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.levelup-btn {
+  padding: 10px 22px;
+  font-size: 16px;
+}
+
+/* ============================================================
+   💎 TOWER UNLOCK VERSION
+============================================================ */
+.tower-unlock-box .story-content {
+  justify-content: center;
+  gap: 60px;
+}
+
+.tower-img {
+  animation: towerPulse 3s ease-in-out infinite;
+
+  filter:
+    drop-shadow(0 0 12px rgba(120,200,255,0.9))
+    drop-shadow(0 0 20px rgba(200,170,255,0.7));
+}
+
+@keyframes towerPulse {
+  0%, 100% { transform: scale(1);     opacity: 1; }
+  50%      { transform: scale(1.05); opacity: 0.95; }
+}
+
+/* ============================================================
+   🧚 Responsive tweaks
+============================================================ */
+@media (max-width: 800px) {
+  .story-box,
+  .tower-unlock-box,
+  .levelup-box {
+    width: 90%;
+    padding: 30px;
+  }
+
+  .story-box .story-content,
+  .tower-unlock-box .story-content {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .story-portrait,
+  .tower-img {
+    width: 140px;
+    height: 180px;
+  }
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */
+
+/* ============================================================
+   🏹 OLIVIA’S WORLD: CRYSTAL KEEP — turrets.css
+   ------------------------------------------------------------
+   ✦ Turret selection overlay (images + descriptions)
+   ✦ Locked/unlocked states with pastel crystal visuals
+============================================================ */
+
+/* ============================================================
+   🌸 CONTAINER
+============================================================ */
+.turret-grid-container {
+  width: 900px;
+  max-width: 95vw;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.turret-title {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+
+  color: #ffffff;
+  font-family: "Princess Sofia", cursive;
+  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
+}
+
+/* ============================================================
+   💎 GRID LAYOUT
+============================================================ */
+.turret-grid {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 30px;
+}
+
+/* ============================================================
+   🏰 TURRET CARD BASE
+============================================================ */
+.turret-card {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  padding: 16px 20px;
+  overflow: hidden;
+  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 16px;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================================
+   🖼️ TURRET IMAGE
+============================================================ */
+.turret-image {
+  width: 100px;
+  height: 100px;
+
+  object-fit: cover;
+  border-radius: 12px;
+
+  border: 2px solid rgba(181, 226, 255, 0.6);
+
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.6),
+    inset 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   💬 INFO TEXT
+============================================================ */
+.turret-info {
+  flex: 1;
+  color: #ffffff;
+}
+
+.turret-info h4 {
+  margin-bottom: 6px;
+
+  font-size: 1.2rem;
+  font-family: "Comic Sans MS", cursive;
+
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.8);
+}
+
+.turret-info p {
+  font-size: 0.95rem;
+  opacity: 0.85;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   🔒 LOCKED STATE
+============================================================ */
+.turret-card.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+
+  filter: grayscale(80%) brightness(0.8);
+
+  transition: all 0.3s ease;
+}
+
+.turret-card.locked:hover {
+  transform: none;
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.3),
+    inset 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================================
+   ✅ UNLOCKED (Future State)
+============================================================ */
+.turret-card.unlocked {
+  opacity: 1;
+  filter: none;
+  cursor: pointer;
+
+  background: linear-gradient(145deg, #8cd5ff, #d4b5ff, #ffbde3);
+
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.turret-card.unlocked:hover {
+  transform: scale(1.02);
+
+  box-shadow:
+    0 0 35px rgba(224, 187, 255, 1),
+    inset 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */
+/* ============================================================
+   💖 HUD — Balanced layout + capped bars
+============================================================ */
+
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 50px;
+
+  background: linear-gradient(180deg, #ffe4f7 0%, #e3caff 100%);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Center stats block */
+#center-stats {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+
+  height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  font-family: "Comic Sans MS", cursive;
+  font-weight: bold;
+  color: #bb3ebb;
+  text-shadow: 0 0 4px #bb3ebb;
+}
+
+/* Bar containers */
+#hp-bar,
+#mana-bar {
+  position: absolute;
+  top: 8px;
+
+  width: 350px;      /* capped size */
+  height: 30px;
+
+  overflow: hidden;
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+/* HP left, Mana right */
+#hp-bar   { left: 20px; }
+#mana-bar { right: 20px; }
+
+/* Text overlay */
+.bar-text {
+  position: absolute;
+  inset: 0;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 13px;
+  font-weight: bold;
+  font-family: "Comic Sans MS", cursive;
+
+  color: #ffffff;
+  text-shadow: 0 0 4px #bb3ebb;
+
+  pointer-events: none;
+}
+
+/* Fill layer (width controlled by JS via --fill) */
+#hp-bar::before,
+#mana-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: var(--fill, 100%);
+  border-radius: inherit;
+
+  transition: width 0.25s ease-out;
+}
+
+/* Gradient fills */
+#hp-bar::before {
+  background: linear-gradient(90deg, #ff3164, #ff94d2);
+}
+
+#mana-bar::before {
+  background: linear-gradient(90deg, #33aaff, #99e0ff);
+}
+
+/* ============================================================
+   🌟 END SCREEN — Crystal Glass Overlay (Unified Aesthetic)
+   ------------------------------------------------------------
+   ✦ Matches Story / Level-Up / Tower-Unlock theme
+   ✦ Crystal-glass panels, soft glows, pastel gradients
+============================================================ */
+
+.end-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.45);  /* same dim as level-up overlay */
+  backdrop-filter: blur(20px);     
+  -webkit-backdrop-filter: blur(20px);
+
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  z-index: 99999;
+}
+
+.end-overlay.visible {
+  opacity: 1;
+}
+
+/* ============================================================
+   ✨ END PANEL — Crystal Glass Box
+============================================================ */
+.end-panel {
+  position: relative;
+
+  width: 900px;
+  min-height: 300px;
+
+  padding: 50px 70px;
+
+  background: rgba(255, 255, 255, 0.15); /* crystal glass */
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  color: #ffffff;
+  text-align: center;
+  font-family: "Comic Sans MS", cursive;
+  font-size: 1.2rem;
+
+  box-shadow:
+    0 0 25px rgba(120, 200, 255, 0.9),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+
+  backdrop-filter: blur(20px);
+
+  animation: overlayPop 0.5s ease;
+}
+
+/* ✨ Soft Aura Glow */
+.end-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  border-radius: 22px;
+  background: radial-gradient(circle, rgba(255,255,255,0.25), transparent 70%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   💬 TEXT
+============================================================ */
+
+.end-panel h1 {
+  margin-bottom: 1rem;
+  font-size: 2.6rem;
+  font-family: "Princess Sofia", cursive;
+  color: #ffffff;
+
+  text-shadow:
+    0 0 10px #fff,
+    0 0 18px #d6b3ff;
+}
+
+.end-panel p {
+  margin-bottom: 2.2rem;
+  font-size: 1.3rem;
+  color: #e8dbff;
+}
+
+/* ============================================================
+   ✨ BUTTONS
+============================================================ */
+
+.end-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.end-buttons button {
+  padding: 12px 30px;
+
+  font-size: 1.1rem;
+  font-weight: bold;
+  font-family: "Comic Sans MS", cursive;
+
+  color: #ffffff;
+  cursor: pointer;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(120, 200, 255, 0.8),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.end-buttons button:hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 0 30px rgba(224, 187, 255, 0.9),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.end-buttons button:active {
+  transform: scale(0.97);
+  box-shadow:
+    0 0 18px rgba(120, 200, 255, 0.8),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   ✨ POP ANIMATION (matches story / level-up)
+============================================================ */
+@keyframes overlayPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+
+/* ============================================================
+   🧭 GAME NAVBAR
+============================================================ */
+.game-navbar {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 6px 12px;
+  gap: 10px;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 14px;
+
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+
+  z-index: 9000;
+}
+
+.game-navbar button {
+  font-size: 20px;
+
+  padding: 6px 10px;
+  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+
+  color: #555;
+  transition: all 0.2s ease;
+}
+
+.game-navbar button:hover {
+  transform: translateY(-2px);
+
+  background: linear-gradient(180deg, #fff0ff, #e3d4ff);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.game-navbar button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ============================================================
+   🏰 TURRET BAR HUD
+============================================================ */
+.turret-bar {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+
+  width: 96px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 6px;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+
+  z-index: 9999;
+}
+
+.turret-slot {
+  width: 64px;
+  height: 64px;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+  border-radius: 8px;
+
+  filter: grayscale(1) brightness(0.6);
+  opacity: 0.6;
+
+  transition: all 0.3s ease;
+}
+
+.turret-slot img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Quantity label bottom-right */
+.turret-slot span {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+
+  font-size: 12px;
+  font-weight: bold;
+
+  color: #fff;
+  text-shadow: 0 0 3px #000;
+}
+
+/* Unlocked slot glow */
+.turret-slot.unlocked {
+  filter: none;
+  opacity: 1;
+
+  box-shadow: 0 0 10px rgba(255, 223, 95, 0.6);
+}
+
+.turret-slot.unlocked span {
+  color: #fff;
+  text-shadow:
+    0 0 6px #ffdf5f,
+    0 0 12px #ffdf5f;
+}
+
+/* ============================================================
+   🔢 TURRET HOTKEY LABELS
+============================================================ */
+.key-label {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+
+  width: 22px;
+  height: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 13px;
+  font-weight: bold;
+
+  color: #fff;
+
+  background: linear-gradient(135deg, #8cd5ff, #d4b5ff);
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+
+  box-shadow:
+    0 0 8px rgba(181, 226, 255, 0.5),
+    inset 0 0 4px rgba(255, 255, 255, 0.4);
+
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Gold key when turret unlocked */
+.turret-slot.unlocked .key-label {
+  background: linear-gradient(135deg, #ffe37f, #ffd3a0);
+  color: #fff;
+  text-shadow: 0 0 6px rgba(255, 215, 90, 0.8);
+}
+
+
+#overlay-settings-game, #overlay-game-controls, #overlay-player-stats, #overlay-confirm, #tower-unlock-overlay {
+  background: rgba(0, 0, 0, 0.75);  /* darken background */
+  backdrop-filter: blur(20px);      /* strong blur */
+  -webkit-backdrop-filter: blur(30px);
+}
+
+
+/* ============================================================
+   ✨ LEVEL UP OVERLAY
+============================================================ */
+
+#overlay-levelup.overlay {
+  display: none; /* default */
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 99999;
+}
+
+#overlay-levelup.active {
+  display: flex;
+}
+
+.levelup-box {
+  width: 820px;
+  padding: 40px 60px;
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 0 25px rgba(120, 200, 255, 0.9),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+
+  text-align: center;
+  animation: overlayPop 0.4s ease;
+}
+
+.levelup-title {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.levelup-message {
+  margin-bottom: 20px;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.levelup-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.levelup-btn {
+  position: relative;      /* IMPORTANT — prevents overlap */
+  width: 160px;
+  height: 190px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px;
+  border-radius: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  background: linear-gradient(145deg, #b3d8ff, #ffd6ef);
+  color: #4b2b6f;
+
+  font-size: 1.1rem;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  box-shadow:
+    0 0 18px rgba(200,180,255,0.6),
+    inset 0 0 10px rgba(255,255,255,0.4);
+}
+
+.levelup-btn:hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 0 30px rgba(255, 255, 255, 0.9),
+    inset 0 0 14px rgba(255,255,255,0.5);
+}
+
+.levelup-icon {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  margin-bottom: 10px;
+
+  filter:
+    drop-shadow(0 0 12px rgba(120,200,255,0.8))
+    drop-shadow(0 0 20px rgba(240,180,255,0.7));
+}
