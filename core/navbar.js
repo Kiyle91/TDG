@@ -10,6 +10,7 @@
 import { showConfirm } from "./alert.js";
 import { playFairySprinkle } from "./soundtrack.js";
 import { stopGameplay, resetGameplay } from "../main.js";
+import { pauseGame, resumeGame } from "./ui.js";
 
 // ------------------------------------------------------------
 // 🌸 INIT NAVBAR
@@ -32,6 +33,9 @@ function showConfirmOverlay(message, onYes, onNo) {
   const overlay = document.getElementById("overlay-confirm");
   document.getElementById("confirm-message").textContent = message;
 
+  // 👉 Pause the game when the confirm box opens
+  pauseGame();
+
   overlay.classList.add("active");
 
   const yes = document.getElementById("confirm-yes");
@@ -40,7 +44,12 @@ function showConfirmOverlay(message, onYes, onNo) {
   const cleanup = () => {
     yes.onclick = null;
     no.onclick = null;
+
     overlay.classList.remove("active");
+
+    // 👉 Resume the game only if user CANCELS or overlay closes
+    // (Home/Restart have their own flow after the confirm resolves)
+    resumeGame();
   };
 
   yes.onclick = () => { cleanup(); onYes?.(); };
@@ -74,7 +83,7 @@ function handleNavAction(action) {
     // --------------------------------------------------------
     case "restart":
     showConfirmOverlay(
-      "Restart this map? You’ll keep your player stats, but towers and enemies will reset.",
+      "** GAME IS NOT PAUSED ** \nRestart this map? You’ll keep your player stats, but towers and enemies will reset.",
       () => {
         console.log("🔄 Confirmed: restarting map...");
         flashScreen();
