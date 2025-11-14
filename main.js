@@ -57,7 +57,7 @@ export function startGameplay() {
   gameState.paused = false;
   lastTime = performance.now();
 
-  // ✅ Store new loop ID (prevents freeze after exiting/restarting)
+  // ✅ Store new loop ID
   window.__gameLoopID = requestAnimationFrame(gameLoop);
 
   console.log("🎮 Gameplay loop started!");
@@ -129,15 +129,14 @@ export function resetGameplay() {
 
   document.getElementById("end-screen")?.remove();
 
-  // 🧩 Reset combat subsystems (enemies, towers, etc.)
+  // 🧩 Reset combat subsystems
   resetCombatState();
 
-  // ⏱ Reset timing and restart loop cleanly
+  // ⏱ Restart loop
   lastTime = performance.now();
   gameActive = true;
   gameState.paused = false;
 
-  // ✅ New stored loop ID
   window.__gameLoopID = requestAnimationFrame(gameLoop);
 
   console.log("🌸 New battle started cleanly!");
@@ -161,7 +160,6 @@ function tryContinueWithDiamonds() {
     gameState.paused = false;
     startGameplay();
 
-    // ✨ Visual feedback
     const msg = document.createElement("div");
     msg.textContent = "✨ The Crystal restores your strength!";
     Object.assign(msg.style, {
@@ -229,16 +227,32 @@ function showEndScreen(reason) {
       subtitle.textContent = "";
   }
 
-  // ⭐ Slain Glitter image (defeat / lives only)
+  // ============================================================
+  // ⭐ defeat image (slain)
+  // ============================================================
   let defeatImg = null;
   if (reason === "defeat" || reason === "lives") {
     defeatImg = document.createElement("img");
     defeatImg.src = "./assets/images/sprites/glitter/glitter_slain.png";
     defeatImg.alt = "Glitter has fallen";
     defeatImg.style.display = "block";
-    defeatImg.style.margin = "20px auto 50px auto";
+    defeatImg.style.margin = "20px auto 35px auto";
     defeatImg.style.width = "180px";
     defeatImg.style.filter = "drop-shadow(0 0 12px #ffffffaa)";
+  }
+
+  // ============================================================
+  // ⭐ victory image
+  // ============================================================
+  let victoryImg = null;
+  if (reason === "victory") {
+    victoryImg = document.createElement("img");
+    victoryImg.src = "./assets/images/sprites/glitter/glitter_attack_right.png";
+    victoryImg.alt = "Glitter stands victorious!";
+    victoryImg.style.display = "block";
+    victoryImg.style.margin = "20px auto 35px auto";
+    victoryImg.style.width = "180px";
+    victoryImg.style.filter = "drop-shadow(0 0 12px #ffffffaa)";
   }
 
   const retryBtn = document.createElement("button");
@@ -259,8 +273,7 @@ function showEndScreen(reason) {
   continueBtn.onclick = tryContinueWithDiamonds;
 
   // ------------------------------------------------------------
-  // ✔ Only show diamonds + hub on defeat
-  // ✔ Only show clean "Continue" on victory
+  // button visibility rules
   // ------------------------------------------------------------
   if (reason === "victory") {
     buttons.append(retryBtn);
@@ -268,8 +281,13 @@ function showEndScreen(reason) {
     buttons.append(continueBtn, retryBtn, hubBtn);
   }
 
+  // ------------------------------------------------------------
+  // append logic depending on victory/defeat/other
+  // ------------------------------------------------------------
   if (defeatImg) {
     panel.append(title, subtitle, defeatImg, buttons);
+  } else if (victoryImg) {
+    panel.append(title, subtitle, victoryImg, buttons);
   } else {
     panel.append(title, subtitle, buttons);
   }
