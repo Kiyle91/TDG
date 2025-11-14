@@ -1,10 +1,10 @@
 // ============================================================
-// 🐺 worg.js — Olivia’s World: Crystal Keep (Final Polished Build)
+// 🐺 worg.js — Olivia’s World: Crystal Keep (Cached Sprite Build)
 // ------------------------------------------------------------
 // • Follows the enemy path only (no attacks)
 // • Damageable by player + towers/projectiles
 // • Small goblin-style HP bar
-// • High-quality rendering (no pixelation)
+// • High-quality rendering with cached sprites (zero lag)
 // • Hit flash + smooth death fade
 // • Exposed to global scope for targeting (getWorg, spawnWorg)
 // ============================================================
@@ -29,40 +29,61 @@ const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT = 900;
 
 // ------------------------------------------------------------
-// 🖼️ SPRITE LOADER
+// 🖼️ SPRITE LOADER (CACHED + RESIZED)
 // ------------------------------------------------------------
-function loadImage(src) {
+async function loadAndCache(src, targetSize = 128) {
   return new Promise((resolve) => {
     const img = new Image();
     img.src = src;
-    img.onload = () => resolve(img);
+    img.onload = () => {
+      // Create cached canvas
+      const c = document.createElement("canvas");
+      c.width = targetSize;
+      c.height = targetSize;
+
+      const cx = c.getContext("2d");
+      cx.imageSmoothingEnabled = true;
+      cx.imageSmoothingQuality = "medium";
+
+      // Draw scaled-down image ONCE
+      cx.drawImage(
+        img,
+        0, 0, img.width, img.height,
+        0, 0, targetSize, targetSize
+      );
+
+      resolve(c);
+    };
   });
 }
 
+// ------------------------------------------------------------
+// 🖼️ LOAD ALL SPRITES (CACHED)
+// ------------------------------------------------------------
 async function loadWorgSprites() {
   worgSprites = {
-    idle: await loadImage("./assets/images/sprites/worg/worg_idle.png"),
+    idle: await loadAndCache("./assets/images/sprites/worg/worg_idle.png"),
 
     run: {
       left: [
-        await loadImage("./assets/images/sprites/worg/worg_A1.png"),
-        await loadImage("./assets/images/sprites/worg/worg_A2.png")
+        await loadAndCache("./assets/images/sprites/worg/worg_A1.png"),
+        await loadAndCache("./assets/images/sprites/worg/worg_A2.png")
       ],
       right: [
-        await loadImage("./assets/images/sprites/worg/worg_D1.png"),
-        await loadImage("./assets/images/sprites/worg/worg_D2.png")
+        await loadAndCache("./assets/images/sprites/worg/worg_D1.png"),
+        await loadAndCache("./assets/images/sprites/worg/worg_D2.png")
       ],
       up: [
-        await loadImage("./assets/images/sprites/worg/worg_W1.png"),
-        await loadImage("./assets/images/sprites/worg/worg_W2.png")
+        await loadAndCache("./assets/images/sprites/worg/worg_W1.png"),
+        await loadAndCache("./assets/images/sprites/worg/worg_W2.png")
       ],
       down: [
-        await loadImage("./assets/images/sprites/worg/worg_S1.png"),
-        await loadImage("./assets/images/sprites/worg/worg_S2.png")
+        await loadAndCache("./assets/images/sprites/worg/worg_S1.png"),
+        await loadAndCache("./assets/images/sprites/worg/worg_S2.png")
       ]
     },
 
-    slain: await loadImage("./assets/images/sprites/worg/worg_slain.png")
+    slain: await loadAndCache("./assets/images/sprites/worg/worg_slain.png")
   };
 }
 
@@ -73,7 +94,7 @@ export async function initWorg(path) {
   pathPoints = path || [];
   worgList = [];
   await loadWorgSprites();
-  console.log("🐺 Worg system initialized.");
+  console.log("🐺 Worg system initialized with cached sprites.");
 }
 
 // ------------------------------------------------------------
@@ -124,7 +145,7 @@ export function updateWorg(delta = 16) {
   for (let i = worgList.length - 1; i >= 0; i--) {
     const w = worgList[i];
 
-    // Dead → fading
+    // Dead → fade out
     if (!w.alive) {
       w.fade += delta;
       if (w.fade >= FADE_OUT) {
@@ -151,14 +172,14 @@ export function updateWorg(delta = 16) {
       w.x += (dx / dist) * w.speed * dt;
       w.y += (dy / dist) * w.speed * dt;
 
-      // Animation direction
+      // Direction
       w.dir =
         Math.abs(dx) > Math.abs(dy)
           ? dx > 0 ? "right" : "left"
           : dy > 0 ? "down" : "up";
 
     } else {
-      // Reached waypoint
+      // Reached a waypoint
       w.targetIndex++;
 
       if (w.targetIndex >= pathPoints.length) {
@@ -175,7 +196,7 @@ export function updateWorg(delta = 16) {
       }
     }
 
-    // Animation cycling
+    // Animation frame cycling
     w.frameTimer += delta;
     if (w.frameTimer >= WALK_FRAME_INTERVAL) {
       w.frameTimer = 0;
@@ -200,7 +221,7 @@ export function hitWorg(worg, amount) {
 }
 
 // ------------------------------------------------------------
-// 🎨 HP BAR (Goblin-style small bar)
+// 🎨 HP BAR
 // ------------------------------------------------------------
 function drawWorgHpBar(ctx, w) {
   if (!w.alive) return;
@@ -210,11 +231,9 @@ function drawWorgHpBar(ctx, w) {
   const offsetY = WORG_SIZE * 0.5 + 8;
   const pct = Math.max(0, Math.min(1, w.hp / w.maxHp));
 
-  // Background
   ctx.fillStyle = "rgba(0,0,0,0.35)";
   ctx.fillRect(w.x - barWidth / 2, w.y + offsetY, barWidth, barHeight);
 
-  // HP fill (pink gradient)
   const grad = ctx.createLinearGradient(w.x - barWidth / 2, 0, w.x + barWidth / 2, 0);
   grad.addColorStop(0, "#ff6688");
   grad.addColorStop(1, "#ff99bb");
@@ -226,10 +245,13 @@ function drawWorgHpBar(ctx, w) {
 }
 
 // ------------------------------------------------------------
-// 🖌️ DRAW
+// 🖌️ DRAW (lag-free cached version)
 // ------------------------------------------------------------
 export function drawWorg(ctx) {
   if (!ctx || !worgSprites || !worgList.length) return;
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "medium";
 
   for (const w of worgList) {
     const img = w.alive
@@ -238,46 +260,46 @@ export function drawWorg(ctx) {
 
     if (!img) continue;
 
-    const drawX = w.x - WORG_SIZE / 2;
-    const drawY = w.y - WORG_SIZE / 2;
+    // 15% bigger left/right
+    let size = WORG_SIZE;
+    if (w.dir === "left" || w.dir === "right") size *= 1.15;
+
+    const drawX = w.x - size / 2;
+    const drawY = w.y - size / 2;
 
     ctx.save();
 
     // Shadow
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = "#000";
     ctx.beginPath();
     ctx.ellipse(
       w.x,
-      w.y + WORG_SIZE / 2.3,
-      WORG_SIZE * 0.35,
-      WORG_SIZE * 0.15,
+      w.y + size * 0.45,
+      size * 0.32,
+      size * 0.13,
       0,
       0,
       Math.PI * 2
     );
-    ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
+    ctx.globalAlpha = 1;
 
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-
-    // Flash
-    if (w.alive && w.flashTimer > 0) {
+    // Hit flash
+    if (w.flashTimer > 0 && w.alive) {
       const t = w.flashTimer / 150;
-      ctx.filter = `contrast(1.2) brightness(${1 + t * 0.5}) saturate(${1 + t * 1.5})`;
-    } else {
-      ctx.filter = "none";
+      ctx.globalAlpha = 1 - t * 0.3;
     }
 
-    // Dead fade
+    // Fade out on death
     if (!w.alive) {
-      const alpha = Math.max(0, 1 - w.fade / FADE_OUT);
-      ctx.globalAlpha = alpha;
+      ctx.globalAlpha = Math.max(0, 1 - w.fade / FADE_OUT);
     }
 
-    // Draw sprite (assuming 1024x1024 sheet)
-    ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, WORG_SIZE, WORG_SIZE);
+    // Draw sprite
+    ctx.drawImage(img, drawX, drawY, size, size);
 
-    // HP bar
+    ctx.globalAlpha = 1;
     drawWorgHpBar(ctx, w);
 
     ctx.restore();
@@ -285,13 +307,13 @@ export function drawWorg(ctx) {
 }
 
 // ------------------------------------------------------------
-// 📦 GETTER (for targeting)
+// 📦 GETTER
 // ------------------------------------------------------------
 export function getWorg() {
   return worgList;
 }
 
-// Expose to global so player/towers/projectiles can target them
+// Expose for debugging
 if (typeof window !== "undefined") {
   window.getWorg = getWorg;
 }
