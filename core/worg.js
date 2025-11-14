@@ -1,16 +1,23 @@
 // ============================================================
-// 🐺 worg.js — Olivia’s World: Crystal Keep (Cached Sprite Build)
+// 🐺 worg.js — Olivia's World: Crystal Keep (Fully Independent Edition)
 // ------------------------------------------------------------
 // • Follows the enemy path only (no attacks)
 // • Damageable by player + towers/projectiles
 // • Small goblin-style HP bar
 // • High-quality rendering with cached sprites (zero lag)
 // • Hit flash + smooth death fade
-// • Exposed to global scope for targeting (getWorg, spawnWorg)
+// • 🆕 Independent damage system (no dependency on enemies.js)
+// • 🆕 Own XP/gold rewards
 // ============================================================
 
-import { gameState } from "../utils/gameState.js";
-import { damageEnemy } from "./enemies.js";
+import { gameState, addGold } from "../utils/gameState.js";
+import { spawnFloatingText } from "./floatingText.js";
+import { awardXP } from "./levelSystem.js";
+import { updateHUD } from "./ui.js";
+import {
+  playGoblinDeath,
+  playGoblinDamage,
+} from "./soundtrack.js";
 
 // ------------------------------------------------------------
 // 🧩 INTERNAL STATE
@@ -27,6 +34,10 @@ const WORG_SPEED = 150;
 const WORG_SIZE = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT = 900;
+
+// 🆕 Worg rewards (separate from goblins)
+const WORG_XP_REWARD = 25;
+const WORG_GOLD_REWARD = 15;
 
 // ------------------------------------------------------------
 // 🖼️ SPRITE LOADER (CACHED + RESIZED)
@@ -122,7 +133,15 @@ export function spawnWorg() {
     frameTimer: 0,
 
     flashTimer: 0,
-    fade: 0
+    fade: 0,
+    
+    // 🆕 Elemental effect support (same as goblins for tower compatibility)
+    slowTimer: 0,
+    burnTimer: 0,
+    burnDamage: 0,
+    isBurning: false,
+    burnTick: 1000,
+    stunTimer: 0
   };
 
   worgList.push(worg);
@@ -154,6 +173,9 @@ export function updateWorg(delta = 16) {
       continue;
     }
 
+    // 🆕 Elemental effects (frost slow, burn DoT)
+    handleWorgElementalEffects(w, dt);
+
     // Hit flash timer
     if (w.flashTimer > 0) {
       w.flashTimer -= delta;
@@ -167,10 +189,11 @@ export function updateWorg(delta = 16) {
     const dy = target.y - w.y;
     const dist = Math.hypot(dx, dy);
 
-    // Movement
+    // Movement (affected by slow)
     if (dist > 1) {
-      w.x += (dx / dist) * w.speed * dt;
-      w.y += (dy / dist) * w.speed * dt;
+      const moveSpeed = w.speed * (w.slowTimer > 0 ? 0.5 : 1);
+      w.x += (dx / dist) * moveSpeed * dt;
+      w.y += (dy / dist) * moveSpeed * dt;
 
       // Direction
       w.dir =
@@ -189,6 +212,7 @@ export function updateWorg(delta = 16) {
             gameState.player.lives = 10;
           }
           gameState.player.lives = Math.max(0, gameState.player.lives - 1);
+          updateHUD();
         }
 
         w.alive = false;
@@ -206,18 +230,74 @@ export function updateWorg(delta = 16) {
 }
 
 // ------------------------------------------------------------
-// 💥 DAMAGE
+// 🔥 ELEMENTAL EFFECTS (Frost + Flame support)
 // ------------------------------------------------------------
-export function hitWorg(worg, amount) {
-  if (!worg || !worg.alive) return;
+function handleWorgElementalEffects(worg, dt) {
+  // ❄️ FROST (Slow debuff)
+  if (worg.slowTimer > 0) {
+    worg.slowTimer -= dt;
+  }
 
-  damageEnemy(worg, amount);
+  // 🔥 FLAME (Burn DoT)
+  if (worg.isBurning) {
+    worg.burnTimer -= dt;
+
+    // Apply burn tick damage every 1 second
+    if (!worg.burnTick) worg.burnTick = 1000;
+    worg.burnTick -= dt * 1000;
+
+    if (worg.burnTick <= 0) {
+      worg.burnTick = 1000;   // reset for 1 second
+      damageWorg(worg, worg.burnDamage);
+    }
+
+    // Burn expired
+    if (worg.burnTimer <= 0) {
+      worg.isBurning = false;
+      worg.burnDamage = 0;
+    }
+  }
+
+  // 🌙 MOON STUN
+  if (worg.stunTimer > 0) {
+    worg.stunTimer -= dt;
+    if (worg.stunTimer < 0) worg.stunTimer = 0;
+  }
+}
+
+// ------------------------------------------------------------
+// 💥 DAMAGE (Independent system)
+// ------------------------------------------------------------
+export function damageWorg(worg, amount) {
+  if (!worg || !worg.alive) return;
+  
+  const dmg = Number(amount);
+  if (isNaN(dmg) || dmg <= 0) return;
+
+  spawnFloatingText(worg.x, worg.y - 30, -Math.abs(Math.round(dmg)), "#ff5c8a", 18);
+  worg.hp -= dmg;
   worg.flashTimer = 150;
+  playGoblinDamage();
 
   if (worg.hp <= 0) {
+    worg.hp = 0;
     worg.alive = false;
     worg.fade = 0;
+    
+    playGoblinDeath();
+    
+    // 🆕 Award XP and Gold
+    awardXP(WORG_XP_REWARD);
+    addGold(WORG_GOLD_REWARD);
+    updateHUD();
+    
+    console.log(`🐺 Worg defeated! Awarded ${WORG_XP_REWARD} XP and ${WORG_GOLD_REWARD} gold.`);
   }
+}
+
+// Legacy compatibility (towers/projectiles may call hitWorg)
+export function hitWorg(worg, amount) {
+  damageWorg(worg, amount);
 }
 
 // ------------------------------------------------------------
@@ -245,7 +325,7 @@ function drawWorgHpBar(ctx, w) {
 }
 
 // ------------------------------------------------------------
-// 🖌️ DRAW (lag-free cached version)
+// 🖌️ DRAW (lag-free cached version with elemental effects)
 // ------------------------------------------------------------
 export function drawWorg(ctx) {
   if (!ctx || !worgSprites || !worgList.length) return;
@@ -298,6 +378,52 @@ export function drawWorg(ctx) {
 
     // Draw sprite
     ctx.drawImage(img, drawX, drawY, size, size);
+
+    // ====================================================================
+    // 🔥 FIRE EFFECT (burn over time)
+    // ====================================================================
+    if (w.isBurning && w.alive) {
+      ctx.save();
+
+      const flicker = 0.85 + Math.random() * 0.3;
+
+      // Warm tint
+      ctx.globalCompositeOperation = "screen";
+      ctx.globalAlpha = 0.25 * flicker;
+      ctx.fillStyle = "rgba(255,150,80,0.5)";
+      ctx.beginPath();
+      ctx.ellipse(w.x, w.y, size * 0.35, size * 0.45, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer flame aura
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = 0.22 * flicker;
+      ctx.fillStyle = "rgba(255,120,60,0.5)";
+      ctx.beginPath();
+      ctx.ellipse(w.x, w.y - size * 0.1, size * 0.55, size * 0.7, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // ====================================================================
+    // ❄ FROST EFFECT (slow debuff)
+    // ====================================================================
+    if (w.slowTimer > 0 && w.alive) {
+      ctx.save();
+
+      const frostPulse = 0.8 + Math.sin(Date.now() / 200) * 0.15;
+
+      // Cool tint (screen blend)
+      ctx.globalCompositeOperation = "screen";
+      ctx.globalAlpha = 0.25 * frostPulse;
+      ctx.fillStyle = "rgba(160,200,255,0.5)";
+      ctx.beginPath();
+      ctx.ellipse(w.x, w.y, size * 0.38, size * 0.48, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
 
     ctx.globalAlpha = 1;
     drawWorgHpBar(ctx, w);

@@ -76,7 +76,7 @@ export function updateHUD() {
   const manaText = document.getElementById("mana-text");
 
   if (hpBar && manaBar) {
-    // ✅ numeric safety: avoid undefined / NaN
+    // numeric safety
     const hp       = Number(p.hp)       || 0;
     const maxHp    = Number(p.maxHp)    || 100;
     const mana     = Number(p.mana)     || 0;
@@ -91,12 +91,12 @@ export function updateHUD() {
 
     // Update text values safely
     if (hpText)   hpText.textContent   = `${Math.round(hp)} / ${Math.round(maxHp)}`;
-    if (manaText) manaText.textContent = `${mana.toFixed(1)} / ${Math.round(maxMana)}`;
+    if (manaText) manaText.textContent = 
+      `${Math.round(Number(p.mana))} / ${Math.round(Number(p.maxMana))}`;
   }
 
   updateTurretBar();
 }
-
 
 // ------------------------------------------------------------
 // 📜 GET GAME STATS
@@ -140,11 +140,9 @@ export function closeOverlay(overlay) {
   playCancelSound();
   setTimeout(() => {
     overlay.style.display = "none";
-    resumeGame(); // ✅ resume gameplay once overlay fully closed
+    resumeGame();
   }, 600);
 }
-
-
 
 // ------------------------------------------------------------
 // ⚙️ SETTINGS MENU INITIALIZATION
@@ -155,15 +153,12 @@ export function initSettingsMenu() {
 
   if (!visualsToggle) return;
 
-  // 🩷 Apply saved preference
   visualsToggle.checked = gameState.settings.visualEffects;
   if (visualsLabel)
     visualsLabel.textContent = visualsToggle.checked ? "Enabled" : "Disabled";
 
-  // 🪄 Apply state immediately
   toggleMagicSparkles(gameState.settings.visualEffects);
 
-  // 🎧 When player changes the toggle
   visualsToggle.addEventListener("change", () => {
     const enabled = visualsToggle.checked;
     gameState.settings.visualEffects = enabled;
@@ -189,7 +184,7 @@ export function toggleMagicSparkles(enabled) {
 
 // ============================================================
 // 🧪 TEMP TEST — Keyboard Controls for HUD Verification
-// ------------------------------------------------------------
+// ============================================================
 document.addEventListener("keydown", (e) => {
   const p = gameState.player;
   if (!p) return;
@@ -197,22 +192,18 @@ document.addEventListener("keydown", (e) => {
   switch (e.key.toLowerCase()) {
     case "h":
       p.hp = Math.max(0, p.hp - 10);
-      console.log(`💔 HP -10 → ${p.hp}/${p.maxHp}`);
       updateHUD();
       break;
     case "j":
       p.hp = Math.min(p.maxHp, p.hp + 10);
-      console.log(`💖 HP +10 → ${p.hp}/${p.maxHp}`);
       updateHUD();
       break;
     case "m":
       p.mana = Math.max(0, p.mana - 10);
-      console.log(`🔷 Mana -10 → ${p.mana}/${p.maxMana}`);
       updateHUD();
       break;
     case "n":
       p.mana = Math.min(p.maxMana, p.mana + 10);
-      console.log(`🔹 Mana +10 → ${p.mana}/${p.maxMana}`);
       updateHUD();
       break;
   }
@@ -220,7 +211,7 @@ document.addEventListener("keydown", (e) => {
 
 // ============================================================
 // 👑 PLAYER / HUB STATS — Live Overlay Updaters
-// ------------------------------------------------------------
+// ============================================================
 function setText(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = value;
@@ -230,15 +221,17 @@ function fillStats(prefix, titleId) {
   const p = gameState.player || {};
   setText(titleId, p.name ? `Princess ${p.name}` : "Princess (Unknown)");
 
-  // Core numbers (with sane fallbacks)
   const level = p.level ?? 1;
   const xp = p.xp ?? 0;
   const xpToNext = p.xpToNext ?? 100;
   const statPts = p.statPoints ?? 0;
   const hp = p.hp ?? p.maxHp ?? 100;
   const maxHp = p.maxHp ?? 100;
+
+  // ⭐ MANA — now fully rounded + safe
   const mana = p.mana ?? p.maxMana ?? 50;
   const maxMana = p.maxMana ?? 50;
+
   const sp = p.spellPower ?? 10;
   const ranged = p.rangedAttack ?? 10;
   const atk = p.attack ?? 15;
@@ -249,7 +242,13 @@ function fillStats(prefix, titleId) {
   setText(`${prefix}xp`, `${xp} / ${xpToNext}`);
   setText(`${prefix}statPoints`, String(statPts));
   setText(`${prefix}hp`, `${hp} / ${maxHp}`);
-  setText(`${prefix}mana`, `${mana} / ${maxMana}`);
+
+  // ⭐ FIXED MANA LINE (previously unrounded)
+  setText(
+    `${prefix}mana`,
+    `${Math.round(Number(mana))} / ${Math.round(Number(maxMana))}`
+  );
+
   setText(`${prefix}spellPower`, String(sp));
   setText(`${prefix}ranged`, String(ranged));
   setText(`${prefix}attack`, String(atk));
@@ -257,7 +256,6 @@ function fillStats(prefix, titleId) {
   setText(`${prefix}crit`, `${critPct}%`);
 }
 
-// Live refresh while overlay is open
 function startLiveRefresh(overlayId, refreshFn) {
   const overlay = document.getElementById(overlayId);
   if (!overlay) return;
@@ -278,11 +276,10 @@ function startLiveRefresh(overlayId, refreshFn) {
   }, 300);
 }
 
-// HUB overlay updater — excludes Stat Points
 export function updateStatsOverlay() {
   const p = gameState.player || {};
   const titleEl = document.getElementById("stats-title");
-  if (titleEl) titleEl.textContent = p.name ? `Princess ${p.name}` : "Princess (Unknown)";
+  if (titleEl) titleEl.textContent = p.name ? `Princess ${p.name}` : "Princess";
 
   const level = p.level ?? 1;
   const xp = p.xp ?? 0;
@@ -301,7 +298,10 @@ export function updateStatsOverlay() {
     "stat-level": level,
     "stat-xp": `${xp} / ${xpToNext}`,
     "stat-hp": `${hp} / ${maxHp}`,
-    "stat-mana": `${mana} / ${maxMana}`,
+
+    // ⭐ FIXED HERE AS WELL
+    "stat-mana": `${Math.round(Number(mana))} / ${Math.round(Number(maxMana))}`,
+
     "stat-spellPower": sp,
     "stat-ranged": ranged,
     "stat-attack": atk,
@@ -314,7 +314,6 @@ export function updateStatsOverlay() {
     if (el) el.textContent = val;
   });
 }
-
 
 // IN-GAME overlay updater
 export function updatePlayerStatsOverlay() {
