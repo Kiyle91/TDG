@@ -24,7 +24,7 @@ let eliteSprites = null;
 // ------------------------------------------------------------
 // ⚙ CONFIG
 // ------------------------------------------------------------
-const ELITE_HP = 550;
+const ELITE_HP = 150;
 const ELITE_SPEED = 105;
 const ELITE_SIZE = 80;             // SAME SIZE AS GOBLIN
 const FRAME_INTERVAL = 220;

@@ -777,6 +777,41 @@ export function updatePlayer(delta) {
     }
   }
 
+  // ------------------------------------------------------------
+  // 🟥 PLAYER ↔ ELITE CONTACT DAMAGE
+  // ------------------------------------------------------------
+  const elites = getElites ? getElites() : [];
+  for (const e of elites) {
+    if (!e.alive) continue;
+
+    const dx = e.x - p.pos.x;
+    const dy = e.y - p.pos.y;
+    const dist = Math.hypot(dx, dy);
+
+    const hitRadius = 50; // similar to goblins
+
+    if (dist < hitRadius) {
+      // Damage player if not invulnerable
+      if (p.invulnTimer <= 0) {
+        const dmg = 12; // Choose any value you want
+        p.hp = Math.max(0, p.hp - dmg);
+        p.flashTimer = 200;
+        p.invulnTimer = 800; // same as goblins
+
+        spawnFloatingText(p.pos.x, p.pos.y - 30, `-${dmg}`, "#ff5577");
+        playPlayerDamage();
+        spawnDamageSparkles(p.pos.x, p.pos.y);
+      }
+
+      // Small pushback (lighter than ogres)
+      const push = 3;
+      if (dist > 0) {
+        p.pos.x -= (dx / dist) * push;
+        p.pos.y -= (dy / dist) * push;
+      }
+    }
+  }
+
   // ANIMATION
   if (isAttacking) {
     // handled by attack timeouts
