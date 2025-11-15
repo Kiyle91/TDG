@@ -12,6 +12,7 @@ import { damageEnemy } from "./enemies.js";
 import { gameState } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
 
+
 const PROJECTILE_SPEED = 480;
 
 // Per-type damage table

@@ -26,6 +26,7 @@ import { spawnFloatingText } from "./floatingText.js";
 import { handleTowerKey } from "./towerPlacement.js";
 import { getOgres, damageOgre, OGRE_HIT_RADIUS } from "./ogre.js";
 import { getWorg } from "./worg.js";
+import { getElites, damageElite } from "./elite.js";
 import { getMapPixelSize } from "./map.js";
 // Tower hotkeys
 window.addEventListener("keydown", (e) => {
@@ -269,7 +270,9 @@ function performMeleeAttack() {
   const goblins = getEnemies();
   const ogres = getOgres();
   const worgs = getWorg();
-  const allTargets = [...goblins, ...ogres, ...worgs];
+  const elites = getElites();
+
+  const allTargets = [...goblins, ...ogres, ...worgs, ...elites];
 
   for (const t of allTargets) {
     if (!t.alive) continue;
@@ -279,10 +282,14 @@ function performMeleeAttack() {
     const dist = Math.hypot(dx, dy);
 
     if (dist <= range + (t.width || 32) / 2) {
-      if (t.maxHp >= 400) {
-        damageOgre(t, dmg, "player");
-      } else {
-        damageEnemy(t, dmg);
+      if (t.type === "elite") {
+          damageElite(t, dmg, "player");
+      }
+      else if (t.type === "ogre" || t.maxHp >= 400) {
+          damageOgre(t, dmg, "player");
+      }
+      else {
+          damageEnemy(t, dmg);
       }
 
       hit = true;
@@ -383,7 +390,7 @@ function performRangedAttack(e) {
     projectile.y += Math.sin(projectile.angle) * projectile.speed * dt;
     projectile.life += 16;
 
-    const targets = [...getEnemies(), ...getOgres(), ...getWorg()];
+    const targets = [...getEnemies(), ...getOgres(), ...getWorg(), ...getElites()];
     for (const t of targets) {
       if (!t.alive) continue;
 
@@ -397,7 +404,8 @@ function performRangedAttack(e) {
           : 26;
 
       if (dist < hitRadius) {
-        if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "player");
+        if (t.type === "elite") damageElite(t, dmg);
+        else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "player");
         else damageEnemy(t, dmg);
 
         projectile.alive = false;
@@ -487,7 +495,7 @@ function performSpell() {
     const radius = 150;
     let hits = 0;
 
-    const targets = [...getEnemies(), ...getOgres(), ...getWorg()];
+    const targets = [...getEnemies(), ...getOgres(), ...getWorg(), ...getElites()];
 
     for (const t of targets) {
       if (!t.alive) continue;
@@ -497,7 +505,8 @@ function performSpell() {
       const dist = Math.hypot(dx, dy);
 
       if (dist < radius) {
-        if (t.maxHp >= 400) damageOgre(t, dmg, "spell");
+        if (t.type === "elite") damageElite(t, dmg, "spell");
+        else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "spell");
         else damageEnemy(t, dmg);
         hits++;
       }

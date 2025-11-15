@@ -111,6 +111,15 @@ import {
 } from "./worg.js";
 
 import {
+  initElites,
+  updateElites,
+  drawElites,
+  getElites,
+  clearElites,
+  spawnElite,
+} from "./elite.js";
+
+import {
   initGoblinDrops,
   updateGoblinDrops,
   drawGoblinDrops,
@@ -135,7 +144,7 @@ import { resetGoblinDrops } from "./goblinDrop.js";
 
 export const waveConfigs = {
   1: [
-    { goblins: 1,  worgs: 0,  ogres: 0 },
+    { goblins: 1,  worgs: 0,  ogres: 0, elites: 1 },
     { goblins: 3,  worgs: 0,  ogres: 0 },
     { goblins: 7,  worgs: 0,  ogres: 0 },
     { goblins: 10, worgs: 0,  ogres: 0 },
@@ -143,12 +152,13 @@ export const waveConfigs = {
   ],
 
   2: [
-    { goblins: 10, worgs: 0,  ogres: 0 },
-    { goblins: 0,  worgs: 10, ogres: 0 },
-    { goblins: 20, worgs: 10, ogres: 0 },
-    { goblins: 20, worgs: 20, ogres: 1 },
-    { goblins: 20, worgs: 20, ogres: 1 },
+    { goblins: 10, worgs: 0,  ogres: 0, elites: 0 },
+    { goblins: 0,  worgs: 10, ogres: 0, elites: 1 },
+    { goblins: 20, worgs: 10, ogres: 0, elites: 2 },
+    { goblins: 20, worgs: 20, ogres: 1, elites: 3 },
+    { goblins: 20, worgs: 20, ogres: 1, elites: 5 },
   ],
+
 
   3: [
     { goblins: 30, worgs: 10, ogres: 0 },
@@ -275,6 +285,12 @@ function startNextWave() {
 
   // Ogres still separate
   for (let i = 0; i < wave.ogres; i++) spawnQueue.push(() => spawnOgre());
+
+  if (wave.elites) {
+    for (let i = 0; i < wave.elites; i++) {
+      spawnQueue.push(() => spawnElite());
+    }
+  }
 }
 
 // ============================================================
@@ -514,6 +530,7 @@ export async function initGame() {
   resetGoblinDrops();
   initEnemies();
   await initWorg(pathPoints);
+  await initElites();
   initTowers();
   initOgres();
   initProjectiles();
@@ -568,6 +585,7 @@ export function updateGame(delta) {
 
   updateEnemies(delta);
   updateWorg(delta);
+  updateElites(delta);
   updateTowers(delta);
   updateOgres(delta);
   updateProjectiles(delta);
@@ -631,6 +649,7 @@ export function renderGame() {
   drawTowers(ctx);
   drawWorg(ctx);
   drawEnemies(ctx);
+  drawElites(ctx);
   drawOgres(ctx);
   drawPlayer(ctx);
   drawProjectiles(ctx);
@@ -731,6 +750,7 @@ export function resetCombatState() {
   if (window.__enemies) window.__enemies.length = 0;
   clearOgres();
   clearLoot();
+  clearElites();
 
   // Re-init combat systems
   initEnemies();
