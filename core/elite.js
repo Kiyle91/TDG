@@ -380,7 +380,13 @@ export function drawElites(ctx) {
     }
 
     // Draw sprite
-    ctx.drawImage(img, drawX, drawY, size, size);
+        if (!e.alive) {
+        // 🟥 Death frame sits too high — shift down ~15%
+        const deadOffset = size * 0.15;
+        ctx.drawImage(img, drawX, drawY + deadOffset, size, size);
+    } else {
+        ctx.drawImage(img, drawX, drawY, size, size);
+    }
 
     // 🔥 Burn aura
     if (e.isBurning && e.alive) {

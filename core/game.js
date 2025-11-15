@@ -138,84 +138,107 @@ import {
 import { resetGoblinDrops } from "./goblinDrop.js";
 
 
-// ============================================================
-// 📘 WAVE CONFIG — All maps 1–9
-// ============================================================
-
 export const waveConfigs = {
+  // ============================================================
+  // 🌿 MAP 1 — Beginner Onboarding (Goblins only)
+  // ============================================================
   1: [
-    { goblins: 1,  worgs: 0,  ogres: 0, elites: 1 },
-    { goblins: 3,  worgs: 0,  ogres: 0 },
-    { goblins: 7,  worgs: 0,  ogres: 0 },
-    { goblins: 10, worgs: 0,  ogres: 0 },
-    { goblins: 20, worgs: 0,  ogres: 0 },
+    { goblins: 3,  worgs: 0, ogres: 0, elites: 0 },
+    { goblins: 6,  worgs: 0, ogres: 0, elites: 0 },
+    { goblins: 10, worgs: 0, ogres: 0, elites: 0 },
+    { goblins: 14, worgs: 0, ogres: 0, elites: 0 },
+    { goblins: 20, worgs: 0, ogres: 0, elites: 0 },
   ],
 
+  // ============================================================
+  // 🌲 MAP 2 — First Worgs + First Elite
+  // ============================================================
   2: [
-    { goblins: 10, worgs: 0,  ogres: 0, elites: 0 },
-    { goblins: 0,  worgs: 10, ogres: 0, elites: 1 },
-    { goblins: 20, worgs: 10, ogres: 0, elites: 2 },
-    { goblins: 20, worgs: 20, ogres: 1, elites: 3 },
-    { goblins: 20, worgs: 20, ogres: 1, elites: 5 },
+    { goblins: 12, worgs: 0,  ogres: 0, elites: 0 },
+    { goblins: 8,  worgs: 8,  ogres: 0, elites: 0 },
+    { goblins: 16, worgs: 10, ogres: 0, elites: 1 },
+    { goblins: 18, worgs: 14, ogres: 1, elites: 1 },
+    { goblins: 20, worgs: 16, ogres: 1, elites: 2 },
   ],
 
-
+  // ============================================================
+  // 🏞 MAP 3 — Balanced Mix + First Difficulty Curve
+  // ============================================================
   3: [
-    { goblins: 30, worgs: 10, ogres: 0 },
-    { goblins: 20, worgs: 0,  ogres: 0 },
-    { goblins: 30, worgs: 20, ogres: 0 },
-    { goblins: 30, worgs: 20, ogres: 1 },
-    { goblins: 20, worgs: 20, ogres: 2 },
+    { goblins: 18, worgs: 8,  ogres: 0, elites: 1 },
+    { goblins: 20, worgs: 10, ogres: 0, elites: 1 },
+    { goblins: 24, worgs: 12, ogres: 1, elites: 1 },
+    { goblins: 28, worgs: 14, ogres: 1, elites: 2 },
+    { goblins: 32, worgs: 16, ogres: 2, elites: 2 },
   ],
 
+  // ============================================================
+  // ❄ MAP 4 — Worg Pressure Map (Fast waves)
+  // ============================================================
   4: [
-    { goblins: 30, worgs: 20, ogres: 0 },
-    { goblins: 30, worgs: 30, ogres: 0 },
-    { goblins: 40, worgs: 20, ogres: 0 },
-    { goblins: 10, worgs: 0,  ogres: 2 },
-    { goblins: 20, worgs: 10, ogres: 3 },
+    { goblins: 20, worgs: 12, ogres: 0, elites: 1 },
+    { goblins: 18, worgs: 16, ogres: 0, elites: 1 },
+    { goblins: 22, worgs: 20, ogres: 1, elites: 2 },
+    { goblins: 16, worgs: 24, ogres: 1, elites: 2 },
+    { goblins: 20, worgs: 28, ogres: 2, elites: 3 },
   ],
 
+  // ============================================================
+  // 🔥 MAP 5 — Stronger Ogres + Mixed Pressure
+  // ============================================================
   5: [
-    { goblins: 30, worgs: 20, ogres: 0 },
-    { goblins: 30, worgs: 20, ogres: 1 },
-    { goblins: 40, worgs: 30, ogres: 2 },
-    { goblins: 0,  worgs: 0,  ogres: 4 },
-    { goblins: 40, worgs: 30, ogres: 2 },
+    { goblins: 22, worgs: 12, ogres: 1, elites: 1 },
+    { goblins: 24, worgs: 14, ogres: 1, elites: 2 },
+    { goblins: 26, worgs: 18, ogres: 2, elites: 2 },
+    { goblins: 0,  worgs: 0,  ogres: 4, elites: 2 },
+    { goblins: 32, worgs: 20, ogres: 2, elites: 3 },
   ],
 
+  // ============================================================
+  // 🜂 MAP 6 — Chaotic Back-and-Forth Pattern
+  // ============================================================
   6: [
-    { goblins: 50, worgs: 20, ogres: 0 },
-    { goblins: 0,  worgs: 20, ogres: 3 },
-    { goblins: 30, worgs: 0,  ogres: 1 },
-    { goblins: 0,  worgs: 40, ogres: 0 },
-    { goblins: 40, worgs: 30, ogres: 2 },
+    { goblins: 30, worgs: 12, ogres: 1, elites: 2 },
+    { goblins: 10, worgs: 22, ogres: 1, elites: 2 },
+    { goblins: 22, worgs: 10, ogres: 2, elites: 2 },
+    { goblins: 0,  worgs: 28, ogres: 0, elites: 3 },
+    { goblins: 28, worgs: 20, ogres: 2, elites: 3 },
   ],
 
+  // ============================================================
+  // ⚔ MAP 7 — Elite-Heavy Map (Mid-Game Spike)
+  // ============================================================
   7: [
-    { goblins: 50, worgs: 20, ogres: 0 },
-    { goblins: 0,  worgs: 20, ogres: 2 },
-    { goblins: 60, worgs: 40, ogres: 0 },
-    { goblins: 0,  worgs: 10, ogres: 5 },
-    { goblins: 40, worgs: 30, ogres: 2 },
+    { goblins: 28, worgs: 14, ogres: 1, elites: 2 },
+    { goblins: 0,  worgs: 20, ogres: 2, elites: 2 },
+    { goblins: 30, worgs: 30, ogres: 2, elites: 3 },
+    { goblins: 10, worgs: 10, ogres: 5, elites: 3 },
+    { goblins: 32, worgs: 24, ogres: 3, elites: 4 },
   ],
 
+  // ============================================================
+  // ⚡ MAP 8 — Intense Late-Game Scaling
+  // ============================================================
   8: [
-    { goblins: 60, worgs: 30, ogres: 0 },
-    { goblins: 60, worgs: 20, ogres: 1 },
-    { goblins: 60, worgs: 30, ogres: 2 },
-    { goblins: 60, worgs: 0,  ogres: 0 },
-    { goblins: 60, worgs: 0,  ogres: 3 },
+    { goblins: 36, worgs: 20, ogres: 1, elites: 2 },
+    { goblins: 40, worgs: 24, ogres: 1, elites: 2 },
+    { goblins: 40, worgs: 28, ogres: 2, elites: 3 },
+    { goblins: 42, worgs: 12, ogres: 0, elites: 3 },
+    { goblins: 44, worgs: 14, ogres: 3, elites: 4 },
   ],
 
+  // ============================================================
+  // 👑 MAP 9 — Final Showdown (Hardest Waves)
+  // ============================================================
   9: [
-    { goblins: 70, worgs: 50, ogres: 0 },
-    { goblins: 70, worgs: 50, ogres: 3 },
-    { goblins: 50, worgs: 0,  ogres: 5 },
-    { goblins: 70, worgs: 70, ogres: 5 },
-    { goblins: 80, worgs: 80, ogres: 7 },
+    { goblins: 50, worgs: 30, ogres: 2, elites: 3 },
+    { goblins: 55, worgs: 35, ogres: 3, elites: 3 },
+    { goblins: 40, worgs: 20, ogres: 5, elites: 4 },
+    { goblins: 60, worgs: 40, ogres: 5, elites: 4 },
+    { goblins: 70, worgs: 50, ogres: 7, elites: 5 },
   ],
 };
+
 
 // ============================================================
 // 🎯 WAVE STATE
