@@ -122,6 +122,7 @@ import {
 import { gameState } from "../utils/gameState.js";
 import { stopGameplay } from "../main.js";
 
+
 // ============================================================
 // 📘 WAVE CONFIG — All maps 1–9
 // ============================================================
@@ -208,6 +209,14 @@ let currentWaveIndex = 0;
 let waveActive = false;
 let waveCleared = false;
 
+// ============================================================
+// 🧩 BONUS OGRE SPAWN — 1 per 100 goblins killed
+// ============================================================
+let ogreMilestones = {};
+for (let i = 1; i <= 20; i++) {
+  ogreMilestones[i * 100] = false; // 100, 200, ..., 2000
+}
+
 const BETWEEN_WAVES_DELAY = 3000; 
 const VICTORY_DELAY = 5000;       
 
@@ -246,9 +255,20 @@ function startNextWave() {
   updateHUD();
 
   // Queue spawns
-  for (let i = 0; i < wave.goblins; i++) spawnQueue.push(() => spawnGoblin());
-  for (let i = 0; i < wave.worgs; i++)   spawnQueue.push(() => spawnWorg());
-  for (let i = 0; i < wave.ogres; i++)   spawnQueue.push(() => spawnOgre());
+  for (let i = 0; i < wave.goblins; i++) {
+    spawnQueue.push(() => {
+      spawnGoblin();
+      if (i < wave.worgs) spawnWorg();  // same moment
+    });
+  }
+
+  // If more worgs remain after goblins
+  for (let i = wave.goblins; i < wave.worgs; i++) {
+    spawnQueue.push(() => spawnWorg());
+  }
+
+  // Ogres still separate
+  for (let i = 0; i < wave.ogres; i++) spawnQueue.push(() => spawnOgre());
 }
 
 // ============================================================
@@ -382,6 +402,14 @@ export let goblinsDefeated = 0;
 export function incrementGoblinDefeated() {
   goblinsDefeated++;
   console.log(`⚔️ Goblins defeated: ${goblinsDefeated}`);
+
+  // 💥 BONUS OGRE SPAWN: 1 Ogre every 100 kills
+  if (ogreMilestones[goblinsDefeated] === false) {
+    ogreMilestones[goblinsDefeated] = true;
+
+    console.log("👹 BONUS OGRE SPAWNED at", goblinsDefeated, "kills!");
+    spawnOgre();
+  }
 }
 
 // ------------------------------------------------------------
@@ -652,6 +680,10 @@ export function resetCombatState() {
   // Global counters
   goblinsDefeated = 0;
   gameState.victoryPending = false;
+
+  for (let key in ogreMilestones) {
+    ogreMilestones[key] = false;
+  }
   gameState.ogreSpawned = false;
 
   // Map-specific triggers (legacy map 2 flags reset anyway)
