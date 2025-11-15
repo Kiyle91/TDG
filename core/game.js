@@ -121,7 +121,10 @@ import {
 // ------------------------------------------------------------
 import { gameState } from "../utils/gameState.js";
 import { stopGameplay } from "../main.js";
-import { triggerWaveStory } from "./story.js";
+import {
+  triggerEndOfWave1Story,
+  triggerEndOfWave5Story
+} from "./story.js";
 
 
 
@@ -337,18 +340,29 @@ async function updateWaveSystem(delta) {
   if (waveActive) {
     if (!noEnemiesAlive()) return;
 
-    // Mark cleared once
+    // Wave just finished
     if (!waveCleared) {
       waveCleared = true;
       waveActive = false;
+
+      const waveNumber = currentWaveIndex + 1;
+
+      // ⭐ Wave 1 end story
+      if (waveNumber === 1) {
+        await triggerEndOfWave1Story(mapId);
+      }
+
+      // ⭐ Wave 5 end story (final wave)
+      if (waveNumber === 5) {
+        await triggerEndOfWave5Story(mapId);
+      }
+
       betweenWaveTimer = BETWEEN_WAVES_DELAY;
 
-      console.log(`✨ Wave ${currentWaveIndex + 1} cleared (Map ${mapId})`);
+      console.log(`✨ Wave ${waveNumber} cleared (Map ${mapId})`);
       return;
     }
   }
-
-  if (!waveCleared) return;
 
   // ----------------------------------------------------------
   // 3️⃣ BETWEEN WAVES
@@ -370,8 +384,7 @@ async function updateWaveSystem(delta) {
   // 5️⃣ FINAL WAVE → VICTORY
   // ----------------------------------------------------------
   console.log(`🏆 All waves complete on map ${mapId}. Scheduling victory…`);
-
-  await triggerWaveStory(mapId, 5);
+  
 
   victoryPending = true;
 
