@@ -290,6 +290,8 @@ function tryContinueWithDiamonds() {
 }
 
 
+
+
 // ============================================================
 // 🕯 END SCREEN (Victory / Defeat)
 // ============================================================
@@ -344,32 +346,45 @@ function showEndScreen(reason) {
   retryBtn.textContent = reason === "victory" ? "Continue" : "Try Again";
 
   if (reason === "victory") {
-    retryBtn.onclick = async () => {
 
-      // Unlock Map 2
-      unlockMap(2);
+  retryBtn.textContent = "Continue";
 
-      // Switch to Map 2
-      gameState.progress.currentMap = 2;
+  retryBtn.onclick = async () => {
 
-      // Save
-      saveProfiles();
+    const currentMap = gameState.progress.currentMap ?? 1;
+    const nextMap = currentMap + 1;
 
-      console.log("🌍 Switching to Map Two...");
+    console.log(`🏆 Victory on Map ${currentMap}`);
 
-      // Remove end screen
+    // 🎬 If Map 9 is beaten → roll credits
+    if (nextMap > 9) {
       document.getElementById("end-screen")?.remove();
+      showScreen("credits-screen");  // You should have this screen in HTML
+      console.log("🎬 Showing credits…");
+      return;
+    }
 
-      // Load game screen
-      showScreen("game-container");
+    // 🔓 Unlock the next map
+    unlockMap(nextMap);
+    gameState.progress.currentMap = nextMap;
+    saveProfiles();
 
-      // 💥 FULL RELOAD OF GAME SYSTEMS
-      await initGame();
+    console.log(`🌍 Switching to Map ${nextMap}...`);
 
-      // Start loop
-      startGameplay();
-    };
-  }
+    // Remove overlay
+    document.getElementById("end-screen")?.remove();
+
+    // Load game screen
+    showScreen("game-container");
+
+    // FULL reload of map + systems
+    await initGame();
+
+    // Start next battle
+    startGameplay();
+  };
+}
+
 
   const hubBtn = document.createElement("button");
   hubBtn.textContent = "Return to Hub";

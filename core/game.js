@@ -382,23 +382,58 @@ export function incrementGoblinDefeated() {
 // ------------------------------------------------------------
 // 🧭 MAP-AWARE PLAYER SPAWN
 // ------------------------------------------------------------
+// ------------------------------------------------------------
+// 🧭 MAP-AWARE PLAYER SPAWN (Maps 1–9)
+// ------------------------------------------------------------
 function applyMapSpawn() {
   if (!gameState.player) return;
 
   const p = gameState.player;
   const mapId = gameState.progress?.currentMap || 1;
 
-  if (mapId === 1) {
-    // 📍 MAP ONE spawn
-    p.pos = { x: 1000, y: 500 };
-  } else if (mapId === 2) {
-    // 📍 MAP TWO spawn
-    p.pos = { x: 250, y: 1650 };
-  } else {
-    // Fallback for any future maps
-    if (!p.pos) p.pos = { x: 1000, y: 500 };
+  switch (mapId) {
+    case 1: 
+      p.pos = { x: 1000, y: 500 }; 
+      break;
+
+    case 2: 
+      p.pos = { x: 250, y: 1650 }; 
+      break;
+
+    case 3:
+      p.pos = { x: 300, y: 300 };   // Safe zone for small map
+      break;
+
+    case 4:
+      p.pos = { x: 300, y: 300 };
+      break;
+
+    case 5:
+      p.pos = { x: 300, y: 300 };
+      break;
+
+    case 6:
+      p.pos = { x: 300, y: 300 };
+      break;
+
+    case 7:
+      p.pos = { x: 300, y: 300 };
+      break;
+
+    case 8:
+      p.pos = { x: 300, y: 300 };
+      break;
+
+    case 9:
+      p.pos = { x: 300, y: 300 };
+      break;
+
+    default:
+      p.pos = { x: 1000, y: 500 }; 
+      break;
   }
 }
+
 
 // ============================================================
 // 🌷 INIT — called once when entering the Game screen
