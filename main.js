@@ -109,7 +109,6 @@ export function startGameplay() {
 // ============================================================
 // ⛔ STOP GAMEPLAY (victory / defeat / exit)
 // ============================================================
-
 export function stopGameplay(reason = "unknown") {
   if (!gameActive) return;
 
@@ -119,18 +118,87 @@ export function stopGameplay(reason = "unknown") {
 
   console.log(`🛑 Gameplay stopped: ${reason}`);
 
-  // Safe exit to hub
+  // ----------------------------------------------------------
+  // 🏠 SAFE EXIT TO HUB (navbar home)
+  // ----------------------------------------------------------
   if (reason === "exit") {
     document.getElementById("end-screen")?.remove();
+    document.querySelectorAll(".end-overlay").forEach(el => el.remove?.());
     showScreen("hub-screen");
     setTimeout(() => initHub(), 50);
     console.log("🏠 Returned to Hub (safe exit).");
     return;
   }
 
+  // ----------------------------------------------------------
+  // 🏆 VICTORY — show victory end screen
+  // ----------------------------------------------------------
+  if (reason === "victory") {
+    console.log("🏆 Victory triggered — showing victory end screen.");
+
+    // Clean previous overlays to avoid blank-screen
+    document.querySelectorAll(".end-overlay, #end-screen")
+      .forEach(el => el.remove?.());
+
+    // Now show the victory end-screen
+    showEndScreen("victory");
+    return;
+  }
+
+  // ----------------------------------------------------------
+  // 💀 DEFEAT — use defeat end screen
+  // ----------------------------------------------------------
   showEndScreen(reason);
 }
 
+
+// ============================================================
+// 🌟 FULL NEW GAME RESET (Use this for Start New Story)
+// ============================================================
+export function fullNewGameReset() {
+  console.log("🔄 FULL NEW GAME RESET — wiping map state to Map 1");
+
+  // Absolutely wipe all runtime state
+  if (!gameState.progress) gameState.progress = {};
+  if (!gameState.profile)  gameState.profile  = {};
+
+  // Reset map progression everywhere
+  gameState.progress.currentMap = 1;
+
+  if (!gameState.profile.progress)
+      gameState.profile.progress = {};
+
+  gameState.profile.progress.currentMap = 1;
+
+  // Wipe session
+  gameState.session = null;
+
+  // Save it so NOTHING overrides this on reload
+  saveProfiles();
+
+  console.log("🌟 New Game: Map progression reset to 1");
+}
+
+// ============================================================
+// 🌟 START NEW GAME — run when user clicks "New Story"
+// ============================================================
+export async function startNewGameStory() {
+  console.log("🌟 Starting NEW GAME STORY…");
+
+  // 1️⃣ Reset all persistent + runtime data
+  fullNewGameReset();
+
+  // 2️⃣ Switch UI to the game screen
+  showScreen("game-container");
+
+  // 3️⃣ Full game system reload
+  await initGame();
+
+  // 4️⃣ Start gameplay on Map 1
+  startGameplay();
+
+  console.log("🌸 New Game Story loaded — Map 1 active.");
+}
 
 // ============================================================
 // 🔁 RESET GAMEPLAY (Try Again / Restart)

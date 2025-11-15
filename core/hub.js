@@ -18,6 +18,7 @@ import { initSettingsMenu } from "./ui.js";
 import { playFairySprinkle } from "./soundtrack.js";
 import { resetCombatState } from "./game.js";
 import { createPlayer } from "./player.js";
+import { fullNewGameReset, startNewGameStory } from "../main.js";
 
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
@@ -73,9 +74,10 @@ export function initHub() {
         document.querySelectorAll("#end-screen, .end-overlay").forEach(el => el.remove());
 
         // 3️⃣ Reset combat + player state
+        fullNewGameReset();
         resetCombatState();
-        gameState.player = createPlayer();
-        gameState.player.pos = { x: 1000, y: 500 };
+        startNewGameStory();
+        startIntroStory();
 
         // 4️⃣ Start fresh story intro
         startIntroStory();
