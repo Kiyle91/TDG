@@ -1,22 +1,28 @@
 // ============================================================
 // 💬 floatingText.js — Olivia's World: Crystal Keep
-//    (Ultra-Optimized Pool Edition — No Lag, No Congestion)
+//    (Ultra-Optimized Pool Edition — ZERO GC + ZERO Lag)
 // ------------------------------------------------------------
-// ✦ Hard cap + object pool (max 60 active texts)
-// ✦ Elemental emojis get ultra-light rendering (no aura)
-// ✦ Big numbers still glow beautifully
-// ✦ Prevents input lag + tower placement freezing
+// ✦ Hard cap (60) with indexed object pool (no searching)
+// ✦ "Swap-pop" removal to avoid .splice() cost
+// ✦ Emoji mode: ultra-lightweight, no glow
+// ✦ Zero allocation per frame (no garbage)
+// ✦ Designed for 4K, mobile & 200+ hits/sec stress tests
 // ============================================================
 
 const MAX_TEXTS = 60;
-const textPool = [];
-const texts = [];
 
 // ------------------------------------------------------------
-// ♻️ PRE-FILL POOL
+// 🧵 Object pool + active list
+// ------------------------------------------------------------
+const pool = new Array(MAX_TEXTS);
+const active = []; // active list (swap-pop removal)
+let poolIndex = MAX_TEXTS - 1; // index of last free slot
+
+// ------------------------------------------------------------
+// ♻️ Initialise pool objects
 // ------------------------------------------------------------
 for (let i = 0; i < MAX_TEXTS; i++) {
-  textPool.push({
+  pool[i] = {
     active: false,
     x: 0,
     y: 0,
@@ -27,71 +33,83 @@ for (let i = 0; i < MAX_TEXTS; i++) {
     duration: 1000,
     rise: 40,
     aura: true,
-  });
+  };
 }
 
 // ------------------------------------------------------------
-// 🌸 SPAWN FLOATING TEXT (POOL + LIGHTWEIGHT ELEMENTALS)
+// 🌸 SPAWN FLOATING TEXT (ultra fast, no scans)
 // ------------------------------------------------------------
 export function spawnFloatingText(x, y, value, color = "#ffffff", size = 22, aura = true) {
 
-  // ⚡ If no free objects, drop oldest instead of blocking UI
-  let t = textPool.find(o => !o.active);
-  if (!t) {
-    t = texts.shift(); // remove oldest active
-  }
+  let t;
 
-  // 💎 Numeric safety
-  let displayValue;
-  const num = Number(value);
-  if (isNaN(num)) {
-    displayValue = value;
+  // 🟦 If pool empty → reuse oldest active (never block)
+  if (poolIndex < 0) {
+    t = active[0]; // overwrite oldest
   } else {
-    displayValue = num >= 0 ? `+${Math.round(num)}` : `${Math.round(num)}`;
+    // 🟩 Take from pool (O(1))
+    t = pool[poolIndex--];
+    active.push(t);
   }
 
-  // 🌡 Detect lightweight elemental emojis and reduce cost
+  // Number formatting (cheap)
+  const num = Number(value);
+  let displayValue;
+  if (isNaN(num)) displayValue = value;
+  else displayValue = num >= 0 ? `+${Math.round(num)}` : `${Math.round(num)}`;
+
+  // Detect emoji mode
   const isEmoji = (displayValue === "🔥" || displayValue === "❄");
 
+  // Assign values
   t.active = true;
   t.x = x;
   t.y = y;
   t.value = displayValue;
   t.color = color;
-  t.size = isEmoji ? 26 : size;         // small, crisp emoji
-  t.duration = isEmoji ? 600 : 1200;    // emojis vanish quicker
-  t.rise = isEmoji ? 28 : 50;           // lower rise for emojis
-  t.aura = isEmoji ? false : aura;      // ❗ emojis get *no glow*
-  t.life = 0;
 
-  texts.push(t);
+  t.size = isEmoji ? 26 : size;
+  t.duration = isEmoji ? 600 : 1200;
+  t.rise = isEmoji ? 28 : 50;
+  t.aura = !isEmoji && aura;
+  t.life = 0;
 }
 
 // ------------------------------------------------------------
-// ⏰ UPDATE
+// ⏰ UPDATE — swap-pop removal (NO splice cost)
 // ------------------------------------------------------------
 export function updateFloatingText(delta) {
-  for (let i = texts.length - 1; i >= 0; i--) {
-    const t = texts[i];
-    if (!t.active) continue;
-
+  for (let i = active.length - 1; i >= 0; i--) {
+    const t = active[i];
     t.life += delta;
+
     if (t.life >= t.duration) {
       t.active = false;
-      texts.splice(i, 1);
+
+      // Return to pool (O(1))
+      pool[++poolIndex] = t;
+
+      // Swap-pop remove from active (O(1))
+      const last = active.pop();
+      if (i < active.length) active[i] = last;
     }
   }
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW (ULTRA-LIGHT FOR EMOJIS)
+// 🎨 DRAW (super fast path for emojis / no glow)
 // ------------------------------------------------------------
 export function drawFloatingText(ctx) {
-  for (const t of texts) {
+  const len = active.length;
+
+  for (let i = 0; i < len; i++) {
+    const t = active[i];
+
+    // Skip inactive (shouldn't happen, but cheap)
     if (!t.active) continue;
 
-    const p = Math.min(1, t.life / t.duration);
-    const eased = 1 - Math.pow(1 - p, 2);
+    const p = t.life / t.duration;
+    const eased = 1 - (1 - p) * (1 - p);
     const alpha = 1 - p;
     const yOffset = -t.rise * eased;
 
@@ -100,24 +118,27 @@ export function drawFloatingText(ctx) {
     ctx.font = `bold ${t.size}px "Comic Sans MS", cursive`;
     ctx.textAlign = "center";
 
-    // ⚡ Ultra-fast draw for emojis (no shadow, no stroke)
+    const drawX = t.x;
+    const drawY = t.y + yOffset;
+
+    // ⚡ Emoji-only path (very cheap)
     if (!t.aura) {
       ctx.fillStyle = t.color;
-      ctx.fillText(t.value, t.x, t.y + yOffset);
+      ctx.fillText(t.value, drawX, drawY);
       ctx.restore();
       continue;
     }
 
-    // ✨ Glow enabled for big hits only
+    // ✨ Glow path for numeric/big damage
     ctx.shadowColor = t.color;
     ctx.shadowBlur = 20;
 
     ctx.strokeStyle = "rgba(255,255,255,0.85)";
     ctx.lineWidth = 2;
-    ctx.strokeText(t.value, t.x, t.y + yOffset);
+    ctx.strokeText(t.value, drawX, drawY);
 
     ctx.fillStyle = t.color;
-    ctx.fillText(t.value, t.x, t.y + yOffset);
+    ctx.fillText(t.value, drawX, drawY);
 
     ctx.restore();
   }

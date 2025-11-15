@@ -301,96 +301,169 @@ export function renderGame() {
 }
 
 function checkVictoryDefeat() {
-  const playerHP = gameState.player?.hp ?? 100;
-  const lives = gameState.player?.lives ?? 3;
+  const p = gameState.player;
+  if (!p) return;
 
-  // 💀 Player HP reached 0
-  if (playerHP <= 0) {
-    console.log("💀 Player defeated!");
+  const hp = p.hp ?? 100;
+  const lives = p.lives ?? 3;
+
+  // -------------------------------------------
+  // DEFEAT
+  // -------------------------------------------
+  if (hp <= 0) {
     gameState.player.dead = true;
     gameState.paused = true;
-    setTimeout(() => stopGameplay("defeat"), 2000);
+    setTimeout(() => stopGameplay("defeat"), 1500);
     return;
   }
 
-  // 💔 All lives lost
   if (lives <= 0) {
-    console.log("💔 No lives remaining!");
     gameState.player.dead = true;
     gameState.paused = true;
-    setTimeout(() => stopGameplay("lives"), 2000);
+    setTimeout(() => stopGameplay("lives"), 1500);
     return;
   }
 
-  // 👹 Boss Spawn Trigger — after 43 goblins slain
-  if (goblinsDefeated === 43 && !gameState.ogreSpawned) {
-    console.log("👹 43 goblins defeated — summoning the Ogre Boss!");
+  // -------------------------------------------
+  // MAP ROUTER
+  // -------------------------------------------
+  const mapId = gameState.progress.currentMap || 1;
+
+  if (mapId === 1) {
+    handleMapOneVictoryLogic();
+  } else if (mapId === 2) {
+    handleMapTwoVictoryLogic();
+  }
+}
+
+function handleMapOneVictoryLogic() {
+  // Goblin waves total: 50
+  if (goblinsDefeated === 10 && !gameState.ogreSpawned) {
+    console.log("👹 Summoning Ogre (Map 1)");
     gameState.ogreSpawned = true;
     spawnOgre();
   }
 
-  // 🏆 Victory Trigger — all 50 goblins defeated AND Ogre dead
-  if (goblinsDefeated >= 50 && gameState.ogreSpawned) {
+  if (goblinsDefeated >= 15 && gameState.ogreSpawned) {
     const ogres = window.getOgres ? window.getOgres() : [];
-    const aliveOgre = ogres.some(o => o.alive);
+    const alive = ogres.some(o => o.alive);
 
-    if (!aliveOgre && !gameState.victoryPending) {
-      console.log("💀 All goblins + Ogre defeated — preparing victory...");
+    if (!alive && !gameState.victoryPending) {
+      console.log("🏆 Map 1 victory pending...");
       gameState.victoryPending = true;
-
-      // ⏳ 5-second loot collection window before victory
-      setTimeout(() => {
-        console.log("🏆 Full wave cleared — Victory achieved!");
-        stopGameplay("victory");
-      }, 5000);
+      setTimeout(() => stopGameplay("victory"), 5000);
     }
   }
 }
 
+function handleMapTwoVictoryLogic() {
+
+  // ------------------------------------------------------------
+  // 🐺 WORG SPAWNS (every 10 goblins)
+  // ------------------------------------------------------------
+  if (!gameState.worgSpawns) gameState.worgSpawns = 0;
+
+  if (goblinsDefeated >= (gameState.worgSpawns + 1) * 10) {
+    console.log("🐺 Spawning 3 Worgs!");
+    spawnWorg();
+    spawnWorg();
+    spawnWorg();
+    gameState.worgSpawns++;
+  }
+
+  // ------------------------------------------------------------
+  // 👹 OGRE SPAWNS (25, 50, 75, 100)
+  // ------------------------------------------------------------
+  if (!gameState.ogreTriggers) {
+    gameState.ogreTriggers = { 25: false, 50: false, 75: false, 100: false };
+  }
+
+  const triggerPoints = [25, 50, 75, 100];
+  for (const point of triggerPoints) {
+    if (goblinsDefeated >= point && !gameState.ogreTriggers[point]) {
+      console.log(`👹 Spawning Ogre at ${point} kills`);
+      spawnOgre();
+      gameState.ogreTriggers[point] = true;
+    }
+  }
+
+  // ------------------------------------------------------------
+  // 🏆 VICTORY CONDITION (Map 2)
+  // ------------------------------------------------------------
+  if (goblinsDefeated >= 25) {
+    const ogres = window.getOgres ? window.getOgres() : [];
+    const alive = ogres.some(o => o.alive);
+
+    if (!alive && !gameState.victoryPending) {
+      console.log("🏆 Map 2 victory pending...");
+      gameState.victoryPending = true;
+      setTimeout(() => stopGameplay("victory"), 5000);
+    }
+  }
+}
+
+
 // ============================================================
-// ♻️ RESET COMBAT STATE (used by Try Again + New Story)
+// ♻️ RESET COMBAT STATE — used by Try Again, Continue, New Map
 // ============================================================
 export function resetCombatState() {
-  goblinsDefeated = 0;
+  console.log("♻️ Resetting combat state...");
 
-  if (gameState.player) {
-    const p = gameState.player;
-    applyMapSpawn();          // 🔑 Map-based spawn on reset
+  // ------------------------------------------------------------
+  // GLOBAL COUNTERS
+  // ------------------------------------------------------------
+  goblinsDefeated = 0;
+  gameState.victoryPending = false;
+  gameState.ogreSpawned = false;
+
+  // ------------------------------------------------------------
+  // MAP-SPECIFIC TRIGGERS (Map 2)
+  // ------------------------------------------------------------
+  gameState.worgSpawns = 0;
+  gameState.ogreTriggers = {
+    25: false,
+    50: false,
+    75: false,
+    100: false
+  };
+
+  // ------------------------------------------------------------
+  // PLAYER RESET (but DO NOT override map-based spawn)
+  // ------------------------------------------------------------
+  const p = gameState.player;
+  if (p) {
     p.hp = p.maxHp ?? 100;
     p.mana = p.maxMana ?? 50;
     p.lives = 10;
     p.dead = false;
     p.facing = "right";
+
+    // position handled by initGame() → applyMapSpawn()
   }
 
-  // Clear player controller state
-  if (typeof window !== "undefined") {
-    if (window.__enemies) window.__enemies.length = 0;
-  }
+  // ------------------------------------------------------------
+  // CLEAR ALL RUNTIME ENTITIES
+  // ------------------------------------------------------------
+  // clear goblins by enemies.js
+  if (window.__enemies) window.__enemies.length = 0;
 
-  // Internal flags reset
-  try {
-    import("./playerController.js").then(mod => {
-      if (mod && typeof mod.initPlayerController === "function" && canvas) {
-        mod.initPlayerController(canvas);
-      }
-    });
-  } catch (err) {
-    console.warn("⚠️ Could not refresh player controller:", err);
-  }
-
-  // Re-initialize combat systems
+  // clear ogres + their fade-outs
   clearOgres();
-  clearLoot();
-  initEnemies();
-  initTowers();
-  initProjectiles();
 
-  // 🆕 Force immediate HUD update after reset
+  // clear loot bags
+  clearLoot();
+
+  // ------------------------------------------------------------
+  // RE-INIT COMBAT SYSTEMS
+  // ------------------------------------------------------------
+  initEnemies();        // goblins
+  initTowers();         // towers
+  initProjectiles();    // tower & player projectiles
+
+  // Force HUD refresh
   updateHUD();
-  hudUpdateTimer = 0;
-  
-  console.log("♻️ Combat state fully reset (optimized, multi-map).");
+
+  console.log("♻️ Combat state fully reset for new battle.");
 }
 
 // ============================================================
@@ -431,3 +504,44 @@ window.spawnWorg = spawnWorg;
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================
+// ============================================================
+// 🛠️ DEV TOOL — Instant Victory Trigger
+// ============================================================
+window.forceMapVictory = function () {
+  console.log("⚡ DEV: Forcing Victory!");
+
+  try {
+    const currentMap = gameState.progress?.currentMap ?? 1;
+
+    // Mark victory pending to prevent double triggers
+    gameState.victoryPending = true;
+
+    // Force all ogres dead (compat)
+    if (window.getOgres) {
+      const ogres = window.getOgres();
+      for (const o of ogres) {
+        o.alive = false;
+        o.hp = 0;
+      }
+    }
+
+    // Force goblins defeated to max based on map
+    if (!gameState.stats) gameState.stats = {};
+    if (currentMap === 1) {
+      gameState.stats.goblinsDefeated = 50;
+    } else if (currentMap === 2) {
+      gameState.stats.goblinsDefeated = 100;
+    } else {
+      // future maps? just mark large number
+      gameState.stats.goblinsDefeated = 9999;
+    }
+
+    // Slight delay to mimic real victory
+    setTimeout(() => {
+      stopGameplay("victory");
+    }, 500);
+
+  } catch (err) {
+    console.warn("⚠️ DEV Victory failed:", err);
+  }
+};

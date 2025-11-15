@@ -26,7 +26,7 @@ import { spawnFloatingText } from "./floatingText.js";
 import { handleTowerKey } from "./towerPlacement.js";
 import { getOgres, damageOgre, OGRE_HIT_RADIUS } from "./ogre.js";
 import { getWorg } from "./worg.js";
-
+import { getMapPixelSize } from "./map.js";
 // Tower hotkeys
 window.addEventListener("keydown", (e) => {
   if (e.code.startsWith("Digit")) handleTowerKey(e.code);
@@ -713,12 +713,14 @@ export function updatePlayer(delta) {
   else if (up || down)
     currentDir = up ? "up" : "down";
 
-  // CLAMP TO CANVAS (viewport)
-  if (canvasRef) {
-    const r = SPRITE_SIZE / 2;
-    p.pos.x = Math.max(r, Math.min(canvasRef.width  - r, p.pos.x));
-    p.pos.y = Math.max(r, Math.min(canvasRef.height - r, p.pos.y));
-  }
+  // CLAMP TO MAP WORLD (not canvas!)
+  
+
+  const { width: mapW, height: mapH } = getMapPixelSize();
+  const r = SPRITE_SIZE / 2;
+
+  p.pos.x = Math.max(r, Math.min(mapW - r, p.pos.x));
+  p.pos.y = Math.max(r, Math.min(mapH - r, p.pos.y));
 
   // PLAYER ↔ GOBLIN CONTACT DAMAGE
   if (!p.invulnTimer) p.invulnTimer = 0;

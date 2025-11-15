@@ -142,6 +142,25 @@ export async function initEnemies() {
 }
 
 // ============================================================
+// 🆕 MAP-AWARE GOBLIN SPAWN WRAPPER
+// ============================================================
+function trySpawnEnemy() {
+  const mapId = gameState.progress?.currentMap ?? 1;
+
+  // --- MAP 1 LIMIT ---
+  if (mapId === 1) {
+    if (enemiesSpawned >= 50) return;  // spawn max 50 goblins
+  }
+
+  // --- MAP 2 LIMIT ---
+  if (mapId === 2) {
+    if (enemiesSpawned >= 100) return; // spawn max 100 goblins
+  }
+
+  spawnEnemy();
+}
+
+// ============================================================
 // 💀 SPAWN
 // ============================================================
 function spawnEnemy() {
@@ -418,8 +437,8 @@ export function updateEnemies(delta) {
   // ----------------------------------------------------------
   spawnTimer -= delta;
   if (spawnTimer <= 0 && activeCount < MAX_ACTIVE_ENEMIES) {
-    spawnEnemy();
-    spawnTimer = SPAWN_INTERVAL;
+      trySpawnEnemy();
+      spawnTimer = SPAWN_INTERVAL;
   }
 
   // ----------------------------------------------------------
