@@ -18,7 +18,7 @@ export const gameState = {
 
   // 🗺️ Core progress and unlocks
   progress: {
-    mapsUnlocked: [1],
+    mapsUnlocked: [true, false, false, false, false, false, false, false, false],
     currentMap: null,
     storyCompleted: false,
   },
@@ -42,7 +42,9 @@ export const gameState = {
 // ============================================================
 
 export function setProfile(profile) {
-  gameState.profile = profile;
+  if (profile.progress) {
+    gameState.progress = { ...profile.progress };
+  }
 
   // Load or create player object
   gameState.player = profile.player || createPlayer();
@@ -97,6 +99,11 @@ export function addProfile(name) {
 
 export function saveProfiles() {
   try {
+    // Sync current progress to selected profile
+    if (gameState.profile) {
+      gameState.profile.progress = { ...gameState.progress };
+    }
+
     localStorage.setItem("td_profiles", JSON.stringify(gameState.profiles));
   } catch (err) {
     console.error("❌ Error saving profiles:", err);
@@ -123,14 +130,18 @@ export function loadProfiles() {
 // ============================================================
 
 export function unlockMap(id) {
-  if (!gameState.progress.mapsUnlocked.includes(id)) {
-    gameState.progress.mapsUnlocked.push(id);
+  const index = id - 1;
+  if (index >= 0 && index < 9) {
+    gameState.progress.mapsUnlocked[index] = true;
+    saveProfiles();
   }
 }
 
 export function setCurrentMap(id) {
-  if (gameState.progress.mapsUnlocked.includes(id)) {
+  const index = id - 1;
+  if (gameState.progress.mapsUnlocked[index]) {
     gameState.progress.currentMap = id;
+    saveProfiles();
   }
 }
 
