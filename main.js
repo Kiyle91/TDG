@@ -293,26 +293,33 @@ function tryContinueWithDiamonds() {
 
 
 // ============================================================
-// 🕯 END SCREEN (Victory / Defeat)
+// 🕯 END SCREEN (Victory / Defeat) — CLEAN + FULLY FIXED
 // ============================================================
-
 function showEndScreen(reason) {
+  // Remove old overlays (safety)
+  document.querySelectorAll(".end-overlay, #end-screen").forEach(el => el.remove());
+
+  // Overlay container
   const overlay = document.createElement("div");
   overlay.id = "end-screen";
   overlay.className = "end-overlay";
   document.body.appendChild(overlay);
 
+  // Panel
   const panel = document.createElement("div");
   panel.className = "end-panel";
   overlay.appendChild(panel);
 
+  // Title + subtitle
   const title = document.createElement("h1");
   const subtitle = document.createElement("p");
+
+  // Buttons container
   const buttons = document.createElement("div");
   buttons.className = "end-buttons";
 
   // ---------------------------
-  // Victory / Defeat messages
+  // 🎭 Victory / Defeat Messages
   // ---------------------------
   if (reason === "victory") {
     title.textContent = "You have held back the goblin forces — for now…";
@@ -326,87 +333,103 @@ function showEndScreen(reason) {
   }
 
   // ---------------------------
-  // Image
+  // 🖼 Image
   // ---------------------------
-  let img = document.createElement("img");
+  const img = document.createElement("img");
   if (reason === "victory") {
     img.src = "./assets/images/sprites/glitter/glitter_attack_right.png";
   } else {
     img.src = "./assets/images/sprites/glitter/glitter_slain.png";
   }
+
   img.style.display = "block";
   img.style.margin = "20px auto 35px auto";
   img.style.width = "180px";
   img.style.filter = "drop-shadow(0 0 12px #ffffffaa)";
 
-  // ---------------------------
-  // Buttons
-  // ---------------------------
-  const retryBtn = document.createElement("button");
-  retryBtn.textContent = reason === "victory" ? "Continue" : "Try Again";
+  // ============================================================
+  // ⭐ BUTTONS
+  // ============================================================
 
+  // ---------------------------
+  // ⭐ VICTORY → Continue to next map
+  // ---------------------------
   if (reason === "victory") {
+    const nextBtn = document.createElement("button");
+    nextBtn.textContent = "Continue";
 
-  retryBtn.textContent = "Continue";
+    nextBtn.onclick = async () => {
+      const currentMap = gameState.progress.currentMap ?? 1;
+      const nextMap = currentMap + 1;
 
-  retryBtn.onclick = async () => {
+      console.log(`🏆 Victory on Map ${currentMap}`);
 
-    const currentMap = gameState.progress.currentMap ?? 1;
-    const nextMap = currentMap + 1;
+      // 🎬 If map 9 is finished → credits
+      if (nextMap > 9) {
+        document.getElementById("end-screen")?.remove();
+        showScreen("credits-screen");
+        console.log("🎬 Showing credits…");
+        return;
+      }
 
-    console.log(`🏆 Victory on Map ${currentMap}`);
+      // Unlock and switch to next map
+      unlockMap(nextMap);
+      gameState.progress.currentMap = nextMap;
 
-    // 🎬 If Map 9 is beaten → roll credits
-    if (nextMap > 9) {
+      // Update SAVE progress
+      if (!gameState.profile.progress) gameState.profile.progress = {};
+      gameState.profile.progress.currentMap = nextMap;
+
+      // Persist to disk
+      saveProfiles();
+
+      console.log(`🌍 Switching to Map ${nextMap}...`);
+
       document.getElementById("end-screen")?.remove();
-      showScreen("credits-screen");  // You should have this screen in HTML
-      console.log("🎬 Showing credits…");
-      return;
-    }
+      showScreen("game-container");
 
-    // 🔓 Unlock the next map
-    unlockMap(nextMap);
-    gameState.progress.currentMap = nextMap;
-    saveProfiles();
+      await initGame();
+      startGameplay();
+    };
 
-    console.log(`🌍 Switching to Map ${nextMap}...`);
+    buttons.append(nextBtn);
 
-    // Remove overlay
-    document.getElementById("end-screen")?.remove();
-
-    // Load game screen
-    showScreen("game-container");
-
-    // FULL reload of map + systems
-    await initGame();
-
-    // Start next battle
-    startGameplay();
-  };
-}
-
-
-  const hubBtn = document.createElement("button");
-  hubBtn.textContent = "Return to Hub";
-  hubBtn.onclick = () => {
-    document.getElementById("end-screen")?.remove();
-    showScreen("hub-screen");
-    setTimeout(() => initHub(), 50);
-  };
-
-  const continueBtn = document.createElement("button");
-  continueBtn.textContent = "Continue (25 💎)";
-  continueBtn.onclick = tryContinueWithDiamonds;
-
-  // Victory screen = only Continue to next map
-  if (reason === "victory") {
-    buttons.append(retryBtn);
   } else {
-    buttons.append(continueBtn, retryBtn, hubBtn);
+    // ---------------------------
+    // 💎 Continue with Diamonds on Defeat
+    // ---------------------------
+    const contDiamonds = document.createElement("button");
+    contDiamonds.textContent = "Continue (25 💎)";
+    contDiamonds.onclick = tryContinueWithDiamonds;
+
+    // ---------------------------
+    // 🔁 Retry (Try Again)
+    // ---------------------------
+    const retryBtn = document.createElement("button");
+    retryBtn.textContent = "Try Again";
+    retryBtn.onclick = () => {
+      document.getElementById("end-screen")?.remove();
+      resetGameplay();
+    };
+
+    // ---------------------------
+    // 🏠 Return to Hub
+    // ---------------------------
+    const hubBtn = document.createElement("button");
+    hubBtn.textContent = "Return to Hub";
+    hubBtn.onclick = () => {
+      document.getElementById("end-screen")?.remove();
+      showScreen("hub-screen");
+      setTimeout(() => initHub(), 50);
+    };
+
+    buttons.append(contDiamonds, retryBtn, hubBtn);
   }
 
+  // Assemble panel
   panel.append(title, subtitle, img, buttons);
 
+  // Fade-in
   requestAnimationFrame(() => overlay.classList.add("visible"));
 }
 

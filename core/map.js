@@ -1,11 +1,11 @@
 // ============================================================
 // 🗺️ map.js — Olivia’s World: Crystal Keep (Multi-Map Loader)
 // ------------------------------------------------------------
-// ✦ Loads data/map_one.json or data/map_two.json dynamically
-// ✦ Resolves external .tsx tilesets
-// ✦ Draws visible area for current viewport
-// ✦ Extracts enemy path polyline from Tiled "path" layer
-// ✦ Supports group-filtered drawMapLayered()
+// ✦ Automatically loads map_1.json → map_9.json
+// ✦ Supports TSX tilesets + JSON tilesets
+// ✦ Extracts "path" polyline for enemy movement
+// ✦ Handles collision layer + layered draw
+// ✦ Fully compatible with all engine systems
 // ============================================================
 
 import { TILE_SIZE, GRID_COLS, GRID_ROWS } from "../utils/constants.js";
@@ -49,38 +49,62 @@ async function loadTSX(tsxUrl) {
   return { columns, image, imageWidth: iw, imageHeight: ih };
 }
 
-// ------------------------------------------------------------
-// 🌷 LOAD MAP (supports Map 1 + Map 2)
-// ------------------------------------------------------------
 export async function loadMap() {
-  // 1️⃣ Choose correct map based on profile progress
+  // Current map ID from gameState
   let id = gameState.progress?.currentMap || 1;
-  let mapFile = "map_one.json";
 
-  if (id === 2) mapFile = "map_two.json";
+  // File name mapping to match your actual files
+  const fileMap = {
+    1: "map_one.json",
+    2: "map_two.json",
+    3: "map_three.json",
+    4: "map_four.json",
+    5: "map_five.json",
+    6: "map_six.json",
+    7: "map_seven.json",
+    8: "map_eight.json",
+    9: "map_nine.json",
+  };
+
+  // Lookup filename (fallback to map_one.json)
+  const mapFile = fileMap[id] || "map_one.json";
 
   console.log(`🗺️ Loading map ID ${id} → ${mapFile}`);
 
-  // 2️⃣ Load the JSON file
+  // ===========================
+  // 1️⃣ Load map JSON
+  // ===========================
   const res = await fetch(`./data/${mapFile}`);
+  if (!res.ok) {
+    console.error(`❌ Failed to load map file: ${mapFile}`);
+    throw new Error(`Map file not found: ${mapFile}`);
+  }
+
   mapData = await res.json();
   layers = mapData.layers || [];
 
-  // 3️⃣ Collision layer
+  // ===========================
+  // 2️⃣ Init collision
+  // ===========================
   initCollision(mapData, TILE_SIZE);
 
-  // 4️⃣ Pixel dimensions
+  // ===========================
+  // 3️⃣ Set pixel size
+  // ===========================
   mapPixelWidth = (mapData.width || GRID_COLS) * TILE_SIZE;
   mapPixelHeight = (mapData.height || GRID_ROWS) * TILE_SIZE;
 
-  // 5️⃣ Load tilesets (TSX or inline PNG)
+  // ===========================
+  // 4️⃣ Load tilesets
+  // ===========================
   tilesets = [];
 
   for (const ts of mapData.tilesets) {
     if (ts.source) {
-      // TSX tileset
+      // External TSX tileset (normal case)
       const tsxUrl = resolveRelative(ts.source);
       const parsed = await loadTSX(tsxUrl);
+
       tilesets.push({
         firstgid: ts.firstgid,
         columns: parsed.columns,
@@ -89,7 +113,7 @@ export async function loadMap() {
         imageHeight: parsed.imageHeight,
       });
     } else {
-      // JSON-included tileset
+      // JSON tileset
       const image = new Image();
       image.src = resolveRelative(ts.image);
       await new Promise((r) => (image.onload = r));
@@ -104,10 +128,9 @@ export async function loadMap() {
     }
   }
 
-  console.log(
-    `✅ Loaded ${mapFile} — ${mapData.width}×${mapData.height} tiles @ ${TILE_SIZE}px`
-  );
+  console.log(`✅ Loaded ${mapFile} — ${mapData.width}×${mapData.height} tiles`);
 }
+
 
 // ------------------------------------------------------------
 // 🔍 FIND TILESET FOR GID
@@ -142,6 +165,7 @@ export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
 
   for (const layer of layers) {
     if (!layer.visible || layer.type !== "tilelayer") continue;
+
     const data = layer.data;
     const width = layer.width;
 
@@ -249,8 +273,8 @@ export function drawMapLayered(
 
   ctx.imageSmoothingEnabled = false;
 
-  // Filter by group keyword
   let filteredLayers = layers;
+
   if (group === "ground") {
     filteredLayers = layers.filter((l) => {
       const n = l.name.toLowerCase();
