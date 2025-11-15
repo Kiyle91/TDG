@@ -62,7 +62,9 @@ export function updateHUD() {
   const p = gameState.player || {};
 
   // Existing stats
-  waveDisplay.textContent = `Wave ${gameStats.wave}`;
+  const wave  = gameState.wave ?? 1;
+  const total = gameState.totalWaves ?? 1;
+  waveDisplay.textContent = `Wave ${wave} / ${total}`;
   goldDisplay.textContent = `Gold: ${gold}`;
   diamondDisplay.textContent = `Diamonds: ${diamonds}`;
 

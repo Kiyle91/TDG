@@ -1,48 +1,44 @@
-// ============================================================
-// 💖 HUD — Health & Mana Bars (Fixed Exports)
-// ------------------------------------------------------------
-// ✦ initHUD()   → links DOM elements for HP & Mana
-// ✦ updateBarsHUD() → refreshes fill width + text from player stats
-// ✦ Safe alongside ui.js’s updateTopHUD()
-// ============================================================
+export function updateHUD() {
+  if (!waveDisplay || !goldDisplay || !diamondDisplay || !livesDisplay) return;
 
-import { gameState } from "../utils/gameState.js";
+  const { gold, diamonds } = getCurrencies();
+  const p = gameState.player || {};
 
-// Cached DOM elements
-let hpFill, manaFill, hpText, manaText;
+  // 🌊 Wave (REAL wave engine values)
+  const wave = gameState.wave ?? 1;
+  const total = gameState.totalWaves ?? 1;
+  waveDisplay.textContent = `Wave ${wave} / ${total}`;
 
-// ------------------------------------------------------------
-// 🚀 initHUD — locate existing DOM elements once
-// ------------------------------------------------------------
-export function initHUD() {
-  hpFill = document.getElementById("hp-fill");
-  manaFill = document.getElementById("mana-fill");
-  hpText = document.getElementById("hp-text");
-  manaText = document.getElementById("mana-text");
+  // 💰 Gold / Diamonds
+  goldDisplay.textContent = `Gold: ${gold}`;
+  diamondDisplay.textContent = `Diamonds: ${diamonds}`;
 
-  if (!hpFill || !manaFill) {
-    console.warn("⚠️ HUD elements not found in DOM.");
-    return;
+  // ❤️ Lives
+  const playerLives = p.lives ?? 10;
+  livesDisplay.textContent = `Lives: ${playerLives}`;
+
+  // 💖 HP + MANA BARS
+  const hpBar = document.getElementById("hp-bar");
+  const manaBar = document.getElementById("mana-bar");
+  const hpText = document.getElementById("hp-text");
+  const manaText = document.getElementById("mana-text");
+
+  if (hpBar && manaBar) {
+    const hp = Number(p.hp) || 0;
+    const maxHp = Number(p.maxHp) || 100;
+    const mana = Number(p.mana) || 0;
+    const maxMana = Number(p.maxMana) || 50;
+
+    const hpPct = Math.max(0, Math.min(100, (hp / maxHp) * 100));
+    const manaPct = Math.max(0, Math.min(100, (mana / maxMana) * 100));
+
+    hpBar.style.setProperty("--fill", `${hpPct}%`);
+    manaBar.style.setProperty("--fill", `${manaPct}%`);
+
+    if (hpText) hpText.textContent = `${Math.round(hp)} / ${Math.round(maxHp)}`;
+    if (manaText)
+      manaText.textContent = `${Math.round(mana)} / ${Math.round(maxMana)}`;
   }
 
-  updateBarsHUD(); // initial draw
-}
-
-// ------------------------------------------------------------
-// 🔄 updateBarsHUD — reflect current player HP / Mana
-// ------------------------------------------------------------
-export function updateBarsHUD() {
-  if (!hpFill || !manaFill) return;
-
-  const p = gameState.player;
-  if (!p) return;
-
-  const hpPct = Math.max(0, Math.min(100, (p.hp / p.maxHp) * 100));
-  const manaPct = Math.max(0, Math.min(100, (p.mana / p.maxMana) * 100));
-
-  hpFill.style.width = `${hpPct}%`;
-  manaFill.style.width = `${manaPct}%`;
-
-  if (hpText) hpText.textContent = `${Math.round(p.hp)} / ${Math.round(p.maxHp)}`;
-  if (manaText) manaText.textContent = `${Math.round(p.mana)} / ${Math.round(p.maxMana)}`;
+  updateTurretBar();
 }
