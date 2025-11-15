@@ -1,12 +1,13 @@
 // ============================================================
-// 🎁 ogreLoot.js — Olivia’s World: Crystal Keep (Ogre Drops)
+// 🎁 ogreLoot.js — Olivia’s World: Crystal Keep (Chest + Heart + Mana + Diamond)
 // ------------------------------------------------------------
-// ✦ Spawns/scatters loot when an Ogre dies
+// ✦ Matches goblinDrop.js behaviour 1:1
+// ✦ 4 drops scatter when an Ogre dies
 // ✦ Chest: +100 Gold
 // ✦ Diamond: +25 Diamonds
 // ✦ Heart: +100 HP
 // ✦ Mana Potion: Restore Mana to FULL
-// ✦ Float animation, collect-on-contact, soft fade-out
+// ✦ Lifetime fade, float, collect, cleanup identical to goblin drops
 // ============================================================
 
 import { gameState, addGold } from "../utils/gameState.js";
@@ -15,7 +16,7 @@ import { spawnFloatingText } from "./floatingText.js";
 import { playFairySprinkle } from "./soundtrack.js";
 
 // ------------------------------------------------------------
-// 🖼️ ASSETS (current temp location)
+// 🖼️ ASSETS
 // ------------------------------------------------------------
 const lootImages = {};
 function loadImage(src) {
@@ -27,32 +28,38 @@ function loadImage(src) {
 }
 
 export async function loadLootImages() {
-  // NOTE: using assets/images/characters (as requested)
   lootImages.chest   = await loadImage("./assets/images/characters/loot.png");
   lootImages.mana    = await loadImage("./assets/images/characters/mana_potion.png");
   lootImages.diamond = await loadImage("./assets/images/characters/gem_diamond.png");
   lootImages.heart   = await loadImage("./assets/images/characters/gem_heart.png");
-  console.log("🎁 Ogre loot images loaded (characters/).");
+
+  console.log("🎁 Ogre loot images loaded.");
 }
 
 // ------------------------------------------------------------
 // ⚙️ STATE
 // ------------------------------------------------------------
 let lootDrops = [];
-export function getLoot() { return lootDrops; }
-export function clearLoot() { lootDrops = []; }
+
+export function clearLoot() {
+  lootDrops.length = 0;
+  console.log("🧹 Ogre loot cleared.");
+}
+
+export function getLoot() {
+  return lootDrops;
+}
 
 // ------------------------------------------------------------
 // 💎 SPAWN DROPS (called when ogre is slain)
 // ------------------------------------------------------------
 export function spawnOgreLoot(x, y) {
-  // spread the 4 items roughly around the corpse
   const spread = 60;
   const offsets = [
-    { type: "chest",   dx: -spread,        dy: -spread },          // top-left
-    { type: "mana",    dx:  spread,        dy: -spread / 2 },      // top-right
-    { type: "heart",   dx: -spread / 2,    dy:  spread },          // bottom-left
-    { type: "diamond", dx:  spread * 0.7,  dy:  spread * 0.8 },    // bottom-right
+    { type: "chest",   dx: -spread,      dy: -spread },
+    { type: "mana",    dx:  spread,      dy: -spread / 2 },
+    { type: "heart",   dx: -spread / 2,  dy:  spread },
+    { type: "diamond", dx:  spread * .7, dy:  spread * .8 },
   ];
 
   for (const o of offsets) {
@@ -60,107 +67,129 @@ export function spawnOgreLoot(x, y) {
       type: o.type,
       x: x + o.dx + (Math.random() * 20 - 10),
       y: y + o.dy + (Math.random() * 20 - 10),
+
+      // Goblin drop matching vars:
+      opacity: 1,
       collected: false,
-      floatT: 0,       // for idle bobbing
-      fadeT: 0,        // fade after collected
-      size: 60,        // draw size
+      life: 0,              // lifetime timer
+      floatT: 0,            // bobbing
+      size: 60,
     });
   }
 
-  console.log(`💎 Spawned ${offsets.length} ogre loot items at ${x},${y}.`);
+  console.log("💎 Ogre loot spawned.");
 }
 
 // ------------------------------------------------------------
-// 🧠 UPDATE — float & collect
+// 🔁 UPDATE — identical behaviour to goblin drops
 // ------------------------------------------------------------
 export function updateLoot(delta = 16) {
   const p = gameState.player;
   if (!p) return;
 
-  const px = p.pos?.x ?? p.x ?? 0;
-  const py = p.pos?.y ?? p.y ?? 0;
+  for (let i = lootDrops.length - 1; i >= 0; i--) {
+    const d = lootDrops[i];
 
-  for (const it of lootDrops) {
-    // gentle float
-    it.floatT += delta;
-    const bob = Math.sin(it.floatT / 250) * 4;
+    d.life += delta;
+    d.floatT += delta;
 
-    // collection check (skip if already fading)
-    if (!it.collected) {
-      const dist = Math.hypot((it.x) - px, (it.y + bob) - py);
-      if (dist < 45) {
-        collect(it, p);
-      }
-    } else {
-      it.fadeT += delta;
+    // float up for first second (matches goblin)
+    if (d.life < 1000) d.y += 0.04 * delta;
+
+    // fade in final 2 seconds (matches goblin)
+    const LIFETIME = 15000;
+    if (d.life > LIFETIME - 2000)
+      d.opacity = Math.max(0, 1 - (d.life - (LIFETIME - 2000)) / 2000);
+
+    // despawn
+    if (d.life >= LIFETIME) {
+      lootDrops.splice(i, 1);
+      continue;
     }
   }
 
-  // remove finished fades
-  lootDrops = lootDrops.filter(it => it.fadeT === 0 || it.fadeT < 500);
+  checkPlayerCollection();
 }
 
 // ------------------------------------------------------------
-// ✨ COLLECT
+// 💰 COLLECTION (Gold / Diamond / Heart / Mana)
 // ------------------------------------------------------------
-function collect(item, player) {
-  if (item.collected) return;
-  item.collected = true;
-  item.fadeT = 1;
-  playFairySprinkle();
+function checkPlayerCollection() {
+  const player = gameState.player;
+  if (!player) return;
 
-  switch (item.type) {
-    case "chest":
-      addGold(100);
-      spawnFloatingText(item.x, item.y - 20, "+100 Gold", "#ffd966");
-      break;
-    case "diamond":
-      player.diamonds = (player.diamonds || 0) + 25;
-      spawnFloatingText(item.x, item.y - 20, "+25 💎", "#b3ecff");
-      break;
-    case "heart":
-      player.hp = Math.min(player.maxHp || 0, (player.hp || 0) + 100);
-      spawnFloatingText(item.x, item.y - 20, "+100 ❤️", "#ff99b9");
-      break;
-    case "mana":
-      player.mana = player.maxMana || player.mana;
-      spawnFloatingText(item.x, item.y - 20, "🔮 Mana Full!", "#99ccff");
-      break;
+  for (let i = lootDrops.length - 1; i >= 0; i--) {
+    const d = lootDrops[i];
+    if (d.collected) continue;
+
+    const dx = d.x - player.pos.x;
+    const dy = d.y - player.pos.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < 45) {
+      d.collected = true;
+      lootDrops.splice(i, 1);
+
+      playFairySprinkle();
+
+      switch (d.type) {
+        case "chest":
+          addGold(100);
+          spawnFloatingText(player.pos.x, player.pos.y - 40, "+100 Gold", "#ffd966", 22);
+          break;
+
+        case "diamond":
+          player.diamonds = (player.diamonds || 0) + 25;
+          spawnFloatingText(player.pos.x, player.pos.y - 40, "+25 💎", "#b3ecff", 22);
+          break;
+
+        case "heart":
+          player.hp = Math.min(player.maxHp || 0, (player.hp || 0) + 100);
+          spawnFloatingText(player.pos.x, player.pos.y - 40, "+100 ❤️", "#ff99b9", 22);
+          break;
+
+        case "mana":
+          player.mana = player.maxMana || player.mana;
+          spawnFloatingText(player.pos.x, player.pos.y - 40, "🔮 Mana Full!", "#99ccff", 22);
+          break;
+      }
+
+      updateHUD();
+    }
   }
-
-  updateHUD();
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW
+// 🎨 DRAW — same fade logic as goblin drops
 // ------------------------------------------------------------
 export function drawLoot(ctx) {
-  if (!ctx || lootDrops.length === 0) return;
+  if (!ctx) return;
 
-  for (const it of lootDrops) {
-    const img = lootImages[it.type];
+  const time = Date.now() / 1000;
+
+  for (const d of lootDrops) {
+    const img = lootImages[d.type];
     if (!img) continue;
 
-    // opacity fades after collection
-    const alpha = it.collected ? Math.max(0, 1 - it.fadeT / 500) : 1;
-    const bob = Math.sin(it.floatT / 250) * 4;
+    const bob = Math.sin(d.floatT / 250) * 4;
+    const size = d.size;
 
     ctx.save();
-    ctx.globalAlpha = alpha;
+    ctx.globalAlpha = d.opacity;
 
-    // tiny shadow
+    // tiny shadow (similar to goblin, colour adjusted)
     ctx.beginPath();
-    ctx.ellipse(it.x, it.y + bob + it.size * 0.42, it.size * 0.28, it.size * 0.12, 0, 0, Math.PI * 2);
+    ctx.ellipse(d.x, d.y + bob + size * 0.42, size * 0.28, size * 0.12, 0, 0, Math.PI * 2);
     ctx.fillStyle = "rgba(0,0,0,0.22)";
     ctx.fill();
 
     // sprite
     ctx.drawImage(
       img,
-      0, 0, img.width, img.height,
-      it.x - it.size / 2,
-      it.y + bob - it.size / 2,
-      it.size, it.size
+      d.x - size / 2,
+      d.y + bob - size / 2,
+      size,
+      size
     );
 
     ctx.restore();

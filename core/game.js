@@ -126,6 +126,7 @@ import {
   triggerEndOfWave5Story
 } from "./story.js";
 
+import { resetGoblinDrops } from "./goblinDrop.js";
 
 
 // ============================================================
@@ -376,7 +377,6 @@ async function updateWaveSystem(delta) {
   if (currentWaveIndex + 1 < waves.length) {
     currentWaveIndex++;
     startNextWave();
-    triggerWaveStory(mapId, currentWaveIndex + 1);
     return;
   }
 
@@ -507,7 +507,11 @@ export async function initGame() {
   const pathPoints = extractPathFromMap();
   setEnemyPath(pathPoints);
 
+
+
   // 4️⃣ Initialize subsystems
+  clearLoot();
+  resetGoblinDrops();
   initEnemies();
   await initWorg(pathPoints);
   initTowers();

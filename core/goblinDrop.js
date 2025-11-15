@@ -175,3 +175,11 @@ function checkPlayerCollection() {
     }
   }
 }
+
+// ------------------------------------------------------------
+// 🧹 Reset / Clear all goblin drops (used on new map/load)
+// ------------------------------------------------------------
+export function resetGoblinDrops() {
+  drops.length = 0;
+  console.log("🧹 Goblin drops cleared.");
+}
