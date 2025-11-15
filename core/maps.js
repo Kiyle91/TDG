@@ -1,10 +1,15 @@
 // ============================================================
-// 🗺️ maps.js — Map Selection Overlay Logic
+// 🗺️ maps.js — Map Selection Overlay Logic (FIXED)
+// ------------------------------------------------------------
+// Fully reloads correct map + spawns player at correct position
 // ============================================================
 
-import { gameState, setCurrentMap } from "../utils/gameState.js";
+import { gameState, setCurrentMap, saveProfiles } from "../utils/gameState.js";
 import { showScreen } from "./screens.js";
 import { startGameplay } from "../main.js";
+import { initGame } from "./game.js";       // <-- REQUIRED
+import { applyMapSpawn } from "./game.js";  // <-- REQUIRED
+import { resetCombatState } from "./game.js"; // <-- CLEAN START
 
 // ------------------------------------------------------------
 // Apply locked/unlocked visual state
@@ -29,13 +34,13 @@ export function updateMapTiles() {
 }
 
 // ------------------------------------------------------------
-// Click handlers 
+// Click handlers — FULLY FIXED
 // ------------------------------------------------------------
 export function initMapSelect() {
   updateMapTiles();
 
   document.querySelectorAll(".map-tile").forEach(tile => {
-    tile.addEventListener("click", () => {
+    tile.addEventListener("click", async () => {
       const level = parseInt(tile.dataset.level);
 
       // BLOCK if locked
@@ -46,11 +51,25 @@ export function initMapSelect() {
 
       console.log(`🎯 Starting map ${level} from Hub`);
 
-      // Set current map
+      // 1️⃣ Update global map state
       setCurrentMap(level);
 
-      // Hide overlay & start game
+      // 2️⃣ Reset everything from previous battle
+      resetCombatState();
+
+      // 3️⃣ Spawn hero at correct start of selected map
+      applyMapSpawn();
+
+      // 4️⃣ Save so nothing overrides the new currentMap
+      saveProfiles();
+
+      // 5️⃣ Switch to the map screen
       showScreen("game-container");
+
+      // 6️⃣ FULL RELOAD of gameplay systems + map data
+      await initGame();
+
+      // 7️⃣ Start game loop
       startGameplay();
     });
   });
