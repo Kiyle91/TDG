@@ -34,7 +34,7 @@ export function updateMapTiles() {
 }
 
 // ------------------------------------------------------------
-// Click handlers — FULLY FIXED
+// Click handlers — FULLY FIXED + CLOSE OVERLAY
 // ------------------------------------------------------------
 export function initMapSelect() {
   updateMapTiles();
@@ -63,14 +63,18 @@ export function initMapSelect() {
       // 4️⃣ Save so nothing overrides the new currentMap
       saveProfiles();
 
-      // 5️⃣ Switch to the map screen
+      // 5️⃣ CLOSE MAP OVERLAY (NEW)
+      document.getElementById("overlay-maps")?.classList.remove("active");
+
+      // 6️⃣ Switch to the map screen
       showScreen("game-container");
 
-      // 6️⃣ FULL RELOAD of gameplay systems + map data
+      // 7️⃣ FULL RELOAD of gameplay systems + map data
       await initGame();
 
-      // 7️⃣ Start game loop
+      // 8️⃣ Start game loop
       startGameplay();
     });
   });
 }
+
