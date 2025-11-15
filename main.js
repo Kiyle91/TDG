@@ -33,6 +33,7 @@ import {
 import { updateHUD } from "./core/ui.js";
 import { startGoblinIntroStory } from "./core/story.js";
 import { initNavbar } from "./core/navbar.js";
+import { applyMapSpawn } from "./core/game.js";
 
 
 // ============================================================
@@ -211,18 +212,19 @@ export function resetGameplay() {
   gameActive = false;
   gameState.paused = false;
 
-  const savedGold = gameState.player?.gold ?? 0;
-  const savedDiamonds = gameState.player?.diamonds ?? 0;
-
   const p = gameState.player || (gameState.player = {});
-  p.hp = p.maxHp ?? 100;
-  p.lives = 10;
-  p.wave = 1;
-  p.gold = savedGold;
-  p.diamonds = savedDiamonds;
 
-  // Default respawn
-  p.pos = { x: 1000, y: 500 };
+  // Restore stats
+  p.hp = p.maxHp ?? 100;
+  p.mana = p.maxMana ?? 50;
+  p.lives = 10;
+  p.dead = false;
+  p.facing = "right";
+
+  // ⭐ FIX: Use correct spawn for current map
+  if (typeof applyMapSpawn === "function") {
+    applyMapSpawn();
+  }
 
   document.getElementById("end-screen")?.remove();
   resetCombatState();
@@ -235,6 +237,7 @@ export function resetGameplay() {
 
   console.log("🌸 Restart complete.");
 }
+
 
 
 // ============================================================
@@ -395,37 +398,30 @@ function showEndScreen(reason) {
     buttons.append(nextBtn);
 
   } else {
-    // ---------------------------
-    // 💎 Continue with Diamonds on Defeat
-    // ---------------------------
-    const contDiamonds = document.createElement("button");
-    contDiamonds.textContent = "Continue (25 💎)";
-    contDiamonds.onclick = tryContinueWithDiamonds;
+      // 💎 Continue with Diamonds
+      const continueBtn = document.createElement("button");
+      continueBtn.textContent = "Continue (25 💎)";
+      continueBtn.onclick = tryContinueWithDiamonds;
 
-    // ---------------------------
-    // 🔁 Retry (Try Again)
-    // ---------------------------
-    const retryBtn = document.createElement("button");
-    retryBtn.textContent = "Try Again";
-    retryBtn.onclick = () => {
-      document.getElementById("end-screen")?.remove();
-      resetGameplay();
-    };
+      // 🔁 Retry (Try Again)
+      const retryBtn = document.createElement("button");
+      retryBtn.textContent = "Try Again";
+      retryBtn.onclick = () => {
+        document.getElementById("end-screen")?.remove();
+        resetGameplay();
+      };
 
-    // ---------------------------
-    // 🏠 Return to Hub
-    // ---------------------------
-    const hubBtn = document.createElement("button");
-    hubBtn.textContent = "Return to Hub";
-    hubBtn.onclick = () => {
-      document.getElementById("end-screen")?.remove();
-      showScreen("hub-screen");
-      setTimeout(() => initHub(), 50);
-    };
+      // 🏠 Return to Hub
+      const hubBtn = document.createElement("button");
+      hubBtn.textContent = "Return to Hub";
+      hubBtn.onclick = () => {
+        document.getElementById("end-screen")?.remove();
+        showScreen("hub-screen");
+        setTimeout(() => initHub(), 50);
+      };
 
-    buttons.append(contDiamonds, retryBtn, hubBtn);
+      buttons.append(continueBtn, retryBtn, hubBtn);
   }
-
   // Assemble panel
   panel.append(title, subtitle, img, buttons);
 

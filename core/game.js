@@ -41,7 +41,7 @@ import {
 } from "./enemies.js";
 
 import { initOgres, updateOgres, drawOgres, clearOgres, getOgres, spawnOgre } from "./ogre.js";
-import { spawnGoblin } from "./goblin.js";
+import { getGoblins, spawnGoblin } from "./goblin.js";
 
 import {
   initTowers,
@@ -254,26 +254,31 @@ function startNextWave() {
 // ============================================================
 // 👁 CHECK ACTIVE ENEMIES
 // ============================================================
-import { getEnemies } from "./goblin.js";
-
 function noEnemiesAlive() {
-  const g = getEnemies();
+  const g = getGoblins();
   const w = getWorg();
   const o = getOgres();
 
-  console.log("Alive counts:", {
-    goblins: g.filter(e => e.alive).length,
-    worgs:   w.filter(e => e.alive).length,
-    ogres:   o.filter(e => e.alive).length,
-    spawnQueueLeft: spawnQueue.length
-  });
+  const aliveG = g.filter(e => e.alive).length;
+  const aliveW = w.filter(e => e.alive).length;
+  const aliveO = o.filter(e => e.alive).length;
 
-  return (
-    g.every(e => !e.alive) &&
-    w.every(e => !e.alive) &&
-    o.every(e => !e.alive)
-  );
+  const totalAlive = aliveG + aliveW + aliveO;
+
+  // If no enemies have ever spawned yet → NOT CLEAR
+  const totalSpawnedSoFar =
+    g.length + w.length + o.length;
+
+  // If queue still has enemies → NOT CLEAR
+  if (spawnQueue.length > 0) return false;
+
+  // If NOTHING spawned yet, wave is NOT clear
+  if (totalSpawnedSoFar === 0) return false;
+
+  // Wave is clear only if spawned > 0 and alive == 0
+  return totalAlive === 0;
 }
+
 
 // ============================================================
 // 🔁 UPDATE WAVE PROGRESSION (FULLY FIXED)
@@ -756,6 +761,8 @@ window.forceMapVictory = function () {
     console.warn("⚠️ DEV Victory failed:", err);
   }
 };
+
+export { applyMapSpawn };
 
 // ============================================================
 // 🌟 END OF FILE
