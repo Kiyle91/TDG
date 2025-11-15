@@ -398,10 +398,20 @@ function performRangedAttack(e) {
       const dy = t.y - projectile.y;
       const dist = Math.hypot(dx, dy);
 
-      const hitRadius =
-        t.type === "ogre" || t.maxHp >= 400
-          ? OGRE_HIT_RADIUS || 60
-          : 26;
+      let hitRadius = 26;
+
+      // Elite → medium-large hitbox
+      if (t.type === "elite") {
+        hitRadius = 50;
+      }
+      // Ogre → largest hitbox
+      else if (t.type === "ogre" || t.maxHp >= 400) {
+        hitRadius = OGRE_HIT_RADIUS || 60;
+      }
+      // Goblins & worgs → smaller hitbox
+      else {
+        hitRadius = 32;
+}
 
       if (dist < hitRadius) {
         if (t.type === "elite") damageElite(t, dmg);
