@@ -13,7 +13,11 @@
 //    - Cached getBoundingClientRect() (expensive DOM call)
 //    - Paused-state early exit
 // ✦ 🆕 MAP-AWARE SPAWN:
-//    - Spawns player differently per map (map_one / map_two)
+//    - Spawns player differently per map (map_one / map_two / others)
+// ✦ 🆕 WAVE SYSTEM (Maps 1–9):
+//    - Wave configs per map
+//    - Global spawn queue with 4s spacing per enemy
+//    - Unified victory after final wave clear
 // ============================================================
 
 // ------------------------------------------------------------
@@ -22,8 +26,8 @@
 import {
   loadMap,
   extractPathFromMap,
-  drawMap,
-  drawMapLayered
+  drawMapLayered,
+  getMapPixelSize,
 } from "./map.js";
 
 // ------------------------------------------------------------
@@ -33,30 +37,29 @@ import {
   initEnemies,
   updateEnemies,
   drawEnemies,
-  setEnemyPath
+  setEnemyPath,
 } from "./enemies.js";
 
-import { initOgres, updateOgres, drawOgres } from "./ogre.js";
-
+import { initOgres, updateOgres, drawOgres, clearOgres, getOgres, spawnOgre } from "./ogre.js";
 import { spawnGoblin } from "./goblin.js";
 
 import {
   initTowers,
   updateTowers,
-  drawTowers
+  drawTowers,
 } from "./towers.js";
 
 import {
   initProjectiles,
   updateProjectiles,
-  drawProjectiles
+  drawProjectiles,
 } from "./projectiles.js";
 
 import {
   loadLootImages,
   updateLoot,
   drawLoot,
-  clearLoot
+  clearLoot,
 } from "./ogreLoot.js";
 
 // ------------------------------------------------------------
@@ -65,7 +68,8 @@ import {
 import {
   initPlayerController,
   updatePlayer,
-  drawPlayer
+  drawPlayer,
+  spawnDamageSparkles,
 } from "./playerController.js";
 
 // ------------------------------------------------------------
@@ -78,30 +82,45 @@ import { initUI, updateHUD } from "./ui.js";
 // ------------------------------------------------------------
 import {
   updateFloatingText,
-  drawFloatingText
+  drawFloatingText,
 } from "./floatingText.js";
 
 // ------------------------------------------------------------
-// 🪽 PEGASUS (ambient flight)
+// 🪽 PEGASUS (ambient flight) + Healing Drops / Goblin Drops
 // ------------------------------------------------------------
-import { loadPegasus, initPegasus, updatePegasus, drawPegasusFrame } from "./pegasus.js";
-import { loadHealingGem, initHealingDrops, updateHealingDrops, drawHealingDrops } from "./pegasusDrop.js";
-import { initWorg, updateWorg, drawWorg, spawnWorg } from "./worg.js";
+import {
+  loadPegasus,
+  initPegasus,
+  updatePegasus,
+  drawPegasusFrame,
+} from "./pegasus.js";
+
+import {
+  loadHealingGem,
+  initHealingDrops,
+  updateHealingDrops,
+  drawHealingDrops,
+} from "./pegasusDrop.js";
+
+import {
+  initWorg,
+  updateWorg,
+  drawWorg,
+  spawnWorg,
+  getWorg,
+} from "./worg.js";
+
+import {
+  initGoblinDrops,
+  updateGoblinDrops,
+  drawGoblinDrops,
+} from "./goblinDrop.js";
 
 // ------------------------------------------------------------
 // ⚙️ GLOBAL STATE IMPORTS
 // ------------------------------------------------------------
 import { gameState } from "../utils/gameState.js";
-import { getMapPixelSize } from "./map.js";
 import { stopGameplay } from "../main.js";
-import { initGoblinDrops, updateGoblinDrops, drawGoblinDrops } from "./goblinDrop.js";
-import { clearOgres } from "./ogre.js";
-import { spawnOgre } from "./ogre.js";
-// ============================================================
-// 🧩 ENEMY SPAWN HELPERS
-// ============================================================
-
-
 
 // ============================================================
 // 📘 WAVE CONFIG — All maps 1–9
@@ -109,20 +128,27 @@ import { spawnOgre } from "./ogre.js";
 
 export const waveConfigs = {
   1: [
-    { goblins: 20, worgs: 0, ogres: 0 },
+    { goblins: 1,  worgs: 0,  ogres: 0 },
+    { goblins: 3,  worgs: 0,  ogres: 0 },
+    { goblins: 7,  worgs: 0,  ogres: 0 },
+    { goblins: 10, worgs: 0,  ogres: 0 },
+    { goblins: 20, worgs: 0,  ogres: 0 },
   ],
 
   2: [
-    { goblins: 10, worgs: 0, ogres: 0 },
+    { goblins: 10, worgs: 0,  ogres: 0 },
     { goblins: 0,  worgs: 10, ogres: 0 },
     { goblins: 20, worgs: 10, ogres: 0 },
+    { goblins: 20, worgs: 20, ogres: 1 },
+    { goblins: 20, worgs: 20, ogres: 1 },
   ],
 
   3: [
     { goblins: 30, worgs: 10, ogres: 0 },
     { goblins: 20, worgs: 0,  ogres: 0 },
-    { goblins: 0,  worgs: 20, ogres: 0 },
-    { goblins: 0,  worgs: 0,  ogres: 1 },
+    { goblins: 30, worgs: 20, ogres: 0 },
+    { goblins: 30, worgs: 20, ogres: 1 },
+    { goblins: 20, worgs: 20, ogres: 2 },
   ],
 
   4: [
@@ -130,13 +156,15 @@ export const waveConfigs = {
     { goblins: 30, worgs: 30, ogres: 0 },
     { goblins: 40, worgs: 20, ogres: 0 },
     { goblins: 10, worgs: 0,  ogres: 2 },
+    { goblins: 20, worgs: 10, ogres: 3 },
   ],
 
   5: [
     { goblins: 30, worgs: 20, ogres: 0 },
     { goblins: 30, worgs: 20, ogres: 1 },
     { goblins: 40, worgs: 30, ogres: 2 },
-    { goblins: 0,  worgs: 0,  ogres: 2 },
+    { goblins: 0,  worgs: 0,  ogres: 4 },
+    { goblins: 40, worgs: 30, ogres: 2 },
   ],
 
   6: [
@@ -144,6 +172,7 @@ export const waveConfigs = {
     { goblins: 0,  worgs: 20, ogres: 3 },
     { goblins: 30, worgs: 0,  ogres: 1 },
     { goblins: 0,  worgs: 40, ogres: 0 },
+    { goblins: 40, worgs: 30, ogres: 2 },
   ],
 
   7: [
@@ -151,6 +180,7 @@ export const waveConfigs = {
     { goblins: 0,  worgs: 20, ogres: 2 },
     { goblins: 60, worgs: 40, ogres: 0 },
     { goblins: 0,  worgs: 10, ogres: 5 },
+    { goblins: 40, worgs: 30, ogres: 2 },
   ],
 
   8: [
@@ -178,20 +208,18 @@ let currentWaveIndex = 0;
 let waveActive = false;
 let waveCleared = false;
 
-const BETWEEN_WAVES_DELAY = 3000; // 3s between waves
-const VICTORY_DELAY = 5000;       // your loot window
+const BETWEEN_WAVES_DELAY = 3000; 
+const VICTORY_DELAY = 5000;       
 
 let betweenWaveTimer = 0;
 let victoryPending = false;
 
-
 // ============================================================
 // 🐣 SPAWN QUEUE (4-second spacing)
 // ============================================================
-const SPAWN_INTERVAL = 4000; // 4 seconds in ms
+const SPAWN_INTERVAL = 4000;
 let spawnQueue = [];
 let spawnTimer = 0;
-
 
 // ============================================================
 // 🚀 START NEXT WAVE
@@ -204,101 +232,124 @@ function startNextWave() {
   const wave = waves[currentWaveIndex];
   if (!wave) return;
 
-  console.log(`🌊 Starting Wave ${currentWaveIndex + 1} of ${waves.length}`);
+  console.log(`🌊 Starting Wave ${currentWaveIndex + 1} of ${waves.length} (Map ${mapId})`);
+
+  // ⚠️ CRITICAL: Clear old queue
+  spawnQueue.length = 0;
 
   waveActive = true;
   waveCleared = false;
 
-  // Update HUD wave info
+  // Update HUD
   gameState.wave = currentWaveIndex + 1;
   gameState.totalWaves = waves.length;
   updateHUD();
 
-  // Queue goblins
-  for (let i = 0; i < wave.goblins; i++) {
-    spawnQueue.push(() => spawnGoblin());
-  }
-
-  // Queue worgs
-  for (let i = 0; i < wave.worgs; i++) {
-    spawnQueue.push(() => spawnWorg());
-  }
-
-  // Queue ogres
-  for (let i = 0; i < wave.ogres; i++) {
-    spawnQueue.push(() => spawnOgre());
-  }
+  // Queue spawns
+  for (let i = 0; i < wave.goblins; i++) spawnQueue.push(() => spawnGoblin());
+  for (let i = 0; i < wave.worgs; i++)   spawnQueue.push(() => spawnWorg());
+  for (let i = 0; i < wave.ogres; i++)   spawnQueue.push(() => spawnOgre());
 }
 
 // ============================================================
 // 👁 CHECK ACTIVE ENEMIES
 // ============================================================
-import { getEnemies } from "./enemies.js";
-import { getWorg } from "./worg.js";
-import { getOgres } from "./ogre.js";
+import { getEnemies } from "./goblin.js";
 
 function noEnemiesAlive() {
-  const all = [
-    ...getEnemies(),
-    ...getWorg(),
-    ...getOgres(),
-  ];
-  return all.every(e => !e.alive);
+  const g = getEnemies();
+  const w = getWorg();
+  const o = getOgres();
+
+  console.log("Alive counts:", {
+    goblins: g.filter(e => e.alive).length,
+    worgs:   w.filter(e => e.alive).length,
+    ogres:   o.filter(e => e.alive).length,
+    spawnQueueLeft: spawnQueue.length
+  });
+
+  return (
+    g.every(e => !e.alive) &&
+    w.every(e => !e.alive) &&
+    o.every(e => !e.alive)
+  );
 }
+
 // ============================================================
-// 🔁 UPDATE WAVE PROGRESSION
+// 🔁 UPDATE WAVE PROGRESSION (FULLY FIXED)
 // ============================================================
 function updateWaveSystem(delta) {
-  spawnTimer -= delta;
 
+  console.log("🔥 waveSystemTick", {
+    mapId: gameState.progress?.currentMap,
+    waveIndex: currentWaveIndex,
+    totalWaves: waveConfigs[gameState.progress?.currentMap]?.length,
+    waveActive,
+    waveCleared,
+    enemiesAlive: !noEnemiesAlive(),
+    spawnQueue: spawnQueue.length
+  });
+
+  // 1️⃣ Handle spawn queue
+  spawnTimer -= delta;
   if (spawnQueue.length > 0 && spawnTimer <= 0) {
-      const spawnFn = spawnQueue.shift(); // take next enemy
-      spawnFn();                           // spawn that enemy
-      spawnTimer = SPAWN_INTERVAL;         // reset timer
+    const spawnFn = spawnQueue.shift();
+    spawnFn();
+    spawnTimer = SPAWN_INTERVAL;
   }
-  
+
   if (victoryPending) return;
 
-  // No waves until gameplay starts
-  if (!waveActive) return;
+  const mapId = gameState.progress?.currentMap ?? 1;
+  const waves = waveConfigs[mapId];
+  if (!waves) return;
 
-  // Wave still ongoing? Enemies alive -> do nothing
-  if (!noEnemiesAlive()) return;
+  // ----------------------------------------------------------
+  // 2️⃣ ACTIVE WAVE
+  // ----------------------------------------------------------
+  if (waveActive) {
+    if (!noEnemiesAlive()) return;
 
-  // Wave finished
-  if (!waveCleared) {
-    waveCleared = true;
-    waveActive = false;
-    betweenWaveTimer = BETWEEN_WAVES_DELAY;
+    // Mark cleared once
+    if (!waveCleared) {
+      waveCleared = true;
+      waveActive = false;
+      betweenWaveTimer = BETWEEN_WAVES_DELAY;
 
-    console.log(`✨ Wave ${currentWaveIndex + 1} cleared!`);
-    return;
+      console.log(`✨ Wave ${currentWaveIndex + 1} cleared (Map ${mapId})`);
+      return;
+    }
   }
 
-  // All enemies gone, countdown to next wave
+  if (!waveCleared) return;
+
+  // ----------------------------------------------------------
+  // 3️⃣ BETWEEN WAVES
+  // ----------------------------------------------------------
   betweenWaveTimer -= delta;
   if (betweenWaveTimer > 0) return;
 
-  const mapId = gameState.progress.currentMap ?? 1;
-  const waves = waveConfigs[mapId];
-
-  // More waves left?
+  // ----------------------------------------------------------
+  // 4️⃣ MORE WAVES?
+  // ----------------------------------------------------------
   if (currentWaveIndex + 1 < waves.length) {
     currentWaveIndex++;
     startNextWave();
+    return;
   }
 
-  // LAST WAVE FINISHED
-  else {
-    console.log("🏆 All waves complete — final clear window active.");
+  // ----------------------------------------------------------
+  // 5️⃣ FINAL WAVE → VICTORY
+  // ----------------------------------------------------------
+  console.log(`🏆 All waves complete on map ${mapId}. Scheduling victory…`);
 
-    victoryPending = true;
+  victoryPending = true;
 
-    setTimeout(() => {
-      stopGameplay("victory");
-    }, VICTORY_DELAY);
-  }
+  setTimeout(() => {
+    stopGameplay("victory");
+  }, VICTORY_DELAY);
 }
+
 
 // ------------------------------------------------------------
 // 🎥 LOCAL CAMERA STATE
@@ -312,11 +363,11 @@ let cameraY = 0;
 // 🆕 Performance: Cache expensive DOM queries
 let cachedCanvasRect = null;
 let rectCacheTimer = 0;
-const RECT_CACHE_DURATION = 1000; // Refresh every 1 second (handles window resize)
+const RECT_CACHE_DURATION = 1000; // Refresh every 1 second
 
 // 🆕 Performance: Throttle HUD updates
 let hudUpdateTimer = 0;
-const HUD_UPDATE_INTERVAL = 100; // Update HUD every 100ms instead of 16ms
+const HUD_UPDATE_INTERVAL = 100; // Update HUD every 100ms
 
 // ------------------------------------------------------------
 // 🏆 VICTORY COUNTER
@@ -331,7 +382,6 @@ export function incrementGoblinDefeated() {
 // ------------------------------------------------------------
 // 🧭 MAP-AWARE PLAYER SPAWN
 // ------------------------------------------------------------
-// Centralised spawn logic so all systems use the same positions
 function applyMapSpawn() {
   if (!gameState.player) return;
 
@@ -339,10 +389,10 @@ function applyMapSpawn() {
   const mapId = gameState.progress?.currentMap || 1;
 
   if (mapId === 1) {
-    // 📍 MAP ONE spawn (existing default)
+    // 📍 MAP ONE spawn
     p.pos = { x: 1000, y: 500 };
   } else if (mapId === 2) {
-    // 📍 MAP TWO spawn — tweak after testing new map layout
+    // 📍 MAP TWO spawn
     p.pos = { x: 250, y: 1650 };
   } else {
     // Fallback for any future maps
@@ -360,11 +410,11 @@ export async function initGame() {
   ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("game.js: 2D context not available");
 
-  // 🆕 Cache canvas rect on init
+  // Cache canvas rect on init
   cachedCanvasRect = canvas.getBoundingClientRect();
   rectCacheTimer = 0;
 
-  // 2️⃣ Load Map (map_one / map_two based on gameState.progress.currentMap)
+  // 2️⃣ Load Map
   await loadMap();
 
   // 3️⃣ Extract enemy path + apply
@@ -380,7 +430,6 @@ export async function initGame() {
   await loadLootImages();
 
   // 5️⃣ Player setup
-  //    Ensure player object exists, THEN apply map-based spawn.
   if (!gameState.player) {
     gameState.player = {
       name: "Glitter Guardian",
@@ -393,11 +442,11 @@ export async function initGame() {
       facing: "right",
     };
   }
-  applyMapSpawn();             // 🔑 Map-aware spawn
+  applyMapSpawn();
   initPlayerController(canvas);
   initUI();
 
-  // 6️⃣ Pegasus ambient flight
+  // 6️⃣ Pegasus + healing + goblin drops
   await loadPegasus();
   initPegasus(ctx);
   await loadHealingGem();
@@ -409,8 +458,10 @@ export async function initGame() {
   waveActive = false;
   waveCleared = false;
   victoryPending = false;
+  spawnQueue = [];
+  spawnTimer = 0;
 
-  // Start first wave automatically (except Map 1, which is 1 wave anyway)
+  // Start first wave automatically
   startNextWave();
 
   console.log("🌸 game.js — Initialization complete (optimized, multi-map).");
@@ -420,12 +471,11 @@ export async function initGame() {
 // 🔁 UPDATE — synchronized world logic (OPTIMIZED)
 // ============================================================
 export function updateGame(delta) {
-  // 🆕 Early exit if paused (saves CPU)
+  // Early exit if paused
   if (gameState.paused) return;
-  
+
   delta = Math.min(delta, 100);
 
-  // Update all systems
   updateEnemies(delta);
   updateWorg(delta);
   updateTowers(delta);
@@ -439,14 +489,14 @@ export function updateGame(delta) {
   updateLoot(delta);
   updateWaveSystem(delta);
 
-  // 🆕 Throttled HUD update (every 100ms instead of 16ms)
+  // Throttled HUD update
   hudUpdateTimer += delta;
   if (hudUpdateTimer >= HUD_UPDATE_INTERVAL) {
     hudUpdateTimer = 0;
     updateHUD();
   }
 
-  // 🎥 Camera follow player
+  // Camera follow
   const px = gameState.player?.pos?.x ?? 0;
   const py = gameState.player?.pos?.y ?? 0;
 
@@ -457,21 +507,21 @@ export function updateGame(delta) {
   const { width: mapW, height: mapH } = getMapPixelSize();
   cameraX = Math.max(0, Math.min(mapW - canvas.width, cameraX));
   cameraY = Math.max(0, Math.min(mapH - canvas.height, cameraY));
-  
-  // 🆕 Cache canvas rect (expensive DOM operation)
+
+  // Cache canvas rect occasionally (expensive DOM op)
   rectCacheTimer += delta;
   if (rectCacheTimer >= RECT_CACHE_DURATION || !cachedCanvasRect) {
     rectCacheTimer = 0;
     cachedCanvasRect = canvas.getBoundingClientRect();
   }
 
-  // Keep globals in sync for input → world conversions
+  // Keep globals in sync
   window.cameraX = cameraX;
   window.cameraY = cameraY;
   window.canvasScaleX = canvas.width  / cachedCanvasRect.width;
   window.canvasScaleY = canvas.height / cachedCanvasRect.height;
-  
-  // Check win/loss
+
+  // Check defeat (victory handled by wave engine)
   checkVictoryDefeat();
 }
 
@@ -484,7 +534,7 @@ export function renderGame() {
   // 1️⃣ Background ground layer
   drawMapLayered(ctx, "ground", cameraX, cameraY, canvas.width, canvas.height);
 
-  // 2️⃣ Entities (translated by camera)
+  // 2️⃣ Entities
   ctx.save();
   ctx.translate(-cameraX, -cameraY);
 
@@ -501,10 +551,10 @@ export function renderGame() {
 
   ctx.restore();
 
-  // 3️⃣ Foreground canopy / trees layer (map overlay)
+  // 3️⃣ Foreground trees
   drawMapLayered(ctx, "trees", cameraX, cameraY, canvas.width, canvas.height);
 
-  // 4️⃣ Pegasus drawn LAST so it stays visible above all
+  // 4️⃣ Pegasus
   try {
     if (typeof drawPegasusFrame === "function") {
       drawPegasusFrame(ctx);
@@ -514,6 +564,10 @@ export function renderGame() {
   }
 }
 
+// ============================================================
+// 🧠 VICTORY / DEFEAT CHECK
+// (Victory now handled exclusively by wave system)
+// ============================================================
 function checkVictoryDefeat() {
   const p = gameState.player;
   if (!p) return;
@@ -522,98 +576,30 @@ function checkVictoryDefeat() {
   const lives = p.lives ?? 3;
 
   // -------------------------------------------
-  // DEFEAT
+  // ❌ DEFEAT: HP zero
   // -------------------------------------------
   if (hp <= 0) {
-    gameState.player.dead = true;
+    p.dead = true;
     gameState.paused = true;
     setTimeout(() => stopGameplay("defeat"), 1500);
     return;
   }
 
+  // -------------------------------------------
+  // ❌ DEFEAT: Lives zero (escaped goblins)
+  // -------------------------------------------
   if (lives <= 0) {
-    gameState.player.dead = true;
+    p.dead = true;
     gameState.paused = true;
     setTimeout(() => stopGameplay("lives"), 1500);
     return;
   }
 
   // -------------------------------------------
-  // MAP ROUTER
+  // 🏆 VICTORY:
+  // NOW HANDLED 100% BY THE WAVE ENGINE
+  // (no map-specific victory here anymore)
   // -------------------------------------------
-  const mapId = gameState.progress.currentMap || 1;
-
-  if (mapId === 1) {
-    handleMapOneVictoryLogic();
-  } else if (mapId === 2) {
-    handleMapTwoVictoryLogic();
-  }
-}
-
-function handleMapOneVictoryLogic() {
-  // Goblin waves total: 50
-  if (goblinsDefeated === 10 && !gameState.ogreSpawned) {
-    console.log("👹 Summoning Ogre (Map 1)");
-    gameState.ogreSpawned = true;
-    spawnOgre();
-  }
-
-  if (goblinsDefeated >= 15 && gameState.ogreSpawned) {
-    const ogres = window.getOgres ? window.getOgres() : [];
-    const alive = ogres.some(o => o.alive);
-
-    if (!alive && !gameState.victoryPending) {
-      console.log("🏆 Map 1 victory pending...");
-      gameState.victoryPending = true;
-      setTimeout(() => stopGameplay("victory"), 5000);
-    }
-  }
-}
-
-function handleMapTwoVictoryLogic() {
-
-  // ------------------------------------------------------------
-  // 🐺 WORG SPAWNS (every 10 goblins)
-  // ------------------------------------------------------------
-  if (!gameState.worgSpawns) gameState.worgSpawns = 0;
-
-  if (goblinsDefeated >= (gameState.worgSpawns + 1) * 10) {
-    console.log("🐺 Spawning 3 Worgs!");
-    spawnWorg();
-    spawnWorg();
-    spawnWorg();
-    gameState.worgSpawns++;
-  }
-
-  // ------------------------------------------------------------
-  // 👹 OGRE SPAWNS (25, 50, 75, 100)
-  // ------------------------------------------------------------
-  if (!gameState.ogreTriggers) {
-    gameState.ogreTriggers = { 25: false, 50: false, 75: false, 100: false };
-  }
-
-  const triggerPoints = [25, 50, 75, 100];
-  for (const point of triggerPoints) {
-    if (goblinsDefeated >= point && !gameState.ogreTriggers[point]) {
-      console.log(`👹 Spawning Ogre at ${point} kills`);
-      spawnOgre();
-      gameState.ogreTriggers[point] = true;
-    }
-  }
-
-  // ------------------------------------------------------------
-  // 🏆 VICTORY CONDITION (Map 2)
-  // ------------------------------------------------------------
-  if (goblinsDefeated >= 25) {
-    const ogres = window.getOgres ? window.getOgres() : [];
-    const alive = ogres.some(o => o.alive);
-
-    if (!alive && !gameState.victoryPending) {
-      console.log("🏆 Map 2 victory pending...");
-      gameState.victoryPending = true;
-      setTimeout(() => stopGameplay("victory"), 5000);
-    }
-  }
 }
 
 
@@ -623,27 +609,21 @@ function handleMapTwoVictoryLogic() {
 export function resetCombatState() {
   console.log("♻️ Resetting combat state...");
 
-  // ------------------------------------------------------------
-  // GLOBAL COUNTERS
-  // ------------------------------------------------------------
+  // Global counters
   goblinsDefeated = 0;
   gameState.victoryPending = false;
   gameState.ogreSpawned = false;
 
-  // ------------------------------------------------------------
-  // MAP-SPECIFIC TRIGGERS (Map 2)
-  // ------------------------------------------------------------
+  // Map-specific triggers (legacy map 2 flags reset anyway)
   gameState.worgSpawns = 0;
   gameState.ogreTriggers = {
     25: false,
     50: false,
     75: false,
-    100: false
+    100: false,
   };
 
-  // ------------------------------------------------------------
-  // PLAYER RESET (but DO NOT override map-based spawn)
-  // ------------------------------------------------------------
+  // Player reset
   const p = gameState.player;
   if (p) {
     p.hp = p.maxHp ?? 100;
@@ -651,30 +631,18 @@ export function resetCombatState() {
     p.lives = 10;
     p.dead = false;
     p.facing = "right";
-
-    // position handled by initGame() → applyMapSpawn()
   }
 
-  // ------------------------------------------------------------
-  // CLEAR ALL RUNTIME ENTITIES
-  // ------------------------------------------------------------
-  // clear goblins by enemies.js
+  // Clear runtime entities
   if (window.__enemies) window.__enemies.length = 0;
-
-  // clear ogres + their fade-outs
   clearOgres();
-
-  // clear loot bags
   clearLoot();
 
-  // ------------------------------------------------------------
-  // RE-INIT COMBAT SYSTEMS
-  // ------------------------------------------------------------
-  initEnemies();        // goblins
-  initTowers();         // towers
-  initProjectiles();    // tower & player projectiles
+  // Re-init combat systems
+  initEnemies();
+  initTowers();
+  initProjectiles();
 
-  // Force HUD refresh
   updateHUD();
 
   console.log("♻️ Combat state fully reset for new battle.");
@@ -687,7 +655,7 @@ export function resetPlayerState() {
   const p = gameState.player;
   if (!p) return;
 
-  applyMapSpawn();            // 🔑 Map-based respawn
+  applyMapSpawn();
   p.hp = p.maxHp ?? 100;
   p.mana = p.maxMana ?? 50;
   p.dead = false;
@@ -698,26 +666,22 @@ export function resetPlayerState() {
     window.__playerControllerReset();
   }
 
-  // 🆕 Force immediate HUD update after reset
   updateHUD();
   hudUpdateTimer = 0;
-  
+
   console.log("🎮 Player revived — soft reset (optimized, multi-map).");
 }
 
 import("./ogre.js").then(() => console.log("👹 Ogre dev commands ready."));
 
-// 🆕 Window resize handler to invalidate rect cache
+// Window resize handler to invalidate rect cache
 window.addEventListener("resize", () => {
   cachedCanvasRect = null;
-  rectCacheTimer = RECT_CACHE_DURATION; // Force immediate update
+  rectCacheTimer = RECT_CACHE_DURATION;
 });
 
 window.spawnWorg = spawnWorg;
 
-// ============================================================
-// 🌟 END OF FILE
-// ============================================================
 // ============================================================
 // 🛠️ DEV TOOL — Instant Victory Trigger
 // ============================================================
@@ -739,18 +703,16 @@ window.forceMapVictory = function () {
       }
     }
 
-    // Force goblins defeated to max based on map
+    // Force goblins defeated to max based on map (for stats only)
     if (!gameState.stats) gameState.stats = {};
     if (currentMap === 1) {
       gameState.stats.goblinsDefeated = 50;
     } else if (currentMap === 2) {
       gameState.stats.goblinsDefeated = 100;
     } else {
-      // future maps? just mark large number
       gameState.stats.goblinsDefeated = 9999;
     }
 
-    // Slight delay to mimic real victory
     setTimeout(() => {
       stopGameplay("victory");
     }, 500);
@@ -759,3 +721,7 @@ window.forceMapVictory = function () {
     console.warn("⚠️ DEV Victory failed:", err);
   }
 };
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

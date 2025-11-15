@@ -2,7 +2,6 @@
 // 👹 enemies.js — Olivia's World: Crystal Keep (OPTIMIZED - No Stutter Edition)
 // ------------------------------------------------------------
 // ✦ Adds Frost slow, Flame burn DoT, Moon knockback
-// ✦ Continuous spawn system (1 goblin every 5s)
 // ✦ Goblin ↔ Goblin + Goblin ↔ Player physical collision
 // ✦ Smooth chase / attack / path-follow logic + death fade
 // ✦ 🆕 PERFORMANCE FIXES:
@@ -58,12 +57,7 @@ const DEATH_LAY_DURATION = 600;
 
 // 🆕 PERFORMANCE TUNING
 const CROWD_COLLISION_INTERVAL = 100; // Only check every 100ms instead of 16ms
-const SPATIAL_GRID_SIZE = 128; // Grid cell size for spatial partitioning
-
-let spawnTimer = 0;
-const SPAWN_INTERVAL = 5000;
-const MAX_ACTIVE_ENEMIES = 50;
-
+const SPATIAL_GRID_SIZE = 128;       // Grid cell size for spatial partitioning
 
 function getChaseSpread() {
   // Count goblins currently in chase
@@ -76,7 +70,7 @@ function getChaseSpread() {
   if (chasing < 5) return 10;     // small pack
   if (chasing < 10) return 20;    // medium pack
   if (chasing < 20) return 32;    // large pack
-  return 48;                       // massive horde
+  return 48;                      // massive horde
 }
 
 // ============================================================
@@ -136,31 +130,16 @@ export function setEnemyPath(points) {
 export async function initEnemies() {
   enemies = [];
   window.__enemies = enemies;
+  window.__goblins = enemies;
   enemiesSpawned = 0;
   storyTriggered = false;
   await loadGoblinSprites();
-  spawnEnemy();
-  spawnTimer = SPAWN_INTERVAL;
 }
 
 // ============================================================
 // 🆕 MAP-AWARE GOBLIN SPAWN WRAPPER
+// (Legacy wrapper removed — waves now control all spawns)
 // ============================================================
-function trySpawnEnemy() {
-  const mapId = gameState.progress?.currentMap ?? 1;
-
-  // --- MAP 1 LIMIT ---
-  if (mapId === 1) {
-    if (enemiesSpawned >= 50) return;  // spawn max 50 goblins
-  }
-
-  // --- MAP 2 LIMIT ---
-  if (mapId === 2) {
-    if (enemiesSpawned >= 100) return; // spawn max 100 goblins
-  }
-
-  spawnEnemy();
-}
 
 // ============================================================
 // 💀 SPAWN
@@ -171,9 +150,12 @@ function spawnEnemy() {
     return;
   }
 
+  const start = pathPoints[0];
+  const spread = 40; // ±20px around path start
+
   enemies.push({
-    x: pathPoints[0].x,
-    y: pathPoints[0].y,
+    x: start.x + (Math.random() - 0.5) * spread,
+    y: start.y + (Math.random() - 0.5) * spread,
     width: 42,
     height: 42,
     hp: DEFAULT_HP,
@@ -212,6 +194,7 @@ function spawnEnemy() {
   }
 
   window.__enemies = enemies;
+  window.__goblins = enemies;
 }
 
 // ============================================================
@@ -219,20 +202,20 @@ function spawnEnemy() {
 // ============================================================
 function buildSpatialGrid(entities) {
   const grid = new Map();
-  
+
   for (const entity of entities) {
     if (!entity.alive) continue;
-    
+
     const cellX = Math.floor(entity.x / SPATIAL_GRID_SIZE);
     const cellY = Math.floor(entity.y / SPATIAL_GRID_SIZE);
     const key = `${cellX},${cellY}`;
-    
+
     if (!grid.has(key)) {
       grid.set(key, []);
     }
     grid.get(key).push(entity);
   }
-  
+
   return grid;
 }
 
@@ -240,7 +223,7 @@ function getNearbyFromGrid(grid, x, y) {
   const nearby = [];
   const cellX = Math.floor(x / SPATIAL_GRID_SIZE);
   const cellY = Math.floor(y / SPATIAL_GRID_SIZE);
-  
+
   // Check 3x3 grid around entity
   for (let dx = -1; dx <= 1; dx++) {
     for (let dy = -1; dy <= 1; dy++) {
@@ -250,7 +233,7 @@ function getNearbyFromGrid(grid, x, y) {
       }
     }
   }
-  
+
   return nearby;
 }
 
@@ -269,9 +252,7 @@ export function updateEnemies(delta) {
   let activeCount = 0;
   for (const e of enemies) if (e.alive) activeCount++;
 
-  // ----------------------------------------------------------
-  // MAIN LOOP — No spatial grid, no collision, no spread
-  // ----------------------------------------------------------
+  // MAIN LOOP
   for (const e of enemies) {
 
     // Moon stun
@@ -305,9 +286,7 @@ export function updateEnemies(delta) {
       e.state = "chase";
     }
 
-    // ----------------------------------------------------------
-    // CHASE MODE — simple, no spread
-    // ----------------------------------------------------------
+    // CHASE MODE
     if (e.state === "chase") {
 
       if (distToPlayer > AGGRO_RANGE * 1.5) {
@@ -348,9 +327,7 @@ export function updateEnemies(delta) {
       }
     }
 
-    // ----------------------------------------------------------
-    // RETURN MODE — minimal logic
-    // ----------------------------------------------------------
+    // RETURN MODE
     else if (e.state === "return") {
       const target = pathPoints[e.targetIndex];
 
@@ -392,9 +369,7 @@ export function updateEnemies(delta) {
       }
     }
 
-    // ----------------------------------------------------------
     // FOLLOW PATH
-    // ----------------------------------------------------------
     else if (e.state === "path") {
       const target = pathPoints[e.targetIndex];
 
@@ -434,10 +409,7 @@ export function updateEnemies(delta) {
     if (e.flashTimer > 0) e.flashTimer -= delta;
   }
 
-  
-  // ----------------------------------------------------------
   // CLEANUP DEAD
-  // ----------------------------------------------------------
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
     if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) {
@@ -445,7 +417,6 @@ export function updateEnemies(delta) {
     }
   }
 }
-
 
 // ============================================================
 // 🔥 ELEMENTAL EFFECTS
@@ -465,11 +436,8 @@ function handleElementalEffects(e, dt) {
     e.burnTick -= dt * 1000;
 
     if (e.burnTick <= 0) {
-      e.burnTick = 1000;   // reset for 1 second
-
-      // Apply burn tick damage
+      e.burnTick = 1000;
       damageEnemy(e, e.burnDamage);
-      
     }
 
     // Burn expired
@@ -573,7 +541,7 @@ export function drawEnemies(context) {
 
     ctx.save();
 
-    // 🕳 Shadow
+    // Shadow
     ctx.beginPath();
     ctx.ellipse(
       e.x,
@@ -588,7 +556,7 @@ export function drawEnemies(context) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // ✨ Hit Flash
+    // Hit Flash
     if (e.alive && e.flashTimer > 0) {
       const flashAlpha = e.flashTimer / 150;
       ctx.filter = `contrast(1.2) brightness(${1 + flashAlpha * 0.5}) saturate(${1 + flashAlpha * 1.5})`;
@@ -596,23 +564,20 @@ export function drawEnemies(context) {
       ctx.filter = "none";
     }
 
-    // 🫥 Fade-out for death
+    // Death fade
     if (!e.alive && e.fading) {
       ctx.globalAlpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
     }
 
-    // 🧌 Draw base goblin sprite
+    // Base goblin sprite
     ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, ENEMY_SIZE, ENEMY_SIZE);
 
-    // ====================================================================
-    // 🔥 FIRE EFFECT (burn over time)
-    // ====================================================================
+    // FIRE EFFECT
     if (e.isBurning && e.alive) {
       ctx.save();
 
       const flicker = 0.85 + Math.random() * 0.3;
 
-      // Warm tint
       ctx.globalCompositeOperation = "screen";
       ctx.globalAlpha = 0.25 * flicker;
       ctx.fillStyle = "rgba(255,150,80,0.5)";
@@ -620,7 +585,6 @@ export function drawEnemies(context) {
       ctx.ellipse(e.x, e.y, ENEMY_SIZE * 0.35, ENEMY_SIZE * 0.45, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Outer flame aura
       ctx.globalCompositeOperation = "lighter";
       ctx.globalAlpha = 0.22 * flicker;
       ctx.fillStyle = "rgba(255,120,60,0.5)";
@@ -628,14 +592,12 @@ export function drawEnemies(context) {
       ctx.ellipse(e.x, e.y - ENEMY_SIZE * 0.1, ENEMY_SIZE * 0.55, ENEMY_SIZE * 0.7, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Small inner flame
       ctx.globalAlpha = 0.15 * flicker;
       ctx.fillStyle = "rgba(255,200,80,0.5)";
       ctx.beginPath();
       ctx.ellipse(e.x, e.y - ENEMY_SIZE * 0.25, ENEMY_SIZE * 0.25, ENEMY_SIZE * 0.35, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Embers
       for (let i = 0; i < 2; i++) {
         const ox = (Math.random() - 0.5) * ENEMY_SIZE * 0.2;
         const oy = -Math.random() * ENEMY_SIZE * 0.3;
@@ -649,24 +611,19 @@ export function drawEnemies(context) {
       ctx.restore();
     }
 
-    // ====================================================================
-    // ❄ FROST EFFECT (slow debuff)
-    // ====================================================================
+    // FROST EFFECT
     if (e.slowTimer > 0 && e.alive) {
       ctx.save();
 
-      // Soft icy glow (no flicker — frost is stable)
       const frostPulse = 0.8 + Math.sin(Date.now() / 200) * 0.15;
 
-      // Cool tint (screen blend)
       ctx.globalCompositeOperation = "screen";
       ctx.globalAlpha = 0.25 * frostPulse;
-      ctx.fillStyle = "rgba(160,200,255,0.5)"; // soft pastel ice-blue
+      ctx.fillStyle = "rgba(160,200,255,0.5)";
       ctx.beginPath();
       ctx.ellipse(e.x, e.y, ENEMY_SIZE * 0.38, ENEMY_SIZE * 0.48, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Frost aura (lighter)
       ctx.globalCompositeOperation = "lighter";
       ctx.globalAlpha = 0.18 * frostPulse;
       ctx.fillStyle = "rgba(120,170,255,0.5)";
@@ -680,7 +637,6 @@ export function drawEnemies(context) {
       );
       ctx.fill();
 
-      // Sparkle flakes (gentle particles)
       for (let i = 0; i < 2; i++) {
         const ox = (Math.random() - 0.5) * ENEMY_SIZE * 0.3;
         const oy = -Math.random() * ENEMY_SIZE * 0.3;
@@ -695,9 +651,7 @@ export function drawEnemies(context) {
       ctx.restore();
     }
 
-    // ============================================================
-    // Reset filters, draw health bar
-    // ============================================================
+    // Health bar
     ctx.filter = "none";
     ctx.globalAlpha = 1;
 
@@ -726,9 +680,6 @@ function drawHealthBar(ctx, x, y, hp, maxHp) {
   );
 }
 
-
-
-
 // ============================================================
 // 🧩 SPRITE SELECTOR
 // ============================================================
@@ -751,18 +702,16 @@ function getEnemySprite(e) {
 // ============================================================
 // 🔍 ACCESSOR
 // ============================================================
-
-
-export function getEnemies() { 
-  return enemies; 
+export function getEnemies() {
+  return enemies;
 }
 
 // ✅ New explicit goblin spawner for waves & dev tools
 export function spawnGoblin() {
-  spawnEnemy();   // uses your existing internal spawn logic
+  spawnEnemy();   // uses internal spawn logic + spread
 }
 
-// Optional alias if you want a goblin-specific getter:
+// Optional alias if you want goblin-specific getter
 export function getGoblins() {
   return enemies;
 }
