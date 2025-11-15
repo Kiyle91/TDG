@@ -121,6 +121,8 @@ import {
 // ------------------------------------------------------------
 import { gameState } from "../utils/gameState.js";
 import { stopGameplay } from "../main.js";
+import { triggerWaveStory } from "./story.js";
+
 
 
 // ============================================================
@@ -303,7 +305,7 @@ function noEnemiesAlive() {
 // ============================================================
 // 🔁 UPDATE WAVE PROGRESSION (FULLY FIXED)
 // ============================================================
-function updateWaveSystem(delta) {
+async function updateWaveSystem(delta) {
 
   console.log("🔥 waveSystemTick", {
     mapId: gameState.progress?.currentMap,
@@ -360,6 +362,7 @@ function updateWaveSystem(delta) {
   if (currentWaveIndex + 1 < waves.length) {
     currentWaveIndex++;
     startNextWave();
+    triggerWaveStory(mapId, currentWaveIndex + 1);
     return;
   }
 
@@ -367,6 +370,8 @@ function updateWaveSystem(delta) {
   // 5️⃣ FINAL WAVE → VICTORY
   // ----------------------------------------------------------
   console.log(`🏆 All waves complete on map ${mapId}. Scheduling victory…`);
+
+  await triggerWaveStory(mapId, 5);
 
   victoryPending = true;
 

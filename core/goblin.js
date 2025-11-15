@@ -24,7 +24,6 @@ import {
 } from "./soundtrack.js";
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
-import { triggerMidBattleStory } from "./story.js";
 import { trySpawnGoblinDrop } from "./goblinDrop.js";
 
 let enemies = [];
@@ -183,15 +182,6 @@ function spawnEnemy() {
 
   enemiesSpawned++;
 
-  if (enemiesSpawned >= 25 && !storyTriggered) {
-    storyTriggered = true;
-    console.log("📖 Triggering mid-battle story...");
-    try {
-      triggerMidBattleStory();
-    } catch (e) {
-      console.warn("⚠️ triggerMidBattleStory failed:", e);
-    }
-  }
 
   window.__enemies = enemies;
   window.__goblins = enemies;

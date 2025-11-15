@@ -10,7 +10,6 @@ import { showScreen } from "./screens.js";
 import { startGameplay, gameActive, stopGameplay } from "../main.js";
 import { getCurrencies, gameState } from "../utils/gameState.js";
 import { showOverlay } from "./ui.js";
-import { startIntroStory } from "./story.js";
 import { initChest } from "./chest.js";
 import { showConfirm } from "./alert.js";
 import { updateStatsOverlay } from "./ui.js";
@@ -77,10 +76,9 @@ export function initHub() {
         fullNewGameReset();
         resetCombatState();
         startNewGameStory();
-        startIntroStory();
 
         // 4️⃣ Start fresh story intro
-        startIntroStory();
+
         playFairySprinkle();
         console.log("✨ New Story sequence started fresh.");
       },

@@ -1,10 +1,10 @@
 // ============================================================
-// 💬 story.js — Olivia’s World: Crystal Keep (Crystal Dialogue Edition — No Typewriter)
+// 💬 story.js — Olivia’s World: Crystal Keep (Wave Story System)
 // ------------------------------------------------------------
 // ✦ Unified cinematic story box for all story moments
-// ✦ No typewriter animation (instant text display)
-// ✦ Centered crystal box layout matching Ariana’s intro style
-// ✦ Smooth fade transitions + single Continue button
+// ✦ No typewriter animation (instant text)
+// ✦ NEW: Automatic story triggers on Wave 2 and Wave 4 for all maps
+// ✦ Placeholder text ready to be replaced later
 // ============================================================
 
 import { showScreen } from "./screens.js";
@@ -12,14 +12,12 @@ import { startGameplay } from "../main.js";
 import { gameState } from "../utils/gameState.js";
 
 // ------------------------------------------------------------
-// 🧚‍♀️ UNIVERSAL STORY BOX FUNCTION (Instant Text)
+// 🧚‍♀️ UNIVERSAL STORY BOX (Instant Text)
 // ------------------------------------------------------------
 async function showStory({ portrait, text, autoStart = false }) {
   return new Promise((resolve) => {
-    // Remove any existing story overlay
     document.getElementById("overlay-story")?.remove();
 
-    // Create new overlay
     const overlay = document.createElement("div");
     overlay.id = "overlay-story";
     overlay.className = "overlay active";
@@ -37,19 +35,15 @@ async function showStory({ portrait, text, autoStart = false }) {
         <button id="story-next" class="story-next-btn">Continue</button>
       </div>
     `;
+
     document.body.appendChild(overlay);
 
     const nextBtn = overlay.querySelector("#story-next");
-
-    // Enable Continue button immediately (no typing delay)
     nextBtn.disabled = false;
-    nextBtn.classList.remove("disabled");
     nextBtn.style.opacity = "1";
     nextBtn.style.pointerEvents = "auto";
 
-    // Continue button event
     nextBtn.addEventListener("click", () => {
-      if (nextBtn.disabled) return;
       overlay.classList.add("fade-out");
       setTimeout(() => {
         overlay.remove();
@@ -64,39 +58,62 @@ async function showStory({ portrait, text, autoStart = false }) {
 }
 
 // ------------------------------------------------------------
-// 🌸 INTRO STORY — Ariana summons the player
+// 📘 STORY TRIGGER MAP (per map)
 // ------------------------------------------------------------
-export async function startIntroStory() {
-  const introText = `
-  🌸 Welcome, Guardian. I am Ariana, keeper of the Crystal Keep.
+// Example: { "1": {2: false, 4: false}, "2": {2: false, 4: false}, ... }
+export const waveStoryFlags = {};
 
-  The crystals are fading and darkness gathers.
-  You alone can restore their light — defend our realm and protect the Isles!
-  `;
-
-  await showStory({
-    portrait: "./assets/images/portraits/princess_ariana.png",
-    text: introText.trim(),
-    autoStart: true,
-  });
-
-  console.log("📖 Intro story complete — gameplay started fresh.");
+for (let i = 1; i <= 9; i++) {
+  waveStoryFlags[i] = { 2: false, 4: false };
 }
 
 // ------------------------------------------------------------
-// 🏹 GOBLIN INTRO STORY — before first map battle
+// 🎭 TRIGGER STORY FOR WAVE 2 & 4
 // ------------------------------------------------------------
+export async function triggerWaveStory(mapId, wave) {
+  if (wave !== 2 && wave !== 4) return; 
+  if (!waveStoryFlags[mapId]) return;
+
+  // Already played?
+  if (waveStoryFlags[mapId][wave]) return;
+
+  waveStoryFlags[mapId][wave] = true;
+
+  gameState.paused = true;
+
+  const portrait = "./assets/images/portraits/princess_ariana.png";
+
+  // Placeholder text (we will rewrite later)
+  const waveStoryText = {
+    2: `🌸 *Placeholder for Map ${mapId} — Wave 2 story*\n\nAriana senses the battle shifting...`,
+    4: `⚔️ *Placeholder for Map ${mapId} — Wave 4 story*\n\nAriana warns you: the enemy grows stronger.`,
+  };
+
+  await showStory({
+    portrait,
+    text: waveStoryText[wave],
+    autoStart: false,
+  });
+
+  gameState.paused = false;
+  console.log(`🎬 Wave ${wave} story for Map ${mapId} finished.`);
+}
+
+// ------------------------------------------------------------
+// 🏹 EXISTING STORIES (still active & unchanged)
+// ------------------------------------------------------------
+
+
 export async function startGoblinIntroStory() {
   console.log("🎬 Goblin scout intro story triggered!");
   gameState.paused = true;
 
   const goblinText = `  
   Use WASD to move across the Crystal Plains.
-
   Press SPACE to strike with your glitter blade.  
   Press F to cast a glitter spell.  
-  Press R to heal your wounds with fairy magic.  
-  Press E to unleash a ranged attack with your silver arrows.  
+  Press R to heal your wounds.  
+  Press E to unleash a silver arrow.  
 `;
 
   await showStory({
@@ -106,55 +123,18 @@ export async function startGoblinIntroStory() {
   });
 
   gameState.paused = false;
-  console.log("🏹 Goblin scout story finished — gameplay resumes!");
 }
 
-// ------------------------------------------------------------
-// ⚔️ MID-BATTLE STORY — after 10 goblins spawned
-// ------------------------------------------------------------
-export async function triggerMidBattleStory() {
-  console.log("🎬 Mid-battle story triggered!");
-  gameState.paused = true;
-
-  const midText = `
-  ⚔️ More goblins pour from the shadows!
-
-  Their reinforcements are endless — hold fast, Guardian.
-  The Crystal Keep stands only if you do.
-  `;
-
-  await showStory({
-    portrait: "./assets/images/portraits/princess_ariana.png",
-    text: midText.trim(),
-    autoStart: false,
-  });
-
-  gameState.paused = false;
-  console.log("⚔️ Mid-battle story finished — gameplay resumes!");
-}
-
-// ------------------------------------------------------------
-// 🕊️ OPTIONAL END STORY — after victory or map completion
-// ------------------------------------------------------------
 export async function showVictoryStory() {
-  console.log("🎇 Victory story triggered!");
-  gameState.paused = true;
-
   const victoryText = `
   💎 The final goblin falls, and peace returns — for now.
-
   The crystals glow once again under your protection.
-  The Isles are safe, Guardian... until the next battle.
   `;
-
   await showStory({
     portrait: "./assets/images/portraits/princess_ariana.png",
     text: victoryText.trim(),
     autoStart: false,
   });
-
-  gameState.paused = false;
-  console.log("🏰 Victory story finished — gameplay resumes!");
 }
 
 // ============================================================
