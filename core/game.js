@@ -128,7 +128,7 @@ import {
 // ------------------------------------------------------------
 // ⚙️ GLOBAL STATE IMPORTS
 // ------------------------------------------------------------
-import { gameState } from "../utils/gameState.js";
+import { gameState, unlockMap, saveProfiles} from "../utils/gameState.js";
 import { stopGameplay } from "../main.js";
 import {
   triggerEndOfWave1Story,
@@ -444,9 +444,16 @@ async function updateWaveSystem(delta) {
   // 5️⃣ FINAL WAVE → VICTORY
   // ----------------------------------------------------------
   console.log(`🏆 All waves complete on map ${mapId}. Scheduling victory…`);
-  
 
   victoryPending = true;
+
+  // ⭐ Unlock the next map ⭐
+  const nextMap = mapId + 1;
+  if (nextMap <= 9) {
+    unlockMap(nextMap);
+    saveProfiles();
+    console.log(`🔓 Map ${nextMap} unlocked!`);
+  }
 
   setTimeout(() => {
     stopGameplay("victory");
@@ -871,9 +878,15 @@ window.forceMapVictory = function () {
       gameState.stats.goblinsDefeated = 9999;
     }
 
-    setTimeout(() => {
-      stopGameplay("victory");
-    }, 500);
+  setTimeout(() => {
+    const mapId = gameState.progress.currentMap ?? 1;
+
+    // ⭐ Unlock next map
+    unlockMap(mapId + 1);
+    saveProfiles();   
+
+    stopGameplay("victory");
+  }, VICTORY_DELAY);
 
   } catch (err) {
     console.warn("⚠️ DEV Victory failed:", err);

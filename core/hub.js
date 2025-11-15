@@ -1,14 +1,14 @@
 // ============================================================
-// 🌸 hub.js — Olivia’s World: Crystal Keep (FINAL POLISHED BUILD + Turret Unlocks)
+// 🌸 hub.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Handles all hub buttons, overlays, and transitions
-// ✦ Adds turret unlocks that update dynamically by level
-// ✦ Keeps full currency + profile updates
+// ✦ Handles hub buttons, overlays, currencies, and map loading
+// ✦ Supports map unlocking + replay
+// ✦ Fully compatible with gameState progress system
 // ============================================================
 
 import { showScreen } from "./screens.js";
 import { startGameplay, gameActive, stopGameplay } from "../main.js";
-import { getCurrencies, gameState } from "../utils/gameState.js";
+import { getCurrencies, gameState, saveProfiles } from "../utils/gameState.js";
 import { showOverlay } from "./ui.js";
 import { initChest } from "./chest.js";
 import { showConfirm } from "./alert.js";
@@ -16,17 +16,16 @@ import { updateStatsOverlay } from "./ui.js";
 import { initSettingsMenu } from "./ui.js";
 import { playFairySprinkle } from "./soundtrack.js";
 import { resetCombatState } from "./game.js";
-import { createPlayer } from "./player.js";
 import { fullNewGameReset, startNewGameStory } from "../main.js";
 
-// ------------------------------------------------------------
-// 🌷 INITIALIZATION
-// ------------------------------------------------------------
+// ============================================================
+// 🌷 INIT HUB
+// ============================================================
 export function initHub() {
   const hub = document.getElementById("hub-screen");
   if (!hub) return;
 
-  // 🎯 Buttons
+  // Buttons
   const newStoryBtn = document.getElementById("new-story-btn");
   const loadGameBtn = document.getElementById("load-game-btn");
   const mapsBtn = document.getElementById("maps-btn");
@@ -36,13 +35,14 @@ export function initHub() {
   const settingsBtn = document.getElementById("settings-btn");
   const exitBtn = document.getElementById("exit-hub-btn");
 
+  // Init subsystems
   initChest();
   initSettingsMenu();
   updateHubCurrencies();
   updateHubProfile();
   updateTurretUnlocks();
 
-  // 🩵 Safety check
+  // Safety check
   if (
     !newStoryBtn || !loadGameBtn || !mapsBtn ||
     !turretsBtn || !skinsBtn || !statsBtn ||
@@ -53,160 +53,157 @@ export function initHub() {
   }
 
   // ------------------------------------------------------------
-  // 🎮 HUB ACTIONS
+  // 🏰 NEW STORY — fresh playthrough of Map 1
   // ------------------------------------------------------------
-
-  // 🏰 NEW STORY — full cleanup before story intro
   newStoryBtn.addEventListener("click", () => {
-    console.log("🩷 Prompting story confirmation...");
     playFairySprinkle();
-
     showConfirm(
-      "Are you sure you want to start a new story?",
+      "Start a new story from Map 1?",
       () => {
-        console.log("📖 New Story confirmed — cleaning old session...");
-
-        // 1️⃣ Stop any running gameplay loop
         if (gameActive) stopGameplay("restart");
 
-        // 2️⃣ Remove leftover overlays (defeat/victory)
-        document.querySelectorAll("#end-screen, .end-overlay").forEach(el => el.remove());
+        document.querySelectorAll("#end-screen, .end-overlay")
+          .forEach(el => el.remove());
 
-        // 3️⃣ Reset combat + player state
         fullNewGameReset();
         resetCombatState();
-        startNewGameStory();
+        startNewGameStory(); // calls startGameplay(map 1)
 
-        // 4️⃣ Start fresh story intro
-
-        playFairySprinkle();
-        console.log("✨ New Story sequence started fresh.");
-      },
-      () => console.log("❎ New Story cancelled")
+        console.log("✨ New Story started.");
+      }
     );
   });
 
-  // 💾 LOAD GAME — open save overlay
+  // ------------------------------------------------------------
+  // 💾 LOAD GAME (placeholder for now)
+  // ------------------------------------------------------------
   loadGameBtn.addEventListener("click", () => {
-    console.log("💾 Load Game overlay");
     playFairySprinkle();
     showOverlay("overlay-load");
   });
 
-  // 🗺️ MAPS — open map selection overlay
+  // ------------------------------------------------------------
+  // 🗺️ MAP SELECT — Allows replay of completed maps
+  // ------------------------------------------------------------
   mapsBtn.addEventListener("click", () => {
-    console.log("🗺️ Maps overlay");
     playFairySprinkle();
+    console.log("🗺️ Opening map selection overlay...");
+
+    import("./maps.js").then(mod => {
+      mod.initMapSelect?.();   // refresh lock/unlock + click events
+    });
+
     showOverlay("overlay-maps");
   });
 
-  // 🏹 TURRETS — open turret selection overlay
+  // ------------------------------------------------------------
+  // 🏹 TURRETS
+  // ------------------------------------------------------------
   turretsBtn.addEventListener("click", () => {
-    console.log("🏹 Turrets overlay");
     playFairySprinkle();
     updateTurretUnlocks();
     showOverlay("overlay-turrets");
   });
 
-  // 🎨 SKINS — open skin selector
+  // ------------------------------------------------------------
+  // 🎨 SKINS
+  // ------------------------------------------------------------
   skinsBtn.addEventListener("click", () => {
-    console.log("🎨 Skins overlay");
     playFairySprinkle();
     showOverlay("overlay-skins");
   });
 
-  // 📜 STATS — open stats overlay
+  // ------------------------------------------------------------
+  // 📜 STATS
+  // ------------------------------------------------------------
   statsBtn.addEventListener("click", () => {
-    console.log("📜 Stats overlay");
     playFairySprinkle();
     updateStatsOverlay();
     showOverlay("overlay-stats");
   });
 
-  // ⚙️ SETTINGS — open settings overlay
+  // ------------------------------------------------------------
+  // ⚙️ SETTINGS
+  // ------------------------------------------------------------
   settingsBtn.addEventListener("click", () => {
     playFairySprinkle();
-    console.log("⚙️ Settings overlay");
     showOverlay("overlay-settings");
   });
 
-  // 🚪 EXIT — confirmation before leaving the hub
+  // ------------------------------------------------------------
+  // 🚪 EXIT HUB → back to profile screen
+  // ------------------------------------------------------------
   exitBtn.addEventListener("click", () => {
-    console.log("🩷 Prompting exit confirmation...");
     playFairySprinkle();
-
     showConfirm(
-      "Are you sure you want to exit to the profile screen?",
-      () => {
-        console.log("🚪 Exit confirmed — returning to profile...");
-        fadeOut(hub, () => {
-          showScreen("profile-screen");
-        });
-      },
-      () => console.log("❎ Exit cancelled")
+      "Return to the Profile Select?",
+      () => fadeOut(hub, () => showScreen("profile-screen"))
     );
   });
 
   console.log("🏰 Hub ready — all buttons linked");
 }
 
-// ------------------------------------------------------------
-// 🌈 FADE HELPERS
-// ------------------------------------------------------------
-function fadeOut(element, callback) {
-  element.style.transition = "opacity 0.8s ease";
-  element.style.opacity = 0;
-  setTimeout(() => {
-    element.style.display = "none";
-    if (callback) callback();
-  }, 800);
-}
-
-// ------------------------------------------------------------
-// 💰 CURRENCY UPDATE
-// ------------------------------------------------------------
+// ============================================================
+// 💰 UPDATE HUB CURRENCIES
+// ============================================================
 export function updateHubCurrencies() {
   const { gold, diamonds } = getCurrencies();
   const goldEl = document.getElementById("hub-gold");
   const diamondEl = document.getElementById("hub-diamonds");
+
   if (goldEl) goldEl.textContent = `Gold: ${gold}`;
   if (diamondEl) diamondEl.textContent = `Diamonds: ${diamonds}`;
 }
 
-// ------------------------------------------------------------
-// 👑 PROFILE UPDATE
-// ------------------------------------------------------------
+// ============================================================
+// 👑 UPDATE PROFILE DISPLAY
+// ============================================================
 export function updateHubProfile() {
+  if (!gameState.player) return;
   const nameEl = document.getElementById("hub-profile-name");
   const levelEl = document.getElementById("hub-profile-level");
-  if (!gameState.player) return;
 
   const displayName = gameState.player.name
     ? `Princess ${gameState.player.name}`
-    : "Princess (Unknown)";
+    : "Princess";
+
   nameEl.textContent = displayName;
   levelEl.textContent = `Level ${gameState.player.level || 1}`;
 }
 
-// ------------------------------------------------------------
-// 🏹 UPDATE TURRET UNLOCKS BASED ON PLAYER LEVEL
-// ------------------------------------------------------------
+// ============================================================
+// 🏹 UPDATE TURRET UNLOCKS
+// ============================================================
 function updateTurretUnlocks() {
-  const playerLevel = gameState.player?.level ?? 1;
+  const level = gameState.player?.level ?? 1;
   document.querySelectorAll(".turret-card").forEach(card => {
     const unlockLevel = parseInt(card.dataset.unlock);
     const info = card.querySelector(".unlock-info");
 
-    if (playerLevel >= unlockLevel) {
+    if (level >= unlockLevel) {
       card.style.opacity = "1";
       card.style.filter = "none";
-      if (info) info.textContent = `🔓 Unlocked at Level ${unlockLevel}`;
+      if (info) info.textContent = `🔓 Unlocked`;
     } else {
-      card.style.opacity = "0.6";
+      card.style.opacity = "0.5";
       card.style.filter = "grayscale(0.5)";
       if (info) info.textContent = `🔒 Unlocks at Level ${unlockLevel}`;
     }
   });
+}
+
+// ============================================================
+// 🌈 FADE OUT (Used when exiting hub)
+// ============================================================
+function fadeOut(element, callback) {
+  if (!element) return;
+  element.style.transition = "opacity 0.6s ease";
+  element.style.opacity = 0;
+  setTimeout(() => {
+    element.style.display = "none";
+    if (callback) callback();
+  }, 600);
 }
 
 // ============================================================
