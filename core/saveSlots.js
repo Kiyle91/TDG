@@ -58,9 +58,9 @@ export function renderSlots(container, allowSave = true) {
       });
 
       titleEl.textContent =
-        `${summary.profileName} — Map ${summary.map}, ` +
-        `Wave ${summary.wave}, Lv ${summary.level} ` +
-        `(${summary.gold}💰 / ${summary.diamonds}💎) — ${timeStr}`;
+        `Map ${summary.map}  ,` +
+        `  Wave ${summary.wave}  ,  Lv ${summary.level}  ,` +
+        `  ${timeStr} `;
     }
 
     // --------------------------------------------------------
