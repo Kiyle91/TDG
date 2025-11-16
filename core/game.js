@@ -137,6 +137,8 @@ import {
 
 import { resetGoblinDrops } from "./goblinDrop.js";
 
+import { updateBraveryBar } from "./ui.js";
+
 
 export const waveConfigs = {
   // ============================================================
@@ -800,6 +802,16 @@ export function resetCombatState() {
     p.dead = false;
     p.facing = "right";
   }
+
+
+  if (gameState.bravery) {
+    gameState.bravery.current = 0;
+    gameState.bravery.charged = false;
+    gameState.bravery.draining = false;
+  }
+  updateBraveryBar?.();
+
+
 
   // Clear runtime entities
   if (window.__enemies) window.__enemies.length = 0;
