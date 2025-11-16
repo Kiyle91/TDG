@@ -155,6 +155,16 @@ function handleNavAction(action) {
 
     default:
       console.warn("Unknown navbar action:", action);
+
+    // --------------------------------------------------------
+    // 🎮 CONTROLS (in-game controls / keybinds screen)
+    // --------------------------------------------------------
+    case "controls":
+      playFairySprinkle();
+      import("./ui.js").then(mod => {
+        mod.showOverlay?.("overlay-controls");
+      });
+      break;
   }
 }
 
