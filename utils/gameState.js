@@ -4,8 +4,8 @@
 // ✦ One stable source of truth for ALL runtime & profile data
 // ✦ Fully fixed persistence system (no more resets / wipes)
 // ✦ Safe loading of legacy profiles + auto-migration
-// ✦ Correct handling of mapsUnlocked, currencies, XP, player data
-// ✦ 100% Compatible with chest.js, hub.js, maps.js, map loader
+// ✦ Correct handling of mapsUnlocked, XP, currencies, skins
+// ✦ ⭐ Bravery bar included & fully persistent
 // ============================================================
 
 import { createPlayer } from "../core/player.js";
@@ -21,10 +21,10 @@ export const gameState = {
   // All saved profiles
   profiles: [],
 
-  // Core progress (synced into profile.progress)
+  // Core progress
   progress: {
     mapsUnlocked: [true, false, false, false, false, false, false, false, false],
-    currentMap: 1,        // Default to map 1, never null
+    currentMap: 1,
     storyCompleted: false,
   },
 
@@ -40,6 +40,13 @@ export const gameState = {
     sfx: true,
     visualEffects: true,
   },
+
+  // ⭐ BRAVERY SYSTEM
+  bravery: {
+    current: 0,
+    max: 100,
+    charged: false,
+  },
 };
 
 // ============================================================
@@ -48,24 +55,29 @@ export const gameState = {
 export function setProfile(profile) {
   gameState.profile = profile;
 
-  // 1️⃣ Migrate missing structures safely
+  // Migrate any missing structures
   migrateProfile(profile);
 
-  // 2️⃣ Sync gameState.progress FROM profile
+  // Sync progress
   gameState.progress = { ...profile.progress };
 
-  // 3️⃣ Restore player object OR create a new one
+  // Restore player OR create new
   gameState.player = profile.player || createPlayer();
-
-  // Ensure player has a name injected from the profile
   gameState.player.name = profile.name;
 
-  // Ensure currencies always exist
+  // Ensure currencies exist
   if (!profile.currencies) {
     profile.currencies = { gold: 0, diamonds: 0 };
   }
 
-  saveProfiles(); // commit safety sync
+  // ⭐ Restore bravery (persistent)
+  gameState.bravery = profile.bravery || {
+    current: 0,
+    max: 100,
+    charged: false,
+  };
+
+  saveProfiles();
 }
 
 // ============================================================
@@ -73,12 +85,12 @@ export function setProfile(profile) {
 // ============================================================
 function migrateProfile(profile) {
 
-  // Fix missing currencies
+  // currencies
   if (!profile.currencies) {
     profile.currencies = { gold: 0, diamonds: 0 };
   }
 
-  // Fix missing progress
+  // progress
   if (!profile.progress) {
     profile.progress = {
       mapsUnlocked: [...gameState.progress.mapsUnlocked],
@@ -87,24 +99,30 @@ function migrateProfile(profile) {
     };
   }
 
-  // Fix mapsUnlocked if the older version used numbers
+  // fix mapsUnlocked
   if (!Array.isArray(profile.progress.mapsUnlocked)) {
     profile.progress.mapsUnlocked = [true, false, false, false, false, false, false, false, false];
   }
 
-  // Fix length mismatch
   if (profile.progress.mapsUnlocked.length !== 9) {
     profile.progress.mapsUnlocked = [true, false, false, false, false, false, false, false, false];
   }
 
-  // Ensure at least map 1 is unlocked
   if (!profile.progress.mapsUnlocked[0]) {
     profile.progress.mapsUnlocked[0] = true;
   }
 
-  // Fix broken currentMap values
   if (!profile.progress.currentMap || profile.progress.currentMap < 1 || profile.progress.currentMap > 9) {
     profile.progress.currentMap = 1;
+  }
+
+  // ⭐ Bravery migration
+  if (!profile.bravery) {
+    profile.bravery = {
+      current: 0,
+      max: 100,
+      charged: false,
+    };
   }
 }
 
@@ -131,13 +149,23 @@ export function addProfile(name) {
     created: Date.now(),
 
     player: createPlayer(),
+
     progress: {
       mapsUnlocked: [true, false, false, false, false, false, false, false, false],
       currentMap: 1,
       storyCompleted: false,
     },
+
     resources: { xp: 0 },
+
     currencies: { gold: 0, diamonds: 0 },
+
+    // ⭐ Start with empty bravery
+    bravery: {
+      current: 0,
+      max: 100,
+      charged: false,
+    },
   };
 
   gameState.profiles.push(newProfile);
@@ -151,9 +179,13 @@ export function addProfile(name) {
 export function saveProfiles() {
   try {
     if (gameState.profile) {
-      // Sync runtime progress back to profile
+
+      // Sync runtime progress
       gameState.profile.progress = { ...gameState.progress };
       gameState.profile.player = { ...gameState.player };
+
+      // ⭐ Sync bravery
+      gameState.profile.bravery = { ...gameState.bravery };
     }
 
     localStorage.setItem("td_profiles", JSON.stringify(gameState.profiles));
@@ -171,7 +203,7 @@ export function loadProfiles() {
     if (data) {
       gameState.profiles = JSON.parse(data);
 
-      // Auto-fix legacy profiles
+      // migrate legacy profiles
       gameState.profiles.forEach(p => migrateProfile(p));
     }
   } catch (err) {
@@ -200,7 +232,7 @@ export function setCurrentMap(id) {
 }
 
 // ============================================================
-// 💰 RESOURCE / CURRENCY CONTROL
+// 💰 CURRENCY CONTROL
 // ============================================================
 export function addXP(amount) {
   gameState.resources.xp += amount;
@@ -208,14 +240,12 @@ export function addXP(amount) {
 
 export function addGold(amount) {
   if (!gameState.profile) return;
-
   gameState.profile.currencies.gold += amount;
   saveProfiles();
 }
 
 export function spendGold(amount) {
   if (!gameState.profile) return false;
-
   const c = gameState.profile.currencies;
   if (c.gold >= amount) {
     c.gold -= amount;
@@ -227,14 +257,12 @@ export function spendGold(amount) {
 
 export function addDiamonds(amount) {
   if (!gameState.profile) return;
-
   gameState.profile.currencies.diamonds += amount;
   saveProfiles();
 }
 
 export function spendDiamonds(amount) {
   if (!gameState.profile) return false;
-
   const c = gameState.profile.currencies;
   if (c.diamonds >= amount) {
     c.diamonds -= amount;

@@ -29,7 +29,7 @@ import { getWorg } from "./worg.js";
 import { getElites, damageElite } from "./elite.js";
 import { getMapPixelSize } from "./map.js";
 import { SKINS } from "./skins.js";
-
+import { activateBravery } from "./ui.js";
 
 
 // Tower hotkeys
@@ -196,9 +196,14 @@ function ensurePlayerRuntime() {
 
 
 // ------------------------------------------------------------
-// Input
 function onKeyDown(e) {
   keys.add(e.code);
+
+  // ⭐ Bravery activation
+  if (e.code === "KeyQ") {
+    activateBravery();
+  }
+
   if (!isAttacking && attackCooldown <= 0) {
     switch (e.code) {
       case "Space": performMeleeAttack(); break;
@@ -207,9 +212,15 @@ function onKeyDown(e) {
     }
   }
 }
-function onKeyUp(e)   { keys.delete(e.code); }
+
+function onKeyUp(e) {
+  keys.delete(e.code);
+}
+
 function onMouseDown(e) {
-  if (!isAttacking && attackCooldown <= 0) performRangedAttack(e);
+  if (!isAttacking && attackCooldown <= 0) {
+    performRangedAttack(e);
+  }
 }
 
 // ------------------------------------------------------------

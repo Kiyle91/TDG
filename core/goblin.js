@@ -25,6 +25,7 @@ import {
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
 import { trySpawnGoblinDrop } from "./goblinDrop.js";
+import { addBravery } from "./ui.js";
 
 let enemies = [];
 let ctx = null;
@@ -496,6 +497,7 @@ export function damageEnemy(enemy, amount) {
     incrementGoblinDefeated();
     awardXP(10);
     addGold(7);
+    addBravery (50);
     updateHUD();
     trySpawnGoblinDrop(enemy.x, enemy.y);
   }
