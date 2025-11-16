@@ -345,69 +345,64 @@ export function updatePlayerStatsOverlay() {
 }
 
 // ============================================================
-// 💖 BRAVERY SYSTEM (Guaranteed Working Version)
+// 💖 BRAVERY BAR SYSTEM — FINAL FIXED VERSION
 // ============================================================
 
 export function updateBraveryBar() {
-  const bar  = document.getElementById("bravery-bar");
+  const bar = document.getElementById("bravery-bar");
   const fill = document.getElementById("bravery-fill");
   const prompt = document.getElementById("bravery-prompt");
 
-  if (!bar || !fill) return;
+  if (!bar || !fill || !prompt) return;
 
   const b = gameState.bravery;
   const pct = Math.max(0, Math.min(1, b.current / b.max));
 
+  // Update fill height
   fill.style.height = `${pct * 100}%`;
 
-  // ➤ If charged: flashing always ON until player presses Q
+  // RESET VISUALS
+  fill.classList.remove("full");
+
   if (b.charged) {
+    // KEEP flash animation active
     fill.classList.add("full");
-    bar.classList.add("full-frame");
-    if (prompt) prompt.style.display = "block";
-  } 
-  else {
-    fill.classList.remove("full");
-    bar.classList.remove("full-frame");
-    if (prompt) prompt.style.display = "none";
+
+    // ALWAYS show Q prompt when charged
+    prompt.style.display = "block";
+  } else {
+    prompt.style.display = "none";
   }
 }
 
 export function addBravery(amount) {
   const b = gameState.bravery;
-  if (b.charged) return;   // Already full
+
+  if (b.charged) return;
 
   b.current = Math.min(b.max, b.current + amount);
 
-  // If bar just reached full:
   if (b.current >= b.max) {
     b.current = b.max;
-    b.charged = true;
+    b.charged = true;          // <<< the important fix!
   }
 
   updateBraveryBar();
-  saveProfiles();
 }
 
 export function activateBravery() {
   const b = gameState.bravery;
   if (!b.charged) return;
 
-  // Reset state
-  b.charged = false;
   b.current = 0;
+  b.charged = false;
 
-  // Force UI reset immediately
   updateBraveryBar();
-
   triggerBraveryPower();
-  saveProfiles();
 }
 
 export function triggerBraveryPower() {
   console.log("🔥 Bravery Power ACTIVATED!");
-
-  braveryFlashScreen();
 
   const p = gameState.player;
   if (!p) return;
@@ -423,30 +418,32 @@ export function triggerBraveryPower() {
   p.defense *= 1.4;
   p.invincible = true;
 
+  braveryFlashEffect();
+
   setTimeout(() => {
     p.speed = original.speed;
     p.attack = original.attack;
     p.defense = original.defense;
     p.invincible = false;
+    console.log("✨ Bravery Power faded.");
   }, 8000);
 }
 
-// Full-screen pink flash
-function braveryFlashScreen() {
+function braveryFlashEffect() {
   const fx = document.createElement("div");
-  fx.style.position = "fixed";
-  fx.style.inset = "0";
-  fx.style.background = "rgba(255,150,255,0.4)";
-  fx.style.zIndex = "999999";
-  fx.style.pointerEvents = "none";
+  Object.assign(fx.style, {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(255, 140, 255, 0.35)",
+    pointerEvents: "none",
+    zIndex: "9999999",
+    opacity: "0"
+  });
+
   document.body.appendChild(fx);
 
   fx.animate(
-    [
-      { opacity: 0 },
-      { opacity: 1 },
-      { opacity: 0 }
-    ],
-    { duration: 700, easing: "ease" }
+    [{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }],
+    { duration: 600, easing: "ease-out" }
   ).finished.then(() => fx.remove());
 }
