@@ -21,7 +21,8 @@ import { resumeGame } from "./ui.js";
 import { showScreen } from "./screens.js";
 
 import { gameState } from "../utils/gameState.js";
-
+import { saveProfiles } from "../utils/gameState.js";
+import { ensureSkin } from "./skins.js";
 // ------------------------------------------------------------
 // 🧱 RENDER SLOTS
 // ------------------------------------------------------------
@@ -123,6 +124,9 @@ export function renderSlots(container, allowSave = true) {
 
           // 5️⃣ Apply snapshot (player, towers, enemies, etc)
           applySnapshot(snap);
+
+          ensureSkin(gameState.player);     // guarantee unlocked array
+          saveProfiles();     
 
           // 6️⃣ Resume gameplay loop
           resumeGame();

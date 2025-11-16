@@ -111,38 +111,51 @@ export function applySnapshot(snapshot) {
   if (!snapshot) return;
   console.log("♻️ applySnapshot", snapshot);
 
-  // 1) Progress / player / currencies
+  // ⭐ 1) Preserve profile-wide cosmetic data BEFORE applying snapshot
+  const currentSkin = gameState.player?.skin || "glitter";
+  const currentUnlocked = gameState.player?.unlockedSkins || ["glitter"];
+
+  // ⭐ Apply progress from snapshot
   if (snapshot.progress) {
     gameState.progress = safeClone(snapshot.progress);
   }
 
+  // ⭐ Apply gameplay player data (BUT DO NOT TOUCH SKINS)
   if (snapshot.player) {
-    gameState.player = safeClone(snapshot.player);
+    const restored = safeClone(snapshot.player);
+
+    // Remove any skin data contained in the snapshot
+    delete restored.skin;
+    delete restored.unlockedSkins;
+
+    gameState.player = restored;
   }
 
+  // ⭐ Restore cosmetic data (PROFILE-WIDE)
+  gameState.player.skin = currentSkin;
+  gameState.player.unlockedSkins = currentUnlocked;
 
-
-  // Wave counters (high-level only; internal timers stay as-is)
+  // ⭐ HUD info
   if (snapshot.meta) {
     gameState.wave = snapshot.meta.wave ?? gameState.wave;
     gameState.totalWaves = snapshot.meta.totalWaves ?? gameState.totalWaves;
   }
 
-  // 2) Towers
+  // ⭐ Restore towers
   const towersArr = getTowers();
   towersArr.length = 0;
   if (Array.isArray(snapshot.towers)) {
     snapshot.towers.forEach(t => towersArr.push(safeClone(t)));
   }
 
-  // 3) Goblins
+  // ⭐ Restore goblins
   const gobArr = getEnemies();
   gobArr.length = 0;
   if (Array.isArray(snapshot.goblins)) {
     snapshot.goblins.forEach(g => gobArr.push(safeClone(g)));
   }
 
-  // 4) Worgs
+  // ⭐ Restore worgs
   const worgArr = getWorg();
   if (Array.isArray(worgArr)) {
     worgArr.length = 0;
@@ -151,23 +164,24 @@ export function applySnapshot(snapshot) {
     }
   }
 
-  // 5) Elites
+  // ⭐ Restore elites
   clearElites();
   const eliteArr = getElites();
   if (Array.isArray(snapshot.elites)) {
     snapshot.elites.forEach(e => eliteArr.push(safeClone(e)));
   }
 
-  // 6) Ogres
+  // ⭐ Restore ogres
   clearOgres();
   const ogreArr = getOgres();
   if (Array.isArray(snapshot.ogres)) {
     snapshot.ogres.forEach(o => ogreArr.push(safeClone(o)));
   }
 
-  // 7) Refresh HUD so numbers match immediately
+  // ⭐ Refresh HUD immediately
   updateHUD();
 }
+
 
 // ------------------------------------------------------------
 // 🧊 PUBLIC SLOT API
