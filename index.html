@@ -175,11 +175,13 @@
 
       <!-- 🌈 HUB OVERLAYS -->
 
-      <!-- Load overlay -->
       <div id="overlay-load" class="overlay hidden">
         <div class="overlay-box">
-          <h3>Load Game</h3>
-          <p>Saved games will appear here soon.</p>
+          <h3>Save / Load Game</h3>
+
+          <!-- Slot container -->
+          <div id="save-slots-container"></div>
+
           <button class="overlay-close">Close</button>
         </div>
       </div>
@@ -582,6 +584,23 @@
       <button class="overlay-close">OK</button>
     </div>
   </div>
+
+  
+  <!-- ============================================================
+       💾 IN-GAME SAVE / LOAD OVERLAY (FINAL FIXED)
+  ============================================================= -->
+  <div id="overlay-save-game" class="overlay hidden">
+    <div class="overlay-box save-container">
+      <h3 class="save-title">💾 Save / Load Game</h3>
+
+      <!-- Save slot list -->
+      <div id="save-slots-ingame"></div>
+
+      <!-- Close button -->
+      <button class="overlay-close">OK</button>
+    </div>
+  </div>
+
 
   <!-- ============================================================
       🎮 CONTROLS OVERLAY — Crystal Glass Edition

@@ -17,6 +17,8 @@ import { initSettingsMenu } from "./ui.js";
 import { playFairySprinkle } from "./soundtrack.js";
 import { resetCombatState } from "./game.js";
 import { fullNewGameReset, startNewGameStory } from "../main.js";
+import { renderSlots } from "./saveSlots.js";
+
 
 // ============================================================
 // 🌷 INIT HUB
@@ -77,8 +79,13 @@ export function initHub() {
   // ------------------------------------------------------------
   // 💾 LOAD GAME (placeholder for now)
   // ------------------------------------------------------------
+
   loadGameBtn.addEventListener("click", () => {
     playFairySprinkle();
+
+    const container = document.getElementById("save-slots-container");
+    renderSlots(container, false);   // Hub = NO save button
+
     showOverlay("overlay-load");
   });
 

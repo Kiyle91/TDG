@@ -10,6 +10,7 @@
 import { playFairySprinkle } from "./soundtrack.js";
 import { stopGameplay, resetGameplay } from "../main.js";
 import { pauseGame, resumeGame } from "./ui.js";
+import { renderSlots } from "./saveSlots.js";
 
 // ------------------------------------------------------------
 // 🌸 INIT NAVBAR
@@ -118,16 +119,14 @@ function handleNavAction(action) {
     // 💾 SAVE / LOAD
     // --------------------------------------------------------
     case "save":
-      alert("💾 Save/Load system coming soon!");
-      break;
-
-    // 🎮 CONTROLS
-    case "controls":
       playFairySprinkle();
-      console.log("🎮 Opening controls overlay...");
-      import("./ui.js").then((mod) =>
-        mod.showOverlay?.("overlay-game-controls")
-      );
+
+      const container = document.getElementById("save-slots-ingame");
+      import("./saveSlots.js").then(mod => {
+        mod.renderSlots(container, true); // allowSave = true
+      });
+
+      import("./ui.js").then(mod => mod.showOverlay?.("overlay-save-game"));
       break;
 
     // --------------------------------------------------------
