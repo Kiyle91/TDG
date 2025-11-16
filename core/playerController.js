@@ -28,6 +28,10 @@ import { getOgres, damageOgre, OGRE_HIT_RADIUS } from "./ogre.js";
 import { getWorg } from "./worg.js";
 import { getElites, damageElite } from "./elite.js";
 import { getMapPixelSize } from "./map.js";
+import { SKINS } from "./skins.js";
+
+
+
 // Tower hotkeys
 window.addEventListener("keydown", (e) => {
   if (e.code.startsWith("Digit")) handleTowerKey(e.code);
@@ -93,45 +97,54 @@ function loadSprite(src) {
 }
 
 async function loadPlayerSprites() {
-  // 🩷 IDLE + WALK
-  sprites.idle = await loadSprite("./assets/images/sprites/glitter/glitter_idle.png");
+  const skinKey = gameState.player?.skin || "glitter";
+  const folder = SKINS[skinKey].folder;
+  const base = `./assets/images/sprites/${folder}/${folder}`;
 
-  sprites.walk.up[0] = await loadSprite("./assets/images/sprites/glitter/glitter_W1.png");
-  sprites.walk.up[1] = await loadSprite("./assets/images/sprites/glitter/glitter_W2.png");
-  sprites.walk.left[0] = await loadSprite("./assets/images/sprites/glitter/glitter_A1.png");
-  sprites.walk.left[1] = await loadSprite("./assets/images/sprites/glitter/glitter_A2.png");
-  sprites.walk.down[0] = await loadSprite("./assets/images/sprites/glitter/glitter_S1.png");
-  sprites.walk.down[1] = await loadSprite("./assets/images/sprites/glitter/glitter_S2.png");
-  sprites.walk.right[0] = await loadSprite("./assets/images/sprites/glitter/glitter_D1.png");
-  sprites.walk.right[1] = await loadSprite("./assets/images/sprites/glitter/glitter_D2.png");
+  function L(path) {
+    return loadSprite(path);
+  }
 
-  // 🗡️ MELEE (2-frame sequence)
-  sprites.attack.left[0]  = await loadSprite("./assets/images/sprites/glitter/glitter_attack_left.png");
-  sprites.attack.left[1]  = await loadSprite("./assets/images/sprites/glitter/glitter_melee_left.png");
-  sprites.attack.right[0] = await loadSprite("./assets/images/sprites/glitter/glitter_attack_right.png");
-  sprites.attack.right[1] = await loadSprite("./assets/images/sprites/glitter/glitter_melee_right.png");
+  // Idle + Walk
+  sprites.idle = await L(`${base}_idle.png`);
 
-  // 🏹 RANGED (2-frame sequence)
-  sprites.shoot.left[0]   = await loadSprite("./assets/images/sprites/glitter/glitter_raise_left.png");
-  sprites.shoot.left[1]   = await loadSprite("./assets/images/sprites/glitter/glitter_shoot_left.png");
-  sprites.shoot.right[0]  = await loadSprite("./assets/images/sprites/glitter/glitter_raise_right.png");
-  sprites.shoot.right[1]  = await loadSprite("./assets/images/sprites/glitter/glitter_shoot_right.png");
-  sprites.shoot.lowerLeft  = await loadSprite("./assets/images/sprites/glitter/glitter_lower_left.png");
-  sprites.shoot.lowerRight = await loadSprite("./assets/images/sprites/glitter/glitter_lower_right.png");
+  sprites.walk.up[0] = await L(`${base}_W1.png`);
+  sprites.walk.up[1] = await L(`${base}_W2.png`);
+  sprites.walk.left[0] = await L(`${base}_A1.png`);
+  sprites.walk.left[1] = await L(`${base}_A2.png`);
+  sprites.walk.down[0] = await L(`${base}_S1.png`);
+  sprites.walk.down[1] = await L(`${base}_S2.png`);
+  sprites.walk.right[0] = await L(`${base}_D1.png`);
+  sprites.walk.right[1] = await L(`${base}_D2.png`);
 
-  // 🔮 SPELL (2-frame sequence)
+  // Attack
+  sprites.attack.left[0]  = await L(`${base}_attack_left.png`);
+  sprites.attack.left[1]  = await L(`${base}_melee_left.png`);
+  sprites.attack.right[0] = await L(`${base}_attack_right.png`);
+  sprites.attack.right[1] = await L(`${base}_melee_right.png`);
+
+  // Shooting
+  sprites.shoot.left[0]   = await L(`${base}_raise_left.png`);
+  sprites.shoot.left[1]   = await L(`${base}_shoot_left.png`);
+  sprites.shoot.right[0]  = await L(`${base}_raise_right.png`);
+  sprites.shoot.right[1]  = await L(`${base}_shoot_right.png`);
+  sprites.shoot.lowerLeft  = await L(`${base}_lower_left.png`);
+  sprites.shoot.lowerRight = await L(`${base}_lower_right.png`);
+
+  // Spell
   sprites.spell = {};
-  sprites.spell.charge  = await loadSprite("./assets/images/sprites/glitter/glitter_spell_charge.png");
-  sprites.spell.explode = await loadSprite("./assets/images/sprites/glitter/glitter_spell_explode.png");
+  sprites.spell.charge  = await L(`${base}_spell_charge.png`);
+  sprites.spell.explode = await L(`${base}_spell_explode.png`);
 
-  // 💖 HEAL (single-frame kneeling prayer)
-  sprites.heal = await loadSprite("./assets/images/sprites/glitter/glitter_heal_kneel.png");
+  // Heal
+  sprites.heal = await L(`${base}_heal_kneel.png`);
 
-  // 💀 DEATH (single slain frame)
-  sprites.dead = await loadSprite("./assets/images/sprites/glitter/glitter_slain.png");
+  // Dead
+  sprites.dead = await L(`${base}_slain.png`);
 
-  console.log("🦄 Glitter sprites + combat frames loaded (file-verified).");
+  console.log(`🦄 Loaded sprites for ${skinKey}`);
 }
+
 
 // ------------------------------------------------------------
 function ensurePlayerRuntime() {

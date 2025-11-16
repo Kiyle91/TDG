@@ -334,73 +334,52 @@
         </div>
       </div>
 
-      <!-- Skins overlay -->
-      <div id="overlay-skins" class="overlay hidden">
-        <div class="overlay-box skins-container">
-          <h3 class="skins-title">Character Skins</h3>
-
-          <div class="skins-grid">
-            <div class="skin-card unlocked" data-skin="1">
-              <img
-                src="./assets/images/portraits/princess_ariana.png"
-                alt="Princess Ariana"
-                class="skin-image"
-              />
-              <div class="skin-info">
-                <h4>Princess Ariana</h4>
-                <p>The noble guardian of the Crystal Keep.</p>
-              </div>
-            </div>
-
-            <div class="skin-card locked" data-skin="2">
-              <div class="skin-placeholder">🔒</div>
-              <div class="skin-info">
-                <h4>Celestial Sage</h4>
-                <p>Unlock at Level 10.</p>
-              </div>
-            </div>
-
-            <div class="skin-card locked" data-skin="3">
-              <div class="skin-placeholder">🔒</div>
-              <div class="skin-info">
-                <h4>Shadow Guardian</h4>
-                <p>Unlock at Level 20.</p>
-              </div>
-            </div>
-          </div>
-
-          <button class="overlay-close">Close</button>
-        </div>
-      </div>
-
       <!-- Stats overlay (Hub) -->
-      <div id="overlay-stats" class="overlay hidden">
-        <div class="overlay-box stats-container">
-          <h3 id="stats-title" class="stats-title">Princess Olivia</h3>
+      <!-- ========================================================= -->
+      <!-- 🌈 SKINS OVERLAY (FULL-SCREEN OPTION A)                   -->
+      <!-- ========================================================= -->
+      <div id="overlay-skins" class="overlay hidden">
+          <div class="skins-panel">
+              <h2 class="skins-title">Choose Your Guardian</h2>
 
-          <div class="stats-content">
-            <div class="stats-portrait">
-              <img
-                src="./assets/images/portraits/portrait_glitter.png"
-                alt="Glitter Guardian"
-              />
-            </div>
+              <div class="skins-grid">
 
-            <div class="stats-table">
-              <div class="stat-row"><span class="stat-label">Level:</span><span id="stat-level">1</span></div>
-              <div class="stat-row"><span class="stat-label">XP:</span><span id="stat-xp">0 / 100</span></div>
-              <div class="stat-row"><span class="stat-label">HP:</span><span id="stat-hp">100 / 100</span></div>
-              <div class="stat-row"><span class="stat-label">Mana:</span><span id="stat-mana">50 / 50</span></div>
-              <div class="stat-row"><span class="stat-label">Spell Power:</span><span id="stat-spellPower">10</span></div>
-              <div class="stat-row"><span class="stat-label">Ranged Attack:</span><span id="stat-ranged">10</span></div>
-              <div class="stat-row"><span class="stat-label">Attack:</span><span id="stat-attack">15</span></div>
-              <div class="stat-row"><span class="stat-label">Defense:</span><span id="stat-defense">5</span></div>
-              <div class="stat-row"><span class="stat-label">Crit Chance:</span><span id="stat-crit">10%</span></div>
-            </div>
+                  <!-- Glitter Guardian -->
+                  <div class="skin-card" data-skin="glitter">
+                      <img class="skin-portrait" src="./assets/images/portraits/portrait_glitter.png">
+                      <h3>Glitter Guardian</h3>
+                      <p class="skin-desc">Bright, brave, and free to all players.</p>
+                      <button class="skin-btn" data-action="equip">Equipped</button>
+                  </div>
+
+                  <!-- Moonflower Druid -->
+                  <div class="skin-card" data-skin="moon">
+                      <img class="skin-portrait" src="./assets/images/portraits/portrait_moonflower.png">
+                      <h3>Moonflower Druid</h3>
+                      <p class="skin-desc">Nature’s calmest spirit.</p>
+                      <button class="skin-btn" data-action="unlock">Unlock 2000 💎</button>
+                  </div>
+
+                  <!-- Star Sage -->
+                  <div class="skin-card" data-skin="star">
+                      <img class="skin-portrait" src="./assets/images/portraits/portrait_star_sage.png">
+                      <h3>Star Sage</h3>
+                      <p class="skin-desc">Keeper of celestial fire.</p>
+                      <button class="skin-btn" data-action="unlock">Unlock 2000 💎</button>
+                  </div>
+
+                  <!-- Silver Arrow -->
+                  <div class="skin-card" data-skin="silver">
+                      <img class="skin-portrait" src="./assets/images/portraits/portrait_silver_arrow.png">
+                      <h3>Silver Arrow</h3>
+                      <p class="skin-desc">Swiftest ranger of the Isles.</p>
+                      <button class="skin-btn" data-action="unlock">Unlock 2000 💎</button>
+                  </div>
+
+              </div>
+
+              <button id="skins-close" class="close-overlay-btn">Close</button>
           </div>
-
-          <button class="overlay-close">Close</button>
-        </div>
       </div>
 
       <!-- Settings overlay (Hub) -->

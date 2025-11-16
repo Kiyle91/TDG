@@ -1377,3 +1377,90 @@
 #overlay-save-game .overlay-close:hover {
   transform: scale(1.05);
 }
+
+/* =========================================================
+   🌈 Skins Overlay — Full Screen Panel
+   ========================================================= */
+#skins-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(12px);
+    z-index: 9999;
+}
+
+#skins-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.skins-panel {
+    width: 75%;
+    max-width: 1300px;
+    padding: 40px;
+    background: linear-gradient(135deg, #ffe6f9, #d7c6ff, #c6e8ff);
+    border-radius: 26px;
+    box-shadow: 0 0 40px rgba(255,255,255,0.4);
+    animation: panelGlow 10s ease infinite;
+}
+
+.skins-title {
+    text-align: center;
+    font-size: 44px;
+    margin-bottom: 30px;
+}
+
+.skins-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.skin-card {
+    text-align: center;
+    background: rgba(255,255,255,0.3);
+    padding: 25px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.7);
+    box-shadow: 0 0 20px rgba(255,255,255,0.25);
+}
+
+.skin-portrait {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.skin-desc {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.skin-btn {
+    margin-top: 10px;
+    padding: 10px 25px;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #fff;
+    border: 2px solid #fff;
+    transition: 0.2s;
+}
+
+.skin-btn:hover:not(.equipped) {
+    background: #ffebff;
+    border-color: #ffccff;
+}
+
+.skin-btn.equipped {
+    background: #c6ffe6;
+    border-color: #9fffd2;
+    cursor: default;
+    opacity: 0.8;
+}
+

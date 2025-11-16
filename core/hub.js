@@ -9,13 +9,13 @@
 // Correct paths for your actual folder layout
 import { showScreen } from "./screens.js";
 import { startGameplay, gameActive, stopGameplay, fullNewGameReset, startNewGameStory } from "../main.js";
-import { getCurrencies, gameState, saveProfiles } from "../utils/gameState.js";
+import { gameState, saveProfiles, getCurrencies, spendDiamonds } from "../utils/gameState.js";
 import { showOverlay, updateStatsOverlay, initSettingsMenu } from "./ui.js";
 import { initChest } from "./chest.js";
 import { showConfirm } from "./alert.js";
 import { playFairySprinkle } from "./soundtrack.js";
 import { resetCombatState } from "./game.js";
-
+import { SKINS, unlockSkin, selectSkin } from "./skins.js";
 // THESE TWO ARE INSIDE CORE FOLDER (your screenshot confirms):
 import { renderSlots } from "./saveSlots.js";
 import { loadFromSlot, applySnapshot } from "./saveSystem.js";
@@ -141,7 +141,92 @@ export function initHub() {
     );
   });
 
+  initSkinsMenu();
+
   console.log("🏰 Hub ready — all buttons linked");
+}
+
+
+// ============================================================
+// 🌈 SKINS MENU LOGIC (Correct ID: overlay-skins)
+// ============================================================
+
+
+
+export function initSkinsMenu() {
+  const overlay = document.getElementById("overlay-skins"); // 🩷 FIXED
+  const closeBtn = document.getElementById("skins-close");
+  const cards = document.querySelectorAll(".skin-card");
+
+  document.getElementById("skins-btn")?.addEventListener("click", () => {
+    refreshSkinsMenu();
+    overlay.classList.add("active");
+  });
+
+  closeBtn?.addEventListener("click", () => {
+    overlay.classList.remove("active");
+  });
+
+  cards.forEach(card => {
+    const key = card.dataset.skin;
+    const btn = card.querySelector(".skin-btn");
+
+    btn.addEventListener("click", () => {
+      const player = gameState.player;
+      const skin = SKINS[key];
+
+      // Already equipped
+      if (player.skin === key) return;
+
+      // Locked → Try to unlock
+      if (!player.unlockedSkins.includes(key)) {
+        const { diamonds } = getCurrencies();
+        if (diamonds < skin.cost) {
+          alert("Not enough diamonds!");
+          return;
+        }
+
+        spendDiamonds(skin.cost);
+        unlockSkin(player, key);
+      }
+
+      // Equip
+      selectSkin(player, key);
+      saveProfiles();
+      refreshSkinsMenu();
+    });
+  });
+}
+
+function refreshSkinsMenu() {
+  const player = gameState.player;
+
+  document.querySelectorAll(".skin-card").forEach(card => {
+    const key = card.dataset.skin;
+    const btn = card.querySelector(".skin-btn");
+    const skin = SKINS[key];
+
+    if (player.skin === key) {
+      btn.textContent = "Equipped";
+      btn.classList.add("equipped");
+      btn.dataset.action = "equip";
+      return;
+    }
+
+    btn.classList.remove("equipped");
+
+    if (player.unlockedSkins.includes(key)) {
+      btn.textContent = "Equip";
+      btn.dataset.action = "equip";
+    } else {
+      btn.textContent = `Unlock ${skin.cost} 💎`;
+      btn.dataset.action = "unlock";
+    }
+  });
+
+  const { gold, diamonds } = getCurrencies();
+  document.getElementById("hub-gold").textContent = gold;
+  document.getElementById("hub-diamonds").textContent = diamonds;
 }
 
 // ====================== OTHER FUNCTIONS — UNCHANGED ======================
