@@ -1,18 +1,82 @@
 // ============================================================
-// 💬 story.js — Olivia’s World: Crystal Keep (Wave Story System)
-// ------------------------------------------------------------
-// ✦ Unified cinematic story box for all story moments
-// ✦ No typewriter animation (instant text)
-// ✦ Wave 1 end story
-// ✦ Wave 5 end story (final wave)
-// ✦ Goblin Intro kept as requested
+// 💬 story.js — Olivia’s World: Crystal Keep (Dynamic Portraits)
+// -------------------------------------------------------------
+// ✦ Story portrait now matches the player's skin
+// ✦ Ariana can be forced for lore moments
+// ✦ Used for Wave 1, Wave 5, Goblin Intro & Victory
 // ============================================================
 
 import { showScreen } from "./screens.js";
 import { startGameplay } from "../main.js";
 import { gameState } from "../utils/gameState.js";
+import { SKINS, ensureSkin } from "./skins.js";
 
+// ------------------------------------------------------------
+// 🌟 RESOLVE PORTRAIT (player skin OR Ariana override)
+// ------------------------------------------------------------
+function resolvePortrait(useAriana = false) {
+  if (useAriana) {
+    return "./assets/images/portraits/princess_ariana.png";
+  }
 
+  const player = gameState.player || {};
+  ensureSkin(player);
+
+  const key = player.skin || "glitter";
+  const skin = SKINS[key];
+
+  return `./assets/images/portraits/${skin.portrait}`;
+}
+
+// ------------------------------------------------------------
+// 📜 UNIVERSAL STORY BOX
+// ------------------------------------------------------------
+async function showStory({ text, useAriana = false, autoStart = false }) {
+  return new Promise((resolve) => {
+    // Remove any existing overlay first
+    document.getElementById("overlay-story")?.remove();
+
+    const portrait = resolvePortrait(useAriana);
+
+    const overlay = document.createElement("div");
+    overlay.id = "overlay-story";
+    overlay.className = "overlay active";
+
+    overlay.innerHTML = `
+      <div class="story-box">
+        <div class="story-content">
+          <img
+            src="${portrait}"
+            alt="Story Portrait"
+            class="story-portrait"
+            id="story-portrait"
+          />
+          <div class="story-text" id="story-text">${text}</div>
+        </div>
+        <button id="story-next" class="story-next-btn">Continue</button>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const nextBtn = overlay.querySelector("#story-next");
+    nextBtn.disabled = false;
+
+    nextBtn.addEventListener("click", () => {
+      overlay.classList.add("fade-out");
+      setTimeout(() => {
+        overlay.remove();
+
+        if (autoStart) {
+          showScreen("game-container");
+          startGameplay();
+        }
+
+        resolve();
+      }, 400);
+    });
+  });
+}
 
 // ------------------------------------------------------------
 // 📜 MAP-SPECIFIC STORY TEXT
@@ -43,58 +107,9 @@ export const wave5Text = {
 };
 
 // ------------------------------------------------------------
-// 🧚‍♀️ UNIVERSAL STORY BOX (Instant Text)
-// ------------------------------------------------------------
-async function showStory({ portrait, text, autoStart = false }) {
-  return new Promise((resolve) => {
-    // Remove any existing overlay
-    document.getElementById("overlay-story")?.remove();
-
-    const overlay = document.createElement("div");
-    overlay.id = "overlay-story";
-    overlay.className = "overlay active";
-    overlay.innerHTML = `
-      <div class="story-box">
-        <div class="story-content">
-          <img
-            src="${portrait}"
-            alt="Story Portrait"
-            class="story-portrait"
-            id="story-portrait"
-          />
-          <div class="story-text" id="story-text">${text}</div>
-        </div>
-        <button id="story-next" class="story-next-btn">Continue</button>
-      </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    const nextBtn = overlay.querySelector("#story-next");
-    nextBtn.disabled = false;
-    nextBtn.style.opacity = "1";
-    nextBtn.style.pointerEvents = "auto";
-
-    nextBtn.addEventListener("click", () => {
-      overlay.classList.add("fade-out");
-      setTimeout(() => {
-        overlay.remove();
-        if (autoStart) {
-          showScreen("game-container");
-          startGameplay();
-        }
-        resolve();
-      }, 400);
-    });
-  });
-}
-
-// ------------------------------------------------------------
 // ⭐ WAVE STORY FLAGS (per map)
 // ------------------------------------------------------------
-// Each map tracks whether Wave 1 and Wave 5 stories have played
 export const waveStoryFlags = {};
-
 for (let i = 1; i <= 9; i++) {
   waveStoryFlags[i] = { 1: false, 5: false };
 }
@@ -108,12 +123,9 @@ export async function triggerEndOfWave1Story(mapId) {
   waveStoryFlags[mapId][1] = true;
   gameState.paused = true;
 
-  const text = wave1Text[mapId] || "The battle continues...";
-
   await showStory({
-    portrait: "./assets/images/portraits/princess_ariana.png",
-    text,
-    autoStart: false,
+    text: wave1Text[mapId] || "The battle continues...",
+    useAriana: false,    // ⭐ Player portrait
   });
 
   gameState.paused = false;
@@ -121,7 +133,7 @@ export async function triggerEndOfWave1Story(mapId) {
 }
 
 // ------------------------------------------------------------
-// ⭐ END OF WAVE 5 STORY (Final Wave)
+// ⭐ END OF WAVE 5 STORY
 // ------------------------------------------------------------
 export async function triggerEndOfWave5Story(mapId) {
   if (!waveStoryFlags[mapId] || waveStoryFlags[mapId][5]) return;
@@ -129,12 +141,9 @@ export async function triggerEndOfWave5Story(mapId) {
   waveStoryFlags[mapId][5] = true;
   gameState.paused = true;
 
-  const text = wave5Text[mapId] || "You stand victorious, Guardian.";
-
   await showStory({
-    portrait: "./assets/images/portraits/princess_ariana.png",
-    text,
-    autoStart: false,
+    text: wave5Text[mapId] || "You stand victorious, Guardian.",
+    useAriana: false,    // ⭐ Player portrait
   });
 
   gameState.paused = false;
@@ -142,24 +151,23 @@ export async function triggerEndOfWave5Story(mapId) {
 }
 
 // ------------------------------------------------------------
-// 🏹 GOBLIN INTRO STORY (kept exactly as requested)
+// 🏹 GOBLIN INTRO STORY
 // ------------------------------------------------------------
 export async function startGoblinIntroStory() {
   console.log("🎬 Goblin scout intro story triggered!");
   gameState.paused = true;
 
-  const goblinText = `  
-  Use WASD to move across the Crystal Plains.
-  Press SPACE to strike with your glitter blade.  
-  Press F to cast a glitter spell.  
-  Press R to heal your wounds.  
-  Press E to fire a silver arrow.  
-`;
+  const goblinText = `
+Use WASD to move across the Crystal Plains.
+Press SPACE to strike with your glitter blade.
+Press F to cast a glitter spell.
+Press R to heal your wounds.
+Press E to fire a silver arrow.
+  `.trim();
 
   await showStory({
-    portrait: "./assets/images/portraits/controller.png",
-    text: goblinText.trim(),
-    autoStart: false,
+    text: goblinText,
+    useAriana: false,    // ⭐ use the player portrait
   });
 
   gameState.paused = false;
@@ -167,18 +175,15 @@ export async function startGoblinIntroStory() {
 }
 
 // ------------------------------------------------------------
-// 🏆 OPTIONAL VICTORY STORY (still available)
+// 🏆 VICTORY STORY (Optional)
 // ------------------------------------------------------------
 export async function showVictoryStory() {
-  const victoryText = `
-  💎 The final goblin falls, and peace returns — for now.
-  The crystals glow once again under your protection.
-  `;
-
   await showStory({
-    portrait: "./assets/images/portraits/princess_ariana.png",
-    text: victoryText.trim(),
-    autoStart: false,
+    text: `
+💎 The final goblin falls, and peace returns — for now.
+The crystals glow once again under your protection.
+    `.trim(),
+    useAriana: false,    // ⭐ player portrait
   });
 
   console.log("🏰 Victory story finished.");
