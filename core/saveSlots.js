@@ -67,11 +67,13 @@ export function renderSlots(container, allowSave = true) {
       saveBtn.className = "save-btn";
       saveBtn.textContent = summary ? "Overwrite" : "Save";
 
+      // ⭐ ADD THIS
+      saveBtn.dataset.index = i;
+
       saveBtn.addEventListener("click", () => {
         playFairySprinkle();
         try {
           saveToSlot(i);
-          // Re-render so metadata (time, wave, etc) updates
           renderSlots(container, allowSave);
         } catch (err) {
           console.error("💾 Save failed:", err);
@@ -87,6 +89,9 @@ export function renderSlots(container, allowSave = true) {
       loadBtn.className = "load-btn";
       loadBtn.textContent = "Load";
 
+      // ⭐ ADD THIS
+      loadBtn.dataset.index = i;
+
       loadBtn.addEventListener("click", () => {
         playFairySprinkle();
         try {
@@ -96,14 +101,12 @@ export function renderSlots(container, allowSave = true) {
           console.error("💾 Load failed:", err);
         }
 
-        // Close the in-game save overlay if present
         const overlay = document.getElementById("overlay-save-game");
         if (overlay) {
           overlay.classList.remove("active");
           overlay.style.display = "none";
         }
 
-        // Unpause so the new state starts ticking
         resumeGame();
       });
 
@@ -115,6 +118,9 @@ export function renderSlots(container, allowSave = true) {
       const delBtn = document.createElement("button");
       delBtn.className = "delete-btn";
       delBtn.textContent = "Delete";
+
+      // ⭐ ADD THIS
+      delBtn.dataset.index = i;
 
       delBtn.addEventListener("click", () => {
         playCancelSound?.();
