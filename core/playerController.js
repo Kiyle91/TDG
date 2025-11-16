@@ -870,7 +870,7 @@ export function updatePlayer(delta) {
 }
 
 // ============================================================
-// 🎨 DRAW PLAYER — incl. HP bar + projectiles + sparkles
+// 🎨 DRAW PLAYER — incl. HP bar + projectiles + sparkles + bravery aura
 // ============================================================
 export function drawPlayer(ctx) {
   if (!ctx) return;
@@ -919,7 +919,29 @@ export function drawPlayer(ctx) {
 
   ctx.save();
 
+  // ------------------------------------------------------------
+  // ✨ BRAVERY AURA (active when buff is active)
+  // ------------------------------------------------------------
+  if (p.invincible === true) {
+    const auraRadius = SPRITE_SIZE * 0.65;
+
+    ctx.save();
+    ctx.globalAlpha = 0.35 + 0.25 * Math.sin(Date.now() / 150); // gentle pulsing
+
+    const gradient = ctx.createRadialGradient(x, y, 10, x, y, auraRadius);
+    gradient.addColorStop(0, "rgba(255, 200, 255, 0.65)");
+    gradient.addColorStop(1, "rgba(255, 130, 255, 0)");
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(x, y, auraRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // ------------------------------------------------------------
   // Shadow
+  // ------------------------------------------------------------
   ctx.beginPath();
   ctx.ellipse(
     x,
@@ -934,6 +956,9 @@ export function drawPlayer(ctx) {
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
 
+  // ------------------------------------------------------------
+  // DRAW PLAYER SPRITE (unchanged)
+  // ------------------------------------------------------------
   if (isAttacking && attackType === "melee" && currentFrame === 0) {
     const scale = 1.5;
     const w = SPRITE_SIZE * scale;
@@ -942,6 +967,7 @@ export function drawPlayer(ctx) {
   } else {
     const isDownWalk = !isAttacking && isMoving && currentDir === "down";
     const isUpWalk   = !isAttacking && isMoving && currentDir === "up";
+
     if (isDownWalk || isUpWalk) {
       const scale = 1.20;
       const w = SPRITE_SIZE * scale;
@@ -969,7 +995,9 @@ export function drawPlayer(ctx) {
     }
   }
 
+  // ------------------------------------------------------------
   // ❤️ Player HP Bar
+  // ------------------------------------------------------------
   if (!p.dead) {
     const barWidth = 42;
     const barHeight = 4;
@@ -990,7 +1018,9 @@ export function drawPlayer(ctx) {
     ctx.strokeRect(x - barWidth / 2, y + offsetY, barWidth, barHeight);
   }
 
+  // ------------------------------------------------------------
   // 🏹 Silver Arrow projectiles
+  // ------------------------------------------------------------
   ctx.fillStyle = "rgba(240,240,255,0.9)";
   for (const a of projectiles) {
     ctx.save();
@@ -1000,7 +1030,9 @@ export function drawPlayer(ctx) {
     ctx.restore();
   }
 
-  // 🌈 Sparkles (now cheap)
+  // ------------------------------------------------------------
+  // 🌈 Sparkles
+  // ------------------------------------------------------------
   updateAndDrawSparkles(ctx, 16);
 
   ctx.restore();

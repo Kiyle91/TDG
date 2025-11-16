@@ -345,15 +345,14 @@ export function updatePlayerStatsOverlay() {
 }
 
 // ============================================================
-// 💖 BRAVERY BAR SYSTEM — FINAL DRAINING VERSION
+// 💖 BRAVERY BAR SYSTEM — NO PROMPT VERSION
 // ============================================================
 
 export function updateBraveryBar() {
   const bar = document.getElementById("bravery-bar");
   const fill = document.getElementById("bravery-fill");
-  const prompt = document.getElementById("bravery-prompt");
 
-  if (!bar || !fill || !prompt) return;
+  if (!bar || !fill) return;
 
   const b = gameState.bravery;
   const pct = Math.max(0, Math.min(1, b.current / b.max));
@@ -361,30 +360,25 @@ export function updateBraveryBar() {
   // Update fill height
   fill.style.height = `${pct * 100}%`;
 
-  // Reset visual state
+  // Reset flash state
   fill.classList.remove("full");
 
-  // When charged → flashing + prompt visible
+  // When charged (full & not draining) → flash
   if (b.charged && !b.draining) {
     fill.classList.add("full");
-    prompt.style.display = "block";
-  } else {
-    prompt.style.display = "none";
   }
 }
 
 // ------------------------------------------------------------
-// ➕ Add bravery (kills, waves, etc.)
+// ➕ Add bravery (kills, waves, whatever)
 // ------------------------------------------------------------
 export function addBravery(amount) {
   const b = gameState.bravery;
 
-  // If already full and waiting for Q
-  if (b.charged || b.draining) return;
+  if (b.charged || b.draining) return; // can't increase while full/draining
 
   b.current = Math.min(b.max, b.current + amount);
 
-  // Reached full
   if (b.current >= b.max) {
     b.current = b.max;
     b.charged = true;
@@ -401,19 +395,19 @@ export function activateBravery() {
   const b = gameState.bravery;
   if (!b.charged) return;
 
-  // Begin draining phase
+  // Switch to draining
   b.charged = false;
   b.draining = true;
 
   updateBraveryBar();
   triggerBraveryPower();
 
-  // Start actual bar drain (8 seconds)
+  // Start 8 second drain
   drainBraveryBar(8000);
 }
 
 // ------------------------------------------------------------
-// 🕒 Drain bravery bar over time (smooth)
+// 🕒 Smooth drain over `duration` ms
 // ------------------------------------------------------------
 function drainBraveryBar(duration) {
   const b = gameState.bravery;
@@ -424,14 +418,12 @@ function drainBraveryBar(duration) {
     const elapsed = now - startTime;
     const pct = Math.min(1, elapsed / duration);
 
-    // Linear drain
     b.current = start * (1 - pct);
     updateBraveryBar();
 
     if (pct < 1 && b.draining) {
       requestAnimationFrame(tick);
     } else {
-      // Drain finished
       b.current = 0;
       b.draining = false;
       updateBraveryBar();
@@ -442,7 +434,7 @@ function drainBraveryBar(duration) {
 }
 
 // ------------------------------------------------------------
-// 🔥 Buff logic + auto-expire when bar finishes
+// 🔥 Bravery Buff Logic
 // ------------------------------------------------------------
 export function triggerBraveryPower() {
   console.log("🔥 Bravery Power ACTIVATED!");
@@ -464,10 +456,9 @@ export function triggerBraveryPower() {
 
   braveryFlashEffect();
 
-  // When bar finishes draining, buff ends
+  // Buff ends exactly when draining stops
   const watchEnd = () => {
     if (!gameState.bravery.draining) {
-      // Restore stats
       p.speed = original.speed;
       p.attack = original.attack;
       p.defense = original.defense;
@@ -482,7 +473,7 @@ export function triggerBraveryPower() {
 }
 
 // ------------------------------------------------------------
-// ✨ Flash effect on activation
+// ✨ Activation Flash
 // ------------------------------------------------------------
 function braveryFlashEffect() {
   const fx = document.createElement("div");
@@ -502,3 +493,4 @@ function braveryFlashEffect() {
     { duration: 600, easing: "ease-out" }
   ).finished.then(() => fx.remove());
 }
+

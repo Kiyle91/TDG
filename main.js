@@ -225,6 +225,17 @@ export function fullNewGameReset() {
       gameState.profile.currencies.gold = 100;   // or any start value
   }
 
+
+  // ----------------------------------------------------------
+  // 💖 RESET BRAVERY METER
+  // ----------------------------------------------------------
+  gameState.bravery = {
+    current: 0,
+    max: 100,      // keep your value
+    charged: false,
+    draining: false
+  };
+  
   // ----------------------------------------------------------
   // 3️⃣ Reset all unlocks / systems
   // ----------------------------------------------------------
