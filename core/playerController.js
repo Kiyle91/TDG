@@ -155,12 +155,16 @@ function ensurePlayerRuntime() {
     typeof p.pos.x !== "number" ||
     typeof p.pos.y !== "number"
   ) {
-    // Fallback only if spawn is missing or corrupted
     p.pos = { x: 400, y: 400 };
   }
   
   if (typeof p.speed   !== "number") p.speed   = DEFAULT_SPEED;
   if (typeof p.attack  !== "number" || isNaN(p.attack))  p.attack  = 15;
+
+  // ⭐⭐⭐ FIXED: Missing stats for ranged + spell ⭐⭐⭐
+  if (typeof p.rangedAttack !== "number" || isNaN(p.rangedAttack)) p.rangedAttack = 10;
+  if (typeof p.spellPower   !== "number" || isNaN(p.spellPower))   p.spellPower   = 10;
+
   if (typeof p.hp      !== "number" || isNaN(p.hp))      p.hp      = 100;
   if (typeof p.maxHp   !== "number" || isNaN(p.maxHp))   p.maxHp   = 100;
   if (typeof p.mana    !== "number" || isNaN(p.mana))    p.mana    = 50;
@@ -176,6 +180,7 @@ function ensurePlayerRuntime() {
     p.body = { bw, bh, ox, oy };
   }
 }
+
 
 // ------------------------------------------------------------
 // Input
