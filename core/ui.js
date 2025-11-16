@@ -10,6 +10,7 @@
 import { gameState, getCurrencies, saveProfiles } from "../utils/gameState.js";
 import { playCancelSound } from "./soundtrack.js";
 import { initTurretBar, updateTurretBar } from "./turretBar.js";
+import { SKINS, ensureSkin } from "./skins.js";
 
 // ============================================================
 // ⏸️ GAME PAUSE / RESUME HELPERS
@@ -280,46 +281,64 @@ function startLiveRefresh(overlayId, refreshFn) {
 
 export function updateStatsOverlay() {
   const p = gameState.player || {};
-  const titleEl = document.getElementById("stats-title");
-  if (titleEl) titleEl.textContent = p.name ? `Princess ${p.name}` : "Princess";
+  ensureSkin(p);
 
-  const level = p.level ?? 1;
-  const xp = p.xp ?? 0;
+  // ---------------------------
+  // 🌈 DYNAMIC HUB PORTRAIT
+  // ---------------------------
+  const skinKey = p.skin;
+  const skinData = SKINS[skinKey];
+
+  const portraitEl = document.getElementById("hub-stats-portrait");
+  if (portraitEl && skinData) {
+    portraitEl.src = `./assets/images/portraits/${skinData.portrait}`;
+    portraitEl.alt = skinData.name;
+  }
+
+  // ---------------------------
+  // 🧮 APPLY TEXT VALUES
+  // ---------------------------
   const xpToNext = p.xpToNext ?? 100;
-  const hp = p.hp ?? p.maxHp ?? 100;
-  const maxHp = p.maxHp ?? 100;
-  const mana = p.mana ?? p.maxMana ?? 50;
-  const maxMana = p.maxMana ?? 50;
-  const sp = p.spellPower ?? 10;
-  const ranged = p.rangedAttack ?? 10;
-  const atk = p.attack ?? 15;
-  const def = p.defense ?? 5;
-  const critPct = Math.round((p.critChance ?? 0) * 100);
 
   const map = {
-    "stat-level": level,
-    "stat-xp": `${xp} / ${xpToNext}`,
-    "stat-hp": `${hp} / ${maxHp}`,
-
-    // ⭐ FIXED HERE AS WELL
-    "stat-mana": `${Math.round(Number(mana))} / ${Math.round(Number(maxMana))}`,
-
-    "stat-spellPower": sp,
-    "stat-ranged": ranged,
-    "stat-attack": atk,
-    "stat-defense": def,
-    "stat-crit": `${critPct}%`,
+    "stat-level": p.level ?? 1,
+    "stat-xp": `${p.xp ?? 0} / ${xpToNext}`,
+    "stat-hp": `${p.hp ?? p.maxHp ?? 100} / ${p.maxHp ?? 100}`,
+    "stat-mana": `${p.mana ?? p.maxMana ?? 50} / ${p.maxMana ?? 50}`,
+    "stat-spellPower": p.spellPower ?? 10,
+    "stat-ranged": p.rangedAttack ?? 10,
+    "stat-attack": p.attack ?? 15,
+    "stat-defense": p.defense ?? 5,
+    "stat-crit": `${Math.round((p.critChance ?? 0) * 100)}%`,
   };
 
   Object.entries(map).forEach(([id, val]) => {
     const el = document.getElementById(id);
     if (el) el.textContent = val;
   });
+
+  const titleEl = document.getElementById("stats-title");
+  if (titleEl) titleEl.textContent = p.name ? `Princess ${p.name}` : "Princess";
 }
 
 // IN-GAME overlay updater
 export function updatePlayerStatsOverlay() {
+  const p = gameState.player || {};
+  ensureSkin(p);
+
+  // 🌈 DYNAMIC IN-GAME PORTRAIT
+  const skinKey = p.skin;
+  const skinData = SKINS[skinKey];
+
+  const portraitEl = document.getElementById("player-stats-portrait");
+  if (portraitEl && skinData) {
+    portraitEl.src = `./assets/images/portraits/${skinData.portrait}`;
+    portraitEl.alt = skinData.name;
+  }
+
+  // Reuse general stats filler
   fillStats("pstat-", "player-stats-title");
+
   startLiveRefresh("overlay-player-stats", () =>
     fillStats("pstat-", "player-stats-title")
   );
