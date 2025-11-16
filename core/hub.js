@@ -1,24 +1,48 @@
 // ============================================================
 // 🌸 hub.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Handles hub buttons, overlays, currencies, and map loading
-// ✦ Supports map unlocking + replay
-// ✦ Full save/load support from hub
+// ✦ Handles hub buttons, overlays, currencies, map loading
+// ✦ Skins system (corrected + persistent)
+// ✦ Save/load, maps, turrets, settings, stats
 // ============================================================
 
-// Correct paths for your actual folder layout
 import { showScreen } from "./screens.js";
-import { startGameplay, gameActive, stopGameplay, fullNewGameReset, startNewGameStory } from "../main.js";
-import { gameState, saveProfiles, getCurrencies, spendDiamonds } from "../utils/gameState.js";
-import { showOverlay, updateStatsOverlay, initSettingsMenu } from "./ui.js";
+import {
+  startGameplay,
+  gameActive,
+  stopGameplay,
+  fullNewGameReset,
+  startNewGameStory
+} from "../main.js";
+
+import {
+  gameState,
+  saveProfiles,
+  getCurrencies,
+  spendDiamonds
+} from "../utils/gameState.js";
+
+import {
+  showOverlay,
+  updateStatsOverlay,
+  initSettingsMenu
+} from "./ui.js";
+
 import { initChest } from "./chest.js";
 import { showConfirm } from "./alert.js";
 import { playFairySprinkle } from "./soundtrack.js";
 import { resetCombatState } from "./game.js";
-import { SKINS, unlockSkin, selectSkin } from "./skins.js";
-// THESE TWO ARE INSIDE CORE FOLDER (your screenshot confirms):
+
+import {
+  SKINS,
+  unlockSkin,
+  selectSkin,
+  ensureSkin
+} from "./skins.js";
+
 import { renderSlots } from "./saveSlots.js";
 import { loadFromSlot, applySnapshot } from "./saveSystem.js";
+
 
 // ============================================================
 // 🌷 INIT HUB
@@ -27,6 +51,12 @@ export function initHub() {
   const hub = document.getElementById("hub-screen");
   if (!hub) return;
 
+  // ⭐ CRITICAL: Ensure skin system exists BEFORE anything else
+  if (!gameState.player) gameState.player = {};
+  ensureSkin(gameState.player);
+  saveProfiles();
+
+  // Buttons
   const newStoryBtn   = document.getElementById("new-story-btn");
   const loadGameBtn   = document.getElementById("load-game-btn");
   const mapsBtn       = document.getElementById("maps-btn");
@@ -36,28 +66,37 @@ export function initHub() {
   const settingsBtn   = document.getElementById("settings-btn");
   const exitBtn       = document.getElementById("exit-hub-btn");
 
+  // Initialize hub subsystems
   initChest();
   initSettingsMenu();
   updateHubCurrencies();
   updateHubProfile();
   updateTurretUnlocks();
 
+  // ============================================================
   // NEW STORY
+  // ============================================================
   newStoryBtn.addEventListener("click", () => {
     playFairySprinkle();
     showConfirm("Start a new story from Map 1?", () => {
+
       if (gameActive) stopGameplay("restart");
 
       document.querySelectorAll("#end-screen, .end-overlay")
         .forEach(el => el.remove());
 
-      fullNewGameReset();
+      fullNewGameReset();         // fresh character, BUT preserves skins
+      ensureSkin(gameState.player);
+      saveProfiles();
+
       resetCombatState();
       startNewGameStory();
     });
   });
 
+  // ============================================================
   // LOAD GAME
+  // ============================================================
   loadGameBtn.addEventListener("click", () => {
     playFairySprinkle();
 
@@ -75,30 +114,36 @@ export function initHub() {
 
       console.log("💾 Loaded snapshot:", snap);
 
-      // ⭐ FIX — Set map before initGame()
+      // Ensure map is set BEFORE initGame()
       if (snap.progress?.currentMap) {
         gameState.progress.currentMap = snap.progress.currentMap;
       }
 
+      // Close overlay
       const ov = document.getElementById("overlay-load");
       ov.classList.remove("active");
       ov.style.display = "none";
 
+      // Show game screen
       showScreen("game-container");
 
-      const gameMod = await import("./game.js");
-      await gameMod.initGame();
+      // ⭐ CRITICAL ORDER:
+      applySnapshot(snap);            // restore player stats
+      ensureSkin(gameState.player);   // restore skin BEFORE initGame()
+      saveProfiles();
 
-      applySnapshot(snap);
+      const gameMod = await import("./game.js");
+      await gameMod.initGame();       // now loads correct sprite folder
+
       startGameplay();
     }, { once: true });
   });
 
-    // MAPS
+  // ============================================================
+  // MAPS
+  // ============================================================
   mapsBtn.addEventListener("click", () => {
     playFairySprinkle();
-
-    // ⭐ CRITICAL: Re-enable overlay interactivity
     const ov = document.getElementById("overlay-maps");
     if (ov) ov.style.pointerEvents = "auto";
 
@@ -106,33 +151,46 @@ export function initHub() {
     showOverlay("overlay-maps");
   });
 
+  // ============================================================
   // TURRETS
+  // ============================================================
   turretsBtn.addEventListener("click", () => {
     playFairySprinkle();
     updateTurretUnlocks();
     showOverlay("overlay-turrets");
   });
 
-  // SKINS
+  // ============================================================
+  // SKINS MENU
+  // ============================================================
   skinsBtn.addEventListener("click", () => {
     playFairySprinkle();
+    ensureSkin(gameState.player);  // ⭐ guarantees array exists
+    saveProfiles();
+    refreshSkinsMenu();
     showOverlay("overlay-skins");
   });
 
+  // ============================================================
   // STATS
+  // ============================================================
   statsBtn.addEventListener("click", () => {
     playFairySprinkle();
     updateStatsOverlay();
     showOverlay("overlay-stats");
   });
 
+  // ============================================================
   // SETTINGS
+  // ============================================================
   settingsBtn.addEventListener("click", () => {
     playFairySprinkle();
     showOverlay("overlay-settings");
   });
 
-  // EXIT → PROFILE
+  // ============================================================
+  // EXIT → PROFILE SCREEN
+  // ============================================================
   exitBtn.addEventListener("click", () => {
     playFairySprinkle();
     showConfirm(
@@ -142,32 +200,29 @@ export function initHub() {
   });
 
   initSkinsMenu();
-
   console.log("🏰 Hub ready — all buttons linked");
 }
 
 
 // ============================================================
-// 🌈 SKINS MENU LOGIC (Correct ID: overlay-skins)
+// 🌈 SKINS MENU — FULL FIXED VERSION
 // ============================================================
-
-
-
 export function initSkinsMenu() {
-  const overlay = document.getElementById("overlay-skins"); // 🩷 FIXED
+  const overlay = document.getElementById("overlay-skins");
   const closeBtn = document.getElementById("skins-close");
-  const cards = document.querySelectorAll(".skin-card");
 
-  document.getElementById("skins-btn")?.addEventListener("click", () => {
-    refreshSkinsMenu();
-    overlay.classList.add("active");
-  });
+  // ⭐ Ensure skin system always exists
+  if (!gameState.player) gameState.player = {};
+  ensureSkin(gameState.player);
+  saveProfiles();
 
+  // Close
   closeBtn?.addEventListener("click", () => {
     overlay.classList.remove("active");
   });
 
-  cards.forEach(card => {
+  // Buttons for each card
+  document.querySelectorAll(".skin-card").forEach(card => {
     const key = card.dataset.skin;
     const btn = card.querySelector(".skin-btn");
 
@@ -175,10 +230,13 @@ export function initSkinsMenu() {
       const player = gameState.player;
       const skin = SKINS[key];
 
+      ensureSkin(player);  // ⭐ guarantees unlockedSkins array
+      saveProfiles();
+
       // Already equipped
       if (player.skin === key) return;
 
-      // Locked → Try to unlock
+      // Try unlock
       if (!player.unlockedSkins.includes(key)) {
         const { diamonds } = getCurrencies();
         if (diamonds < skin.cost) {
@@ -188,6 +246,7 @@ export function initSkinsMenu() {
 
         spendDiamonds(skin.cost);
         unlockSkin(player, key);
+        saveProfiles();
       }
 
       // Equip
@@ -198,8 +257,15 @@ export function initSkinsMenu() {
   });
 }
 
+
+// ============================================================
+// REFRESH SKINS MENU UI
+// ============================================================
 function refreshSkinsMenu() {
   const player = gameState.player;
+  ensureSkin(player);
+
+  const unlocked = player.unlockedSkins;
 
   document.querySelectorAll(".skin-card").forEach(card => {
     const key = card.dataset.skin;
@@ -215,7 +281,7 @@ function refreshSkinsMenu() {
 
     btn.classList.remove("equipped");
 
-    if (player.unlockedSkins.includes(key)) {
+    if (unlocked.includes(key)) {
       btn.textContent = "Equip";
       btn.dataset.action = "equip";
     } else {
@@ -229,8 +295,10 @@ function refreshSkinsMenu() {
   document.getElementById("hub-diamonds").textContent = diamonds;
 }
 
-// ====================== OTHER FUNCTIONS — UNCHANGED ======================
 
+// ============================================================
+// HUB PROFILE + CURRENCY UI
+// ============================================================
 export function updateHubCurrencies() {
   const { gold, diamonds } = getCurrencies();
   document.getElementById("hub-gold").textContent = `Gold: ${gold}`;
@@ -249,8 +317,11 @@ export function updateHubProfile() {
   levelEl.textContent = `Level ${gameState.player?.level || 1}`;
 }
 
-function updateTurretUnlocks() { /* unchanged */ }
 
+// ============================================================
+// PLACEHOLDERS FOR UNCHANGED FUNCTIONS
+// ============================================================
+function updateTurretUnlocks() { /* unchanged */ }
 function fadeOut(element, callback) { /* unchanged */ }
 
 // ============================================================

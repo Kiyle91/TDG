@@ -183,28 +183,38 @@ export function fullNewGameReset() {
   gameState.profile.progress.mapsUnlocked = [true, false, false, false, false, false, false, false, false];
 
   // ----------------------------------------------------------
-  // 2️⃣ Reset the player to a FRESH character
+  // 2️⃣ Reset the player to a FRESH character, but KEEP skins
   // ----------------------------------------------------------
+  const prevSkin      = gameState.player?.skin || "glitter";
+  const prevUnlocked  = gameState.player?.unlockedSkins ?? ["glitter"];
+
   gameState.player = {
-    name: gameState.profile.name || "Olivia",
-    level: 1,
-    xp: 0,
-    maxHp: 100,
-    hp: 100,
-    maxMana: 50,
-    mana: 50,
-    lives: 10,
-    facing: "right",
-    dead: false,
-    pos: { x: 0, y: 0 },
+      name: gameState.profile.name || "Olivia",
+      level: 1,
+      xp: 0,
+      maxHp: 100,
+      hp: 100,
+      maxMana: 50,
+      mana: 50,
+      lives: 10,
+      facing: "right",
+      dead: false,
+      pos: { x: 0, y: 0 },
+
+      // ⭐ Restore skin data
+      skin: prevSkin,
+      unlockedSkins: prevUnlocked,
   };
 
-  // Also store clean player into the profile (persistent)
+  // Save to profile too
   gameState.profile.player = {
-    level: 1,
-    xp: 0,
-    maxHp: 100,
-    maxMana: 50,
+      level: 1,
+      xp: 0,
+      maxHp: 100,
+      maxMana: 50,
+
+      skin: prevSkin,
+      unlockedSkins: prevUnlocked,
   };
 
   // ----------------------------------------------------------
