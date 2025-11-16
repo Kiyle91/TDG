@@ -920,24 +920,38 @@ export function drawPlayer(ctx) {
   ctx.save();
 
   // ------------------------------------------------------------
-  // ✨ BRAVERY AURA (active when buff is active)
+  // ✨ BRIGHT BRAVERY AURA (supercharged princess glow)
   // ------------------------------------------------------------
   if (p.invincible === true) {
-    const auraRadius = SPRITE_SIZE * 0.65;
+      ctx.save();
 
-    ctx.save();
-    ctx.globalAlpha = 0.35 + 0.25 * Math.sin(Date.now() / 150); // gentle pulsing
+      // Big pulsing aura
+      const pulse = 0.6 + 0.4 * Math.sin(Date.now() / 120); // stronger pulse
+      const auraRadius = SPRITE_SIZE * (0.9 + pulse * 0.25); // large glowing bubble
 
-    const gradient = ctx.createRadialGradient(x, y, 10, x, y, auraRadius);
-    gradient.addColorStop(0, "rgba(255, 200, 255, 0.65)");
-    gradient.addColorStop(1, "rgba(255, 130, 255, 0)");
+      // Powerful gradient
+      const gradient = ctx.createRadialGradient(x, y, 0, x, y, auraRadius);
+      gradient.addColorStop(0.0, "rgba(255, 255, 255, 0.95)");     // bright white core
+      gradient.addColorStop(0.35, "rgba(255, 170, 255, 0.75)");    // strong pink glow
+      gradient.addColorStop(0.7, "rgba(190, 120, 255, 0.55)");     // deeper magical tone
+      gradient.addColorStop(1.0, "rgba(170, 0, 255, 0)");          // smooth fade out
 
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(x, y, auraRadius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+      ctx.fillStyle = gradient;
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.arc(x, y, auraRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer arc halo ring
+      ctx.strokeStyle = `rgba(255, 200, 255, ${0.8 + 0.2 * Math.sin(Date.now() / 150)})`;
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(x, y, auraRadius * 0.95, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.restore();
   }
+
 
   // ------------------------------------------------------------
   // Shadow

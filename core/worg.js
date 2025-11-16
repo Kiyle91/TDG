@@ -11,6 +11,7 @@
 // ============================================================
 
 import { gameState, addGold } from "../utils/gameState.js";
+import { addBravery } from "./ui.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { awardXP } from "./levelSystem.js";
 import { updateHUD } from "./ui.js";
@@ -290,6 +291,7 @@ export function damageWorg(worg, amount) {
     awardXP(WORG_XP_REWARD);
     addGold(WORG_GOLD_REWARD);
     updateHUD();
+    addBravery(1);
     
     console.log(`🐺 Worg defeated! Awarded ${WORG_XP_REWARD} XP and ${WORG_GOLD_REWARD} gold.`);
   }

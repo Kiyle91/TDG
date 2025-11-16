@@ -497,7 +497,7 @@ export function damageEnemy(enemy, amount) {
     incrementGoblinDefeated();
     awardXP(10);
     addGold(7);
-    addBravery (50);
+    addBravery (1);
     updateHUD();
     trySpawnGoblinDrop(enemy.x, enemy.y);
   }

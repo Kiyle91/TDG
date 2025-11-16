@@ -10,6 +10,7 @@
 // ============================================================
 
 import { gameState, addGold } from "../utils/gameState.js";
+import { addBravery } from "./ui.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { awardXP } from "./levelSystem.js";
 import { updateHUD } from "./ui.js";
@@ -297,6 +298,7 @@ export function damageElite(e, amount) {
     playGoblinDeath();
     awardXP(EXP_REWARD);
     addGold(GOLD_REWARD);
+    addBravery (1)
     updateHUD();
   }
 }

@@ -19,6 +19,7 @@ import { awardXP } from "./levelSystem.js";
 import { updateHUD } from "./ui.js";
 import { spawnOgreLoot } from "./ogreLoot.js";
 
+
 let ctx = null;
 let ogres = [];
 let ogreSprites = null;
