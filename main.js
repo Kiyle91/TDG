@@ -167,27 +167,77 @@ export function stopGameplay(reason = "unknown") {
 // 🌟 FULL NEW GAME RESET (Use this for Start New Story)
 // ============================================================
 export function fullNewGameReset() {
-  console.log("🔄 FULL NEW GAME RESET — wiping map state to Map 1");
+  console.log("🔄 FULL NEW GAME RESET — fresh character");
 
-  // Absolutely wipe all runtime state
-  if (!gameState.progress) gameState.progress = {};
-  if (!gameState.profile)  gameState.profile  = {};
+  // ----------------------------------------------------------
+  // 1️⃣ Reset runtime & progression
+  // ----------------------------------------------------------
+  gameState.progress = {
+    currentMap: 1,
+    mapsUnlocked: [true, false, false, false, false, false, false, false, false],
+  };
 
-  // Reset map progression everywhere
-  gameState.progress.currentMap = 1;
-
-  if (!gameState.profile.progress)
-      gameState.profile.progress = {};
-
+  // Also for profile storage
+  if (!gameState.profile.progress) gameState.profile.progress = {};
   gameState.profile.progress.currentMap = 1;
+  gameState.profile.progress.mapsUnlocked = [true, false, false, false, false, false, false, false, false];
 
-  // Wipe session
+  // ----------------------------------------------------------
+  // 2️⃣ Reset the player to a FRESH character
+  // ----------------------------------------------------------
+  gameState.player = {
+    name: gameState.profile.name || "Olivia",
+    level: 1,
+    xp: 0,
+    maxHp: 100,
+    hp: 100,
+    maxMana: 50,
+    mana: 50,
+    lives: 10,
+    facing: "right",
+    dead: false,
+    pos: { x: 0, y: 0 },
+  };
+
+  // Also store clean player into the profile (persistent)
+  gameState.profile.player = {
+    level: 1,
+    xp: 0,
+    maxHp: 100,
+    maxMana: 50,
+  };
+
+  // ----------------------------------------------------------
+  // 3️⃣ Reset all unlocks / systems
+  // ----------------------------------------------------------
+  gameState.profile.turretsUnlocked = {
+    crystal: true,
+    frost: false,
+    flame: false,
+    arcane: false,
+    moon: false,
+  };
+
+  // Reset wave/story flags
+  gameState.goblinIntroPlayed = false;
+
+  if (gameState.waveStoryFlags) {
+    for (let m in gameState.waveStoryFlags) {
+      gameState.waveStoryFlags[m] = { 1: false, 5: false };
+    }
+  }
+
+  // ----------------------------------------------------------
+  // 4️⃣ Reset temporary session
+  // ----------------------------------------------------------
   gameState.session = null;
 
-  // Save it so NOTHING overrides this on reload
+  // ----------------------------------------------------------
+  // 5️⃣ Save profile so fresh state persists
+  // ----------------------------------------------------------
   saveProfiles();
 
-  console.log("🌟 New Game: Map progression reset to 1");
+  console.log("🌟 New character created: Level 1, Map 1, Fresh progress.");
 }
 
 // ============================================================

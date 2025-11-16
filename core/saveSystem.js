@@ -90,7 +90,7 @@ export function snapshotGame() {
     // Core state — enough to restore the combat situation
     progress: safeClone(gameState.progress),
     player: safeClone(gameState.player),
-    currencies: { gold, diamonds },
+
 
     towers,
     goblins,
@@ -120,12 +120,7 @@ export function applySnapshot(snapshot) {
     gameState.player = safeClone(snapshot.player);
   }
 
-  if (snapshot.currencies && gameState.profile?.currencies) {
-    gameState.profile.currencies.gold =
-      snapshot.currencies.gold ?? gameState.profile.currencies.gold ?? 0;
-    gameState.profile.currencies.diamonds =
-      snapshot.currencies.diamonds ?? gameState.profile.currencies.diamonds ?? 0;
-  }
+
 
   // Wave counters (high-level only; internal timers stay as-is)
   if (snapshot.meta) {
