@@ -194,6 +194,32 @@ export function updateOgres(delta = 16) {
       ? (dx > 0 ? "right" : "left")
       : (dy > 0 ? "down" : "up");
 
+    // ------------------------------------------------------------
+    // 🤜 OGRE ↔ OGRE COLLISION (big push, visually clean)
+    // ------------------------------------------------------------
+    for (let k = 0; k < ogres.length; k++) {
+        const other = ogres[k];
+        if (other === o || !other.alive) continue;
+
+        const dx = o.x - other.x;
+        const dy = o.y - other.y;
+        const dist = Math.hypot(dx, dy);
+
+        const minDist = 140;  // ~85% of 160px — perfect for big ogres
+
+        if (dist > 0 && dist < minDist) {
+            const push = (minDist - dist) / 2;
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+            o.x += nx * push;
+            o.y += ny * push;
+
+            other.x -= nx * push;
+            other.y -= ny * push;
+        }
+    }  
+
     // Animation
     o.frameTimer += delta;
     if (o.frameTimer >= 220) {
