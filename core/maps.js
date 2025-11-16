@@ -56,7 +56,7 @@ export function initMapSelect() {
 
       // ⭐ RESET GOLD — fresh economy each map
       if (gameState.profile?.currencies) {
-        gameState.profile.currencies.gold = 100;
+        gameState.profile.currencies.gold = 0;
       }
 
       // Save after the change

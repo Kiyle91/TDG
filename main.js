@@ -235,7 +235,7 @@ export function fullNewGameReset() {
     charged: false,
     draining: false
   };
-
+  
   // ----------------------------------------------------------
   // 3️⃣ Reset all unlocks / systems
   // ----------------------------------------------------------
