@@ -15,6 +15,7 @@ import { spawnFloatingText } from "./floatingText.js";
 import { awardXP } from "./levelSystem.js";
 import { updateHUD } from "./ui.js";
 import { playGoblinDamage, playGoblinDeath } from "./soundtrack.js";
+import { getEnemies } from "./goblin.js";
 
 // ------------------------------------------------------------
 // 🧩 INTERNAL STATE
@@ -282,6 +283,62 @@ export function updateElites(delta = 16) {
           ? (dx > 0 ? "right" : "left")
           : (dy > 0 ? "down" : "up");
 
+      // ------------------------------------------------------------
+      // 🤜 ELITE ↔ GOBLIN COLLISION (uses goblin list)
+      // ------------------------------------------------------------
+      const goblins = getEnemies();
+
+      for (let j = 0; j < goblins.length; j++) {
+          const o = goblins[j];
+          if (!o?.alive) continue;
+
+          const dx = e.x - o.x;
+          const dy = e.y - o.y;
+          const dist = Math.hypot(dx, dy);
+
+          const minDist = 72; // same spacing used for goblins
+
+          if (dist > 0 && dist < minDist) {
+              const push = (minDist - dist) / 2;
+              const nx = dx / dist;
+              const ny = dy / dist;
+
+              e.x += nx * push;
+              e.y += ny * push;
+
+              o.x -= nx * push;
+              o.y -= ny * push;
+          }
+      }
+
+      // ------------------------------------------------------------
+      // 🤜 ELITE ↔ ELITE COLLISION (inside eliteList)
+      // ------------------------------------------------------------
+      for (let k = 0; k < eliteList.length; k++) {
+          const o = eliteList[k];
+          if (o === e || !o.alive) continue;
+
+          const dx = e.x - o.x;
+          const dy = e.y - o.y;
+          const dist = Math.hypot(dx, dy);
+
+          const minDist = 72;
+
+          if (dist > 0 && dist < minDist) {
+              const push = (minDist - dist) / 2;
+              const nx = dx / dist;
+              const ny = dy / dist;
+
+              e.x += nx * push;
+              e.y += ny * push;
+
+              o.x -= nx * push;
+              o.y -= ny * push;
+          }
+      }
+
+
+
       // Run animation
       e.frameTimer += delta;
       if (e.frameTimer >= FRAME_INTERVAL) {
@@ -289,6 +346,7 @@ export function updateElites(delta = 16) {
         e.frame = (e.frame + 1) % 2;
       }
     }
+    
   }
 }
 

@@ -229,7 +229,7 @@ function getNearbyFromGrid(grid, x, y) {
 }
 
 // ============================================================
-// 🧠 UPDATE ENEMIES — Clean, Simple, No Lag + MULTI-ATTACK FIX
+// 🧠 UPDATE ENEMIES — Clean, Simple, No Lag + RETURN-TO-PATH RESTORE
 // ============================================================
 export function updateEnemies(delta) {
   delta = Math.min(delta, 100);
@@ -237,8 +237,8 @@ export function updateEnemies(delta) {
   const player = gameState.player;
   if (!player) return;
 
-  const px = player?.pos?.x ?? player.x ?? 0;
-  const py = player?.pos?.y ?? player.y ?? 0;
+  const px = player.pos?.x ?? player.x ?? 0;
+  const py = player.pos?.y ?? player.y ?? 0;
 
   // MAIN LOOP
   for (const e of enemies) {
@@ -262,21 +262,21 @@ export function updateEnemies(delta) {
       continue;
     }
 
-    // Always tick attack cooldown globally
+    // Tick attack cooldown
     e.attackCooldown = Math.max(0, (e.attackCooldown ?? 0) - delta);
 
     // ============================================
-    // ❄️🔥 ELEMENTAL EFFECTS
+    // ❄🔥 ELEMENTAL EFFECTS
     // ============================================
     handleElementalEffects(e, dt);
 
-    // Player distance
+    // Distance to player
     const dxp = px - e.x;
     const dyp = py - e.y;
     const distToPlayer = Math.hypot(dxp, dyp);
 
     // ============================================
-    // 🏃‍♂️ ENTER CHASE MODE
+    // 🧠 ENTER CHASE MODE
     // ============================================
     if (distToPlayer < AGGRO_RANGE && e.state === "path") {
       e.state = "chase";
@@ -288,17 +288,27 @@ export function updateEnemies(delta) {
     if (e.state === "chase") {
 
       const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
-      const attackRange = ATTACK_RANGE * 1.25; // wider bubble
+      const attackRange = ATTACK_RANGE * 1.25;
 
-      // --------------------------------------------
+      // ------------------------------------------------------------
+      // ↩️ RETURN-TO-PATH LOGIC (RESTORED)
+      // Goblin gives up if player gets too far away
+      // ------------------------------------------------------------
+      if (distToPlayer > AGGRO_RANGE * 2.2) {
+        e.state = "return";
+        e.attacking = false;
+        continue;
+      }
+
+      // ------------------------------------------------------------
       // MOVE TOWARD PLAYER
-      // --------------------------------------------
+      // ------------------------------------------------------------
       if (distToPlayer > attackRange) {
 
         e.x += (dxp / distToPlayer) * moveSpeed * dt;
         e.y += (dyp / distToPlayer) * moveSpeed * dt;
 
-        // Facing direction
+        // Direction
         if (Math.abs(dxp) > Math.abs(dyp))
           e.dir = dxp > 0 ? "right" : "left";
         else
@@ -306,7 +316,32 @@ export function updateEnemies(delta) {
 
         e.attacking = false;
 
-        // Animate walk
+        // ------------------------------------------------------------
+        // 🤜 ENEMY ↔ ENEMY COLLISION (large, looks great)
+        // ------------------------------------------------------------
+        for (let j = 0; j < enemies.length; j++) {
+          const o = enemies[j];
+          if (o === e || !o.alive) continue;
+
+          const dx = e.x - o.x;
+          const dy = e.y - o.y;
+          const dist = Math.hypot(dx, dy);
+
+          const minDist = 72;
+
+          if (dist > 0 && dist < minDist) {
+            const push = (minDist - dist) / 2;
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+            e.x += nx * push;
+            e.y += ny * push;
+            o.x -= nx * push;
+            o.y -= ny * push;
+          }
+        }
+
+        // Animation
         e.frameTimer += delta;
         if (e.frameTimer >= WALK_FRAME_INTERVAL) {
           e.frameTimer = 0;
@@ -314,20 +349,20 @@ export function updateEnemies(delta) {
         }
       }
 
-      // --------------------------------------------
-      // 🗡 ATTACK PLAYER (MULTI-GOBLIN FIX)
-      // --------------------------------------------
+      // ------------------------------------------------------------
+      // 🗡 ATTACK PLAYER (always damage)
+      // ------------------------------------------------------------
       else {
-          if (e.attackCooldown === 0) {
-            e.attacking = true;  // moved inside real attack
-            attackPlayer(e, player);
-            e.attackCooldown = ATTACK_COOLDOWN;
-          }
+        if (e.attackCooldown === 0) {
+          e.attacking = true;
+          attackPlayer(e, player);
+          e.attackCooldown = ATTACK_COOLDOWN;
+        }
       }
     }
 
     // ============================================
-    // ↩️ RETURN TO PATH MODE
+    // ↩️ RETURN TO PATH MODE (now reachable again)
     // ============================================
     else if (e.state === "return") {
 
@@ -341,35 +376,37 @@ export function updateEnemies(delta) {
       const dy = target.y - e.y;
       const dist = Math.hypot(dx, dy);
 
+      // When we reach the return point, go back to path mode
       if (dist < 6) {
         e.state = "path";
         continue;
       }
 
       const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
-
       e.x += (dx / dist) * moveSpeed * dt;
       e.y += (dy / dist) * moveSpeed * dt;
 
+      // Direction
       if (Math.abs(dx) > Math.abs(dy))
         e.dir = dx > 0 ? "right" : "left";
       else
         e.dir = dy > 0 ? "down" : "up";
 
-      // Animate
+      // Walk animation
       e.frameTimer += delta;
       if (e.frameTimer >= WALK_FRAME_INTERVAL) {
         e.frameTimer = 0;
         e.frame = (e.frame + 1) % 2;
       }
 
+      // If player gets close again, resume chase
       if (distToPlayer < AGGRO_RANGE) {
         e.state = "chase";
       }
     }
 
     // ============================================
-    // 🛣 FOLLOW PATH
+    // 🛣 FOLLOW PATH (normal behavior)
     // ============================================
     else if (e.state === "path") {
 
@@ -398,7 +435,6 @@ export function updateEnemies(delta) {
 
       e.attacking = false;
 
-      // Animate
       e.frameTimer += delta;
       if (e.frameTimer >= WALK_FRAME_INTERVAL) {
         e.frameTimer = 0;
@@ -422,6 +458,7 @@ export function updateEnemies(delta) {
     }
   }
 }
+
 
 
 // ============================================================
