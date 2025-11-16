@@ -108,7 +108,7 @@ export function updateTowers(delta) {
   const dt = delta / 1000;
 
   // 🆕 Get combined target list ONCE per frame (not per tower)
-  const combinedEnemies = [...getEnemies(), ...getWorg()];
+  const combinedEnemies = [...getEnemies(), ...getWorg(), ...getElites()];
 
   for (let i = towers.length - 1; i >= 0; i--) {
     const tower = towers[i];
