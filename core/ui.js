@@ -345,7 +345,7 @@ export function updatePlayerStatsOverlay() {
 }
 
 // ============================================================
-// 💖 BRAVERY BAR SYSTEM — FINAL FIXED VERSION
+// 💖 BRAVERY BAR SYSTEM — FINAL DRAINING VERSION
 // ============================================================
 
 export function updateBraveryBar() {
@@ -361,46 +361,89 @@ export function updateBraveryBar() {
   // Update fill height
   fill.style.height = `${pct * 100}%`;
 
-  // RESET VISUALS
+  // Reset visual state
   fill.classList.remove("full");
 
-  if (b.charged) {
-    // KEEP flash animation active
+  // When charged → flashing + prompt visible
+  if (b.charged && !b.draining) {
     fill.classList.add("full");
-
-    // ALWAYS show Q prompt when charged
     prompt.style.display = "block";
   } else {
     prompt.style.display = "none";
   }
 }
 
+// ------------------------------------------------------------
+// ➕ Add bravery (kills, waves, etc.)
+// ------------------------------------------------------------
 export function addBravery(amount) {
   const b = gameState.bravery;
 
-  if (b.charged) return;
+  // If already full and waiting for Q
+  if (b.charged || b.draining) return;
 
   b.current = Math.min(b.max, b.current + amount);
 
+  // Reached full
   if (b.current >= b.max) {
     b.current = b.max;
-    b.charged = true;          // <<< the important fix!
+    b.charged = true;
+    b.draining = false;
   }
 
   updateBraveryBar();
 }
 
+// ------------------------------------------------------------
+// 🎯 Player activates bravery manually
+// ------------------------------------------------------------
 export function activateBravery() {
   const b = gameState.bravery;
   if (!b.charged) return;
 
-  b.current = 0;
+  // Begin draining phase
   b.charged = false;
+  b.draining = true;
 
   updateBraveryBar();
   triggerBraveryPower();
+
+  // Start actual bar drain (8 seconds)
+  drainBraveryBar(8000);
 }
 
+// ------------------------------------------------------------
+// 🕒 Drain bravery bar over time (smooth)
+// ------------------------------------------------------------
+function drainBraveryBar(duration) {
+  const b = gameState.bravery;
+  const start = b.current;
+  const startTime = performance.now();
+
+  function tick(now) {
+    const elapsed = now - startTime;
+    const pct = Math.min(1, elapsed / duration);
+
+    // Linear drain
+    b.current = start * (1 - pct);
+    updateBraveryBar();
+
+    if (pct < 1 && b.draining) {
+      requestAnimationFrame(tick);
+    } else {
+      // Drain finished
+      b.current = 0;
+      b.draining = false;
+      updateBraveryBar();
+    }
+  }
+
+  requestAnimationFrame(tick);
+}
+
+// ------------------------------------------------------------
+// 🔥 Buff logic + auto-expire when bar finishes
+// ------------------------------------------------------------
 export function triggerBraveryPower() {
   console.log("🔥 Bravery Power ACTIVATED!");
 
@@ -413,6 +456,7 @@ export function triggerBraveryPower() {
     defense: p.defense
   };
 
+  // Apply buff
   p.speed *= 1.8;
   p.attack *= 1.6;
   p.defense *= 1.4;
@@ -420,15 +464,26 @@ export function triggerBraveryPower() {
 
   braveryFlashEffect();
 
-  setTimeout(() => {
-    p.speed = original.speed;
-    p.attack = original.attack;
-    p.defense = original.defense;
-    p.invincible = false;
-    console.log("✨ Bravery Power faded.");
-  }, 8000);
+  // When bar finishes draining, buff ends
+  const watchEnd = () => {
+    if (!gameState.bravery.draining) {
+      // Restore stats
+      p.speed = original.speed;
+      p.attack = original.attack;
+      p.defense = original.defense;
+      p.invincible = false;
+      console.log("✨ Bravery Power faded.");
+    } else {
+      requestAnimationFrame(watchEnd);
+    }
+  };
+
+  requestAnimationFrame(watchEnd);
 }
 
+// ------------------------------------------------------------
+// ✨ Flash effect on activation
+// ------------------------------------------------------------
 function braveryFlashEffect() {
   const fx = document.createElement("div");
   Object.assign(fx.style, {

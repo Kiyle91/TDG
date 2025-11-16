@@ -46,6 +46,7 @@ export const gameState = {
     current: 0,
     max: 100,
     charged: false,
+    draining: false,
   },
 };
 
