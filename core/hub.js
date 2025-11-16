@@ -87,10 +87,13 @@ export function initHub() {
   // ------------------------------------------------------------
   mapsBtn.addEventListener("click", () => {
     playFairySprinkle();
-    console.log("🗺️ Opening map selection overlay...");
+
+    // ⭐ Re-enable map overlay interactions
+    const ov = document.getElementById("overlay-maps");
+    if (ov) ov.style.pointerEvents = "auto";
 
     import("./maps.js").then(mod => {
-      mod.initMapSelect?.();   // refresh lock/unlock + click events
+      mod.initMapSelect?.();
     });
 
     showOverlay("overlay-maps");

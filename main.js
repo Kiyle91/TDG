@@ -123,8 +123,18 @@ export function stopGameplay(reason = "unknown") {
   // 🏠 SAFE EXIT TO HUB (navbar home)
   // ----------------------------------------------------------
   if (reason === "exit") {
+
+    // ⭐ CLEANUP: Close maps overlay PROPERLY
+    const ov = document.getElementById("overlay-maps");
+    if (ov) {
+        ov.classList.remove("active");
+        ov.style.pointerEvents = "none";   // the ONE needed fix
+    }
+
+    // existing cleanup
     document.getElementById("end-screen")?.remove();
     document.querySelectorAll(".end-overlay").forEach(el => el.remove?.());
+
     showScreen("hub-screen");
     setTimeout(() => initHub(), 50);
     console.log("🏠 Returned to Hub (safe exit).");
