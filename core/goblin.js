@@ -445,6 +445,16 @@ function handleElementalEffects(e, dt) {
 function attackPlayer(enemy, player) {
   if (!player || player.dead) return;
 
+  // ⭐ FULL BRAVERY INVINCIBILITY
+  if (player.invincible) {
+    return;
+  }
+
+  // ⭐ Post-hit invulnerability window
+  if (player.invulnTimer > 0) {
+    return;
+  }
+
   playGoblinAttack();
 
   let damage = GOBLIN_DAMAGE;
@@ -455,6 +465,9 @@ function attackPlayer(enemy, player) {
   damage *= (1 - reduction);
 
   player.hp = Math.max(0, player.hp - damage);
+  player.invulnTimer = 800;   // same timing as updatePlayer
+  player.flashTimer = 200;
+
   updateHUD();
 
   spawnFloatingText(player.pos.x, player.pos.y - 40, `-${Math.round(damage)}`, "#ff6fb1", 20);
@@ -465,13 +478,8 @@ function attackPlayer(enemy, player) {
   enemy.attackFrame = 0;
   enemy.attackDir = enemy.dir === "left" ? "left" : "right";
 
-  setTimeout(() => {
-    enemy.attackFrame = 1;
-  }, 150);
-
-  setTimeout(() => {
-    enemy.attacking = false;
-  }, 400);
+  setTimeout(() => { enemy.attackFrame = 1; }, 150);
+  setTimeout(() => { enemy.attacking = false; }, 400);
 }
 
 // ============================================================
@@ -495,8 +503,8 @@ export function damageEnemy(enemy, amount) {
     enemy.fadeTimer = 0;
     playGoblinDeath();
     incrementGoblinDefeated();
-    awardXP(10);
-    addGold(7);
+    awardXP(5);
+    addGold(5);
     addBravery (1);
     updateHUD();
     trySpawnGoblinDrop(enemy.x, enemy.y);

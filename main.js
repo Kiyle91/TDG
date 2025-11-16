@@ -222,7 +222,7 @@ export function fullNewGameReset() {
   // 💰 2B — RESET GOLD FOR A NEW GAME
   // ----------------------------------------------------------
   if (gameState.profile?.currencies) {
-      gameState.profile.currencies.gold = 100;   // or any start value
+      gameState.profile.currencies.gold = 0;   // or any start value
   }
 
 
@@ -235,7 +235,7 @@ export function fullNewGameReset() {
     charged: false,
     draining: false
   };
-  
+
   // ----------------------------------------------------------
   // 3️⃣ Reset all unlocks / systems
   // ----------------------------------------------------------

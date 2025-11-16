@@ -722,12 +722,14 @@ export function updatePlayer(delta) {
 
   isMoving = dx !== 0 || dy !== 0;
 
+  // Diagonal normalisation
   if (dx && dy) {
     const inv = 1 / Math.sqrt(2);
     dx *= inv;
     dy *= inv;
   }
 
+  // 🚶 Movement + goblin body shunt (no damage here)
   if (!isAttacking) {
     let nextX = p.pos.x + dx * speed * dt;
     let nextY = p.pos.y + dy * speed * dt;
@@ -762,96 +764,68 @@ export function updatePlayer(delta) {
     currentDir = up ? "up" : "down";
 
   // CLAMP TO MAP WORLD (not canvas!)
-  
-
   const { width: mapW, height: mapH } = getMapPixelSize();
   const r = SPRITE_SIZE / 2;
-
   p.pos.x = Math.max(r, Math.min(mapW - r, p.pos.x));
   p.pos.y = Math.max(r, Math.min(mapH - r, p.pos.y));
 
-  // PLAYER ↔ GOBLIN CONTACT DAMAGE
+  // ------------------------------------------------------------
+  // 🟥 PLAYER ↔ GOBLIN CONTACT DAMAGE (respects invincible)
+  // ------------------------------------------------------------
   if (!p.invulnTimer) p.invulnTimer = 0;
-  if (p.invulnTimer > 0) {
-    p.invulnTimer -= delta;
-  } else {
-    for (const g of getEnemies()) {
-      if (!g.alive) continue;
 
-      const dx = g.x - p.pos.x;
-      const dy = g.y - p.pos.y;
-      const dist = Math.hypot(dx, dy);
+  if (!p.invincible) {
+    if (p.invulnTimer > 0) {
+      p.invulnTimer -= delta;
+    } else {
+      for (const g of getEnemies()) {
+        if (!g.alive) continue;
 
-      if (dist < 50) {
-        const damage = 10;
-        p.hp = Math.max(0, p.hp - damage);
-        p.flashTimer = 200;
-        p.invulnTimer = 800;
+        const dxg = g.x - p.pos.x;
+        const dyg = g.y - p.pos.y;
+        const dist = Math.hypot(dxg, dyg);
 
-        spawnFloatingText(p.pos.x, p.pos.y - 30, `-${damage}`, "#ff7aa8");
-        playPlayerDamage();
-        spawnDamageSparkles(p.pos.x, p.pos.y);
+        if (dist < 50) {
+          const damage = 10;
+          p.hp = Math.max(0, p.hp - damage);
+          p.flashTimer = 200;
+          p.invulnTimer = 800;
 
-        console.log(`💥 Player hit by goblin for ${damage} damage!`);
-        break;
+          spawnFloatingText(p.pos.x, p.pos.y - 30, `-${damage}`, "#ff7aa8");
+          playPlayerDamage();
+          spawnDamageSparkles(p.pos.x, p.pos.y);
+
+          console.log(`💥 Player hit by goblin for ${damage} damage!`);
+          break;
+        }
       }
     }
   }
 
-  // Ogre collision pushback
+  // ------------------------------------------------------------
+  // 🐲 Ogre collision pushback (damage handled in ogre.js)
+  // ------------------------------------------------------------
   const ogres = getOgres ? getOgres() : [];
   for (const o of ogres) {
     if (!o.alive) continue;
 
-    const dx = o.x - p.pos.x;
-    const dy = o.y - p.pos.y;
-    const dist = Math.hypot(dx, dy);
+    const dxo = o.x - p.pos.x;
+    const dyo = o.y - p.pos.y;
+    const dist = Math.hypot(dxo, dyo);
 
     const combinedRadius = 60;
 
-    if (dist < combinedRadius) {
+    if (dist < combinedRadius && dist > 0) {
       const pushStrength = 4;
-      p.pos.x -= (dx / dist) * pushStrength;
-      p.pos.y -= (dy / dist) * pushStrength;
+      p.pos.x -= (dxo / dist) * pushStrength;
+      p.pos.y -= (dyo / dist) * pushStrength;
     }
   }
 
+
   // ------------------------------------------------------------
-  // 🟥 PLAYER ↔ ELITE CONTACT DAMAGE
+  // 🌀 ANIMATION
   // ------------------------------------------------------------
-  const elites = getElites ? getElites() : [];
-  for (const e of elites) {
-    if (!e.alive) continue;
-
-    const dx = e.x - p.pos.x;
-    const dy = e.y - p.pos.y;
-    const dist = Math.hypot(dx, dy);
-
-    const hitRadius = 50; // similar to goblins
-
-    if (dist < hitRadius) {
-      // Damage player if not invulnerable
-      if (p.invulnTimer <= 0) {
-        const dmg = 12; // Choose any value you want
-        p.hp = Math.max(0, p.hp - dmg);
-        p.flashTimer = 200;
-        p.invulnTimer = 800; // same as goblins
-
-        spawnFloatingText(p.pos.x, p.pos.y - 30, `-${dmg}`, "#ff5577");
-        playPlayerDamage();
-        spawnDamageSparkles(p.pos.x, p.pos.y);
-      }
-
-      // Small pushback (lighter than ogres)
-      const push = 3;
-      if (dist > 0) {
-        p.pos.x -= (dx / dist) * push;
-        p.pos.y -= (dy / dist) * push;
-      }
-    }
-  }
-
-  // ANIMATION
   if (isAttacking) {
     // handled by attack timeouts
   } else if (isMoving) {
@@ -865,6 +839,7 @@ export function updatePlayer(delta) {
     currentFrame = 0;
   }
 
+  // Sync convenience mirrors
   gameState.player.x = p.pos.x;
   gameState.player.y = p.pos.y;
 }

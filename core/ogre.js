@@ -146,6 +146,11 @@ export function updateOgres(delta = 16) {
       // Apply damage
       if (o.attackTimer >= HIT_DELAY_TIME && !o.damageApplied) {
         o.damageApplied = true;
+
+        if (p.invincible) {
+        o.damageApplied = true; // prevent repeat hits
+        return;
+}
         
         // Damage
         p.hp = Math.max(0, p.hp - OGRE_DAMAGE);
@@ -237,7 +242,7 @@ export function damageOgre(o, amount) {
       console.warn("⚠️ Failed to spawn ogre loot:", err); 
     }
 
-    awardXP(100);
+    awardXP(25);
     spawnFloatingText(o.x, o.y - 50, "💀 Ogre Down!", "#ffccff");
     playOgreSlain();
     updateHUD();

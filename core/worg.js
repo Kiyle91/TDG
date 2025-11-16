@@ -37,8 +37,8 @@ const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT = 900;
 
 // 🆕 Worg rewards (separate from goblins)
-const WORG_XP_REWARD = 25;
-const WORG_GOLD_REWARD = 15;
+const WORG_XP_REWARD = 5;
+const WORG_GOLD_REWARD = 5;
 
 // ------------------------------------------------------------
 // 🖼️ SPRITE LOADER (CACHED + RESIZED)

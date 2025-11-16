@@ -25,8 +25,8 @@ let eliteSprites = null;
 // ------------------------------------------------------------
 // ⚙ CONFIG
 // ------------------------------------------------------------
-const ELITE_HP = 150;
-const ELITE_SPEED = 105;
+const ELITE_HP = 100;
+const ELITE_SPEED = 90;
 const ELITE_SIZE = 80;             // SAME SIZE AS GOBLIN
 const FRAME_INTERVAL = 220;
 const ATTACK_RANGE = 55;
@@ -37,8 +37,8 @@ const ATTACK_WINDUP = 120;         // ms to switch attack frame
 const FADE_OUT = 900;
 
 // Rewards
-const EXP_REWARD = 40;
-const GOLD_REWARD = 25;
+const EXP_REWARD = 10;
+const GOLD_REWARD = 10;
 
 // ------------------------------------------------------------
 // 📦 IMAGE LOADER
@@ -231,6 +231,7 @@ export function updateElites(delta = 16) {
         const pdx = p.pos.x - e.x;
         const pdy = p.pos.y - e.y;
         if (Math.hypot(pdx, pdy) < ATTACK_RANGE + 20) {
+          if (p.invincible) return;
           const dmg = ATTACK_DAMAGE;
           p.hp = Math.max(0, p.hp - dmg);
           p.flashTimer = 200;
