@@ -2,24 +2,23 @@
 // 💬 floatingText.js — Olivia's World: Crystal Keep
 //    (Ultra-Optimized Pool Edition — ZERO GC + ZERO Lag)
 // ------------------------------------------------------------
+// ✦ Fixed size behavior (no more big “-10” unless you want it)
+// ✦ Optional crit mode (OFF by default, ON with flag)
 // ✦ Hard cap (60) with indexed object pool (no searching)
-// ✦ "Swap-pop" removal to avoid .splice() cost
-// ✦ Emoji mode: ultra-lightweight, no glow
-// ✦ Zero allocation per frame (no garbage)
-// ✦ Designed for 4K, mobile & 200+ hits/sec stress tests
+// ✦ Swap-pop removal (no splice cost)
+// ✦ Zero allocation per frame
 // ============================================================
 
 const MAX_TEXTS = 60;
-
-// ------------------------------------------------------------
-// 🧵 Object pool + active list
-// ------------------------------------------------------------
 const pool = new Array(MAX_TEXTS);
-const active = []; // active list (swap-pop removal)
-let poolIndex = MAX_TEXTS - 1; // index of last free slot
+const active = [];
+let poolIndex = MAX_TEXTS - 1;
+
+// Global toggle: turn true to enable crit scaling
+let CRIT_MODE = false;
 
 // ------------------------------------------------------------
-// ♻️ Initialise pool objects
+// ♻️ Initialise pool
 // ------------------------------------------------------------
 for (let i = 0; i < MAX_TEXTS; i++) {
   pool[i] = {
@@ -32,43 +31,68 @@ for (let i = 0; i < MAX_TEXTS; i++) {
     life: 0,
     duration: 1000,
     rise: 40,
-    aura: true,
+    aura: true
   };
 }
 
 // ------------------------------------------------------------
-// 🌸 SPAWN FLOATING TEXT (ultra fast, no scans)
+// 🌸 SPAWN FLOATING TEXT
 // ------------------------------------------------------------
-export function spawnFloatingText(x, y, value, color = "#ffffff", size = 22, aura = true) {
-
+export function spawnFloatingText(
+  x,
+  y,
+  value,
+  color = "#ffffff",
+  size = 22,
+  aura = true,
+  isCrit = false
+) {
   let t;
 
-  // 🟦 If pool empty → reuse oldest active (never block)
+  // Pool empty → overwrite oldest
   if (poolIndex < 0) {
-    t = active[0]; // overwrite oldest
+    t = active[0];
   } else {
-    // 🟩 Take from pool (O(1))
     t = pool[poolIndex--];
     active.push(t);
   }
 
-  // Number formatting (cheap)
+  // Format value
   const num = Number(value);
   let displayValue;
-  if (isNaN(num)) displayValue = value;
-  else displayValue = num >= 0 ? `+${Math.round(num)}` : `${Math.round(num)}`;
 
-  // Detect emoji mode
+  if (isNaN(num)) {
+    displayValue = value;
+  } else {
+    displayValue = num >= 0 ? `+${Math.round(num)}` : `${Math.round(num)}`;
+  }
+
+  // Emoji mode
   const isEmoji = (displayValue === "🔥" || displayValue === "❄");
 
-  // Assign values
+  // ============================================================
+  // 🎯 FIX: SIZE IS NOW STABLE FOR ALL NUMBERS
+  // “-10” no longer appears larger unless crit mode is used
+  // ============================================================
+  let finalSize = size;
+
+  if (isEmoji) {
+    finalSize = 26;
+  }
+
+  // Optional crit scaling
+  if (CRIT_MODE && isCrit) {
+    finalSize = size * 1.4;   // nice punchy feel
+    aura = true;              // force glow for crits
+  }
+
+  // Assign
   t.active = true;
   t.x = x;
   t.y = y;
   t.value = displayValue;
   t.color = color;
-
-  t.size = isEmoji ? 26 : size;
+  t.size = finalSize;
   t.duration = isEmoji ? 600 : 1200;
   t.rise = isEmoji ? 28 : 50;
   t.aura = !isEmoji && aura;
@@ -76,7 +100,7 @@ export function spawnFloatingText(x, y, value, color = "#ffffff", size = 22, aur
 }
 
 // ------------------------------------------------------------
-// ⏰ UPDATE — swap-pop removal (NO splice cost)
+// ⏰ UPDATE — swap-pop removal
 // ------------------------------------------------------------
 export function updateFloatingText(delta) {
   for (let i = active.length - 1; i >= 0; i--) {
@@ -86,10 +110,10 @@ export function updateFloatingText(delta) {
     if (t.life >= t.duration) {
       t.active = false;
 
-      // Return to pool (O(1))
+      // Return to pool
       pool[++poolIndex] = t;
 
-      // Swap-pop remove from active (O(1))
+      // Swap-pop
       const last = active.pop();
       if (i < active.length) active[i] = last;
     }
@@ -97,15 +121,13 @@ export function updateFloatingText(delta) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW (super fast path for emojis / no glow)
+// 🎨 DRAW
 // ------------------------------------------------------------
 export function drawFloatingText(ctx) {
   const len = active.length;
 
   for (let i = 0; i < len; i++) {
     const t = active[i];
-
-    // Skip inactive (shouldn't happen, but cheap)
     if (!t.active) continue;
 
     const p = t.life / t.duration;
@@ -121,7 +143,7 @@ export function drawFloatingText(ctx) {
     const drawX = t.x;
     const drawY = t.y + yOffset;
 
-    // ⚡ Emoji-only path (very cheap)
+    // ⚡ Emoji-only
     if (!t.aura) {
       ctx.fillStyle = t.color;
       ctx.fillText(t.value, drawX, drawY);
@@ -129,7 +151,7 @@ export function drawFloatingText(ctx) {
       continue;
     }
 
-    // ✨ Glow path for numeric/big damage
+    // ✨ Glow path
     ctx.shadowColor = t.color;
     ctx.shadowBlur = 20;
 
@@ -142,6 +164,13 @@ export function drawFloatingText(ctx) {
 
     ctx.restore();
   }
+}
+
+// ------------------------------------------------------------
+// 🔧 OPTIONAL: enable/disable crit mode globally
+// ------------------------------------------------------------
+export function enableCritMode(v = true) {
+  CRIT_MODE = v;
 }
 
 // ============================================================

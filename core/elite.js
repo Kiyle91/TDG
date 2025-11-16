@@ -213,43 +213,57 @@ export function updateElites(delta = 16) {
     const dy = p.pos.y - e.y;
     const dist = Math.hypot(dx, dy);
 
-    // ------------------------------------------------------------
-    // 🗡️ ATTACK LOGIC
-    // ------------------------------------------------------------
-    if (!e.attacking && dist < ATTACK_RANGE) {
-      e.attacking = true;
-      e.attackTimer = ATTACK_TOTAL_TIME;
+  // ------------------------------------------------------------
+  // 🗡️ ATTACK LOGIC (Same as goblins — ALWAYS DAMAGE)
+  // ------------------------------------------------------------
+  if (!e.attacking && dist < ATTACK_RANGE) {
+    e.attacking = true;
+    e.attackTimer = ATTACK_TOTAL_TIME;
 
-      e.attackFrame = 0; // windup
+    // Start at attack frame 0 (windup)
+    e.attackFrame = 0;
 
-      // Switch to "melee" frame mid attack (like goblin)
-      setTimeout(() => { if (e.alive) e.attackFrame = 1; }, ATTACK_WINDUP);
+    // Switch to impact frame (windup delay)
+    setTimeout(() => {
+      if (e.alive) e.attackFrame = 1;
+    }, ATTACK_WINDUP);
 
-      // Deal damage slightly after frame 1
-      setTimeout(() => {
-        if (!e.alive) return;
-        const pdx = p.pos.x - e.x;
-        const pdy = p.pos.y - e.y;
-        if (Math.hypot(pdx, pdy) < ATTACK_RANGE + 20) {
-          if (p.invincible) return;
-          const dmg = ATTACK_DAMAGE;
-          p.hp = Math.max(0, p.hp - dmg);
-          p.flashTimer = 200;
+    // Deal damage — ALWAYS applies if player is in range
+    setTimeout(() => {
+      if (!e.alive) return;
 
-          spawnFloatingText(p.pos.x, p.pos.y - 30, `-${dmg}`, "#ff5577");
-        }
-      }, 180);
+      // Re-check distance so the player can't outrun the hit
+      const pdx = p.pos.x - e.x;
+      const pdy = p.pos.y - e.y;
+      if (Math.hypot(pdx, pdy) < ATTACK_RANGE + 20) {
 
-      // End attack
-      setTimeout(() => {
-        if (e.alive) {
-          e.attacking = false;
-          e.attackFrame = 0;
-        }
-      }, ATTACK_TOTAL_TIME);
+        // Always apply damage (no invincibility / no i-frames)
+        const dmg = ATTACK_DAMAGE;
+        p.hp = Math.max(0, p.hp - dmg);
+        p.flashTimer = 200;
 
-      continue;
-    }
+        spawnFloatingText(
+          p.pos.x,
+          p.pos.y - 30,
+          `-${dmg}`,
+          "#ff5577",
+          20
+        );
+
+        updateHUD();
+      }
+    }, 180);
+
+    // End attack animation cleanly
+    setTimeout(() => {
+      if (e.alive) {
+        e.attacking = false;
+        e.attackFrame = 0;
+      }
+    }, ATTACK_TOTAL_TIME);
+
+    continue;
+  }
 
     // ------------------------------------------------------------
     // 🏃 MOVEMENT (only if not attacking)
