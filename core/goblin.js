@@ -229,7 +229,7 @@ function getNearbyFromGrid(grid, x, y) {
 }
 
 // ============================================================
-// 🧠 UPDATE ENEMIES — Clean, Simple, No Lag
+// 🧠 UPDATE ENEMIES — Clean, Simple, No Lag + MULTI-ATTACK FIX
 // ============================================================
 export function updateEnemies(delta) {
   delta = Math.min(delta, 100);
@@ -240,20 +240,18 @@ export function updateEnemies(delta) {
   const px = player?.pos?.x ?? player.x ?? 0;
   const py = player?.pos?.y ?? player.y ?? 0;
 
-  let activeCount = 0;
-  for (const e of enemies) if (e.alive) activeCount++;
-
   // MAIN LOOP
   for (const e of enemies) {
 
-    // Moon stun
+    // ============================================
+    // 💤 DEATH / STUN HANDLING
+    // ============================================
     if (e.stunTimer > 0) {
       e.stunTimer -= delta;
       e.state = "stunned";
       continue;
     }
 
-    // Death fade timing
     if (!e.alive) {
       if (!e.fading) {
         e.deathTimer += delta;
@@ -264,34 +262,43 @@ export function updateEnemies(delta) {
       continue;
     }
 
-    // Burn + frost effects
+    // Always tick attack cooldown globally
+    e.attackCooldown = Math.max(0, (e.attackCooldown ?? 0) - delta);
+
+    // ============================================
+    // ❄️🔥 ELEMENTAL EFFECTS
+    // ============================================
     handleElementalEffects(e, dt);
 
-    // Distance to player
+    // Player distance
     const dxp = px - e.x;
     const dyp = py - e.y;
     const distToPlayer = Math.hypot(dxp, dyp);
 
-    // Trigger chase
+    // ============================================
+    // 🏃‍♂️ ENTER CHASE MODE
+    // ============================================
     if (distToPlayer < AGGRO_RANGE && e.state === "path") {
       e.state = "chase";
     }
 
-    // CHASE MODE
+    // ============================================
+    // 🐺 CHASE MODE
+    // ============================================
     if (e.state === "chase") {
 
-      if (distToPlayer > AGGRO_RANGE * 1.5) {
-        // Too far → go back to path
-        e.state = "return";
-      }
+      const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
+      const attackRange = ATTACK_RANGE * 1.25; // wider bubble
 
-      else if (distToPlayer > ATTACK_RANGE) {
-        const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
+      // --------------------------------------------
+      // MOVE TOWARD PLAYER
+      // --------------------------------------------
+      if (distToPlayer > attackRange) {
 
         e.x += (dxp / distToPlayer) * moveSpeed * dt;
         e.y += (dyp / distToPlayer) * moveSpeed * dt;
 
-        // Sprite direction
+        // Facing direction
         if (Math.abs(dxp) > Math.abs(dyp))
           e.dir = dxp > 0 ? "right" : "left";
         else
@@ -299,7 +306,7 @@ export function updateEnemies(delta) {
 
         e.attacking = false;
 
-        // Animate
+        // Animate walk
         e.frameTimer += delta;
         if (e.frameTimer >= WALK_FRAME_INTERVAL) {
           e.frameTimer = 0;
@@ -307,21 +314,24 @@ export function updateEnemies(delta) {
         }
       }
 
+      // --------------------------------------------
+      // 🗡 ATTACK PLAYER (MULTI-GOBLIN FIX)
+      // --------------------------------------------
       else {
-        // Attack the player
-        e.attacking = true;
-        if (e.attackCooldown <= 0) {
-          attackPlayer(e, player);
-          e.attackCooldown = ATTACK_COOLDOWN;
-        }
-        e.attackCooldown -= delta;
+          if (e.attackCooldown === 0) {
+            e.attacking = true;  // moved inside real attack
+            attackPlayer(e, player);
+            e.attackCooldown = ATTACK_COOLDOWN;
+          }
       }
     }
 
-    // RETURN MODE
+    // ============================================
+    // ↩️ RETURN TO PATH MODE
+    // ============================================
     else if (e.state === "return") {
-      const target = pathPoints[e.targetIndex];
 
+      const target = pathPoints[e.targetIndex];
       if (!target) {
         e.state = "path";
         continue;
@@ -332,7 +342,6 @@ export function updateEnemies(delta) {
       const dist = Math.hypot(dx, dy);
 
       if (dist < 6) {
-        // Back on path
         e.state = "path";
         continue;
       }
@@ -354,16 +363,17 @@ export function updateEnemies(delta) {
         e.frame = (e.frame + 1) % 2;
       }
 
-      // Re-aggro if player gets close again
       if (distToPlayer < AGGRO_RANGE) {
         e.state = "chase";
       }
     }
 
-    // FOLLOW PATH
+    // ============================================
+    // 🛣 FOLLOW PATH
+    // ============================================
     else if (e.state === "path") {
-      const target = pathPoints[e.targetIndex];
 
+      const target = pathPoints[e.targetIndex];
       if (target) {
         const dx = target.x - e.x;
         const dy = target.y - e.y;
@@ -396,11 +406,15 @@ export function updateEnemies(delta) {
       }
     }
 
-    // Flash effect fade
+    // ============================================
+    // FLASH EFFECT
+    // ============================================
     if (e.flashTimer > 0) e.flashTimer -= delta;
   }
 
+  // ============================================
   // CLEANUP DEAD
+  // ============================================
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
     if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) {
@@ -408,6 +422,7 @@ export function updateEnemies(delta) {
     }
   }
 }
+
 
 // ============================================================
 // 🔥 ELEMENTAL EFFECTS
@@ -443,18 +458,13 @@ function handleElementalEffects(e, dt) {
 // 💢 ATTACK PLAYER
 // ============================================================
 function attackPlayer(enemy, player) {
-  if (!player || player.dead) return;
-
-  // ⭐ FULL BRAVERY INVINCIBILITY
-  if (player.invincible) {
+  if (!player || player.dead) {
+    // Safety: clear attack state if player is gone
+    enemy.attacking = false;
     return;
   }
 
-  // ⭐ Post-hit invulnerability window
-  if (player.invulnTimer > 0) {
-    return;
-  }
-
+  // Always deal damage (no invuln checks)
   playGoblinAttack();
 
   let damage = GOBLIN_DAMAGE;
@@ -464,23 +474,45 @@ function attackPlayer(enemy, player) {
   const reduction = Math.min(0.5, def / 100);
   damage *= (1 - reduction);
 
+  // Apply damage immediately
   player.hp = Math.max(0, player.hp - damage);
-  player.invulnTimer = 800;   // same timing as updatePlayer
+
+  // Flash effect
   player.flashTimer = 200;
 
+  // Disable invulnerability frames entirely
+  player.invulnTimer = 0;
+  player.invincible = false;
+
+  // Update HUD + FX
   updateHUD();
 
-  spawnFloatingText(player.pos.x, player.pos.y - 40, `-${Math.round(damage)}`, "#ff6fb1", 20);
+  spawnFloatingText(
+    player.pos.x,
+    player.pos.y - 40,
+    `-${Math.round(damage)}`,
+    "#ff6fb1",
+    20
+  );
+
   spawnDamageSparkles(player.pos.x, player.pos.y);
   playPlayerDamage();
 
-  // Attack animation
+  // ============================================================
+  // 🗡️ ATTACK ANIMATION (ALWAYS RUNS)
+  // ============================================================
   enemy.attackFrame = 0;
   enemy.attackDir = enemy.dir === "left" ? "left" : "right";
 
-  setTimeout(() => { enemy.attackFrame = 1; }, 150);
-  setTimeout(() => { enemy.attacking = false; }, 400);
+  setTimeout(() => {
+    if (enemy.alive) enemy.attackFrame = 1;
+  }, 150);
+
+  setTimeout(() => {
+    if (enemy.alive) enemy.attacking = false;
+  }, 400);
 }
+
 
 // ============================================================
 // 🎯 DAMAGE
