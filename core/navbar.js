@@ -153,9 +153,6 @@ function handleNavAction(action) {
       });
       break;
 
-    default:
-      console.warn("Unknown navbar action:", action);
-
     // --------------------------------------------------------
     // 🎮 CONTROLS (in-game controls / keybinds screen)
     // --------------------------------------------------------
@@ -165,6 +162,11 @@ function handleNavAction(action) {
         mod.showOverlay?.("overlay-controls");
       });
       break;
+
+    default:
+      console.warn("Unknown navbar action:", action);
+
+    
   }
 }
 

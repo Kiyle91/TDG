@@ -1464,3 +1464,18 @@
     opacity: 0.8;
 }
 
+.controls-grid {
+  display: grid;
+  grid-template-columns: 150px auto;
+  gap: 10px 20px;
+  padding: 10px 0;
+  font-size: 1.2rem;
+}
+
+.c-key {
+  font-weight: 700;
+}
+
+.c-desc {
+  opacity: 0.9;
+}
