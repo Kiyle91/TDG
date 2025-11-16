@@ -114,28 +114,26 @@ export function initHub() {
 
       console.log("💾 Loaded snapshot:", snap);
 
-      // Ensure map is set BEFORE initGame()
       if (snap.progress?.currentMap) {
         gameState.progress.currentMap = snap.progress.currentMap;
       }
 
-      // Close overlay
       const ov = document.getElementById("overlay-load");
       ov.classList.remove("active");
       ov.style.display = "none";
 
-      // Show game screen
       showScreen("game-container");
 
-      // ⭐ CRITICAL ORDER:
-      applySnapshot(snap);            // restore player stats
-      ensureSkin(gameState.player);   // restore skin BEFORE initGame()
+      // ⭐ initGame in LOAD MODE
+      const gameMod = await import("./game.js");
+      await gameMod.initGame("load");
+
+      applySnapshot(snap);
+      ensureSkin(gameState.player);
       saveProfiles();
 
-      const gameMod = await import("./game.js");
-      await gameMod.initGame();       // now loads correct sprite folder
-
       startGameplay();
+
     }, { once: true });
   });
 

@@ -35,7 +35,6 @@ import { startGoblinIntroStory } from "./core/story.js";
 import { initNavbar } from "./core/navbar.js";
 import { applyMapSpawn } from "./core/game.js";
 
-
 // ============================================================
 // 🎮 GLOBAL GAME LOOP STATE
 // ============================================================
@@ -291,11 +290,7 @@ export async function startNewGameStory() {
   console.log("🌸 New Game Story loaded — Map 1 active.");
 }
 
-// ============================================================
-// 🔁 RESET GAMEPLAY (Try Again / Restart)
-// ============================================================
-
-export function resetGameplay() {
+export async function resetGameplay() {
   console.log("🔄 Combat reset!");
 
   cancelAnimationFrame(window.__gameLoopID);
@@ -343,9 +338,7 @@ export function resetGameplay() {
     initEnemies();
   }
 
-  // ==========================================================
-  // ⭐ Reset bravery system too (important)
-  // ==========================================================
+  // ⭐ Reset bravery
   if (gameState.bravery) {
     gameState.bravery.current = 0;
     gameState.bravery.charged = false;
@@ -354,8 +347,7 @@ export function resetGameplay() {
 
   updateBraveryBar?.();
 
-
-  // ⭐ FIX: Use correct spawn for current map
+  // ⭐ Correct spawn for map
   if (typeof applyMapSpawn === "function") {
     applyMapSpawn();
   }
@@ -364,11 +356,10 @@ export function resetGameplay() {
   resetCombatState();
 
   // ==========================================================
-  // 🚀 START FIRST WAVE AGAIN
+  // ⭐ NEW — RE-INIT GAME AS RETRY
   // ==========================================================
-  if (typeof startNextWave === "function") {
-    startNextWave();
-  }
+  const gameMod = await import("./core/game.js");
+  await gameMod.initGame("retry");
 
   lastTimestamp = performance.now();
   accumulator = 0;
@@ -378,6 +369,7 @@ export function resetGameplay() {
 
   console.log("🌸 Restart complete.");
 }
+
 
 
 // ============================================================

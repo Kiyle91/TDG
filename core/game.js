@@ -556,7 +556,7 @@ function applyMapSpawn() {
 // ============================================================
 // 🌷 INIT — called once when entering the Game screen
 // ============================================================
-export async function initGame() {
+export async function initGame(mode = "new") {
   // 1️⃣ Canvas & Context
   canvas = document.getElementById("game-canvas");
   if (!canvas) throw new Error("game.js: #game-canvas not found in DOM");
@@ -573,8 +573,6 @@ export async function initGame() {
   // 3️⃣ Extract enemy path + apply
   const pathPoints = extractPathFromMap();
   setEnemyPath(pathPoints);
-
-
 
   // 4️⃣ Initialize subsystems
   clearLoot();
@@ -600,6 +598,7 @@ export async function initGame() {
       facing: "right",
     };
   }
+
   applyMapSpawn();
   initPlayerController(canvas);
   initUI();
@@ -611,19 +610,24 @@ export async function initGame() {
   initHealingDrops(ctx);
   initGoblinDrops(ctx);
 
-  // 🌊 Reset wave state
-  currentWaveIndex = 0;
-  waveActive = false;
-  waveCleared = false;
-  victoryPending = false;
-  spawnQueue = [];
-  spawnTimer = 0;
+  // ============================================================
+  // 🌊 WAVE STATE — ONLY RESET FOR NEW/RETRY (NOT LOAD)
+  // ============================================================
+  if (mode !== "load") {
+    currentWaveIndex = 0;
+    waveActive = false;
+    waveCleared = false;
+    victoryPending = false;
+    spawnQueue = [];
+    spawnTimer = 0;
 
-  // Start first wave automatically
-  startNextWave();
+    // Start first wave ONLY for new / retry
+    startNextWave();
+  }
 
-  console.log("🌸 game.js — Initialization complete (optimized, multi-map).");
+  console.log(`🌸 game.js — Initialization complete (optimized, multi-map, mode: ${mode}).`);
 }
+
 
 // ============================================================
 // 🔁 UPDATE — synchronized world logic (OPTIMIZED)
