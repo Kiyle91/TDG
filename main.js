@@ -417,11 +417,16 @@ function showEndScreen(reason) {
   // ---------------------------
   // 🖼 Image
   // ---------------------------
+  // Get selected skin (fallback: glitter)
+  const skinKey = gameState?.profile?.cosmetics?.skin || "glitter";
+  const folder = skinKey; // folder name matches key
+
   const img = document.createElement("img");
+
   if (reason === "victory") {
-    img.src = "./assets/images/sprites/glitter/glitter_attack_right.png";
+    img.src = `./assets/images/sprites/${folder}/${folder}_attack_right.png`;
   } else {
-    img.src = "./assets/images/sprites/glitter/glitter_slain.png";
+    img.src = `./assets/images/sprites/${folder}/${folder}_slain.png`;
   }
 
   img.style.display = "block";
