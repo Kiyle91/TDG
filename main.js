@@ -30,7 +30,7 @@ import {
   setCurrentMap,
   saveProfiles
 } from "./utils/gameState.js";
-import { updateHUD } from "./core/ui.js";
+import { updateBraveryBar, updateHUD } from "./core/ui.js";
 import { startGoblinIntroStory } from "./core/story.js";
 import { initNavbar } from "./core/navbar.js";
 import { applyMapSpawn } from "./core/game.js";
@@ -311,6 +311,50 @@ export function resetGameplay() {
   p.dead = false;
   p.facing = "right";
 
+  // ==========================================================
+  // 🌊 FULL WAVE SYSTEM RESET
+  // ==========================================================
+  if (window.currentWaveIndex !== undefined) window.currentWaveIndex = 0;
+  if (window.waveActive !== undefined) window.waveActive = false;
+  if (window.waveCleared !== undefined) window.waveCleared = false;
+
+  if (window.spawnQueue !== undefined && Array.isArray(window.spawnQueue))
+    window.spawnQueue.length = 0;
+
+  if (window.goblinsDefeated !== undefined)
+    window.goblinsDefeated = 0;
+
+  // Reset ogres / elites / worgs
+  if (window.getOgres) {
+    const ogres = getOgres();
+    if (ogres?.length) ogres.length = 0;
+  }
+  if (window.getElites) {
+    const elites = getElites();
+    if (elites?.length) elites.length = 0;
+  }
+  if (window.getWorgs) {
+    const worgs = getWorgs();
+    if (worgs?.length) worgs.length = 0;
+  }
+
+  // Reset goblins fully
+  if (typeof initEnemies === "function") {
+    initEnemies();
+  }
+
+  // ==========================================================
+  // ⭐ Reset bravery system too (important)
+  // ==========================================================
+  if (gameState.bravery) {
+    gameState.bravery.current = 0;
+    gameState.bravery.charged = false;
+    gameState.bravery.draining = false;
+  }
+
+  updateBraveryBar?.();
+
+
   // ⭐ FIX: Use correct spawn for current map
   if (typeof applyMapSpawn === "function") {
     applyMapSpawn();
@@ -318,6 +362,13 @@ export function resetGameplay() {
 
   document.getElementById("end-screen")?.remove();
   resetCombatState();
+
+  // ==========================================================
+  // 🚀 START FIRST WAVE AGAIN
+  // ==========================================================
+  if (typeof startNextWave === "function") {
+    startNextWave();
+  }
 
   lastTimestamp = performance.now();
   accumulator = 0;
@@ -327,7 +378,6 @@ export function resetGameplay() {
 
   console.log("🌸 Restart complete.");
 }
-
 
 
 // ============================================================
