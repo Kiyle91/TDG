@@ -34,7 +34,7 @@ export function updateMapTiles() {
 }
 
 // ------------------------------------------------------------
-// Click handlers — FULLY FIXED + CLOSE OVERLAY
+// Click handlers — FULLY FIXED + CLOSE OVERLAY + GOLD RESET
 // ------------------------------------------------------------
 export function initMapSelect() {
   updateMapTiles();
@@ -54,25 +54,33 @@ export function initMapSelect() {
       // 1️⃣ Update global map state
       setCurrentMap(level);
 
+      // ⭐ RESET GOLD — fresh economy each map
+      if (gameState.profile?.currencies) {
+        gameState.profile.currencies.gold = 100;
+      }
+
+      // Save after the change
+      saveProfiles();
+
       // 2️⃣ Reset everything from previous battle
       resetCombatState();
 
-      // 3️⃣ Spawn hero at correct start of selected map
+      // 3️⃣ Place hero at map start
       applyMapSpawn();
 
       // 4️⃣ Save so nothing overrides the new currentMap
       saveProfiles();
 
-      // 5️⃣ CLOSE MAP OVERLAY (NEW)
+      // 5️⃣ CLOSE overlay
       document.getElementById("overlay-maps")?.classList.remove("active");
 
       // 6️⃣ Switch to the map screen
       showScreen("game-container");
 
-      // 7️⃣ FULL RELOAD of gameplay systems + map data
+      // 7️⃣ Reload all combat/map systems
       await initGame();
 
-      // 8️⃣ Start game loop
+      // 8️⃣ Start loop
       startGameplay();
     });
   });

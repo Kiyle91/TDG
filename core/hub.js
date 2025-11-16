@@ -291,7 +291,6 @@ function refreshSkinsMenu() {
   });
 
   const { gold, diamonds } = getCurrencies();
-  document.getElementById("hub-gold").textContent = gold;
   document.getElementById("hub-diamonds").textContent = diamonds;
 }
 
@@ -301,7 +300,6 @@ function refreshSkinsMenu() {
 // ============================================================
 export function updateHubCurrencies() {
   const { gold, diamonds } = getCurrencies();
-  document.getElementById("hub-gold").textContent = `Gold: ${gold}`;
   document.getElementById("hub-diamonds").textContent = `Diamonds: ${diamonds}`;
 }
 

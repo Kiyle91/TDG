@@ -104,83 +104,130 @@ export function snapshotGame() {
 }
 
 // ------------------------------------------------------------
-// ♻️ SNAPSHOT APPLICATION (in-game)
+// ♻️ SNAPSHOT APPLICATION (in-game) — FINAL, SAFE VERSION
 // ------------------------------------------------------------
-
 export function applySnapshot(snapshot) {
   if (!snapshot) return;
   console.log("♻️ applySnapshot", snapshot);
 
   // ⭐ 1) Preserve profile-wide cosmetic data BEFORE applying snapshot
   const currentSkin = gameState.player?.skin || "glitter";
-  const currentUnlocked = gameState.player?.unlockedSkins || ["glitter"];
+  const currentUnlocked =
+    gameState.player?.unlockedSkins || ["glitter"];
 
-  // ⭐ Apply progress from snapshot
+  // ------------------------------------------------------------
+  // 2) Restore PROGRESS
+  // ------------------------------------------------------------
   if (snapshot.progress) {
     gameState.progress = safeClone(snapshot.progress);
   }
 
-  // ⭐ Apply gameplay player data (BUT DO NOT TOUCH SKINS)
+  // ------------------------------------------------------------
+  // 3) Restore PLAYER (but NEVER touch skin data)
+  // ------------------------------------------------------------
   if (snapshot.player) {
     const restored = safeClone(snapshot.player);
 
-    // Remove any skin data contained in the snapshot
+    // Strip out cosmetics from snapshot
     delete restored.skin;
     delete restored.unlockedSkins;
 
     gameState.player = restored;
   }
 
-  // ⭐ Restore cosmetic data (PROFILE-WIDE)
+  // Restore cosmetics BACK onto player
   gameState.player.skin = currentSkin;
   gameState.player.unlockedSkins = currentUnlocked;
 
-  // ⭐ HUD info
+  // ------------------------------------------------------------
+  // 4) Restore HUD meta (wave, totalWaves)
+  // ------------------------------------------------------------
   if (snapshot.meta) {
-    gameState.wave = snapshot.meta.wave ?? gameState.wave;
-    gameState.totalWaves = snapshot.meta.totalWaves ?? gameState.totalWaves;
+    gameState.wave =
+      snapshot.meta.wave ?? gameState.wave;
+    gameState.totalWaves =
+      snapshot.meta.totalWaves ?? gameState.totalWaves;
   }
 
-  // ⭐ Restore towers
+  // ------------------------------------------------------------
+  // ⭐ 5) Restore ONLY GOLD (NOT diamonds)
+  // ------------------------------------------------------------
+  if (snapshot.meta) {
+    const prof = gameState.profile;
+    if (prof && prof.currencies) {
+      prof.currencies.gold =
+        snapshot.meta.gold ??
+        prof.currencies.gold ??
+        0;
+
+      // ⭐ DO NOT RESTORE DIAMONDS.
+      // Diamonds remain global & persistent.
+    }
+  }
+
+  // ------------------------------------------------------------
+  // 6) Restore towers
+  // ------------------------------------------------------------
   const towersArr = getTowers();
   towersArr.length = 0;
   if (Array.isArray(snapshot.towers)) {
-    snapshot.towers.forEach(t => towersArr.push(safeClone(t)));
+    snapshot.towers.forEach(t =>
+      towersArr.push(safeClone(t))
+    );
   }
 
-  // ⭐ Restore goblins
+  // ------------------------------------------------------------
+  // 7) Restore goblins
+  // ------------------------------------------------------------
   const gobArr = getEnemies();
   gobArr.length = 0;
   if (Array.isArray(snapshot.goblins)) {
-    snapshot.goblins.forEach(g => gobArr.push(safeClone(g)));
+    snapshot.goblins.forEach(g =>
+      gobArr.push(safeClone(g))
+    );
   }
 
-  // ⭐ Restore worgs
+  // ------------------------------------------------------------
+  // 8) Restore worgs
+  // ------------------------------------------------------------
   const worgArr = getWorg();
   if (Array.isArray(worgArr)) {
     worgArr.length = 0;
     if (Array.isArray(snapshot.worgs)) {
-      snapshot.worgs.forEach(w => worgArr.push(safeClone(w)));
+      snapshot.worgs.forEach(w =>
+        worgArr.push(safeClone(w))
+      );
     }
   }
 
-  // ⭐ Restore elites
+  // ------------------------------------------------------------
+  // 9) Restore elites
+  // ------------------------------------------------------------
   clearElites();
   const eliteArr = getElites();
   if (Array.isArray(snapshot.elites)) {
-    snapshot.elites.forEach(e => eliteArr.push(safeClone(e)));
+    snapshot.elites.forEach(e =>
+      eliteArr.push(safeClone(e))
+    );
   }
 
-  // ⭐ Restore ogres
+  // ------------------------------------------------------------
+  // 🔟 Restore ogres
+  // ------------------------------------------------------------
   clearOgres();
   const ogreArr = getOgres();
   if (Array.isArray(snapshot.ogres)) {
-    snapshot.ogres.forEach(o => ogreArr.push(safeClone(o)));
+    snapshot.ogres.forEach(o =>
+      ogreArr.push(safeClone(o))
+    );
   }
 
-  // ⭐ Refresh HUD immediately
+  // ------------------------------------------------------------
+  // 11) Refresh HUD immediately
+  // ------------------------------------------------------------
   updateHUD();
 }
+
 
 
 // ------------------------------------------------------------

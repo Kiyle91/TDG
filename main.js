@@ -180,13 +180,14 @@ export function fullNewGameReset() {
   // Also for profile storage
   if (!gameState.profile.progress) gameState.profile.progress = {};
   gameState.profile.progress.currentMap = 1;
-  gameState.profile.progress.mapsUnlocked = [true, false, false, false, false, false, false, false, false];
+  gameState.profile.progress.mapsUnlocked = 
+    [true, false, false, false, false, false, false, false, false];
 
   // ----------------------------------------------------------
   // 2️⃣ Reset the player to a FRESH character, but KEEP skins
   // ----------------------------------------------------------
-  const prevSkin      = gameState.player?.skin || "glitter";
-  const prevUnlocked  = gameState.player?.unlockedSkins ?? ["glitter"];
+  const prevSkin     = gameState.player?.skin || "glitter";
+  const prevUnlocked = gameState.player?.unlockedSkins ?? ["glitter"];
 
   gameState.player = {
       name: gameState.profile.name || "Olivia",
@@ -216,6 +217,13 @@ export function fullNewGameReset() {
       skin: prevSkin,
       unlockedSkins: prevUnlocked,
   };
+
+  // ----------------------------------------------------------
+  // 💰 2B — RESET GOLD FOR A NEW GAME
+  // ----------------------------------------------------------
+  if (gameState.profile?.currencies) {
+      gameState.profile.currencies.gold = 100;   // or any start value
+  }
 
   // ----------------------------------------------------------
   // 3️⃣ Reset all unlocks / systems
@@ -249,6 +257,7 @@ export function fullNewGameReset() {
 
   console.log("🌟 New character created: Level 1, Map 1, Fresh progress.");
 }
+
 
 // ============================================================
 // 🌟 START NEW GAME — run when user clicks "New Story"
