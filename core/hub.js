@@ -94,9 +94,14 @@ export function initHub() {
     }, { once: true });
   });
 
-  // MAPS
+    // MAPS
   mapsBtn.addEventListener("click", () => {
     playFairySprinkle();
+
+    // ⭐ CRITICAL: Re-enable overlay interactivity
+    const ov = document.getElementById("overlay-maps");
+    if (ov) ov.style.pointerEvents = "auto";
+
     import("./maps.js").then(mod => mod.initMapSelect?.());
     showOverlay("overlay-maps");
   });
