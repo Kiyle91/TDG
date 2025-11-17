@@ -12,6 +12,7 @@
 import { damageEnemy } from "./enemies.js";
 import { gameState } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
+import { damageCrossbow } from "./crossbow.js";
 
 const PROJECTILE_SPEED = 480;
 
@@ -123,6 +124,7 @@ export function updateProjectiles(delta) {
         if (gameState.echoPowerActive) dmg *= 2;
 
         damageEnemy(t, dmg);
+
       }
 
       // --------------------------------------------------------

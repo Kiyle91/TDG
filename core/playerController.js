@@ -31,6 +31,7 @@ import { getTrolls } from "./troll.js";
 import { getMapPixelSize } from "./map.js";
 import { SKINS } from "./skins.js";
 import { activateBravery } from "./ui.js";
+import { getCrossbows } from "./crossbow.js";
 
 
 // Tower hotkeys
@@ -302,8 +303,9 @@ function performMeleeAttack() {
   const worgs = getWorg();
   const elites = getElites();
   const trolls = getTrolls();
+  const crossbows =getCrossbows();
 
-  const allTargets = [...goblins, ...ogres, ...worgs, ...elites, ...trolls];
+  const allTargets = [...goblins, ...ogres, ...worgs, ...elites, ...trolls, ...crossbows];
 
   for (const t of allTargets) {
     if (!t.alive) continue;
@@ -421,7 +423,7 @@ function performRangedAttack(e) {
     projectile.y += Math.sin(projectile.angle) * projectile.speed * dt;
     projectile.life += 16;
 
-    const targets = [...getEnemies(), ...getOgres(), ...getWorg(), ...getElites(), ...getTrolls()];
+    const targets = [...getEnemies(), ...getOgres(), ...getWorg(), ...getElites(), ...getTrolls(), ...getCrossbows()];
     for (const t of targets) {
       if (!t.alive) continue;
 
@@ -536,7 +538,7 @@ function performSpell() {
     const radius = 150;
     let hits = 0;
 
-    const targets = [...getEnemies(), ...getOgres(), ...getWorg(), ...getElites(), ...getTrolls()];
+    const targets = [...getEnemies(), ...getOgres(), ...getWorg(), ...getElites(), ...getTrolls(), ...getCrossbows()];
 
     for (const t of targets) {
       if (!t.alive) continue;

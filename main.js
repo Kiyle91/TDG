@@ -38,6 +38,7 @@ import { initCredits } from "./core/credits.js";
 import { getOgres } from "./core/ogre.js";
 import { getElites } from "./core/elite.js";
 import { getWorg } from "./core/worg.js";
+import { getCrossbows } from "./core/crossbow.js";
 
 // ============================================================
 // 🎮 GLOBAL GAME LOOP STATE
@@ -333,6 +334,11 @@ export async function resetGameplay() {
   {
     const worg = getWorg();
     if (worg?.length) worg.length = 0;
+  }
+
+  {
+    const crossbow = getCrossbows();
+    if (crossbow?.length) crossbow.length = 0;
   }
 
   // Reset goblins fully

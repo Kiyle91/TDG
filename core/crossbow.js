@@ -51,6 +51,11 @@ function loadImage(src) {
   return new Promise((resolve) => {
     const img = new Image();
     img.src = src;
+
+    img.decoding = "sync";
+    img.loading = "eager";
+    img.style.imageRendering = "pixelated";
+
     img.onload = () => resolve(img);
     img.onerror = () => resolve(null);
   });
@@ -60,50 +65,54 @@ async function loadCrossbowSprites() {
   const base = "./assets/images/sprites/crossbow";
 
   const [
-    idleRight,
-    idleLeft,
-    walkRight1,
-    walkRight2,
-    walkLeft1,
-    walkLeft2,
-    attackRight1,
-    attackRight2,
-    attackLeft1,
-    attackLeft2,
-    slain,
+    idle,                 // use generic idle
+    walkR1, walkR2,       // W1 / W2 = right walk
+    walkL1, walkL2,       // A1 / A2 used as left walk
+    shootR,               // shoot right
+    shootL,               // shoot left
+    raiseR, raiseL,       // raise bow
+    lowerR, lowerL,       // lower bow
+    slain
   ] = await Promise.all([
-    loadImage(`${base}/crossbow_idle_right.png`),
-    loadImage(`${base}/crossbow_idle_left.png`),
+
+    loadImage(`${base}/crossbow_idle.png`),
+
     loadImage(`${base}/crossbow_W1.png`),
     loadImage(`${base}/crossbow_W2.png`),
+
     loadImage(`${base}/crossbow_A1.png`),
     loadImage(`${base}/crossbow_A2.png`),
-    loadImage(`${base}/crossbow_attack_right_1.png`),
-    loadImage(`${base}/crossbow_attack_right_2.png`),
-    loadImage(`${base}/crossbow_attack_left_1.png`),
-    loadImage(`${base}/crossbow_attack_left_2.png`),
+
+    loadImage(`${base}/crossbow_shoot_right.png`),
+    loadImage(`${base}/crossbow_shoot_left.png`),
+
+    loadImage(`${base}/crossbow_raise_right.png`),
+    loadImage(`${base}/crossbow_raise_left.png`),
+
+    loadImage(`${base}/crossbow_lower_right.png`),
+    loadImage(`${base}/crossbow_lower_left.png`),
+
     loadImage(`${base}/crossbow_slain.png`),
   ]);
 
   crossbowSprites = {
     idle: {
-      right: idleRight || walkRight1,
-      left: idleLeft || walkLeft1,
+      right: idle,
+      left: idle,
     },
     walk: {
-      right: [walkRight1, walkRight2].filter(Boolean),
-      left: [walkLeft1, walkLeft2].filter(Boolean),
+      right: [walkR1, walkR2].filter(Boolean),
+      left: [walkL1, walkL2].filter(Boolean),
     },
     attack: {
-      right: [attackRight1, attackRight2].filter(Boolean),
-      left: [attackLeft1, attackLeft2].filter(Boolean),
+      right: [raiseR, shootR, lowerR].filter(Boolean),
+      left: [raiseL, shootL, lowerL].filter(Boolean),
     },
-    slain: slain || walkRight1,
+    slain: slain || idle,
   };
 
-  console.log("🏹 Crossbow sprites loaded.");
+  console.log("🏹 Crossbow sprites loaded (CORRECTED).");
 }
-
 // ------------------------------------------------------------
 // 🔄 PATH MOVEMENT HELPER (same style as other path enemies)
 // ------------------------------------------------------------
@@ -165,16 +174,25 @@ export async function initCrossbows(path) {
 // 🧬 SPAWN
 // ------------------------------------------------------------
 export function spawnCrossbow() {
-  if (!pathPoints || pathPoints.length === 0) {
-    console.warn("⚠️ Cannot spawn crossbow — no pathPoints set.");
-    return;
-  }
+  const p = gameState.player;
+  if (!p) return;
 
-  const start = pathPoints[0];
+  // Use the same map bounds as elites
+  const mapW = gameState.mapWidth ?? 3000;
+  const mapH = gameState.mapHeight ?? 3000;
+
+  // Spawn off-screen (same system as elites)
+  const side = Math.floor(Math.random() * 4);
+  let x, y;
+
+  if (side === 0) { x = Math.random() * mapW; y = -200; }
+  else if (side === 1) { x = Math.random() * mapW; y = mapH + 200; }
+  else if (side === 2) { x = -200; y = Math.random() * mapH; }
+  else { x = mapW + 200; y = Math.random() * mapH; }
 
   crossbowList.push({
-    x: start.x,
-    y: start.y,
+    x,
+    y,
     width: CROSSBOW_SIZE,
     height: CROSSBOW_SIZE,
     hp: CROSSBOW_HP,
@@ -183,29 +201,21 @@ export function spawnCrossbow() {
     dead: false,
     fading: false,
     fade: 1,
+
     dir: "right",
 
-    // Path data
-    pathIndex: 0,
-    segmentT: 0,
-
-    // Animation
+    // Movement + animation
     walkTimer: 0,
     walkFrame: 0,
-    attackTimer: 0,
     attacking: false,
     attackFrame: 0,
-
-    // Combat
-    lastHitTime: 0,
+    attackTimer: 0,
   });
 
-  console.log("🏹 Crossbow spawned.");
+  console.log("🏹 Crossbow spawned (off-screen).");
 }
 
-// ------------------------------------------------------------
-// 🔁 UPDATE
-// ------------------------------------------------------------
+
 export function updateCrossbows(delta) {
   delta = Math.min(delta, 100);
   const dt = delta / 1000;
@@ -216,30 +226,34 @@ export function updateCrossbows(delta) {
   for (let i = crossbowList.length - 1; i >= 0; i--) {
     const c = crossbowList[i];
 
+    // --------------------------------------------------------
+    // 💀 DEATH FADE
+    // --------------------------------------------------------
     if (!c.alive) {
-      // Death fade
       if (!c.fading) {
         c.fading = true;
         c.fade = 1;
       }
       c.fade -= dt;
-      if (c.fade <= 0) {
-        crossbowList.splice(i, 1);
-      }
+      if (c.fade <= 0) crossbowList.splice(i, 1);
       continue;
     }
 
-    // Distance to player
+    // --------------------------------------------------------
+    // 📏 DISTANCE + DIRECTION
+    // --------------------------------------------------------
     const px = player.pos?.x ?? player.x ?? 0;
     const py = player.pos?.y ?? player.y ?? 0;
+
     const dx = px - c.x;
     const dy = py - c.y;
     const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
-    // Direction for facing
     c.dir = (dx < 0) ? "left" : "right";
 
-    // Attack cooldown
+    // --------------------------------------------------------
+    // ⏱ ATTACK COOLDOWN
+    // --------------------------------------------------------
     if (c.attackTimer > 0) {
       c.attackTimer -= delta;
     }
@@ -249,7 +263,7 @@ export function updateCrossbows(delta) {
     // --------------------------------------------------------
     if (
       dist <= ATTACK_RANGE &&
-      dist >= IDEAL_MIN_RANGE * 0.7 &&   // not point-blank
+      dist >= IDEAL_MIN_RANGE * 0.7 &&
       c.attackTimer <= 0 &&
       !c.attacking &&
       !player.dead
@@ -260,13 +274,13 @@ export function updateCrossbows(delta) {
 
       const startTime = performance.now();
 
-      // Frame flip (simple 2-frame attack)
+      // Animation frame flip
       setTimeout(() => {
         if (!c.alive) return;
         c.attackFrame = 1;
       }, ATTACK_WINDUP_MS * 0.5);
 
-      // Apply damage at windup
+      // Apply damage during windup
       setTimeout(() => {
         if (!c.alive || player.dead) return;
 
@@ -274,26 +288,26 @@ export function updateCrossbows(delta) {
         const elapsed = now - startTime;
         if (elapsed > ATTACK_DURATION_MS + 200) return;
 
-        // Re-check distance to avoid sniping across map
+        // Recheck distance at moment of hit
         const px2 = player.pos?.x ?? player.x ?? 0;
         const py2 = player.pos?.y ?? player.y ?? 0;
         const ddx = px2 - c.x;
         const ddy = py2 - c.y;
-        const d2 = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+        const d2 = Math.sqrt(ddx * ddx + ddy * ddy);
 
         if (d2 <= ATTACK_RANGE + 40) {
           const dmg = ATTACK_DAMAGE;
-          player.hp = Math.max(0, (player.hp ?? player.maxHp ?? 100) - dmg);
-          spawnDamageSparkles?.(px2, py2);
 
+          player.hp = Math.max(0, (player.hp ?? player.maxHp ?? 100) - dmg);
+
+          spawnDamageSparkles?.(px2, py2);
           spawnFloatingText(`-${dmg}`, px2, py2 - 40, "#ff8080");
           playGoblinDamage();
-
           updateHUD();
         }
       }, ATTACK_WINDUP_MS);
 
-      // End attack
+      // End of animation
       setTimeout(() => {
         if (!c.alive) return;
         c.attacking = false;
@@ -302,23 +316,30 @@ export function updateCrossbows(delta) {
     }
 
     // --------------------------------------------------------
-    // 🏃 MOVEMENT / KITE LOGIC
+    // 🏃 MOVEMENT / KITE LOGIC (ELITE-STYLE)
     // --------------------------------------------------------
     if (!c.attacking) {
-      // Too far → move along path toward keep
-      if (dist > ATTACK_RANGE * 1.1) {
-        moveAlongPath(c, dt, CROSSBOW_SPEED);
+      // Too far → Chase player
+      if (dist > ATTACK_RANGE * 1.05) {
+        c.x += (dx / dist) * CROSSBOW_SPEED * dt;
+        c.y += (dy / dist) * CROSSBOW_SPEED * dt;
       }
-      // Too close → step back from player
+
+      // Too close → Backpedal
       else if (dist < IDEAL_MIN_RANGE) {
         const backSpeed = CROSSBOW_SPEED * 0.7;
         c.x -= (dx / dist) * backSpeed * dt;
         c.y -= (dy / dist) * backSpeed * dt;
-      } else {
-        // In ideal range → tiny shuffle on the spot (no movement needed)
       }
 
-      // Walk animation
+      // Perfect range → small idle shuffle (optional)
+      else {
+        // No actual movement needed, keep idle
+      }
+
+      // ----------------------------------------------------
+      // 🚶 WALK ANIMATION
+      // ----------------------------------------------------
       c.walkTimer += delta;
       if (c.walkTimer >= WALK_FRAME_INTERVAL) {
         c.walkTimer = 0;
@@ -327,6 +348,7 @@ export function updateCrossbows(delta) {
     }
   }
 }
+
 
 // ------------------------------------------------------------
 // 🎨 DRAW
@@ -375,9 +397,15 @@ export function drawCrossbows(ctx) {
     ctx.fill();
 
     // Body
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.msImageSmoothingEnabled = false;
+
+    // Draw sprite
     if (img) {
-      ctx.drawImage(img, drawX, drawY, baseSize, baseSize);
+    ctx.drawImage(img, drawX, drawY, baseSize, baseSize);
     }
 
     // HP bar

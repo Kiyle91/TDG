@@ -136,6 +136,15 @@ import {
   drawGoblinDrops,
 } from "./goblinDrop.js";
 
+import {
+  initCrossbows,
+  updateCrossbows,
+  drawCrossbows,
+  spawnCrossbow,
+  getCrossbows,
+  clearCrossbows
+} from "./crossbow.js";
+
 // ------------------------------------------------------------
 // ⚙️ GLOBAL STATE IMPORTS
 // ------------------------------------------------------------
@@ -157,99 +166,99 @@ export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding (Goblins only)
   // ============================================================
   1: [
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0 },
-    { goblins: 4,  worgs: 0, ogres: 0, elites: 1, trolls: 0 },
-    { goblins: 10, worgs: 0, ogres: 0, elites: 3, trolls: 2 },
-    { goblins: 14, worgs: 0, ogres: 0, elites: 3, trolls: 0 },
-    { goblins: 20, worgs: 0, ogres: 0, elites: 3, trolls: 2 },
+    { goblins: 0,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 10 },
+    { goblins: 0,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 10 },
+    { goblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 10 },
+    { goblins: 14, worgs: 0, ogres: 0, elites: 3, trolls: 0, crossbows: 0 },
+    { goblins: 20, worgs: 0, ogres: 0, elites: 3, trolls: 2, crossbows: 0 },
   ],
 
   // ============================================================
   // 🌲 MAP 2 — First Worg Pack + First Elite
   // ============================================================
   2: [
-    { goblins: 12, worgs: 0,  ogres: 0, elites: 6, trolls: 4 },
-    { goblins: 8,  worgs: 8,  ogres: 0, elites: 8, trolls: 4 },
-    { goblins: 16, worgs: 10, ogres: 0, elites: 12, trolls: 6 },
-    { goblins: 18, worgs: 14, ogres: 1, elites: 12, trolls: 6},
-    { goblins: 20, worgs: 16, ogres: 1, elites: 16, trolls: 8},
+    { goblins: 12, worgs: 0,  ogres: 0, elites: 6, trolls: 4, crossbows: 0 },
+    { goblins: 8,  worgs: 8,  ogres: 0, elites: 8, trolls: 4, crossbows: 0 },
+    { goblins: 16, worgs: 10, ogres: 0, elites: 12, trolls: 6, crossbows: 0 },
+    { goblins: 18, worgs: 14, ogres: 1, elites: 12, trolls: 6, crossbows: 0},
+    { goblins: 20, worgs: 16, ogres: 1, elites: 16, trolls: 8, crossbows: 0},
   ],
 
   // ============================================================
   // 🏞 MAP 3 — Balanced Mix + First Difficulty Curve
   // ============================================================
   3: [
-    { goblins: 18, worgs: 8,  ogres: 0, elites: 16, trolls: 8 },
-    { goblins: 20, worgs: 10, ogres: 0, elites: 16, trolls: 12 },
-    { goblins: 24, worgs: 12, ogres: 1, elites: 18, trolls: 12},
-    { goblins: 28, worgs: 14, ogres: 1, elites: 20, trolls: 12},
-    { goblins: 32, worgs: 16, ogres: 2, elites: 22, trolls: 12},
+    { goblins: 18, worgs: 8,  ogres: 0, elites: 16, trolls: 8, crossbows: 0 },
+    { goblins: 20, worgs: 10, ogres: 0, elites: 16, trolls: 12, crossbows: 0 },
+    { goblins: 24, worgs: 12, ogres: 1, elites: 18, trolls: 12, crossbows: 0},
+    { goblins: 28, worgs: 14, ogres: 1, elites: 20, trolls: 12, crossbows: 0},
+    { goblins: 32, worgs: 16, ogres: 2, elites: 22, trolls: 12, crossbows: 0},
   ],
 
   // ============================================================
   // ❄ MAP 4 — Worg Pressure Map (Fast waves)
   // ============================================================
   4: [
-    { goblins: 20, worgs: 12, ogres: 0, elites: 21, trolls: 12 },
-    { goblins: 18, worgs: 16, ogres: 0, elites: 21, trolls: 12 },
-    { goblins: 22, worgs: 20, ogres: 1, elites: 22, trolls: 12 },
-    { goblins: 16, worgs: 24, ogres: 1, elites: 22, trolls: 12 },
-    { goblins: 20, worgs: 28, ogres: 2, elites: 23, trolls: 12 },
+    { goblins: 20, worgs: 12, ogres: 0, elites: 21, trolls: 12, crossbows: 0 },
+    { goblins: 18, worgs: 16, ogres: 0, elites: 21, trolls: 12, crossbows: 0 },
+    { goblins: 22, worgs: 20, ogres: 1, elites: 22, trolls: 12, crossbows: 0 },
+    { goblins: 16, worgs: 24, ogres: 1, elites: 22, trolls: 12, crossbows: 0 },
+    { goblins: 20, worgs: 28, ogres: 2, elites: 23, trolls: 12, crossbows: 0 },
   ],
 
   // ============================================================
   // 🔥 MAP 5 — Stronger Ogres + Mixed Pressure
   // ============================================================
   5: [
-    { goblins: 22, worgs: 12, ogres: 1, elites: 21, trolls: 12 },
-    { goblins: 24, worgs: 14, ogres: 1, elites: 22, trolls: 12 },
-    { goblins: 26, worgs: 18, ogres: 2, elites: 22, trolls: 12 },
-    { goblins: 0,  worgs: 0,  ogres: 4, elites: 22, trolls: 12 },
-    { goblins: 32, worgs: 20, ogres: 2, elites: 23, trolls: 12 },
+    { goblins: 22, worgs: 12, ogres: 1, elites: 21, trolls: 12, crossbows: 0 },
+    { goblins: 24, worgs: 14, ogres: 1, elites: 22, trolls: 12, crossbows: 0 },
+    { goblins: 26, worgs: 18, ogres: 2, elites: 22, trolls: 12, crossbows: 0 },
+    { goblins: 0,  worgs: 0,  ogres: 4, elites: 22, trolls: 12, crossbows: 0 },
+    { goblins: 32, worgs: 20, ogres: 2, elites: 23, trolls: 12, crossbows: 0 },
   ],
 
   // ============================================================
   // 🜂 MAP 6 — Chaotic Back-and-Forth Pattern
   // ============================================================
   6: [
-    { goblins: 30, worgs: 12, ogres: 1, elites: 22, trolls: 14 },
-    { goblins: 10, worgs: 22, ogres: 1, elites: 22, trolls: 14 },
-    { goblins: 22, worgs: 10, ogres: 2, elites: 22, trolls: 14 },
-    { goblins: 0,  worgs: 28, ogres: 0, elites: 23, trolls: 14 },
-    { goblins: 28, worgs: 20, ogres: 2, elites: 23, trolls: 14 },
+    { goblins: 30, worgs: 12, ogres: 1, elites: 22, trolls: 14, crossbows: 0 },
+    { goblins: 10, worgs: 22, ogres: 1, elites: 22, trolls: 14, crossbows: 0 },
+    { goblins: 22, worgs: 10, ogres: 2, elites: 22, trolls: 14, crossbows: 0 },
+    { goblins: 0,  worgs: 28, ogres: 0, elites: 23, trolls: 14, crossbows: 0 },
+    { goblins: 28, worgs: 20, ogres: 2, elites: 23, trolls: 14, crossbows: 0 },
   ],
 
   // ============================================================
   // ⚔ MAP 7 — Elite-Heavy Map (Mid-Game Spike)
   // ============================================================
   7: [
-    { goblins: 28, worgs: 14, ogres: 1, elites: 32, trolls: 16 },
-    { goblins: 0,  worgs: 20, ogres: 2, elites: 32, trolls: 16 },
-    { goblins: 30, worgs: 30, ogres: 2, elites: 33, trolls: 16},
-    { goblins: 10, worgs: 10, ogres: 5, elites: 33, trolls: 16},
-    { goblins: 32, worgs: 24, ogres: 3, elites: 34, trolls: 16},
+    { goblins: 28, worgs: 14, ogres: 1, elites: 32, trolls: 16, crossbows: 0 },
+    { goblins: 0,  worgs: 20, ogres: 2, elites: 32, trolls: 16, crossbows: 0 },
+    { goblins: 30, worgs: 30, ogres: 2, elites: 33, trolls: 16, crossbows: 0},
+    { goblins: 10, worgs: 10, ogres: 5, elites: 33, trolls: 16, crossbows: 0},
+    { goblins: 32, worgs: 24, ogres: 3, elites: 34, trolls: 16, crossbows: 0},
   ],
 
   // ============================================================
   // ⚡ MAP 8 — Intense Late-Game Scaling
   // ============================================================
   8: [
-    { goblins: 36, worgs: 20, ogres: 1, elites: 32, trolls: 16 },
-    { goblins: 40, worgs: 24, ogres: 1, elites: 32, trolls: 16 },
-    { goblins: 40, worgs: 28, ogres: 2, elites: 33, trolls: 16 },
-    { goblins: 42, worgs: 12, ogres: 0, elites: 33, trolls: 16 },
-    { goblins: 44, worgs: 14, ogres: 3, elites: 34, trolls: 16},
+    { goblins: 36, worgs: 20, ogres: 1, elites: 32, trolls: 16, crossbows: 0 },
+    { goblins: 40, worgs: 24, ogres: 1, elites: 32, trolls: 16, crossbows: 0 },
+    { goblins: 40, worgs: 28, ogres: 2, elites: 33, trolls: 16, crossbows: 0 },
+    { goblins: 42, worgs: 12, ogres: 0, elites: 33, trolls: 16, crossbows: 0 },
+    { goblins: 44, worgs: 14, ogres: 3, elites: 34, trolls: 16, crossbows: 0},
   ],
 
   // ============================================================
   // 👑 MAP 9 — Final Showdown (Hardest Waves)
   // ============================================================
   9: [
-    { goblins: 50, worgs: 30, ogres: 2, elites: 33, trolls: 20 },
-    { goblins: 55, worgs: 35, ogres: 3, elites: 33, trolls: 20 },
-    { goblins: 40, worgs: 20, ogres: 5, elites: 34, trolls: 20 },
-    { goblins: 60, worgs: 40, ogres: 5, elites: 34, trolls: 20 },
-    { goblins: 70, worgs: 50, ogres: 7, elites: 35, trolls: 20 },
+    { goblins: 50, worgs: 30, ogres: 2, elites: 33, trolls: 20, crossbows: 0 },
+    { goblins: 55, worgs: 35, ogres: 3, elites: 33, trolls: 20, crossbows: 0 },
+    { goblins: 40, worgs: 20, ogres: 5, elites: 34, trolls: 20, crossbows: 0 },
+    { goblins: 60, worgs: 40, ogres: 5, elites: 34, trolls: 20, crossbows: 0 },
+    { goblins: 70, worgs: 50, ogres: 7, elites: 35, trolls: 20, crossbows: 0 },
   ],
 };
 
@@ -334,6 +343,8 @@ function startNextWave() {
         spawnOgre();
       }
 
+      if (i < wave.crossbows) spawnCrossbow();
+
     });
   }
 
@@ -358,6 +369,10 @@ function startNextWave() {
     spawnQueue.push(() => spawnTroll());
   }
 
+  for (let i = wave.goblins; i < wave.crossbows; i++) {
+    spawnQueue.push(() => spawnCrossbow());
+  }
+
 }
 
 
@@ -371,11 +386,13 @@ function noEnemiesAlive() {
   const o = getOgres();
   const e = getElites(); // 🟥 NEW — include elites
   const t = getTrolls(); 
+  const x = getCrossbows();
 
   const aliveG = g.filter(x => x.alive).length;
   const aliveW = w.filter(x => x.alive).length;
   const aliveO = o.filter(x => x.alive).length;
   const aliveE = e.filter(x => x.alive).length; // 🟥 NEW
+  const aliveX = x.filter(x => x.alive).length;
 
   const totalAlive = aliveG + aliveW + aliveO + aliveE;
 
@@ -622,6 +639,7 @@ export async function initGame(mode = "new") {
   await initWorg(pathPoints);
   await initElites();
   await initTrolls(pathPoints);
+  await initCrossbows();
   initTowers();
   initOgres();
   initProjectiles();
@@ -682,6 +700,7 @@ export function updateGame(delta) {
 
   updateEnemies(delta);
   updateWorg(delta);
+  updateCrossbows(delta);
   updateElites(delta);
   updateTrolls(delta);
   updateTowers(delta);
@@ -750,6 +769,7 @@ export function renderGame() {
   // Entities
   drawTowers(ctx);
   drawWorg(ctx);
+  drawCrossbows(ctx);
   drawEnemies(ctx);
   drawElites(ctx);
   drawTrolls(ctx);
@@ -874,6 +894,7 @@ export function resetCombatState() {
   clearOgres();
   clearLoot();
   clearElites();
+  clearCrossbows()
 
   // Re-init combat systems
   initEnemies();

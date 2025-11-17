@@ -21,6 +21,7 @@ import { getWorg } from "./worg.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { gameState } from "../utils/gameState.js";
 import { getTrolls } from "./troll.js";
+import { getCrossbows } from "./crossbow.js";
 
 let turretSprites = {};
 let towers = [];
@@ -108,7 +109,7 @@ function findNearestEnemy(tower, enemies, range) {
 export function updateTowers(delta) {
   const dt = delta / 1000;
 
-  const combinedEnemies = [...getEnemies(), ...getWorg(), ...getElites(), ...getTrolls()];
+  const combinedEnemies = [...getEnemies(), ...getWorg(), ...getElites(), ...getTrolls(), ...getCrossbows()];
 
   for (let i = towers.length - 1; i >= 0; i--) {
     const tower = towers[i];
