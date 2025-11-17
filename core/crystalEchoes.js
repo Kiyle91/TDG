@@ -1,10 +1,12 @@
 // ============================================================
 // 💎 crystalEchoes.js — Exploration Collectibles System
 // ------------------------------------------------------------
-// • Spawns fixed “Crystal Echoes” on each map
-// • Player collects them → XP + Diamonds (if all found)
-// • Updates HUD live
-// • Pastel glow + floating text
+// • Fixed-position Crystal Echoes
+// • Collect → XP + Diamonds + burst effect
+// • Random sprite per echo
+// • 74px crystals (large & readable)
+// • NO idle pulsing animation
+// • Clean burst effect on collect
 // ============================================================
 
 import { gameState, addDiamonds } from "../utils/gameState.js";
@@ -17,22 +19,49 @@ let echoes = [];
 let totalEchoes = 0;
 
 // ------------------------------------------------------------
-// 🔄 RESET for new map
+// 📦 CRYSTAL SPRITE IMAGES
+// ------------------------------------------------------------
+const crystalImages = [
+  "./assets/images/characters/crystal_echo_black.png",
+  "./assets/images/characters/crystal_echo_blue.png",
+  "./assets/images/characters/crystal_echo_red.png",
+  "./assets/images/characters/crystal_echo_clear.png",
+  "./assets/images/characters/crystal_echo_yellow.png",
+];
+
+let preloadedImages = [];
+
+function preloadCrystalImages() {
+  preloadedImages = crystalImages.map((src) => {
+    const img = new Image();
+    img.src = src;
+    return img;
+  });
+}
+preloadCrystalImages();
+
+// ------------------------------------------------------------
+// 🔄 INIT FOR NEW MAP
 // ------------------------------------------------------------
 export function initCrystalEchoes(mapData) {
   echoes = [];
 
   if (mapData.crystalEchoes && Array.isArray(mapData.crystalEchoes)) {
     echoes = structuredClone(mapData.crystalEchoes);
+
+    // assign random sprite
+    for (const e of echoes) {
+      e.img =
+        preloadedImages[Math.floor(Math.random() * preloadedImages.length)];
+    }
   }
 
   totalEchoes = echoes.length;
 
-  // Store in global state for HUD
   gameState.exploration = {
     found: 0,
     total: totalEchoes,
-    bonusGiven: false
+    bonusGiven: false,
   };
 
   updateHUD();
@@ -40,55 +69,61 @@ export function initCrystalEchoes(mapData) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW + CHECK COLLECTION
+// 🎨 RENDER + COLLISION
 // ------------------------------------------------------------
 export function updateCrystalEchoes(ctx, player) {
+  const size = 74;
+
   for (let i = echoes.length - 1; i >= 0; i--) {
     const c = echoes[i];
-    const px = player.x;
-    const py = player.y;
 
-    const dx = px - c.x;
-    const dy = py - c.y;
+    // >>> NO MORE PULSING <<<
+    ctx.drawImage(
+      c.img,
+      c.x - size / 2,
+      c.y - size / 2,
+      size,
+      size
+    );
+
+    // collection check
+    const dx = player.x - c.x;
+    const dy = player.y - c.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    // 🌟 Draw glowing pastel crystal
-    const pulse = 0.7 + Math.sin(Date.now() / 300) * 0.3;
-
-    ctx.save();
-    ctx.globalAlpha = pulse;
-    ctx.fillStyle = "rgba(195, 165, 255, 0.90)";
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, 14, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // ✨ Collect when near
     if (dist < 48) {
-      collectCrystalEcho(c, i);
+      collectCrystalEcho(c, i, ctx);
     }
   }
 }
 
 // ------------------------------------------------------------
-// ✨ COLLECTION HANDLER
+// ✨ COLLECTION + BURST EFFECT
 // ------------------------------------------------------------
-function collectCrystalEcho(crystal, index) {
+function collectCrystalEcho(crystal, index, ctx) {
+  // Remove echo from list
   echoes.splice(index, 1);
+
   gameState.exploration.found++;
 
-  // XP reward (small)
+  // Small XP reward
   awardXP(20);
 
-  // Visual feedback
+  // Floating text
   spawnFloatingText("+20 XP", crystal.x, crystal.y - 10, "#DAB4FF");
   playFairySprinkle();
 
+  // HUD refresh
   updateHUD();
 
-  console.log(`💎 Crystal Echo found (${gameState.exploration.found}/${totalEchoes})`);
+  // ⭐ Burst animation
+  drawBurstEffect(crystal);
 
-  // Award final bonus
+  console.log(
+    `💎 Crystal Echo found (${gameState.exploration.found}/${totalEchoes})`
+  );
+
+  // final diamond bonus
   if (
     gameState.exploration.found === totalEchoes &&
     !gameState.exploration.bonusGiven
@@ -98,12 +133,48 @@ function collectCrystalEcho(crystal, index) {
 }
 
 // ------------------------------------------------------------
-// 💰 AWARD DIAMOND BONUS
+// 🌟 MAGIC BURST EFFECT
+// ------------------------------------------------------------
+function drawBurstEffect(crystal) {
+  const canvas = document.getElementById("game-canvas");
+  const ctx = canvas.getContext("2d");
+
+  const x = crystal.x;
+  const y = crystal.y;
+
+  const maxRadius = 90;
+  const duration = 320;
+  const start = performance.now();
+
+  function animate(now) {
+    const t = (now - start) / duration;
+    if (t > 1) return;
+
+    const radius = maxRadius * t;
+    const alpha = 1 - t;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "rgba(220, 180, 255, 0.55)";
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// ------------------------------------------------------------
+// 💎 AWARD FINAL BONUS
 // ------------------------------------------------------------
 function awardCrystalBonus(lastCrystal) {
   gameState.exploration.bonusGiven = true;
 
-  addDiamonds(10);
+  addDiamonds(100); // fixed to 100 for your design
   updateHUD();
 
   spawnFloatingText(
