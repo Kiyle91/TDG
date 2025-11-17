@@ -103,7 +103,7 @@ function collectCrystalEcho(crystal, index) {
 function awardCrystalBonus(lastCrystal) {
   gameState.exploration.bonusGiven = true;
 
-  addDiamonds(100);
+  addDiamonds(10);
   updateHUD();
 
   spawnFloatingText(

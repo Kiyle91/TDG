@@ -40,6 +40,9 @@ let gameStats = {
   lives: 10,
 };
 
+let lastCrystalFound = -1;
+let lastCrystalTotal = -1;
+let lastArrowCount = -1;
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
 // ------------------------------------------------------------
@@ -94,6 +97,16 @@ export function updateHUD() {
     if (manaText) manaText.textContent = `${Math.round(p.mana)} / ${Math.round(p.maxMana)}`;
   }
 
+  // ============================================================
+  // 🏹 ARROW COUNTER (Left HUD Circle)
+  // ============================================================
+  const arrowEl = document.getElementById("hud-arrows-value");
+  if (arrowEl) {
+      const p = gameState.player;
+      const arrows = p ? Math.floor((p.mana || 0) / 2) : 0;
+      arrowEl.textContent = arrows;
+  }
+
   // ✧ Crystal Echoes
   if (gameState.exploration) {
     const foundEl = document.getElementById("hud-crystals-found");
@@ -105,16 +118,41 @@ export function updateHUD() {
 
     // Flash animation
     if (circle) {
-      circle.classList.remove("hud-circle-flash");
-      void circle.offsetWidth;
-      circle.classList.add("hud-circle-flash");
+      const found = gameState.exploration.found ?? 0;
+      const total = gameState.exploration.total ?? 0;
+
+      if (found !== lastCrystalFound || total !== lastCrystalTotal) {
+        circle.classList.remove("hud-circle-flash");
+        void circle.offsetWidth; // restart animation
+        circle.classList.add("hud-circle-flash");
+
+        lastCrystalFound = found;
+        lastCrystalTotal = total;
+      }
     }
   }
 
-  // 🏹 Arrows (mana → potential shots)
+  // =======================================================
+  // 🏹 ARROW COUNTER — based on mana (no arrow resource)
+  // =======================================================
   const arrowsEl = document.getElementById("hud-arrows");
+  const arrowCircle = document.getElementById("hud-arrows-circle");
+
   if (arrowsEl) {
-    arrowsEl.textContent = Math.floor((p.mana ?? 0) / 2);
+    const mana = Number(p.mana) || 0;
+    const arrows = Math.floor(mana / 2);
+
+    arrowsEl.textContent = arrows;
+
+    // Flash when value changes
+    if (arrows !== lastArrowCount) {
+      if (arrowCircle) {
+        arrowCircle.classList.remove("hud-circle-flash");
+        void arrowCircle.offsetWidth;
+        arrowCircle.classList.add("hud-circle-flash");
+      }
+      lastArrowCount = arrows;
+    }
   }
 
   updateTurretBar();
@@ -514,3 +552,8 @@ function braveryFlashEffect() {
   ).finished.then(() => fx.remove());
 }
 
+export function getArrowCount() {
+  const p = gameState.player;
+  if (!p) return 0;
+  return Math.floor((p.mana || 0) / 2);
+}

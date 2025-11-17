@@ -12,7 +12,7 @@
 import { gameState } from "../utils/gameState.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
 import { damageEnemy } from "./enemies.js"; // ✅ shared enemy array mutated inside enemies.js
-import { updateHUD } from "./ui.js";
+import { updateHUD, getArrowCount } from "./ui.js";
 import { 
   playFairySprinkle, 
   playMeleeSwing, 
@@ -710,6 +710,16 @@ export function updatePlayer(delta) {
   const regenRate = 0.8 + (p.level ?? 1) * 0.05;
   p.mana = Math.min(p.maxMana, p.mana + regenRate * dt);
 
+  // 🔁 Update arrow counter when mana regen increases arrow capacity
+  const prevArrows = getArrowCount();
+  const prevMana = p.mana;
+
+  p.mana = Math.min(p.maxMana, p.mana + regenRate * dt);
+
+  if (getArrowCount() !== prevArrows) {
+      updateHUD();
+  }
+
   // 🎮 MOVEMENT INPUT
   const left  = keys.has("KeyA") || keys.has("ArrowLeft");
   const right = keys.has("KeyD") || keys.has("ArrowRight");
@@ -1042,11 +1052,7 @@ export function resetPlayerControllerState() {
 }
 window.__playerControllerReset = resetPlayerControllerState;
 
-export function getArrowCount() {
-  const p = gameState.player;
-  if (!p) return 0;
-  return Math.floor((p.mana || 0) / 2);   // Each arrow costs 2 mana
-}
+
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================
