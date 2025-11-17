@@ -7,19 +7,21 @@
    ✦ Fully consistent with ALL other overlays
 ============================================================ */
 
-/* Backdrop */
+/* ------------------------------------------------------------
+   🔮 BACKDROP
+------------------------------------------------------------- */
 #credits-screen {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
 
-  display: none;              /* hidden until shown */
+  display: none; /* hidden until shown */
   justify-content: center;
   align-items: center;
 
-  background: rgba(0, 0, 0, 0.45);   /* same dim as level-up */
-  backdrop-filter: blur(20px);       
+  background: rgba(0, 0, 0, 0.45); /* same dim as level-up */
+  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 
   z-index: 99999;
@@ -35,9 +37,9 @@
   to   { opacity: 1; }
 }
 
-/* ============================================================
-   💎 CRYSTAL PANEL (Matches story-box, levelup-box, end-panel)
-============================================================ */
+/* ------------------------------------------------------------
+   💎 CRYSTAL PANEL (Matches story-box / levelup-box / end-panel)
+------------------------------------------------------------- */
 .credits-container {
   position: relative;
 
@@ -67,20 +69,19 @@
   to   { transform: scale(1);    opacity: 1; }
 }
 
-/* Inner glow aura */
+/* Crystal glow aura */
 .credits-container::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 22px;
-
   background: radial-gradient(circle, rgba(255,255,255,0.22), transparent 70%);
   pointer-events: none;
 }
 
-/* ============================================================
+/* ------------------------------------------------------------
    📜 SCROLL AREA
-============================================================ */
+------------------------------------------------------------- */
 .credits-scroll {
   flex: 1;
   overflow-y: auto;
@@ -95,10 +96,9 @@
   border-radius: 20px;
 }
 
-/* ============================================================
-   ✨ TEXT STYLING — Matching story.css + end-screen
-============================================================ */
-
+/* ------------------------------------------------------------
+   ✨ TEXT STYLING — Matching story.css / end-screen
+------------------------------------------------------------- */
 .credits-title {
   text-align: center;
   font-size: 2.6rem;
@@ -137,9 +137,9 @@
   margin: 2px 0 10px 0;
 }
 
-/* ============================================================
+/* ------------------------------------------------------------
    ✨ RETURN BUTTON — Matches story-next-btn / end-screen buttons
-============================================================ */
+------------------------------------------------------------- */
 .credits-btn {
   align-self: center;
 
@@ -179,9 +179,9 @@
     inset 0 0 8px rgba(255,255,255,0.4);
 }
 
-/* ============================================================
+/* ------------------------------------------------------------
    🧚 Responsive
-============================================================ */
+------------------------------------------------------------- */
 @media (max-width: 800px) {
   .credits-container {
     width: 92%;
@@ -203,15 +203,17 @@
 }
 
 /* ============================================================
-   ✨ HUB — Credits Button (Bottom-Right Floating)
+   🌸 HUB — Credits Button (Bottom-Right Floating)
 ============================================================ */
+
 #credits-btn {
   position: absolute;
   bottom: 22px;
-  right: 32px;
+  right: 42px;        /* ⬅️ moved more left */
+  
+  padding: 12px 38px; /* ⬅️ slightly wider */
+  font-size: 1.15rem;
 
-  padding: 10px 28px;
-  font-size: 1.1rem;
   font-family: "Comic Sans MS", cursive;
   font-weight: bold;
 
@@ -247,16 +249,4 @@
   box-shadow:
     0 0 16px rgba(120, 200, 255, 0.8),
     inset 0 0 8px rgba(255, 255, 255, 0.35);
-}
-
-#credits-btn {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  z-index: 20;
-}
-
-#exit-hub-btn {
-  position: relative;
-  z-index: 50; /* ensure it stays above content in hub-buttons */
 }

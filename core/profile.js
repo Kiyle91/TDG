@@ -59,13 +59,34 @@ export function initProfiles() {
         return;
       }
 
+      // Create Glitter Guardian
       profile.player = createPlayer();
-      saveProfiles();
 
+      // Save and rerender DOM so the new slot appears immediately
+      saveProfiles();
       renderProfileSlots(slotsContainer);
-      showAlert(`Profile "${name}" created successfully!`);
+
+      // Auto-select this profile
+      setProfile(profile);
+      restorePlayer(profile.player);
+      gameState.player.name = profile.name;
+
+      // Now fade out and enter hub
       playFairySprinkle();
-    });
+
+      profileScreen.style.opacity = 0;
+
+      setTimeout(() => {
+        profileScreen.style.display = "none";
+        hub.style.display = "flex";
+
+        fadeIn(hub);
+        updateHubProfile();
+        updateHubCurrencies();
+
+        showAlert(`Profile "${name}" created successfully!`);
+      }, 600);
+          });
   });
 
   console.log("👑 Profile screen initialized");
