@@ -20,6 +20,7 @@ import { getEnemies } from "./enemies.js";
 import { getWorg } from "./worg.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { gameState } from "../utils/gameState.js";
+import { getTrolls } from "./troll.js";
 
 let turretSprites = {};
 let towers = [];
@@ -108,7 +109,7 @@ export function updateTowers(delta) {
   const dt = delta / 1000;
 
   // 🆕 Get combined target list ONCE per frame (not per tower)
-  const combinedEnemies = [...getEnemies(), ...getWorg(), ...getElites()];
+  const combinedEnemies = [...getEnemies(), ...getWorg(), ...getElites(), ...getTrolls()];
 
   for (let i = towers.length - 1; i >= 0; i--) {
     const tower = towers[i];

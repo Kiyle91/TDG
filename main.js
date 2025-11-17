@@ -503,7 +503,7 @@ function showEndScreen(reason) {
       // --------------------------------------------------------
       // 💎✨ DIAMOND REWARD FOR VICTORY
       // --------------------------------------------------------
-      const reward = 5;
+      const reward = 100;
       const currencies = getCurrencies();
       currencies.diamonds += reward;
       saveProfiles();

@@ -27,6 +27,7 @@ import { handleTowerKey } from "./towerPlacement.js";
 import { getOgres, damageOgre, OGRE_HIT_RADIUS } from "./ogre.js";
 import { getWorg } from "./worg.js";
 import { getElites, damageElite } from "./elite.js";
+import { getTrolls } from "./troll.js";
 import { getMapPixelSize } from "./map.js";
 import { SKINS } from "./skins.js";
 import { activateBravery } from "./ui.js";
@@ -300,8 +301,9 @@ function performMeleeAttack() {
   const ogres = getOgres();
   const worgs = getWorg();
   const elites = getElites();
+  const trolls = getTrolls();
 
-  const allTargets = [...goblins, ...ogres, ...worgs, ...elites];
+  const allTargets = [...goblins, ...ogres, ...worgs, ...elites, ...trolls];
 
   for (const t of allTargets) {
     if (!t.alive) continue;
@@ -419,7 +421,7 @@ function performRangedAttack(e) {
     projectile.y += Math.sin(projectile.angle) * projectile.speed * dt;
     projectile.life += 16;
 
-    const targets = [...getEnemies(), ...getOgres(), ...getWorg(), ...getElites()];
+    const targets = [...getEnemies(), ...getOgres(), ...getWorg(), ...getElites(), ...getTrolls()];
     for (const t of targets) {
       if (!t.alive) continue;
 
@@ -534,7 +536,7 @@ function performSpell() {
     const radius = 150;
     let hits = 0;
 
-    const targets = [...getEnemies(), ...getOgres(), ...getWorg(), ...getElites()];
+    const targets = [...getEnemies(), ...getOgres(), ...getWorg(), ...getElites(), ...getTrolls()];
 
     for (const t of targets) {
       if (!t.alive) continue;
