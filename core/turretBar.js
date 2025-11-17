@@ -12,8 +12,8 @@ import { gameState } from "../utils/gameState.js";
 // ⚙️ CONFIGURATION
 // ------------------------------------------------------------
 const turretData = {
-  1: { name: "Crystal Defender", level: 1, cost: 50, key: "1" },
-  2: { name: "Frost Sentinel", level: 6, cost: 100, key: "2" },
+  1: { name: "Crystal Defender", level: 2, cost: 50, key: "1" },
+  2: { name: "Frost Sentinel", level: 5, cost: 100, key: "2" },
   3: { name: "Flameheart", level: 10, cost: 150, key: "3" },
   4: { name: "Arcane Spire", level: 15, cost: 200, key: "4" },
   5: { name: "Beacon of Light", level: 20, cost: 250, key: "5" },
