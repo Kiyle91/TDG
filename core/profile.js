@@ -66,6 +66,10 @@ export function initProfiles() {
       saveProfiles();
       renderProfileSlots(slotsContainer);
 
+      // ⭐ FIX: Set activeProfileIndex for the newly created profile
+      const newIndex = gameState.profiles.length - 1;
+      gameState.activeProfileIndex = newIndex;
+
       // Auto-select this profile
       setProfile(profile);
       restorePlayer(profile.player);
@@ -86,7 +90,7 @@ export function initProfiles() {
 
         showAlert(`Profile "${name}" created successfully!`);
       }, 600);
-          });
+    });
   });
 
   console.log("👑 Profile screen initialized");
@@ -151,6 +155,7 @@ export function initProfiles() {
     }, 800);
   });
 }
+
 
 // ------------------------------------------------------------
 // 🧩 RENDER PROFILE SLOTS
