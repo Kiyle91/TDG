@@ -159,11 +159,7 @@ export function updateOgres(delta = 16) {
         spawnDamageSparkles(p.pos.x, p.pos.y);
         updateHUD();
 
-        // Knockback
-        const dist = Math.sqrt(distSq) || 1;
-        const KNOCKBACK_FORCE = 50;
-        p.pos.x += (dx / dist) * KNOCKBACK_FORCE;
-        p.pos.y += (dy / dist) * KNOCKBACK_FORCE;
+        
       }
 
       // End attack
