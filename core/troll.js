@@ -13,6 +13,7 @@ import { spawnFloatingText } from "./floatingText.js";
 import { updateHUD } from "./ui.js";
 import { playGoblinDamage, playGoblinDeath, playGoblinAttack, playPlayerDamage } from "./soundtrack.js";
 import { spawnDamageSparkles } from "./playerController.js";
+import { trySpawnGoblinDrop } from "./drops.js";
 
 let trolls = [];
 let pathPoints = [];
@@ -359,6 +360,7 @@ export function damageTroll(t, amount) {
     t.alive = false;
     t.fadeTimer = 0;
     playGoblinDeath();
+    trySpawnGoblinDrop(t.x, t.y);
   }
 }
 
