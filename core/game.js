@@ -165,7 +165,7 @@ export const waveConfigs = {
   ],
 
   // ============================================================
-  // 🌲 MAP 2 — First Worgs + First Elite
+  // 🌲 MAP 2 — First Worg Pack + First Elite
   // ============================================================
   2: [
     { goblins: 12, worgs: 0,  ogres: 0, elites: 6, trolls: 0 },
@@ -314,8 +314,8 @@ function startNextWave() {
 
       spawnGoblin();
 
-      // Worgs
-      if (i < wave.worgs) {
+      // Worg
+      if (i < wave.worg) {
         spawnWorg();
       }
 
@@ -337,7 +337,7 @@ function startNextWave() {
   }
 
   // ----------------------------------------------------------
-  // Overflow Worgs
+  // Overflow Worg
   // ----------------------------------------------------------
   for (let i = wave.goblins; i < wave.worgs; i++) {
     spawnQueue.push(() => spawnWorg());

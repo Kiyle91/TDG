@@ -290,7 +290,7 @@ function performMeleeAttack() {
   }, 400);
 
   // ------------------------------------------------------------
-  // ⚔️ DAMAGE LOGIC (Goblins + Ogres + Worgs)
+  // ⚔️ DAMAGE LOGIC (Goblins + Ogres + Worg Packs)
   // ------------------------------------------------------------
   const range = 80;
   const ox = p.pos.x;
@@ -351,7 +351,7 @@ function performMeleeAttack() {
 }
 
 // ============================================================
-// 🏹 Ranged — Fires Arrow Toward Mouse (Goblins + Ogres + Worgs)
+// 🏹 Ranged — Fires Arrow Toward Mouse (Goblins + Ogres + Worg Packs)
 // ============================================================
 function performRangedAttack(e) {
   const p = gameState.player;
@@ -508,7 +508,7 @@ function performHeal() {
 }
 
 // ------------------------------------------------------------
-// 🔮 Spell — pastel AoE burst (Goblins + Ogres + Worgs)
+// 🔮 Spell — pastel AoE burst (Goblins + Ogres + Worg Packs)
 // ------------------------------------------------------------
 function performSpell() {
   const p = gameState.player;

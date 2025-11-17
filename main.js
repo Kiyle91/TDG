@@ -182,13 +182,14 @@ export function fullNewGameReset() {
   if (!gameState.profile.progress) {
     gameState.profile.progress = {
       currentMap: 1,
-      mapsUnlocked: gameState.progress.mapsUnlocked || [true, false, false, false, false, false, false, false, false]
+      mapsUnlocked: gameState.progress.mapsUnlocked || 
+        [true, false, false, false, false, false, false, false, false]
     };
   } else {
     // Reset only story position
     gameState.profile.progress.currentMap = 1;
 
-    // Preserve map unlocks if they already existed
+    // Preserve map unlocks
     if (gameState.profile.progress.mapsUnlocked) {
       gameState.progress.mapsUnlocked = [...gameState.profile.progress.mapsUnlocked];
     }
@@ -201,54 +202,52 @@ export function fullNewGameReset() {
   const prevUnlocked = gameState.player?.unlockedSkins ?? ["glitter"];
 
   gameState.player = {
-      name: gameState.profile.name || "Olivia",
-      level: 1,
-      xp: 0,
-      maxHp: 100,
-      hp: 100,
-      maxMana: 50,
-      mana: 50,
-      lives: 10,
-      facing: "right",
-      dead: false,
-      pos: { x: 0, y: 0 },
+    name: gameState.profile.name || "Olivia",
+    level: 1,
+    xp: 0,
+    maxHp: 100,
+    hp: 100,
+    maxMana: 50,
+    mana: 50,
+    lives: 10,
+    facing: "right",
+    dead: false,
+    pos: { x: 0, y: 0 },
 
-      // ⭐ Restore skin data
-      skin: prevSkin,
-      unlockedSkins: prevUnlocked,
+    // ⭐ SKIN + COSMETICS
+    skin: prevSkin,
+    unlockedSkins: prevUnlocked,
   };
 
-  // Save to profile too
-  gameState.profile.player = {
-      level: 1,
-      xp: 0,
-      maxHp: 100,
-      maxMana: 50,
-
-      skin: prevSkin,
-      unlockedSkins: prevUnlocked,
-  };
+  // ----------------------------------------------------------
+  // ⭐ Save FULL snapshot to profile (Codex Issue #3)
+  // ----------------------------------------------------------
+  gameState.profile.player = { ...gameState.player };
 
   // ----------------------------------------------------------
   // 💰 2B — RESET GOLD FOR A NEW GAME
   // ----------------------------------------------------------
   if (gameState.profile?.currencies) {
-      gameState.profile.currencies.gold = 0;   // or any start value
+    gameState.profile.currencies.gold = 0;
   }
 
+  // ----------------------------------------------------------
+  // 💎 Optional: Reset diamonds? (We do NOT reset diamonds)
+  // ----------------------------------------------------------
+  // gameState.profile.currencies.diamonds stays as-is (intended)
 
   // ----------------------------------------------------------
   // 💖 RESET BRAVERY METER
   // ----------------------------------------------------------
   gameState.bravery = {
     current: 0,
-    max: 100,      // keep your value
+    max: 100,
     charged: false,
     draining: false
   };
-  
+
   // ----------------------------------------------------------
-  // 3️⃣ Reset all unlocks / systems
+  // 3️⃣ Reset turret unlocks / systems
   // ----------------------------------------------------------
   gameState.profile.turretsUnlocked = {
     crystal: true,
@@ -340,7 +339,7 @@ export async function resetGameplay() {
     const elites = getElites();
     if (elites?.length) elites.length = 0;
   }
-  if (window.getWorgs) {
+  if (window.getWorg) {
     const worg = getWorg();
     if (worg?.length) worg.length = 0;
   }
