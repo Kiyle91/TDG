@@ -2,8 +2,8 @@
 // 🌸 main.js — Olivia’s World: Crystal Keep (Fixed Timestep + Map System)
 // ------------------------------------------------------------
 // ✦ Stutter-free fixed timestep game loop (60Hz update / RAF render)
-// ✦ Complete multi-map support (Map One → Map Two)
-// ✦ Victory Continue now unlocks Map One + moves player to Map Two
+// ✦ Complete multi-map support (Map One → Map Nine + Credits)
+// ✦ Victory Continue unlocks next map & moves player forward
 // ✦ Fully compatible with all overlays, hub, story, navbar
 // ============================================================
 
@@ -44,20 +44,16 @@ import { getWorg } from "./core/worg.js";
 // ============================================================
 export let gameActive = false;
 
-
 // ============================================================
 // ⏱ FIXED TIMESTEP VARIABLES
 // ============================================================
-
 let lastTimestamp = 0;
 let accumulator = 0;
 const FIXED_DT = 1000 / 60; // 60Hz update interval
 
-
 // ============================================================
 // 🎯 MAIN GAME LOOP
 // ============================================================
-
 function gameLoop(timestamp) {
   if (!gameActive) return;
 
@@ -80,11 +76,9 @@ function gameLoop(timestamp) {
   window.__gameLoopID = requestAnimationFrame(gameLoop);
 }
 
-
 // ============================================================
 // ▶️ START GAMEPLAY
 // ============================================================
-
 export function startGameplay() {
   cancelAnimationFrame(window.__gameLoopID);
 
@@ -109,7 +103,6 @@ export function startGameplay() {
   }
 }
 
-
 // ============================================================
 // ⛔ STOP GAMEPLAY (victory / defeat / exit)
 // ============================================================
@@ -124,14 +117,14 @@ export function stopGameplay(reason = "unknown") {
 
   // ----------------------------------------------------------
   // 🏠 SAFE EXIT TO HUB (navbar home)
-  // ----------------------------------------------------------
+// ----------------------------------------------------------
   if (reason === "exit") {
 
     // ⭐ CLEANUP: Close maps overlay PROPERLY
     const ov = document.getElementById("overlay-maps");
     if (ov) {
-        ov.classList.remove("active");
-        ov.style.pointerEvents = "none";   // the ONE needed fix
+      ov.classList.remove("active");
+      ov.style.pointerEvents = "none";   // the ONE needed fix
     }
 
     // existing cleanup
@@ -165,7 +158,6 @@ export function stopGameplay(reason = "unknown") {
   showEndScreen(reason);
 }
 
-
 // ============================================================
 // 🌟 FULL NEW GAME RESET (Use this for Start New Story)
 // ============================================================
@@ -182,14 +174,14 @@ export function fullNewGameReset() {
   if (!gameState.profile.progress) {
     gameState.profile.progress = {
       currentMap: 1,
-      mapsUnlocked: gameState.progress.mapsUnlocked || 
+      mapsUnlocked: gameState.progress.mapsUnlocked ||
         [true, false, false, false, false, false, false, false, false]
     };
   } else {
     // Reset only story position
     gameState.profile.progress.currentMap = 1;
 
-    // Preserve map unlocks
+    // Preserve map unlocks if they already existed
     if (gameState.profile.progress.mapsUnlocked) {
       gameState.progress.mapsUnlocked = [...gameState.profile.progress.mapsUnlocked];
     }
@@ -214,27 +206,21 @@ export function fullNewGameReset() {
     dead: false,
     pos: { x: 0, y: 0 },
 
-    // ⭐ SKIN + COSMETICS
+    // ⭐ Restore skin data
     skin: prevSkin,
     unlockedSkins: prevUnlocked,
   };
 
-  // ----------------------------------------------------------
   // ⭐ Save FULL snapshot to profile (Codex Issue #3)
-  // ----------------------------------------------------------
   gameState.profile.player = { ...gameState.player };
 
   // ----------------------------------------------------------
   // 💰 2B — RESET GOLD FOR A NEW GAME
   // ----------------------------------------------------------
   if (gameState.profile?.currencies) {
-    gameState.profile.currencies.gold = 0;
+    gameState.profile.currencies.gold = 0;   // or any start value
   }
-
-  // ----------------------------------------------------------
-  // 💎 Optional: Reset diamonds? (We do NOT reset diamonds)
-  // ----------------------------------------------------------
-  // gameState.profile.currencies.diamonds stays as-is (intended)
+  // Diamonds intentionally NOT reset — they’re a meta reward
 
   // ----------------------------------------------------------
   // 💖 RESET BRAVERY METER
@@ -245,9 +231,9 @@ export function fullNewGameReset() {
     charged: false,
     draining: false
   };
-
+  
   // ----------------------------------------------------------
-  // 3️⃣ Reset turret unlocks / systems
+  // 3️⃣ Reset all unlocks / systems
   // ----------------------------------------------------------
   gameState.profile.turretsUnlocked = {
     crystal: true,
@@ -279,7 +265,6 @@ export function fullNewGameReset() {
   console.log("🌟 New character created: Level 1, Map 1, Fresh progress.");
 }
 
-
 // ============================================================
 // 🌟 START NEW GAME — run when user clicks "New Story"
 // ============================================================
@@ -301,6 +286,9 @@ export async function startNewGameStory() {
   console.log("🌸 New Game Story loaded — Map 1 active.");
 }
 
+// ============================================================
+// 🔁 RESET GAMEPLAY (Try Again)
+// ============================================================
 export async function resetGameplay() {
   console.log("🔄 Combat reset!");
 
@@ -335,11 +323,14 @@ export async function resetGameplay() {
     const ogres = getOgres();
     if (ogres?.length) ogres.length = 0;
   }
+
   if (window.getElites) {
     const elites = getElites();
     if (elites?.length) elites.length = 0;
   }
-  if (window.getWorg) {
+
+  // 🐺 Always clear Worgs via imported helper
+  {
     const worg = getWorg();
     if (worg?.length) worg.length = 0;
   }
@@ -381,12 +372,9 @@ export async function resetGameplay() {
   console.log("🌸 Restart complete.");
 }
 
-
-
 // ============================================================
 // 💎 CONTINUE WITH DIAMONDS
 // ============================================================
-
 function tryContinueWithDiamonds() {
   const p = gameState.player;
   const c = getCurrencies();
@@ -434,9 +422,6 @@ function tryContinueWithDiamonds() {
     setTimeout(() => warn.remove(), 2000);
   }
 }
-
-
-
 
 // ============================================================
 // 🕯 END SCREEN (Victory / Defeat) — CLEAN + FULLY FIXED
@@ -493,7 +478,6 @@ function showEndScreen(reason) {
   img.style.margin = "20px auto 35px auto";
   img.style.width = "180px";
   img.style.filter = "drop-shadow(0 0 12px #ffffffaa)";
-
   // ============================================================
   // ⭐ BUTTONS
   // ============================================================
@@ -511,8 +495,13 @@ function showEndScreen(reason) {
 
       console.log(`🏆 Victory on Map ${currentMap}`);
 
+      gameState.shardsCollected = 0;          // if you track shard count
+      gameState.towerBuff = 1;                // reset any buff to normal
+      window.towerDamageMultiplier = 1;  
+      
+
       // --------------------------------------------------------
-      // 💎✨ DIAMOND REWARD FOR VICTORY
+      // 💎✨ DIAMOND REWARD FOR VICTORY (now persistent)
       // --------------------------------------------------------
       const reward = 100;
       gameState.profile.currencies.diamonds += reward;
@@ -598,12 +587,9 @@ function showEndScreen(reason) {
   requestAnimationFrame(() => overlay.classList.add("visible"));
 }
 
-
-
 // ============================================================
 // 🌼 INITIALISATION — runs once on page load
 // ============================================================
-
 window.addEventListener("DOMContentLoaded", () => {
   initMusic();
   initLanding();

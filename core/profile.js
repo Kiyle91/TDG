@@ -66,7 +66,7 @@ export function initProfiles() {
       saveProfiles();
       renderProfileSlots(slotsContainer);
 
-      // ⭐ FIX: Set activeProfileIndex for the newly created profile
+      // ⭐ FIX: Newly created profile becomes the active profile
       const newIndex = gameState.profiles.length - 1;
       gameState.activeProfileIndex = newIndex;
 
@@ -100,6 +100,7 @@ export function initProfiles() {
   // ------------------------------------------------------------
   slotsContainer.addEventListener("click", (e) => {
     playFairySprinkle();
+
     // 🗑️ DELETE PROFILE (with pastel confirm)
     if (e.target.classList.contains("profile-delete")) {
       const index = e.target.dataset.index;
@@ -134,13 +135,13 @@ export function initProfiles() {
     const profile = gameState.profiles[index];
     if (!profile) return;
 
-    // ⭐ FIX FOR ISSUE #3 — track active profile
+    // ⭐ FIX FOR ISSUE #3 — track active profile for saves
     gameState.activeProfileIndex = index;
 
     // 🪞 Restore Glitter Guardian for this profile
     setProfile(profile);
     restorePlayer(profile.player);
-    gameState.player.name = profile.name;
+    gameState.player.name = profile.name; // 🩵 sync profile name to player
 
     console.log(`👑 Profile selected: ${profile.name}`);
     playFairySprinkle();
@@ -155,7 +156,6 @@ export function initProfiles() {
     }, 800);
   });
 }
-
 
 // ------------------------------------------------------------
 // 🧩 RENDER PROFILE SLOTS
@@ -183,7 +183,6 @@ function renderProfileSlots(container) {
 
     container.appendChild(slot);
   }
-
 }
 
 // ------------------------------------------------------------

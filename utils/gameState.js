@@ -3,9 +3,10 @@
 // ------------------------------------------------------------
 // ✦ One stable source of truth for ALL runtime & profile data
 // ✦ Fully fixed persistence system (no more resets / wipes)
-// ✦ Safe loading of legacy profiles + auto-migration
+// ✦ Safe loading & migration
 // ✦ Correct handling of mapsUnlocked, XP, currencies, skins
-// ✦ ⭐ Bravery bar included & fully persistent
+// ✦ Bravery bar persistent
+// ✦ ACTIVE PROFILE INDEX now fully functional
 // ============================================================
 
 import { createPlayer } from "../core/player.js";
@@ -20,6 +21,8 @@ export const gameState = {
 
   // All saved profiles
   profiles: [],
+
+  // Which profile is currently active (IMPORTANT for save slots)
   activeProfileIndex: 0,
 
   // Core progress
@@ -57,13 +60,19 @@ export const gameState = {
 export function setProfile(profile) {
   gameState.profile = profile;
 
-  // Migrate any missing structures
+  // ⭐ Track active profile index
+  const idx = gameState.profiles.indexOf(profile);
+  if (idx !== -1) {
+    gameState.activeProfileIndex = idx;
+  }
+
+  // Migrate missing structures
   migrateProfile(profile);
 
   // Sync progress
   gameState.progress = { ...profile.progress };
 
-  // Restore player OR create new
+  // Restore or create player
   gameState.player = profile.player || createPlayer();
   gameState.player.name = profile.name;
 
@@ -72,18 +81,21 @@ export function setProfile(profile) {
     profile.currencies = { gold: 0, diamonds: 0 };
   }
 
-  // ⭐ Restore bravery (persistent)
+  // Restore bravery
   gameState.bravery = profile.bravery || {
     current: 0,
     max: 100,
     charged: false,
+    draining: false,
   };
+
+  gameState.echoPowerActive = false;
 
   saveProfiles();
 }
 
 // ============================================================
-// 🧬 SAFE PROFILE MIGRATION (Fix old broken saves)
+// 🧬 SAFE PROFILE MIGRATION
 // ============================================================
 function migrateProfile(profile) {
 
@@ -114,20 +126,26 @@ function migrateProfile(profile) {
     profile.progress.mapsUnlocked[0] = true;
   }
 
-  if (!profile.progress.currentMap || profile.progress.currentMap < 1 || profile.progress.currentMap > 9) {
+  if (
+    !profile.progress.currentMap ||
+    profile.progress.currentMap < 1 ||
+    profile.progress.currentMap > 9
+  ) {
     profile.progress.currentMap = 1;
   }
 
+  // exploration (map visited flags etc)
   if (!profile.exploration) {
     profile.exploration = {};
   }
 
-  // ⭐ Bravery migration
+  // Bravery
   if (!profile.bravery) {
     profile.bravery = {
       current: 0,
       max: 100,
       charged: false,
+      draining: false,
     };
   }
 }
@@ -166,18 +184,22 @@ export function addProfile(name) {
 
     currencies: { gold: 0, diamonds: 0 },
 
-    // ⭐ NEW — exploration save
     exploration: {},
 
-    // ⭐ Start with empty bravery
     bravery: {
       current: 0,
       max: 100,
       charged: false,
+      draining: false,
     },
   };
 
+  // Push profile
   gameState.profiles.push(newProfile);
+
+  // ⭐ NEW PROFILE BECOMES ACTIVE
+  gameState.activeProfileIndex = gameState.profiles.length - 1;
+
   saveProfiles();
   return newProfile;
 }
@@ -188,12 +210,9 @@ export function addProfile(name) {
 export function saveProfiles() {
   try {
     if (gameState.profile) {
-
-      // Sync runtime progress
+      // Sync runtime → profile data
       gameState.profile.progress = { ...gameState.progress };
       gameState.profile.player = { ...gameState.player };
-
-      // ⭐ Sync bravery
       gameState.profile.bravery = { ...gameState.bravery };
       gameState.profile.exploration = { ...gameState.profile.exploration };
     }
@@ -291,6 +310,14 @@ export function getCurrencies() {
 // 🚀 INITIAL LOAD
 // ============================================================
 loadProfiles();
+
+export function resetEchoBuff() {
+  gameState.echoPowerActive = false;
+
+  // optional HUD cleanup
+  const icon = document.getElementById("hud-crystals-circle");
+  if (icon) icon.classList.remove("echo-power-flash");
+}
 
 // ============================================================
 // 🌟 END OF FILE
