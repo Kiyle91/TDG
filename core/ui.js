@@ -65,10 +65,24 @@ export function updateHUD() {
   const { gold, diamonds } = getCurrencies();
   const p = gameState.player || {};
 
-  // Existing stats
+
+// ============================================================
+// 🌟 WAVE DISPLAY — Show "Incoming" whenever waves are paused
+// ============================================================
   const wave  = gameState.wave ?? 1;
   const total = gameState.totalWaves ?? 1;
-  waveDisplay.textContent = `Wave ${wave} / ${total}`;
+
+  // Show "Incoming" whenever:
+  // 1) First wave hasn't started yet
+  // 2) We are between waves waiting for the next one
+  if (window.firstWaveStarted === false || window.betweenWaveTimerActive === true) {
+      waveDisplay.textContent = "Incoming";
+      waveDisplay.style.color = "#3cff7a"; // pastel green
+  } else {
+      waveDisplay.textContent = `Wave ${wave} / ${total}`;
+      waveDisplay.style.color = ""; // back to default
+  }
+
   goldDisplay.textContent = `Gold: ${gold}`;
   diamondDisplay.textContent = `Diamonds: ${diamonds}`;
 

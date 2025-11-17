@@ -272,6 +272,9 @@ let justStartedWave = false;
 
 // ⭐ NEW — prevents wave skipping before first wave spawns
 let firstWaveStarted = false;
+window.firstWaveStarted = false;
+
+window.betweenWaveTimerActive = false;
 
 // ============================================================
 // 🧩 BONUS OGRE SPAWN — 1 per 100 goblins killed
@@ -303,6 +306,8 @@ export function resetWaveSystem() {
   waveActive = false;
   waveCleared = false;
   justStartedWave = true;
+  window.betweenWaveTimerActive = true;
+
 
   spawnQueue.length = 0;
   victoryPending = false;
@@ -311,6 +316,7 @@ export function resetWaveSystem() {
 
   // ⭐ Reset wave start lock
   firstWaveStarted = false;
+  window.firstWaveStarted = false;
 
   // ⭐ Wait 5 seconds before first wave
   betweenWaveTimer = FIRST_WAVE_DELAY;
@@ -322,6 +328,10 @@ export function resetWaveSystem() {
 // 🚀 START NEXT WAVE
 // ============================================================
 function startNextWave() {
+
+  firstWaveStarted = true;
+  window.firstWaveStarted = true;
+
   const mapId = gameState.progress.currentMap ?? 1;
   const waves = waveConfigs[mapId];
   if (!waves) return;
@@ -503,8 +513,14 @@ async function updateWaveSystem(delta) {
   // ----------------------------------------------------------
   // BETWEEN WAVES
   // ----------------------------------------------------------
-  betweenWaveTimer -= delta;
-  if (betweenWaveTimer > 0) return;
+  if (betweenWaveTimer > 0) {
+      window.betweenWaveTimerActive = true;
+      betweenWaveTimer -= delta;
+      return;
+  }
+
+// Timer finished → clear flag
+window.betweenWaveTimerActive = false;
 
   // ----------------------------------------------------------
   // MORE WAVES?
