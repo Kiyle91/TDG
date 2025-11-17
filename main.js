@@ -172,16 +172,24 @@ export function fullNewGameReset() {
   // ----------------------------------------------------------
   // 1️⃣ Reset runtime & progression
   // ----------------------------------------------------------
-  gameState.progress = {
-    currentMap: 1,
-    mapsUnlocked: [true, false, false, false, false, false, false, false, false],
-  };
+  // Keep existing map unlocks, ONLY reset the story position
+  gameState.progress.currentMap = 1;
 
-  // Also for profile storage
-  if (!gameState.profile.progress) gameState.profile.progress = {};
-  gameState.profile.progress.currentMap = 1;
-  gameState.profile.progress.mapsUnlocked = 
-    [true, false, false, false, false, false, false, false, false];
+  // Ensure progress exists on profile
+  if (!gameState.profile.progress) {
+    gameState.profile.progress = {
+      currentMap: 1,
+      mapsUnlocked: gameState.progress.mapsUnlocked || [true, false, false, false, false, false, false, false, false]
+    };
+  } else {
+    // Reset only story position
+    gameState.profile.progress.currentMap = 1;
+
+    // Preserve map unlocks if they already existed
+    if (gameState.profile.progress.mapsUnlocked) {
+      gameState.progress.mapsUnlocked = [...gameState.profile.progress.mapsUnlocked];
+    }
+  }
 
   // ----------------------------------------------------------
   // 2️⃣ Reset the player to a FRESH character, but KEEP skins
