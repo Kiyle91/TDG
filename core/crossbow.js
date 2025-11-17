@@ -25,6 +25,11 @@ let crossbowList = [];
 let pathPoints = [];
 let crossbowSprites = null;
 
+let crossbowBolts = [];
+
+let globalCrossbowCooldown = 0;  // shared across every crossbow
+const GLOBAL_CROSSBOW_COOLDOWN_MS = 900; 
+
 // ------------------------------------------------------------
 // ⚙️ CONFIG
 // ------------------------------------------------------------
@@ -215,6 +220,21 @@ export function spawnCrossbow() {
   console.log("🏹 Crossbow spawned (off-screen).");
 }
 
+function spawnCrossbowBolt(c, targetX, targetY) {
+  const angle = Math.atan2(targetY - c.y, targetX - c.x);
+  const speed = 580; // adjust if needed
+
+  crossbowBolts.push({
+    x: c.x,
+    y: c.y - 10,  // small offset for realism
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    life: 1200,   // ms before despawn
+    from: c
+  });
+}
+
+
 
 export function updateCrossbows(delta) {
   delta = Math.min(delta, 100);
@@ -259,60 +279,55 @@ export function updateCrossbows(delta) {
     }
 
     // --------------------------------------------------------
-    // 🏹 RANGED ATTACK
+    // 🏹 RANGED ATTACK (Projectile-based)
     // --------------------------------------------------------
     if (
-      dist <= ATTACK_RANGE &&
-      dist >= IDEAL_MIN_RANGE * 0.7 &&
-      c.attackTimer <= 0 &&
-      !c.attacking &&
-      !player.dead
+    dist <= ATTACK_RANGE &&
+    dist >= IDEAL_MIN_RANGE * 0.7 &&
+    c.attackTimer <= 0 &&
+    globalCrossbowCooldown <= 0 &&
+    !c.attacking &&
+    !player.dead
     ) {
-      c.attacking = true;
-      c.attackTimer = ATTACK_COOLDOWN;
-      c.attackFrame = 0;
+    c.attacking = true;
+    c.attackTimer = ATTACK_COOLDOWN;
+    c.attackFrame = 0;
 
-      const startTime = performance.now();
+    const startTime = performance.now();
 
-      // Animation frame flip
-      setTimeout(() => {
+    // ------------------------------------------
+    // Frame flip (raise → shoot → lower)
+    // ------------------------------------------
+    setTimeout(() => {
         if (!c.alive) return;
         c.attackFrame = 1;
-      }, ATTACK_WINDUP_MS * 0.5);
+    }, ATTACK_WINDUP_MS * 0.3);
 
-      // Apply damage during windup
-      setTimeout(() => {
+    // ------------------------------------------
+    // FIRE PROJECTILE
+    // ------------------------------------------
+    setTimeout(() => {
         if (!c.alive || player.dead) return;
 
-        const now = performance.now();
-        const elapsed = now - startTime;
-        if (elapsed > ATTACK_DURATION_MS + 200) return;
-
-        // Recheck distance at moment of hit
         const px2 = player.pos?.x ?? player.x ?? 0;
         const py2 = player.pos?.y ?? player.y ?? 0;
-        const ddx = px2 - c.x;
-        const ddy = py2 - c.y;
-        const d2 = Math.sqrt(ddx * ddx + ddy * ddy);
 
-        if (d2 <= ATTACK_RANGE + 40) {
-          const dmg = ATTACK_DAMAGE;
+        spawnCrossbowBolt(c, px2, py2);
 
-          player.hp = Math.max(0, (player.hp ?? player.maxHp ?? 100) - dmg);
+        // GLOBAL SHARED COOLDOWN
+        globalCrossbowCooldown = GLOBAL_CROSSBOW_COOLDOWN_MS;
 
-          spawnDamageSparkles?.(px2, py2);
-          spawnFloatingText(`-${dmg}`, px2, py2 - 40, "#ff8080");
-          playGoblinDamage();
-          updateHUD();
-        }
-      }, ATTACK_WINDUP_MS);
+        c.attackFrame = 2;
+    }, ATTACK_WINDUP_MS);
 
-      // End of animation
-      setTimeout(() => {
+    // ------------------------------------------
+    // END OF ATTACK
+    // ------------------------------------------
+    setTimeout(() => {
         if (!c.alive) return;
         c.attacking = false;
         c.attackFrame = 0;
-      }, ATTACK_DURATION_MS);
+    }, ATTACK_DURATION_MS);
     }
 
     // --------------------------------------------------------
@@ -344,11 +359,72 @@ export function updateCrossbows(delta) {
       if (c.walkTimer >= WALK_FRAME_INTERVAL) {
         c.walkTimer = 0;
         c.walkFrame = (c.walkFrame + 1) % 2;
+
+      
+      
       }
+    updateCrossbowBolts(delta);
+    globalCrossbowCooldown = Math.max(0, globalCrossbowCooldown - delta);
+    
+    }
+
+  }
+}
+
+
+
+function updateCrossbowBolts(delta) {
+  globalCrossbowCooldown = Math.max(0, globalCrossbowCooldown - delta);  
+  const dt = delta / 1000;
+  const player = gameState.player;
+
+  for (let i = crossbowBolts.length - 1; i >= 0; i--) {
+    const b = crossbowBolts[i];
+
+    b.life -= delta;
+
+    // Movement
+    b.x += b.vx * dt;
+    b.y += b.vy * dt;
+
+    // Collision with player
+    if (player) {
+      const dx = player.pos.x - b.x;
+      const dy = player.pos.y - b.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+
+      if (dist < 28) {
+        const dmg = ATTACK_DAMAGE;
+
+        player.hp = Math.max(0, player.hp - dmg);
+        spawnDamageSparkles(player.pos.x, player.pos.y);
+        spawnFloatingText(`-${dmg}`, player.pos.x, player.pos.y - 40, "#ff8080");
+        playGoblinDamage();
+        updateHUD();
+
+        crossbowBolts.splice(i, 1);
+        continue;
+      }
+    }
+
+    if (b.life <= 0) {
+      crossbowBolts.splice(i, 1);
     }
   }
 }
 
+function drawCrossbowBolts(ctx) {
+  ctx.save();
+  ctx.fillStyle = "rgba(255, 230, 120, 0.95)";
+
+  for (const b of crossbowBolts) {
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
 
 // ------------------------------------------------------------
 // 🎨 DRAW
@@ -422,6 +498,8 @@ export function drawCrossbows(ctx) {
       ctx.fillStyle = "#ff7575";
       ctx.fillRect(bx, by, barW * ratio, barH);
     }
+
+    drawCrossbowBolts(ctx);
 
     ctx.restore();
   }
