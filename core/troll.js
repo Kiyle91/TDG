@@ -2,18 +2,25 @@
 // 🧌 troll.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // Troll = Goblin AI + Troll stats + Troll sprites
-//  • Exact goblin behaviour: path → chase → return → attack
+//  • Goblin-style behaviour: path → chase → return → attack
 //  • Uses same attack frames/logic as goblins
 //  • Takes damage like goblins
 //  • Only difference: slower + more HP
 // ============================================================
 
-import { gameState } from "../utils/gameState.js";
+import { gameState, addGold } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
-import { updateHUD } from "./ui.js";
-import { playGoblinDamage, playGoblinDeath, playGoblinAttack, playPlayerDamage } from "./soundtrack.js";
+import { updateHUD, addBravery } from "./ui.js";
+import {
+  playGoblinDamage,
+  playGoblinDeath,
+  playGoblinAttack,
+  playPlayerDamage
+} from "./soundtrack.js";
 import { spawnDamageSparkles } from "./playerController.js";
-import { trySpawnGoblinDrop } from "./drops.js";
+import { trySpawnGoblinDrop } from "./goblinDrop.js";
+import { awardXP } from "./levelSystem.js";
+import { incrementGoblinDefeated } from "./game.js";
 
 let trolls = [];
 let pathPoints = [];
@@ -140,7 +147,12 @@ function attackPlayer(t, player) {
 
   updateHUD();
 
-  spawnFloatingText(player.pos.x, player.pos.y - 40, `-${Math.round(damage)}`, "#ff6fb1");
+  spawnFloatingText(
+    player.pos.x,
+    player.pos.y - 40,
+    `-${Math.round(damage)}`,
+    "#ff6fb1"
+  );
   spawnDamageSparkles(player.pos.x, player.pos.y);
   playPlayerDamage();
 
@@ -153,7 +165,7 @@ function attackPlayer(t, player) {
 }
 
 // ------------------------------------------------------------
-// 🧠 UPDATE — EXACT MATCH to goblin logic
+// 🧠 UPDATE — Goblin-style chase + return + collision
 // ------------------------------------------------------------
 export function updateTrolls(delta = 16) {
   if (!trollSprites || !pathPoints.length) return;
@@ -161,6 +173,7 @@ export function updateTrolls(delta = 16) {
   delta = Math.min(delta, 100);
   const dt = delta / 1000;
   const player = gameState.player;
+  if (!player) return;
 
   const px = player?.pos?.x ?? null;
   const py = player?.pos?.y ?? null;
@@ -237,8 +250,8 @@ export function updateTrolls(delta = 16) {
     }
 
     // ============================================================
-    // 🛣 PATH MODE
-    // ============================================================
+    // 🛣 PATH MODE (back to path when not chasing)
+// ============================================================
     else {
       const target = pathPoints[t.pathIndex];
       if (!target) {
@@ -281,7 +294,7 @@ export function updateTrolls(delta = 16) {
 
     // ============================================================
     // 🟣 PLAYER ↔ TROLL COLLISION (Goblin-style soft push)
-    // ============================================================
+// ============================================================
     const dxp = player.pos.x - t.x;
     const dyp = player.pos.y - t.y;
     const distP = Math.hypot(dxp, dyp);
@@ -300,7 +313,7 @@ export function updateTrolls(delta = 16) {
 
   // ============================================================
   // 🟢 TROLL ↔ TROLL COLLISION (Goblin-style)
-  // ============================================================
+// ============================================================
   const MIN_TROLL_DIST = 72; // identical spacing to goblins
 
   for (let i = 0; i < trolls.length; i++) {
@@ -331,7 +344,7 @@ export function updateTrolls(delta = 16) {
 
   // ============================================================
   // CLEANUP DEAD (Unload faded corpses)
-  // ============================================================
+// ============================================================
   for (let i = trolls.length - 1; i >= 0; i--) {
     if (!trolls[i].alive && trolls[i].fadeTimer >= FADE_OUT) {
       trolls.splice(i, 1);
@@ -339,6 +352,20 @@ export function updateTrolls(delta = 16) {
   }
 }
 
+// ------------------------------------------------------------
+// 💔 ESCAPE (troll reaches end of path → lose life)
+// ------------------------------------------------------------
+function handleEscape(t) {
+  const p = gameState.player;
+  if (p) {
+    if (p.lives === undefined) p.lives = 10;
+    p.lives = Math.max(0, p.lives - 1);
+    updateHUD();
+  }
+  t.alive = false;
+  t.hp = 0;
+  t.fadeTimer = FADE_OUT;
+}
 
 // ------------------------------------------------------------
 // 💥 DAMAGE
@@ -360,6 +387,15 @@ export function damageTroll(t, amount) {
     t.alive = false;
     t.fadeTimer = 0;
     playGoblinDeath();
+
+    // 🧮 Full goblin-style rewards
+    incrementGoblinDefeated();
+    awardXP(5);
+    addGold(5);
+    addBravery(1);
+    updateHUD();
+
+    // 🪙 Troll loot drops
     trySpawnGoblinDrop(t.x, t.y);
   }
 }
