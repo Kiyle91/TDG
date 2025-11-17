@@ -156,7 +156,7 @@ export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding (Goblins only)
   // ============================================================
   1: [
-    { goblins: 3,  worgs: 0, ogres: 0, elites: 0, trolls: 1 },
+    { goblins: 50,  worgs: 50, ogres: 50, elites: 50, trolls: 50 },
     { goblins: 6,  worgs: 0, ogres: 0, elites: 1, trolls: 0 },
     { goblins: 10, worgs: 0, ogres: 0, elites: 3, trolls: 0 },
     { goblins: 14, worgs: 0, ogres: 0, elites: 4, trolls: 0 },
@@ -327,6 +327,11 @@ function startNextWave() {
       if (i < wave.trolls) {
         spawnTroll();
       }
+
+      if (i <wave.ogres) {
+        spawnOgre();
+      }
+
     });
   }
 
@@ -351,12 +356,6 @@ function startNextWave() {
     spawnQueue.push(() => spawnTroll());
   }
 
-  // ----------------------------------------------------------
-  // Ogres (always independent)
-  // ----------------------------------------------------------
-  for (let i = 0; i < wave.ogres; i++) {
-    spawnQueue.push(() => spawnOgre());
-  }
 }
 
 
