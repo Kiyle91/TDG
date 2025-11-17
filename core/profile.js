@@ -126,14 +126,18 @@ export function initProfiles() {
     const slot = e.target.closest(".profile-slot");
     if (!slot || slot.classList.contains("empty")) return;
 
-    const index = slot.dataset.index;
+    const index = Number(slot.dataset.index);
     const profile = gameState.profiles[index];
     if (!profile) return;
+
+    // ⭐ FIX FOR ISSUE #3 — track active profile
+    gameState.activeProfileIndex = index;
 
     // 🪞 Restore Glitter Guardian for this profile
     setProfile(profile);
     restorePlayer(profile.player);
-    gameState.player.name = profile.name; // 🩵 sync profile name to player
+    gameState.player.name = profile.name;
+
     console.log(`👑 Profile selected: ${profile.name}`);
     playFairySprinkle();
 

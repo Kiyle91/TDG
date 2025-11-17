@@ -20,6 +20,7 @@ export const gameState = {
 
   // All saved profiles
   profiles: [],
+  activeProfileIndex: 0,
 
   // Core progress
   progress: {
