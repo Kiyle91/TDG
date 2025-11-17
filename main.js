@@ -470,17 +470,13 @@ function showEndScreen(reason) {
   // ---------------------------
   // 🖼 Image
   // ---------------------------
-  // Get selected skin (fallback: glitter)
   const skinKey = gameState?.profile?.cosmetics?.skin || "glitter";
-  const folder = skinKey; // folder name matches key
+  const folder = skinKey;
 
   const img = document.createElement("img");
-
-  if (reason === "victory") {
-    img.src = `./assets/images/sprites/${folder}/${folder}_attack_right.png`;
-  } else {
-    img.src = `./assets/images/sprites/${folder}/${folder}_slain.png`;
-  }
+  img.src = (reason === "victory")
+    ? `./assets/images/sprites/${folder}/${folder}_attack_right.png`
+    : `./assets/images/sprites/${folder}/${folder}_slain.png`;
 
   img.style.display = "block";
   img.style.margin = "20px auto 35px auto";
@@ -504,7 +500,32 @@ function showEndScreen(reason) {
 
       console.log(`🏆 Victory on Map ${currentMap}`);
 
+      // --------------------------------------------------------
+      // 💎✨ DIAMOND REWARD FOR VICTORY
+      // --------------------------------------------------------
+      const reward = 5;
+      const currencies = getCurrencies();
+      currencies.diamonds += reward;
+      saveProfiles();
+
+      const rewardMsg = document.createElement("div");
+      rewardMsg.textContent = `💎 +${reward} Diamonds`;
+      Object.assign(rewardMsg.style, {
+        position: "fixed",
+        top: "45%", width: "100%",
+        textAlign: "center",
+        fontSize: "28px",
+        color: "#b7f3ff",
+        textShadow: "0 0 12px #00faff",
+        pointerEvents: "none",
+        zIndex: 9999,
+      });
+      document.body.appendChild(rewardMsg);
+      setTimeout(() => rewardMsg.remove(), 2000);
+
+      // --------------------------------------------------------
       // 🎬 If map 9 is finished → credits
+      // --------------------------------------------------------
       if (nextMap > 9) {
         document.getElementById("end-screen")?.remove();
         showScreen("credits-screen");
@@ -535,36 +556,38 @@ function showEndScreen(reason) {
     buttons.append(nextBtn);
 
   } else {
-      // 💎 Continue with Diamonds
-      const continueBtn = document.createElement("button");
-      continueBtn.textContent = "Continue (25 💎)";
-      continueBtn.onclick = tryContinueWithDiamonds;
+    // 💎 Continue with Diamonds
+    const continueBtn = document.createElement("button");
+    continueBtn.textContent = "Continue (25 💎)";
+    continueBtn.onclick = tryContinueWithDiamonds;
 
-      // 🔁 Retry (Try Again)
-      const retryBtn = document.createElement("button");
-      retryBtn.textContent = "Try Again";
-      retryBtn.onclick = () => {
-        document.getElementById("end-screen")?.remove();
-        resetGameplay();
-      };
+    // 🔁 Retry (Try Again)
+    const retryBtn = document.createElement("button");
+    retryBtn.textContent = "Try Again";
+    retryBtn.onclick = () => {
+      document.getElementById("end-screen")?.remove();
+      resetGameplay();
+    };
 
-      // 🏠 Return to Hub
-      const hubBtn = document.createElement("button");
-      hubBtn.textContent = "Return to Hub";
-      hubBtn.onclick = () => {
-        document.getElementById("end-screen")?.remove();
-        showScreen("hub-screen");
-        setTimeout(() => initHub(), 50);
-      };
+    // 🏠 Return to Hub
+    const hubBtn = document.createElement("button");
+    hubBtn.textContent = "Return to Hub";
+    hubBtn.onclick = () => {
+      document.getElementById("end-screen")?.remove();
+      showScreen("hub-screen");
+      setTimeout(() => initHub(), 50);
+    };
 
-      buttons.append(continueBtn, retryBtn, hubBtn);
+    buttons.append(continueBtn, retryBtn, hubBtn);
   }
+
   // Assemble panel
   panel.append(title, subtitle, img, buttons);
 
   // Fade-in
   requestAnimationFrame(() => overlay.classList.add("visible"));
 }
+
 
 
 // ============================================================
