@@ -166,122 +166,124 @@ export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding (Goblins only)
   // ============================================================
   1: [
-    { goblins: 0,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 10 },
-    { goblins: 0,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 10 },
-    { goblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 10 },
-    { goblins: 14, worgs: 0, ogres: 0, elites: 3, trolls: 0, crossbows: 0 },
-    { goblins: 20, worgs: 0, ogres: 0, elites: 3, trolls: 2, crossbows: 0 },
+    { goblins: 3,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 6,  worgs: 0, ogres: 0, elites: 1, trolls: 1, crossbows: 0 },
+    { goblins: 10, worgs: 0, ogres: 0, elites: 3, trolls: 2, crossbows: 0 },
+    { goblins: 14, worgs: 0, ogres: 0, elites: 3, trolls: 3, crossbows: 1 },
+    { goblins: 20, worgs: 0, ogres: 0, elites: 3, trolls: 5, crossbows: 1 },
   ],
 
   // ============================================================
-  // 🌲 MAP 2 — First Worg Pack + First Elite
+  // 🌲 MAP 2 — First Worgs + First Elite
   // ============================================================
   2: [
-    { goblins: 12, worgs: 0,  ogres: 0, elites: 6, trolls: 4, crossbows: 0 },
-    { goblins: 8,  worgs: 8,  ogres: 0, elites: 8, trolls: 4, crossbows: 0 },
-    { goblins: 16, worgs: 10, ogres: 0, elites: 12, trolls: 6, crossbows: 0 },
-    { goblins: 18, worgs: 14, ogres: 1, elites: 12, trolls: 6, crossbows: 0},
-    { goblins: 20, worgs: 16, ogres: 1, elites: 16, trolls: 8, crossbows: 0},
+    { goblins: 12, worgs: 0,  ogres: 0, elites: 6, trolls: 6, crossbows: 6 },
+    { goblins: 8,  worgs: 8,  ogres: 0, elites: 8, trolls: 6, crossbows: 6 },
+    { goblins: 16, worgs: 10, ogres: 0, elites: 12, trolls: 6, crossbows: 6 },
+    { goblins: 18, worgs: 14, ogres: 1, elites: 12, trolls: 6, crossbows: 6 },
+    { goblins: 20, worgs: 16, ogres: 1, elites: 16, trolls: 6, crossbows: 6 },
   ],
 
   // ============================================================
   // 🏞 MAP 3 — Balanced Mix + First Difficulty Curve
   // ============================================================
   3: [
-    { goblins: 18, worgs: 8,  ogres: 0, elites: 16, trolls: 8, crossbows: 0 },
-    { goblins: 20, worgs: 10, ogres: 0, elites: 16, trolls: 12, crossbows: 0 },
-    { goblins: 24, worgs: 12, ogres: 1, elites: 18, trolls: 12, crossbows: 0},
-    { goblins: 28, worgs: 14, ogres: 1, elites: 20, trolls: 12, crossbows: 0},
-    { goblins: 32, worgs: 16, ogres: 2, elites: 22, trolls: 12, crossbows: 0},
+    { goblins: 18, worgs: 8,  ogres: 0, elites: 16, trolls: 10, crossbows: 10 },
+    { goblins: 20, worgs: 10, ogres: 0, elites: 16, trolls: 10, crossbows: 10 },
+    { goblins: 24, worgs: 12, ogres: 1, elites: 18, trolls: 10, crossbows: 10 },
+    { goblins: 28, worgs: 14, ogres: 1, elites: 20, trolls: 10, crossbows: 10 },
+    { goblins: 32, worgs: 16, ogres: 2, elites: 22, trolls: 10, crossbows: 10 },
   ],
 
   // ============================================================
   // ❄ MAP 4 — Worg Pressure Map (Fast waves)
   // ============================================================
   4: [
-    { goblins: 20, worgs: 12, ogres: 0, elites: 21, trolls: 12, crossbows: 0 },
-    { goblins: 18, worgs: 16, ogres: 0, elites: 21, trolls: 12, crossbows: 0 },
-    { goblins: 22, worgs: 20, ogres: 1, elites: 22, trolls: 12, crossbows: 0 },
-    { goblins: 16, worgs: 24, ogres: 1, elites: 22, trolls: 12, crossbows: 0 },
-    { goblins: 20, worgs: 28, ogres: 2, elites: 23, trolls: 12, crossbows: 0 },
+    { goblins: 20, worgs: 12, ogres: 0, elites: 21, trolls: 16, crossbows: 10 },
+    { goblins: 18, worgs: 16, ogres: 0, elites: 21, trolls: 16, crossbows: 10 },
+    { goblins: 22, worgs: 20, ogres: 1, elites: 22, trolls: 16, crossbows: 10 },
+    { goblins: 16, worgs: 24, ogres: 1, elites: 22, trolls: 16, crossbows: 10 },
+    { goblins: 20, worgs: 28, ogres: 2, elites: 23, trolls: 16, crossbows: 10 },
   ],
 
   // ============================================================
   // 🔥 MAP 5 — Stronger Ogres + Mixed Pressure
   // ============================================================
   5: [
-    { goblins: 22, worgs: 12, ogres: 1, elites: 21, trolls: 12, crossbows: 0 },
-    { goblins: 24, worgs: 14, ogres: 1, elites: 22, trolls: 12, crossbows: 0 },
-    { goblins: 26, worgs: 18, ogres: 2, elites: 22, trolls: 12, crossbows: 0 },
-    { goblins: 0,  worgs: 0,  ogres: 4, elites: 22, trolls: 12, crossbows: 0 },
-    { goblins: 32, worgs: 20, ogres: 2, elites: 23, trolls: 12, crossbows: 0 },
+    { goblins: 22, worgs: 12, ogres: 1, elites: 21, trolls: 16, crossbows: 10 },
+    { goblins: 24, worgs: 14, ogres: 1, elites: 22, trolls: 16, crossbows: 10 },
+    { goblins: 26, worgs: 18, ogres: 2, elites: 22, trolls: 16, crossbows: 10 },
+    { goblins: 0,  worgs: 0,  ogres: 4, elites: 22, trolls: 16, crossbows: 10 },
+    { goblins: 32, worgs: 20, ogres: 2, elites: 23, trolls: 16, crossbows: 10 },
   ],
 
   // ============================================================
   // 🜂 MAP 6 — Chaotic Back-and-Forth Pattern
   // ============================================================
   6: [
-    { goblins: 30, worgs: 12, ogres: 1, elites: 22, trolls: 14, crossbows: 0 },
-    { goblins: 10, worgs: 22, ogres: 1, elites: 22, trolls: 14, crossbows: 0 },
-    { goblins: 22, worgs: 10, ogres: 2, elites: 22, trolls: 14, crossbows: 0 },
-    { goblins: 0,  worgs: 28, ogres: 0, elites: 23, trolls: 14, crossbows: 0 },
-    { goblins: 28, worgs: 20, ogres: 2, elites: 23, trolls: 14, crossbows: 0 },
+    { goblins: 30, worgs: 12, ogres: 1, elites: 22, trolls: 20, crossbows: 16 },
+    { goblins: 10, worgs: 22, ogres: 1, elites: 22, trolls: 20, crossbows: 16 },
+    { goblins: 22, worgs: 10, ogres: 2, elites: 22, trolls: 20, crossbows: 16 },
+    { goblins: 0,  worgs: 28, ogres: 0, elites: 23, trolls: 20, crossbows: 16 },
+    { goblins: 28, worgs: 20, ogres: 2, elites: 23, trolls: 20, crossbows: 16 },
   ],
 
   // ============================================================
   // ⚔ MAP 7 — Elite-Heavy Map (Mid-Game Spike)
   // ============================================================
   7: [
-    { goblins: 28, worgs: 14, ogres: 1, elites: 32, trolls: 16, crossbows: 0 },
-    { goblins: 0,  worgs: 20, ogres: 2, elites: 32, trolls: 16, crossbows: 0 },
-    { goblins: 30, worgs: 30, ogres: 2, elites: 33, trolls: 16, crossbows: 0},
-    { goblins: 10, worgs: 10, ogres: 5, elites: 33, trolls: 16, crossbows: 0},
-    { goblins: 32, worgs: 24, ogres: 3, elites: 34, trolls: 16, crossbows: 0},
+    { goblins: 28, worgs: 14, ogres: 1, elites: 32, trolls: 20, crossbows: 20 },
+    { goblins: 0,  worgs: 20, ogres: 2, elites: 32, trolls: 20, crossbows: 20 },
+    { goblins: 30, worgs: 30, ogres: 2, elites: 33, trolls: 20, crossbows: 20 },
+    { goblins: 10, worgs: 10, ogres: 5, elites: 33, trolls: 10, crossbows: 20 },
+    { goblins: 32, worgs: 24, ogres: 3, elites: 34, trolls: 20, crossbows: 20 },
   ],
 
   // ============================================================
   // ⚡ MAP 8 — Intense Late-Game Scaling
   // ============================================================
   8: [
-    { goblins: 36, worgs: 20, ogres: 1, elites: 32, trolls: 16, crossbows: 0 },
-    { goblins: 40, worgs: 24, ogres: 1, elites: 32, trolls: 16, crossbows: 0 },
-    { goblins: 40, worgs: 28, ogres: 2, elites: 33, trolls: 16, crossbows: 0 },
-    { goblins: 42, worgs: 12, ogres: 0, elites: 33, trolls: 16, crossbows: 0 },
-    { goblins: 44, worgs: 14, ogres: 3, elites: 34, trolls: 16, crossbows: 0},
+    { goblins: 36, worgs: 20, ogres: 1, elites: 32, trolls: 20, crossbows: 20 },
+    { goblins: 40, worgs: 24, ogres: 1, elites: 32, trolls: 20, crossbows: 20 },
+    { goblins: 40, worgs: 28, ogres: 2, elites: 33, trolls: 20, crossbows: 20 },
+    { goblins: 42, worgs: 12, ogres: 0, elites: 33, trolls: 20, crossbows: 20 },
+    { goblins: 44, worgs: 14, ogres: 3, elites: 34, trolls: 20, crossbows: 20 },
   ],
 
   // ============================================================
   // 👑 MAP 9 — Final Showdown (Hardest Waves)
   // ============================================================
   9: [
-    { goblins: 50, worgs: 30, ogres: 2, elites: 33, trolls: 20, crossbows: 0 },
-    { goblins: 55, worgs: 35, ogres: 3, elites: 33, trolls: 20, crossbows: 0 },
-    { goblins: 40, worgs: 20, ogres: 5, elites: 34, trolls: 20, crossbows: 0 },
-    { goblins: 60, worgs: 40, ogres: 5, elites: 34, trolls: 20, crossbows: 0 },
-    { goblins: 70, worgs: 50, ogres: 7, elites: 35, trolls: 20, crossbows: 0 },
+    { goblins: 50, worgs: 30, ogres: 2, elites: 33, trolls: 20, crossbows: 20 },
+    { goblins: 55, worgs: 35, ogres: 3, elites: 33, trolls: 20, crossbows: 20 },
+    { goblins: 40, worgs: 20, ogres: 5, elites: 34, trolls: 20, crossbows: 20 },
+    { goblins: 60, worgs: 40, ogres: 5, elites: 34, trolls: 20, crossbows: 20 },
+    { goblins: 70, worgs: 50, ogres: 7, elites: 35, trolls: 20, crossbows: 20 },
   ],
 };
-
 
 // ============================================================
 // 🎯 WAVE STATE
 // ============================================================
-
 let currentWaveIndex = 0;
 let waveActive = false;
 let waveCleared = false;
+let justStartedWave = false;
+
+// ⭐ NEW — prevents wave skipping before first wave spawns
+let firstWaveStarted = false;
 
 // ============================================================
 // 🧩 BONUS OGRE SPAWN — 1 per 100 goblins killed
 // ============================================================
 let ogreMilestones = {};
 for (let i = 1; i <= 20; i++) {
-  ogreMilestones[i * 100] = false; // 100, 200, ..., 2000
+  ogreMilestones[i * 100] = false;
 }
 
-const FIRST_WAVE_DELAY = 5000;     // ⭐ 5s delay before Wave 1
-const BETWEEN_WAVES_DELAY = 3000;  // existing logic
-const VICTORY_DELAY = 5000;   
+const FIRST_WAVE_DELAY = 5000;     // ⭐ 5s before wave 1
+const BETWEEN_WAVES_DELAY = 5000;  // ⭐ 5s between waves
+const VICTORY_DELAY = 5000;
 
 let betweenWaveTimer = 0;
 let victoryPending = false;
@@ -292,6 +294,29 @@ let victoryPending = false;
 const SPAWN_INTERVAL = 4000;
 let spawnQueue = [];
 let spawnTimer = 0;
+
+// ============================================================
+// 🔄 RESET WAVE SYSTEM (call on map load / new game)
+// ============================================================
+export function resetWaveSystem() {
+  currentWaveIndex = 0;
+  waveActive = false;
+  waveCleared = false;
+  justStartedWave = true;
+
+  spawnQueue.length = 0;
+  victoryPending = false;
+
+  spawnTimer = 0;
+
+  // ⭐ Reset wave start lock
+  firstWaveStarted = false;
+
+  // ⭐ Wait 5 seconds before first wave
+  betweenWaveTimer = FIRST_WAVE_DELAY;
+
+  console.log("🔄 Wave system reset.");
+}
 
 // ============================================================
 // 🚀 START NEXT WAVE
@@ -311,21 +336,22 @@ function startNextWave() {
 
   waveActive = true;
   waveCleared = false;
+  justStartedWave = true;
 
   gameState.wave = currentWaveIndex + 1;
   gameState.totalWaves = waves.length;
   updateHUD();
 
   // ----------------------------------------------------------
-  // 🆕 Goblins spawn the baseline loop
+  // BASELINE LOOP (drives pacing)
   // ----------------------------------------------------------
   for (let i = 0; i < wave.goblins; i++) {
     spawnQueue.push(() => {
 
       spawnGoblin();
 
-      // Worg
-      if (i < wave.worg) {
+      // Worgs
+      if (i < wave.worgs) {
         spawnWorg();
       }
 
@@ -339,17 +365,20 @@ function startNextWave() {
         spawnTroll();
       }
 
-      if (i <wave.ogres) {
+      // Ogres
+      if (i < wave.ogres) {
         spawnOgre();
       }
 
-      if (i < wave.crossbows) spawnCrossbow();
-
+      // ⭐ Crossbows added
+      if (i < wave.crossbows) {
+        spawnCrossbow();
+      }
     });
   }
 
   // ----------------------------------------------------------
-  // Overflow Worg
+  // Overflow Worgs
   // ----------------------------------------------------------
   for (let i = wave.goblins; i < wave.worgs; i++) {
     spawnQueue.push(() => spawnWorg());
@@ -369,13 +398,13 @@ function startNextWave() {
     spawnQueue.push(() => spawnTroll());
   }
 
+  // ----------------------------------------------------------
+  // ⭐ Overflow Crossbows
+  // ----------------------------------------------------------
   for (let i = wave.goblins; i < wave.crossbows; i++) {
     spawnQueue.push(() => spawnCrossbow());
   }
-
 }
-
-
 
 // ============================================================
 // 👁 CHECK ACTIVE ENEMIES
@@ -384,39 +413,52 @@ function noEnemiesAlive() {
   const g = getGoblins();
   const w = getWorg();
   const o = getOgres();
-  const e = getElites(); // 🟥 NEW — include elites
-  const t = getTrolls(); 
-  const x = getCrossbows();
+  const e = getElites();
+  const t = getTrolls();
+  const x = getCrossbows(); // ⭐ NEW
 
   const aliveG = g.filter(x => x.alive).length;
   const aliveW = w.filter(x => x.alive).length;
   const aliveO = o.filter(x => x.alive).length;
-  const aliveE = e.filter(x => x.alive).length; // 🟥 NEW
-  const aliveX = x.filter(x => x.alive).length;
+  const aliveE = e.filter(x => x.alive).length;
+  const aliveT = t.filter(x => x.alive).length;
+  const aliveX = x.filter(x => x.alive).length; // ⭐ NEW
 
-  const totalAlive = aliveG + aliveW + aliveO + aliveE;
+  const totalAlive = aliveG + aliveW + aliveO + aliveE + aliveT + aliveX;
 
-  // If no enemies have ever spawned yet → NOT CLEAR
   const totalSpawnedSoFar =
-    g.length + w.length + o.length + e.length; // 🟥 NEW
+    g.length + w.length + o.length + e.length + t.length + x.length;
 
-  // If queue still has enemies → NOT CLEAR
   if (spawnQueue.length > 0) return false;
-
-  // If NOTHING spawned yet, wave is NOT clear
   if (totalSpawnedSoFar === 0) return false;
 
-  // Wave is clear only if spawned > 0 and alive == 0
   return totalAlive === 0;
 }
 
-
 // ============================================================
-// 🔁 UPDATE WAVE PROGRESSION (FULLY FIXED)
+// 🔁 UPDATE WAVE PROGRESSION
 // ============================================================
 async function updateWaveSystem(delta) {
 
-  // 1️⃣ Handle spawn queue
+  // ⭐⭐⭐ FIXED FIRST WAVE LOGIC ⭐⭐⭐
+  // Prevent wave skipping during initial delay
+  if (!firstWaveStarted) {
+    betweenWaveTimer -= delta;
+
+    if (betweenWaveTimer <= 0) {
+      firstWaveStarted = true;
+      startNextWave();
+    }
+
+    return; // DO NOT run any other wave logic yet
+  }
+
+  if (justStartedWave) {
+    justStartedWave = false;
+    return; // skip clear checks for 1 frame
+  }
+
+  // Handle spawn queue
   spawnTimer -= delta;
   if (spawnQueue.length > 0 && spawnTimer <= 0) {
     const spawnFn = spawnQueue.shift();
@@ -431,24 +473,22 @@ async function updateWaveSystem(delta) {
   if (!waves) return;
 
   // ----------------------------------------------------------
-  // 2️⃣ ACTIVE WAVE
+  // ACTIVE WAVE
   // ----------------------------------------------------------
   if (waveActive) {
     if (!noEnemiesAlive()) return;
 
-    // Wave just finished
     if (!waveCleared) {
       waveCleared = true;
       waveActive = false;
 
       const waveNumber = currentWaveIndex + 1;
 
-      // ⭐ Wave 1 end story
+      // End-of-wave stories
       if (waveNumber === 1) {
         await triggerEndOfWave1Story(mapId);
       }
 
-      // ⭐ Wave 5 end story (final wave)
       if (waveNumber === 5) {
         await triggerEndOfWave5Story(mapId);
       }
@@ -461,13 +501,13 @@ async function updateWaveSystem(delta) {
   }
 
   // ----------------------------------------------------------
-  // 3️⃣ BETWEEN WAVES
+  // BETWEEN WAVES
   // ----------------------------------------------------------
   betweenWaveTimer -= delta;
   if (betweenWaveTimer > 0) return;
 
   // ----------------------------------------------------------
-  // 4️⃣ MORE WAVES?
+  // MORE WAVES?
   // ----------------------------------------------------------
   if (currentWaveIndex + 1 < waves.length) {
     currentWaveIndex++;
@@ -476,16 +516,14 @@ async function updateWaveSystem(delta) {
   }
 
   // ----------------------------------------------------------
-  // 5️⃣ FINAL WAVE → VICTORY
+  // FINAL WAVE → VICTORY
   // ----------------------------------------------------------
   console.log(`🏆 All waves complete on map ${mapId}. Scheduling victory…`);
 
   victoryPending = true;
 
-  // ⭐ Unlock the next map ⭐
   const nextMap = mapId + 1;
 
-  // If NOT the final map → unlock next map normally
   if (nextMap <= 9) {
     unlockMap(nextMap);
     saveProfiles();
@@ -495,15 +533,14 @@ async function updateWaveSystem(delta) {
   setTimeout(() => {
     stopGameplay("victory");
 
-    // ⭐ If we just completed MAP 9 → Show Credits ⭐
     if (mapId === 9) {
       import("./credits.js").then(mod => {
         mod.showCredits();
       });
     }
   }, VICTORY_DELAY);
-
 }
+
 
 
 // ------------------------------------------------------------

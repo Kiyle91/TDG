@@ -309,15 +309,6 @@ export async function resetGameplay() {
   // ==========================================================
   // 🌊 FULL WAVE SYSTEM RESET
   // ==========================================================
-  if (window.currentWaveIndex !== undefined) window.currentWaveIndex = 0;
-  if (window.waveActive !== undefined) window.waveActive = false;
-  if (window.waveCleared !== undefined) window.waveCleared = false;
-
-  if (window.spawnQueue !== undefined && Array.isArray(window.spawnQueue))
-    window.spawnQueue.length = 0;
-
-  if (window.goblinsDefeated !== undefined)
-    window.goblinsDefeated = 0;
 
   // Reset ogres / elites / worg
   if (window.getOgres) {
