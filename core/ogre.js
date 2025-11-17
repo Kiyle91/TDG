@@ -276,7 +276,7 @@ export function damageOgre(o, amount) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW OGRES (optimized flash timer)
+// 🎨 DRAW OGRES — High quality, crisp, unified style
 // ------------------------------------------------------------
 export function drawOgres(ctx) {
   if (!ctx || !ogres || !ogreSprites) return;
@@ -318,11 +318,11 @@ export function drawOgres(ctx) {
 
     ctx.save();
 
-    // Shadow
+    // SHADOW (unchanged)
     ctx.beginPath();
     ctx.ellipse(
       o.x,
-      o.y + OGRE_SIZE / 4.5,  
+      o.y + OGRE_SIZE / 4.5,
       OGRE_SIZE * 0.35,
       OGRE_SIZE * 0.15,
       0, 0, Math.PI * 2
@@ -330,31 +330,41 @@ export function drawOgres(ctx) {
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
 
-    const alpha = o.fading ? Math.max(0, 1 - o.fadeTimer / FADE_OUT) : 1;
-    ctx.globalAlpha = alpha;
-    ctx.imageSmoothingEnabled = false;
+    // 🆕 Proper high-quality smoothing like goblins/elites
+    ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // Flash effect
+    // Fade-out
+    const alpha = o.fading ? Math.max(0, 1 - o.fadeTimer / FADE_OUT) : 1;
+    ctx.globalAlpha = alpha;
+
+    // Flash effect (same as before)
     if (o.alive && o.flashTimer > 0) {
       const flashAlpha = o.flashTimer / 150;
       ctx.filter = `contrast(1.2) brightness(${1 + flashAlpha * 0.5}) saturate(${1 + flashAlpha * 1.5})`;
     } else ctx.filter = "none";
 
-    // Draw sprite
-    ctx.drawImage(img, 0, 0, img.width, img.height, drawX, drawY, OGRE_SIZE, OGRE_SIZE);
+    // 🆕 Unified drawing — same as new goblin system
+    ctx.drawImage(
+      img,
+      0, 0, img.width, img.height,
+      drawX, drawY,
+      OGRE_SIZE, OGRE_SIZE
+    );
 
     ctx.filter = "none";
     ctx.globalAlpha = 1;
 
-    // HP bar
+    // HP bar (unchanged)
     if (o.alive) {
       const hpPct = Math.max(0, Math.min(1, o.hp / o.maxHp));
       const barWidth = 80;
       const barHeight = 6;
       const barY = drawY - 14;
+
       ctx.fillStyle = "rgba(0,0,0,0.4)";
       ctx.fillRect(o.x - barWidth / 2, barY, barWidth, barHeight);
+
       ctx.fillStyle = `hsl(${hpPct * 120}, 100%, 50%)`;
       ctx.fillRect(o.x - barWidth / 2, barY, barWidth * hpPct, barHeight);
     }
@@ -362,6 +372,7 @@ export function drawOgres(ctx) {
     ctx.restore();
   }
 }
+
 
 // ------------------------------------------------------------
 // 🔍 ACCESSOR
