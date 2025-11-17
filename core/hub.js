@@ -43,6 +43,8 @@ import {
 import { renderSlots } from "./saveSlots.js";
 import { loadFromSlot, applySnapshot } from "./saveSystem.js";
 
+import { showCredits } from "./credits.js";
+
 
 // ============================================================
 // 🌷 INIT HUB
@@ -65,6 +67,7 @@ export function initHub() {
   const statsBtn      = document.getElementById("stats-btn");
   const settingsBtn   = document.getElementById("settings-btn");
   const exitBtn       = document.getElementById("exit-hub-btn");
+  
 
   // Initialize hub subsystems
   initChest();
@@ -189,16 +192,29 @@ export function initHub() {
   // ============================================================
   // EXIT → PROFILE SCREEN
   // ============================================================
-  exitBtn.addEventListener("click", () => {
-    playFairySprinkle();
-    showConfirm(
-      "Return to the Profile Select?",
-      () => fadeOut(hub, () => showScreen("profile-screen"))
-    );
-  });
+  const exitHubBtn = document.getElementById("exit-hub-btn");
+
+  if (exitHubBtn) {
+    exitHubBtn.addEventListener("click", () => {
+      playFairySprinkle();
+
+      showConfirm(
+        "Return to the Profile Select?",
+        () => fadeOut(hub, () => showScreen("profile-screen"))
+      );
+    });
+  }
 
   initSkinsMenu();
   console.log("🏰 Hub ready — all buttons linked");
+
+  // ============================================================
+  // credits
+  // ============================================================
+
+  document.getElementById("credits-btn").onclick = () => {
+    showCredits();
+};
 }
 
 
@@ -318,7 +334,24 @@ export function updateHubProfile() {
 // PLACEHOLDERS FOR UNCHANGED FUNCTIONS
 // ============================================================
 function updateTurretUnlocks() { /* unchanged */ }
-function fadeOut(element, callback) { /* unchanged */ }
+function fadeOut(element, callback) {
+  if (!element) {
+    console.warn("fadeOut: element missing");
+    callback?.();
+    return;
+  }
+
+  element.style.opacity = "1";
+  element.style.transition = "opacity 0.4s ease";
+
+  requestAnimationFrame(() => {
+    element.style.opacity = "0";
+  });
+
+  setTimeout(() => {
+    if (typeof callback === "function") callback();
+  }, 400);
+}
 
 // ============================================================
 // END OF FILE
