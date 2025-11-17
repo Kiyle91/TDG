@@ -159,8 +159,8 @@ export function updateTrolls(delta = 16) {
 
   delta = Math.min(delta, 100);
   const dt = delta / 1000;
-
   const player = gameState.player;
+
   const px = player?.pos?.x ?? null;
   const py = player?.pos?.y ?? null;
 
@@ -202,7 +202,7 @@ export function updateTrolls(delta = 16) {
       const dx = px - t.x;
       const dy = py - t.y;
 
-      // 🗡 Attack if close
+      // Attack
       if (t.distToPlayer < ATTACK_RANGE) {
         if (t.attackCooldown === 0) {
           t.attacking = true;
@@ -220,8 +220,8 @@ export function updateTrolls(delta = 16) {
       // Direction
       t.dir =
         Math.abs(dx) > Math.abs(dy)
-          ? (dx > 0 ? "right" : "left")
-          : (dy > 0 ? "down" : "up");
+          ? dx > 0 ? "right" : "left"
+          : dy > 0 ? "down" : "up";
 
       // Walk animation
       t.frameTimer += delta;
@@ -230,55 +230,96 @@ export function updateTrolls(delta = 16) {
         t.frame = (t.frame + 1) % 2;
       }
 
-      // next troll
-      continue;
-    }
+    } else {
 
-    // ------------------------------------------------------------
-    // 🛣 PATH MODE (Goblin-style Follow Path)
-    // ------------------------------------------------------------
-    const target = pathPoints[t.pathIndex];
-    if (!target) {
-      handleEscape(t);
-      continue;
-    }
-
-    const dx = target.x - t.x;
-    const dy = target.y - t.y;
-    const dist = Math.hypot(dx, dy) || 1;
-
-    // Reached path node
-    if (dist < 6) {
-      t.pathIndex++;
-      if (t.pathIndex >= pathPoints.length) {
+      // ------------------------------------------------------------
+      // 🛣 PATH MODE
+      // ------------------------------------------------------------
+      const target = pathPoints[t.pathIndex];
+      if (!target) {
         handleEscape(t);
+        continue;
       }
-      continue;
-    }
 
-    // Move along path
-    t.x += (dx / dist) * SPEED * dt;
-    t.y += (dy / dist) * SPEED * dt;
+      const dx = target.x - t.x;
+      const dy = target.y - t.y;
+      const dist = Math.hypot(dx, dy) || 1;
 
-    // Direction
-    t.dir =
-      Math.abs(dx) > Math.abs(dy)
-        ? (dx > 0 ? "right" : "left")
-        : (dy > 0 ? "down" : "up");
+      if (dist < 6) {
+        t.pathIndex++;
+        if (t.pathIndex >= pathPoints.length) handleEscape(t);
+      } else {
+        t.x += (dx / dist) * SPEED * dt;
+        t.y += (dy / dist) * SPEED * dt;
 
-    // Walk animation
-    t.frameTimer += delta;
-    if (t.frameTimer >= WALK_FRAME_INTERVAL) {
-      t.frameTimer = 0;
-      t.frame = (t.frame + 1) % 2;
+        t.dir =
+          Math.abs(dx) > Math.abs(dy)
+            ? dx > 0 ? "right" : "left"
+            : dy > 0 ? "down" : "up";
+      }
+
+      // Walk animation
+      t.frameTimer += delta;
+      if (t.frameTimer >= WALK_FRAME_INTERVAL) {
+        t.frameTimer = 0;
+        t.frame = (t.frame + 1) % 2;
+      }
     }
 
     // ------------------------------------------------------------
-    // 🔥 FLASH TIMER (REQUIRED TO REMOVE RED TINT)
+    // 💥 FLASH TIMER (hit effect fade)
     // ------------------------------------------------------------
     if (t.flashTimer > 0) {
       t.flashTimer -= delta;
       if (t.flashTimer < 0) t.flashTimer = 0;
+    }
+
+    // ------------------------------------------------------------
+    // 🟣 PLAYER ↔ TROLL COLLISION (soft push)
+    // ------------------------------------------------------------
+    const dxp = t.x - player.pos.x;
+    const dyp = t.y - player.pos.y;
+    const distP = Math.hypot(dxp, dyp);
+
+    const minDistP = 55; // slightly larger for big trolls
+
+    if (distP < minDistP && distP > 0) {
+      const push = (minDistP - distP) / 2;
+      const nx = dxp / distP;
+      const ny = dyp / distP;
+
+      player.pos.x -= nx * push * 0.8;
+      player.pos.y -= ny * push * 0.8;
+    }
+  }
+
+  // ------------------------------------------------------------
+  // 🟢 TROLL ↔ TROLL COLLISION
+  // ------------------------------------------------------------
+  const MIN_TROLL_DIST = 80;
+
+  for (let i = 0; i < trolls.length; i++) {
+    const a = trolls[i];
+    if (!a.alive) continue;
+
+    for (let j = i + 1; j < trolls.length; j++) {
+      const b = trolls[j];
+      if (!b.alive) continue;
+
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist < MIN_TROLL_DIST && dist > 0) {
+        const overlap = (MIN_TROLL_DIST - dist) / 2;
+        const nx = dx / dist;
+        const ny = dy / dist;
+
+        a.x -= nx * overlap;
+        a.y -= ny * overlap;
+        b.x += nx * overlap;
+        b.y += ny * overlap;
+      }
     }
   }
 
@@ -292,132 +333,6 @@ export function updateTrolls(delta = 16) {
   }
 }
 
-// ------------------------------------------------------------
-// 💔 ESCAPE → lose life
-// ------------------------------------------------------------
-function handleEscape(t) {
-  const p = gameState.player;
-  if (p) {
-    p.lives = Math.max(0, (p.lives ?? 10) - 1);
-    updateHUD();
-  }
-
-  t.alive = false;
-  t.fadeTimer = 0;
-  t.hp = 0;
-}
-
-// ------------------------------------------------------------
-// 💥 DAMAGE
-// ------------------------------------------------------------
-export function damageTroll(t, amount) {
-  if (!t || !t.alive) return;
-
-  const dmg = Math.max(0, Number(amount));
-  if (dmg <= 0) return;
-
-  t.hp -= dmg;
-
-  spawnFloatingText(t.x, t.y - 40, `-${Math.round(dmg)}`, "#ff7777");
-  playGoblinDamage();
-  t.flashTimer = 150;
-
-  if (t.hp <= 0) {
-    t.hp = 0;
-    t.alive = false;
-    t.fadeTimer = 0;
-    playGoblinDeath();
-  }
-}
-
-// ------------------------------------------------------------
-// 🎨 DRAW — crisp, goblin-quality rendering + flash fade
-// ------------------------------------------------------------
-export function drawTrolls(ctx) {
-  if (!ctx || !trollSprites) return;
-
-  const FEET_OFFSET = 12;
-
-  for (const t of trolls) {
-    const img = getSprite(t);
-    if (!img) continue;
-
-    const drawX = t.x - SIZE / 2;
-    let drawY = t.y - SIZE / 2 - FEET_OFFSET;
-
-    ctx.save();
-
-    // ---------------------------------------
-    // 🔍 High-quality smoothing (matches goblins)
-    // ---------------------------------------
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.mozImageSmoothingEnabled = true;
-
-    // ---------------------------------------
-    // Shadow
-    // ---------------------------------------
-    ctx.beginPath();
-    ctx.ellipse(
-      t.x,
-      t.y + SIZE / 2.3,
-      SIZE * 0.35,
-      SIZE * 0.15,
-      0, 0, Math.PI * 2
-    );
-    ctx.fillStyle = "rgba(0,0,0,0.25)";
-    ctx.fill();
-
-    // ---------------------------------------
-    // Fade out corpse
-    // ---------------------------------------
-    if (!t.alive) {
-      ctx.globalAlpha = Math.max(0, 1 - t.fadeTimer / FADE_OUT);
-    }
-
-    // ---------------------------------------
-    // Flash effect (proper fade-out)
-    // ---------------------------------------
-    if (t.flashTimer > 0) {
-      const alpha = t.flashTimer / 150;
-      ctx.filter = `brightness(${1 + alpha * 0.4}) saturate(${1 + alpha})`;
-    } else {
-      ctx.filter = "none";
-    }
-
-    // ---------------------------------------
-    // Draw troll sprite
-    // ---------------------------------------
-    ctx.drawImage(
-      img,
-      0, 0, img.width, img.height,
-      drawX,
-      drawY,
-      SIZE,
-      SIZE
-    );
-
-    ctx.filter = "none";
-    ctx.globalAlpha = 1;
-
-    // ---------------------------------------
-    // HP BAR
-    // ---------------------------------------
-    if (t.alive) {
-      const barW = 60, barH = 5;
-      const pct = Math.max(0, Math.min(1, t.hp / t.maxHp));
-      const barY = drawY - 8;
-
-      ctx.fillStyle = "rgba(0,0,0,0.4)";
-      ctx.fillRect(t.x - barW / 2, barY, barW, barH);
-
-      ctx.fillStyle = `hsl(${pct * 120},100%,50%)`;
-      ctx.fillRect(t.x - barW / 2, barY, barW * pct, barH);
-    }
-
-    ctx.restore();
-  }
-}
 
 
 // ------------------------------------------------------------
