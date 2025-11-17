@@ -79,7 +79,6 @@ export function updateHUD() {
   const manaText = document.getElementById("mana-text");
 
   if (hpBar && manaBar) {
-    // numeric safety
     const hp       = Number(p.hp)       || 0;
     const maxHp    = Number(p.maxHp)    || 100;
     const mana     = Number(p.mana)     || 0;
@@ -88,18 +87,39 @@ export function updateHUD() {
     const hpPct   = Math.max(0, Math.min(100, (hp / maxHp) * 100));
     const manaPct = Math.max(0, Math.min(100, (mana / maxMana) * 100));
 
-    // Apply CSS variable fills
     hpBar.style.setProperty("--fill", `${hpPct}%`);
     manaBar.style.setProperty("--fill", `${manaPct}%`);
 
-    // Update text values safely
     if (hpText)   hpText.textContent   = `${Math.round(hp)} / ${Math.round(maxHp)}`;
-    if (manaText) manaText.textContent = 
-      `${Math.round(Number(p.mana))} / ${Math.round(Number(p.maxMana))}`;
+    if (manaText) manaText.textContent = `${Math.round(p.mana)} / ${Math.round(p.maxMana)}`;
+  }
+
+  // ✧ Crystal Echoes
+  if (gameState.exploration) {
+    const foundEl = document.getElementById("hud-crystals-found");
+    const totalEl = document.getElementById("hud-crystals-total");
+    const circle = document.getElementById("hud-crystals-circle");
+
+    if (foundEl) foundEl.textContent = gameState.exploration.found ?? 0;
+    if (totalEl) totalEl.textContent = gameState.exploration.total ?? 0;
+
+    // Flash animation
+    if (circle) {
+      circle.classList.remove("hud-circle-flash");
+      void circle.offsetWidth;
+      circle.classList.add("hud-circle-flash");
+    }
+  }
+
+  // 🏹 Arrows (mana → potential shots)
+  const arrowsEl = document.getElementById("hud-arrows");
+  if (arrowsEl) {
+    arrowsEl.textContent = Math.floor((p.mana ?? 0) / 2);
   }
 
   updateTurretBar();
 }
+
 
 // ------------------------------------------------------------
 // 📜 GET GAME STATS

@@ -150,6 +150,7 @@ import { resetGoblinDrops } from "./goblinDrop.js";
 
 import { updateBraveryBar } from "./ui.js";
 import { showCredits } from "./credits.js";
+import { updateCrystalEchoes } from "./crystalEchoes.js";
 
 export const waveConfigs = {
   // ============================================================
@@ -728,6 +729,10 @@ export function renderGame() {
   ctx.save();
   ctx.translate(-cameraX, -cameraY);
 
+  // 🌸 Crystal Echoes (draw before player)
+  updateCrystalEchoes(ctx, gameState.player);
+
+  // Entities
   drawTowers(ctx);
   drawWorg(ctx);
   drawEnemies(ctx);
@@ -735,6 +740,8 @@ export function renderGame() {
   drawTrolls(ctx);
   drawOgres(ctx);
   drawPlayer(ctx);
+
+  // Effects + drops
   drawProjectiles(ctx);
   drawFloatingText(ctx);
   drawHealingDrops(ctx);

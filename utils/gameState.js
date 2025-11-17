@@ -117,6 +117,10 @@ function migrateProfile(profile) {
     profile.progress.currentMap = 1;
   }
 
+  if (!profile.exploration) {
+    profile.exploration = {};
+  }
+
   // ⭐ Bravery migration
   if (!profile.bravery) {
     profile.bravery = {
@@ -161,6 +165,9 @@ export function addProfile(name) {
 
     currencies: { gold: 0, diamonds: 0 },
 
+    // ⭐ NEW — exploration save
+    exploration: {},
+
     // ⭐ Start with empty bravery
     bravery: {
       current: 0,
@@ -187,6 +194,7 @@ export function saveProfiles() {
 
       // ⭐ Sync bravery
       gameState.profile.bravery = { ...gameState.bravery };
+      gameState.profile.exploration = { ...gameState.profile.exploration };
     }
 
     localStorage.setItem("td_profiles", JSON.stringify(gameState.profiles));

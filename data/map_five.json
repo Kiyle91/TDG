@@ -1,5 +1,10 @@
 { "compressionlevel":-1,
  "height":40,
+  "crystalEchoes": [
+   { "x": 1200, "y": 850 },
+   { "x": 2400, "y": 1400 },
+   { "x": 3600, "y": 2200 }
+ ],
  "infinite":false,
  "layers":[
         {

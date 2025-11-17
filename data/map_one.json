@@ -1,5 +1,10 @@
 { "compressionlevel":-1,
  "height":35,
+  "crystalEchoes": [
+   { "x": 1200, "y": 850 },
+   { "x": 1100, "y": 750 },
+   { "x": 1000, "y": 650 }
+ ],
  "infinite":false,
  "layers":[
         {
@@ -251,4 +256,5 @@
  "type":"map",
  "version":"1.10",
  "width":60
+ 
 }

@@ -11,6 +11,7 @@
 import { TILE_SIZE, GRID_COLS, GRID_ROWS } from "../utils/constants.js";
 import { initCollision } from "../utils/mapCollision.js";
 import { gameState } from "../utils/gameState.js";
+import { initCrystalEchoes } from "./crystalEchoes.js";
 
 let mapData = null;
 let layers = [];
@@ -66,7 +67,6 @@ export async function loadMap() {
     9: "map_nine.json",
   };
 
-  // Lookup filename (fallback to map_one.json)
   const mapFile = fileMap[id] || "map_one.json";
 
   console.log(`🗺️ Loading map ID ${id} → ${mapFile}`);
@@ -101,7 +101,6 @@ export async function loadMap() {
 
   for (const ts of mapData.tilesets) {
     if (ts.source) {
-      // External TSX tileset (normal case)
       const tsxUrl = resolveRelative(ts.source);
       const parsed = await loadTSX(tsxUrl);
 
@@ -113,7 +112,6 @@ export async function loadMap() {
         imageHeight: parsed.imageHeight,
       });
     } else {
-      // JSON tileset
       const image = new Image();
       image.src = resolveRelative(ts.image);
       await new Promise((r) => (image.onload = r));
@@ -128,8 +126,14 @@ export async function loadMap() {
     }
   }
 
+  // ===========================
+  // ⭐ 5️⃣ Init Crystal Echoes
+  // ===========================
+  initCrystalEchoes(mapData);
+
   console.log(`✅ Loaded ${mapFile} — ${mapData.width}×${mapData.height} tiles`);
 }
+
 
 
 // ------------------------------------------------------------

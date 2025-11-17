@@ -1042,6 +1042,11 @@ export function resetPlayerControllerState() {
 }
 window.__playerControllerReset = resetPlayerControllerState;
 
+export function getArrowCount() {
+  const p = gameState.player;
+  if (!p) return 0;
+  return Math.floor((p.mana || 0) / 2);   // Each arrow costs 2 mana
+}
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================
