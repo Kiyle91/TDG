@@ -34,6 +34,7 @@ import { updateBraveryBar, updateHUD } from "./core/ui.js";
 import { startGoblinIntroStory } from "./core/story.js";
 import { initNavbar } from "./core/navbar.js";
 import { applyMapSpawn } from "./core/game.js";
+import { initCredits } from "./core/credits.js";
 
 // ============================================================
 // 🎮 GLOBAL GAME LOOP STATE
@@ -604,6 +605,7 @@ window.addEventListener("DOMContentLoaded", () => {
   initSettings();
   initNavbar();
   initTooltipSystem();
+  initCredits();
   console.log("🌸 Olivia’s World loaded — menu systems active");
 });
 

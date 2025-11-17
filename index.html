@@ -9,762 +9,814 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- 🌸 Flower emoji favicon -->
-  <link
-    rel="icon"
-    href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;🌸&lt;/text&gt;&lt;/svg&gt;"
-  />
+    <!-- 🌸 Flower emoji favicon -->
+    <link
+        rel="icon"
+        href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' 
+        viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;🌸&lt;/text&gt;&lt;/svg&gt;"
+    />
 
-  <title>Olivia’s World: Crystal Keep</title>
+    <title>Olivia’s World: Crystal Keep</title>
 
-  <!-- 🎨 Styles -->
-  <link rel="stylesheet" href="./css/main.css" />
-  <link rel="stylesheet" href="./css/game.css" />
-  <link rel="stylesheet" href="./css/overlays.css" />
+    <!-- 🎨 Styles -->
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/game.css" />
+    <link rel="stylesheet" href="./css/overlays.css" />
+    <link rel="stylesheet" href="./css/credits.css" />
 </head>
 
 <body>
-  <!-- ============================================================
-       🩰 LANDING SCREEN
-  ============================================================= -->
-  <section id="landing-screen" class="screen active">
-    <div class="landing-frame">
-      <img
-        src="./assets/images/backgrounds/landing_bg.png"
-        class="landing-bg"
-        alt="A fantasy castle scene of Olivia’s World"
-      />
 
-      <img
-        src="./assets/images/characters/pegasus_glide.png"
-        alt="Pegasus gliding across the sky"
-        class="pegasus-fly"
-      />
+    <!-- ============================================================
+         🩰 LANDING SCREEN
+    ============================================================= -->
+    <section id="landing-screen" class="screen active">
+        <div class="landing-frame">
 
-      <div class="magic-sparkle"></div>
+            <img
+                src="./assets/images/backgrounds/landing_bg.png"
+                class="landing-bg"
+                alt="A fantasy castle scene of Olivia’s World"
+            />
 
-      <div id="landing-container">
-        <p class="landing-footer">© 2025 Olivia’s World: The Unicorn Isles</p>
-      </div>
-    </div>
-  </section>
+            <img
+                src="./assets/images/characters/pegasus_glide.png"
+                alt="Pegasus gliding across the sky"
+                class="pegasus-fly"
+            />
 
-  <!-- ============================================================
-       👑 PROFILE SCREEN
-  ============================================================= -->
-  <section id="profile-screen" class="screen" style="display: none;">
-    <div class="profile-frame">
-      <img
-        src="./assets/images/backgrounds/profile_bg.png"
-        class="profile-bg"
-        alt="A crystal interior scene of Olivia’s World"
-      />
-      <div class="magic-sparkle"></div>
+            <div class="magic-sparkle"></div>
 
-      <div id="profile-container">
-        <img
-          src="./assets/images/art/logo.png"
-          alt="Olivia’s World: Crystal Keep Logo"
-          class="profile-logo"
-        />
+            <div id="landing-container">
+                <p class="landing-footer">
+                    © 2025 Olivia’s World: The Unicorn Isles
+                </p>
+            </div>
 
-        <div class="profile-slots">
-          <div class="profile-slot">Profile 1</div>
-          <div class="profile-slot">Profile 2</div>
-          <div class="profile-slot">Profile 3</div>
-          <div class="profile-slot">Profile 4</div>
-          <div class="profile-slot">Profile 5</div>
-          <div class="profile-slot">Profile 6</div>
         </div>
+    </section>
 
-        <button id="create-profile-btn" class="profile-btn">
-          Create New Profile
-        </button>
-      </div>
+    <!-- ============================================================
+         👑 PROFILE SCREEN
+    ============================================================= -->
+    <section id="profile-screen" class="screen" style="display: none;">
+        <div class="profile-frame">
 
-      <p class="profile-footer">© 2025 Olivia’s World: The Unicorn Isles</p>
-    </div>
-  </section>
+            <img
+                src="./assets/images/backgrounds/profile_bg.png"
+                class="profile-bg"
+                alt="A crystal interior scene of Olivia’s World"
+            />
 
-  <!-- ============================================================
-       🏰 HUB SCREEN
-  ============================================================= -->
-  <section id="hub-screen" class="screen" style="display: none;">
-    <div class="hub-frame">
-      <img
-        src="./assets/images/backgrounds/hub_bg.png"
-        class="hub-bg"
-        alt="Crystal observatory hall – Olivia’s World Hub"
-      />
-      <div class="magic-sparkle"></div>
+            <div class="magic-sparkle"></div>
 
-      <img
-        src="./assets/images/art/logo.png"
-        alt="Olivia’s World: Crystal Keep Logo"
-        class="hub-logo"
-      />
+            <div id="profile-container">
 
-      <!-- 💰 Hub currencies -->
-      <div id="hub-currencies">
-        <span id="hub-diamonds"> Diamonds: 0</span>
-      </div>
+                <img
+                    src="./assets/images/art/logo.png"
+                    alt="Olivia’s World: Crystal Keep Logo"
+                    class="profile-logo"
+                />
 
-      <!-- 👑 Hub profile display -->
-      <div id="hub-profile">
-        <div id="hub-profile-name">Princess Olivia</div>
-        <div id="hub-profile-level">Level 1</div>
-      </div>
+                <div class="profile-slots">
+                    <div class="profile-slot">Profile 1</div>
+                    <div class="profile-slot">Profile 2</div>
+                    <div class="profile-slot">Profile 3</div>
+                    <div class="profile-slot">Profile 4</div>
+                    <div class="profile-slot">Profile 5</div>
+                    <div class="profile-slot">Profile 6</div>
+                </div>
 
-      <!-- 🎁 Daily chest -->
-      <div id="daily-chest">
-        <img
-          src="./assets/images/hud/chest.png"
-          alt="Daily Reward Chest"
-          id="chest-img"
-        />
-        <div id="chest-timer">Ready to open!</div>
-      </div>
+                <button id="create-profile-btn" class="profile-btn">
+                    Create New Profile
+                </button>
 
-      <!-- 🌸 HUB BUTTONS -->
-      <div id="hub-container">
-        <div class="hub-buttons">
-          <button id="new-story-btn">New Story</button>
-          <button id="load-game-btn">Load Game</button>
-          <button id="maps-btn">Maps</button>
-          <button id="turrets-btn">Turrets</button>
-          <button id="skins-btn">Skins</button>
-          <button id="stats-btn">Stats</button>
-          <button id="settings-btn">Settings</button>
-          <button id="exit-hub-btn">Exit</button>
+            </div>
+
+            <p class="profile-footer">
+                © 2025 Olivia’s World: The Unicorn Isles
+            </p>
+
         </div>
-      </div>
+    </section>
 
-      <!-- 📰 Right-side Crystal News -->
-      <div id="hub-news">
-        <h3 class="news-title">Crystal News 📰</h3>
-        <div class="news-feed">
-          <p><strong>✨ Patch 1.2:</strong> New towers discovered in the Glimmering Gardens!</p>
-          <p><strong>🌙 Event:</strong> Moonflower Festival begins this weekend — double XP rewards!</p>
-          <p><strong>🧚 Story Update:</strong> The Princess ventures into the Whispering Hollows next week.</p>
-          <p><strong>💖 Tip:</strong> Upgrading crystal turrets increases range by 15% per level!</p>
-          <p><strong>✨ Patch 1.2:</strong> New towers discovered in the Glimmering Gardens!</p>
-          <p><strong>🌙 Event:</strong> Moonflower Festival begins this weekend — double XP rewards!</p>
-          <p><strong>🧚 Story Update:</strong> The Princess ventures into the Whispering Hollows next week.</p>
-          <p><strong>💖 Tip:</strong> Upgrading crystal turrets increases range by 15% per level!</p>
+    <!-- ============================================================
+         🏰 HUB SCREEN
+    ============================================================= -->
+    <section id="hub-screen" class="screen" style="display: none;">
+        <div class="hub-frame">
+
+            <img
+                src="./assets/images/backgrounds/hub_bg.png"
+                class="hub-bg"
+                alt="Crystal observatory hall – Olivia’s World Hub"
+            />
+
+            <div class="magic-sparkle"></div>
+
+            <img
+                src="./assets/images/art/logo.png"
+                alt="Olivia’s World: Crystal Keep Logo"
+                class="hub-logo"
+            />
+
+            <!-- 💰 Hub currencies -->
+            <div id="hub-currencies">
+                <span id="hub-diamonds"> Diamonds: 0</span>
+            </div>
+
+            <!-- 👑 Hub profile display -->
+            <div id="hub-profile">
+                <div id="hub-profile-name">Princess Olivia</div>
+                <div id="hub-profile-level">Level 1</div>
+            </div>
+
+            <!-- 🎁 Daily chest -->
+            <div id="daily-chest">
+                <img
+                    src="./assets/images/hud/chest.png"
+                    alt="Daily Reward Chest"
+                    id="chest-img"
+                />
+                <div id="chest-timer">Ready to open!</div>
+            </div>
+
+            <!-- 🌸 HUB BUTTONS -->
+            <div id="hub-container">
+                <div class="hub-buttons">
+                    <button id="new-story-btn">New Story</button>
+                    <button id="load-game-btn">Load Game</button>
+                    <button id="maps-btn">Maps</button>
+                    <button id="turrets-btn">Turrets</button>
+                    <button id="skins-btn">Skins</button>
+                    <button id="stats-btn">Stats</button>
+                    <button id="settings-btn">Settings</button>
+                    <button id="exit-hub-btn">Exit</button>
+                </div>
+            </div>
+
+            <!-- 📰 Right-side Crystal News -->
+            <div id="hub-news">
+                <h3 class="news-title">Crystal News 📰</h3>
+                <div class="news-feed">
+                    <p><strong>✨ Patch 1.2:</strong> New towers discovered in the Glimmering Gardens!</p>
+                    <p><strong>🌙 Event:</strong> Moonflower Festival begins this weekend — double XP rewards!</p>
+                    <p><strong>🧚 Story Update:</strong> The Princess ventures into the Whispering Hollows next week.</p>
+                    <p><strong>💖 Tip:</strong> Upgrading crystal turrets increases range by 15% per level!</p>
+                    <p><strong>✨ Patch 1.2:</strong> New towers discovered in the Glimmering Gardens!</p>
+                    <p><strong>🌙 Event:</strong> Moonflower Festival begins this weekend — double XP rewards!</p>
+                    <p><strong>🧚 Story Update:</strong> The Princess ventures into the Whispering Hollows next week.</p>
+                    <p><strong>💖 Tip:</strong> Upgrading crystal turrets increases range by 15% per level!</p>
+                </div>
+            </div>
+
+            <!-- 📜 Left-side Crystal Journal -->
+            <div id="hub-news-left">
+                <h3 class="news-title">📜 Crystal Journal</h3>
+                <div class="news-feed">
+                    <p><strong>🌸 Coming Soon:</strong> Daily lore snippets and player achievements will appear here!</p>
+                    <p><strong>💫 Tip:</strong> Stay tuned for story fragments found in the Crystal Archives.</p>
+                    <p><strong>✨ Patch 1.2:</strong> New towers discovered in the Glimmering Gardens!</p>
+                    <p><strong>🌙 Event:</strong> Moonflower Festival begins this weekend — double XP rewards!</p>
+                    <p><strong>🧚 Story Update:</strong> The Princess ventures into the Whispering Hollows next week.</p>
+                    <p><strong>💖 Tip:</strong> Upgrading crystal turrets increases range by 15% per level!</p>
+                    <p><strong>✨ Patch 1.2:</strong> New towers discovered in the Glimmering Gardens!</p>
+                    <p><strong>🌙 Event:</strong> Moonflower Festival begins this weekend — double XP rewards!</p>
+                </div>
+            </div>
+
+            <!-- 🌈 HUB OVERLAYS (kept exactly as-is) -->
+            <!-- (ALL overlays from your file remain untouched here) -->
+            <!-- ============================================================
+                 🌈 HUB OVERLAYS
+            ============================================================= -->
+
+            <!-- Save / Load Overlay -->
+            <div id="overlay-load" class="overlay hidden">
+                <div class="overlay-box">
+                    <h3>Save / Load Game</h3>
+
+                    <!-- Slot container -->
+                    <div id="save-slots-container"></div>
+
+                    <button class="overlay-close">Close</button>
+                </div>
+            </div>
+
+            <!-- Maps overlay -->
+            <div id="overlay-maps" class="overlay hidden">
+                <div class="overlay-box map-grid-container">
+                    <h3 class="map-title">Choose a Map</h3>
+
+                    <div class="map-grid">
+
+                        <div class="map-tile" data-level="1">
+                            <img src="./assets/images/thumbnails/map_one_thumb.png" class="map-thumb" alt="Map One Thumbnail">
+                            <span class="map-title">Map One</span>
+                        </div>
+
+                        <div class="map-tile locked" data-level="2">
+                            <img src="./assets/images/thumbnails/map_two_thumb.png" class="map-thumb" alt="Map Two Thumbnail">
+                            <span class="map-title">2</span>
+                        </div>
+
+                        <div class="map-tile locked" data-level="3">
+                            <img src="./assets/images/thumbnails/map_three_thumb.png" class="map-thumb" alt="Map Three Thumbnail">
+                            <span class="map-title">3</span>
+                        </div>
+
+                        <div class="map-tile locked" data-level="4">
+                            <img src="./assets/images/thumbnails/map_four_thumb.png" class="map-thumb" alt="Map Four Thumbnail">
+                            <span class="map-title">4</span>
+                        </div>
+
+                        <div class="map-tile locked" data-level="5">
+                            <img src="./assets/images/thumbnails/map_five_thumb.png" class="map-thumb" alt="Map Five Thumbnail">
+                            <span class="map-title">5</span>
+                        </div>
+
+                        <div class="map-tile locked" data-level="6">
+                            <img src="./assets/images/thumbnails/map_six_thumb.png" class="map-thumb" alt="Map Six Thumbnail">
+                            <span class="map-title">6</span>
+                        </div>
+
+                        <div class="map-tile locked" data-level="7">
+                            <img src="./assets/images/thumbnails/map_seven_thumb.png" class="map-thumb" alt="Map Seven Thumbnail">
+                            <span class="map-title">7</span>
+                        </div>
+
+                        <div class="map-tile locked" data-level="8">
+                            <img src="./assets/images/thumbnails/map_eight_thumb.png" class="map-thumb" alt="Map Eight Thumbnail">
+                            <span class="map-title">8</span>
+                        </div>
+
+                        <div class="map-tile locked" data-level="9">
+                            <img src="./assets/images/thumbnails/map_nine_thumb.png" class="map-thumb" alt="Map Nine Thumbnail">
+                            <span class="map-title">9</span>
+                        </div>
+
+                    </div>
+
+                    <button class="overlay-close">Close</button>
+                </div>
+            </div>
+
+            <!-- Stats overlay -->
+            <div id="overlay-stats" class="overlay hidden">
+                <div class="overlay-box stats-container">
+
+                    <h3 id="stats-title" class="stats-title">Princess Olivia</h3>
+
+                    <div class="stats-content">
+                        <div class="stats-portrait">
+                            <img id="hub-stats-portrait" src="" alt="Skin Portrait" />
+                        </div>
+
+                        <div class="stats-table">
+                            <div class="stat-row"><span class="stat-label">Level:</span><span id="stat-level">1</span></div>
+                            <div class="stat-row"><span class="stat-label">XP:</span><span id="stat-xp">0 / 100</span></div>
+                            <div class="stat-row"><span class="stat-label">HP:</span><span id="stat-hp">100 / 100</span></div>
+                            <div class="stat-row"><span class="stat-label">Mana:</span><span id="stat-mana">50 / 50</span></div>
+                            <div class="stat-row"><span class="stat-label">Spell Power:</span><span id="stat-spellPower">10</span></div>
+                            <div class="stat-row"><span class="stat-label">Ranged Attack:</span><span id="stat-ranged">10</span></div>
+                            <div class="stat-row"><span class="stat-label">Attack:</span><span id="stat-attack">15</span></div>
+                            <div class="stat-row"><span class="stat-label">Defense:</span><span id="stat-defense">5</span></div>
+                            <div class="stat-row"><span class="stat-label">Crit Chance:</span><span id="stat-crit">10%</span></div>
+                        </div>
+                    </div>
+
+                    <button class="overlay-close">OK</button>
+                </div>
+            </div>
+
+            <!-- Turrets overlay -->
+            <div id="overlay-turrets" class="overlay hidden">
+                <div class="overlay-box turret-grid-container">
+
+                    <h3 class="turret-title">Turrets</h3>
+
+                    <div class="turret-grid">
+
+                        <div class="turret-card" data-turret="1" data-unlock="1">
+                            <img src="./assets/images/turrets/basic_turret.png" alt="Basic Turret" class="turret-image" />
+                            <div class="turret-info">
+                                <h4>Crystal Defender</h4>
+                                <p>Fires slow but powerful crystal bolts at enemies.</p>
+                                <p class="unlock-info">🔓 Unlocks at Level 2</p>
+                            </div>
+                        </div>
+
+                        <div class="turret-card" data-turret="2" data-unlock="5">
+                            <img src="./assets/images/turrets/frost_turret.png" alt="Frost Turret" class="turret-image" />
+                            <div class="turret-info">
+                                <h4>Frost Sentinel</h4>
+                                <p>Slows enemies with shards of enchanted ice.</p>
+                                <p class="unlock-info">🔒 Unlocks at Level 6</p>
+                            </div>
+                        </div>
+
+                        <div class="turret-card" data-turret="3" data-unlock="10">
+                            <img src="./assets/images/turrets/flame_turret.png" alt="Flame Turret" class="turret-image" />
+                            <div class="turret-info">
+                                <h4>Flameheart</h4>
+                                <p>Unleashes bursts of fire, dealing area damage.</p>
+                                <p class="unlock-info">🔒 Unlocks at Level 10</p>
+                            </div>
+                        </div>
+
+                        <div class="turret-card" data-turret="4" data-unlock="15">
+                            <img src="./assets/images/turrets/light_turret.png" alt="Light Turret" class="turret-image" />
+                            <div class="turret-info">
+                                <h4>Beacon of Light</h4>
+                                <p>Heals players who are nearby</p>
+                                <p class="unlock-info">🔒 Unlocks at Level 16</p>
+                            </div>
+                        </div>
+
+                        <div class="turret-card" data-turret="5" data-unlock="20">
+                            <img src="./assets/images/turrets/arcane_turret.png" alt="Arcane Turret" class="turret-image" />
+                            <div class="turret-info">
+                                <h4>Arcane Spire</h4>
+                                <p>Fires long distance bolts</p>
+                                <p class="unlock-info">🔒 Unlocks at Level 20</p>
+                            </div>
+                        </div>
+
+                        <div class="turret-card" data-turret="6" data-unlock="25">
+                            <img src="./assets/images/turrets/moon_turret.png" alt="Moonlight Turret" class="turret-image" />
+                            <div class="turret-info">
+                                <h4>Moonlight Aegis</h4>
+                                <p>Fire gravity bolts that knock enemies back!</p>
+                                <p class="unlock-info">🔒 Unlocks at Level 25</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <button class="overlay-close">Close</button>
+                </div>
+            </div>
+
+            <!-- Skins Overlay -->
+            <div id="overlay-skins" class="overlay hidden">
+                <div class="skins-panel">
+
+                    <h2 class="skins-title">Choose Your Guardian</h2>
+
+                    <div class="skins-grid">
+
+                        <div class="skin-card" data-skin="glitter">
+                            <img class="skin-portrait" src="./assets/images/portraits/portrait_glitter.png">
+                            <h3>Glitter Guardian</h3>
+                            <p class="skin-desc">Bright, brave, and free to all players.</p>
+                            <button class="skin-btn" data-action="equip">Equipped</button>
+                        </div>
+
+                        <div class="skin-card" data-skin="moon">
+                            <img class="skin-portrait" src="./assets/images/portraits/portrait_moonflower.png">
+                            <h3>Moonflower Druid</h3>
+                            <p class="skin-desc">Nature’s calmest spirit.</p>
+                            <button class="skin-btn" data-action="unlock">Unlock 2000 💎</button>
+                        </div>
+
+                        <div class="skin-card" data-skin="star">
+                            <img class="skin-portrait" src="./assets/images/portraits/portrait_star_sage.png">
+                            <h3>Star Sage</h3>
+                            <p class="skin-desc">Keeper of celestial fire.</p>
+                            <button class="skin-btn" data-action="unlock">Unlock 2000 💎</button>
+                        </div>
+
+                        <div class="skin-card" data-skin="silver">
+                            <img class="skin-portrait" src="./assets/images/portraits/portrait_silver_arrow.png">
+                            <h3>Silver Arrow</h3>
+                            <p class="skin-desc">Swiftest ranger of the Isles.</p>
+                            <button class="skin-btn" data-action="unlock">Unlock 2000 💎</button>
+                        </div>
+
+                    </div>
+
+                    <button id="skins-close" class="overlay-close">Close</button>
+
+                </div>
+            </div>
+
+            <!-- Settings Overlay -->
+            <div id="overlay-settings" class="overlay hidden">
+                <div class="overlay-box settings-container">
+
+                    <h3 class="settings-title">Settings</h3>
+
+                    <div class="settings-grid">
+
+                        <div class="setting-item">
+                            <label for="music-volume">Music Volume</label>
+                            <input type="range" id="music-volume" min="0" max="100" value="80" class="slider" />
+                            <span id="music-value">80%</span>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="sfx-volume">Sound Effects</label>
+                            <input type="range" id="sfx-volume" min="0" max="100" value="80" class="slider" />
+                            <span id="sfx-value">80%</span>
+                        </div>
+
+                        <div class="setting-item toggle">
+                            <label for="visuals-toggle">Visual Effects</label>
+                            <input type="checkbox" id="visuals-toggle" checked />
+                            <span>Enabled</span>
+                        </div>
+
+                        <div class="setting-item toggle">
+                            <label for="tooltips-toggle">Tooltips</label>
+                            <input type="checkbox" id="tooltips-toggle" checked />
+                            <span>Enabled</span>
+                        </div>
+
+                    </div>
+
+                    <button class="overlay-close">Close</button>
+                </div>
+            </div>
+
+        </div> <!-- end .hub-frame -->
+    </section> <!-- end #hub-screen -->
+
+    <!-- ============================================================
+         🎬 CREDITS SCREEN (CORRECT ROOT POSITION)
+    ============================================================= -->
+    <section id="credits-screen" class="screen hidden">
+        <div class="credits-container">
+
+            <div class="credits-scroll">
+
+                <h1 class="credits-title">✨ Congratulations on completing Olivia’s World: Crystal Keep ✨</h1>
+
+                <h2>Created By</h2>
+                <p>Kiyle Edwards</p>
+
+                <h2>Lead Developer</h2>
+                <p>Kiyle Edwards</p>
+
+                <h2>AI Technical Partner</h2>
+                <p>ChatGPT</p>
+
+                <h2>Art Direction</h2>
+                <p>Kiyle / Pastel Design Theme</p>
+
+                <h2>Special Thanks</h2>
+                <p>Your Wife & Kids 💖</p>
+                <p>All Supporters</p>
+
+                <h2>Thank You For Playing! <br><br></h2>
+
+                <p>
+                  This game represents far more than code to me.<br>
+                  It was my first real step into HTML, CSS, and JavaScript — and the first time 
+                  I ever built a complete application from nothing but an idea. <br><br>
+                </p>
+
+                <p>
+                  Over the span of a month, I created Olivia’s World: Crystal Keep from the ground up:
+                  the systems, the UI, the enemies, the maps, the overlays, and the gameplay flow — 
+                  all while learning the fundamentals of Web Development for the very first time. <br><br>
+                </p>
+
+                <p>
+                  ChatGPT helped guide me, answer questions, and teach me concepts, but every system, 
+                  function, mechanic, and line of code was written, tested, and refined by me — through 
+                  late nights, trial and error, and a lot of determination. <br><br>
+                </p>
+
+                <p>
+                  This project helped me prove something important to myself:<br>
+                  <strong>It's never too late to learn. It's never too late to build something real. 
+                  And it's never too late to change your future.</strong> <br><br>
+                </p>
+
+                <p>
+                  Thank you for playing — and for being part of the very first step in my journey as a developer.
+                </p>
+
+            </div>
+
+            <button id="credits-back-btn" class="credits-btn">
+                Return to Hub
+            </button>
+
         </div>
-      </div>
+    </section>
 
-      <!-- 📜 Left-side Crystal Journal -->
-      <div id="hub-news-left">
-        <h3 class="news-title">📜 Crystal Journal</h3>
-        <div class="news-feed">
-          <p><strong>🌸 Coming Soon:</strong> Daily lore snippets and player achievements will appear here!</p>
-          <p><strong>💫 Tip:</strong> Stay tuned for story fragments found in the Crystal Archives.</p>
-          <p><strong>✨ Patch 1.2:</strong> New towers discovered in the Glimmering Gardens!</p>
-          <p><strong>🌙 Event:</strong> Moonflower Festival begins this weekend — double XP rewards!</p>
-          <p><strong>🧚 Story Update:</strong> The Princess ventures into the Whispering Hollows next week.</p>
-          <p><strong>💖 Tip:</strong> Upgrading crystal turrets increases range by 15% per level!</p>
-          <p><strong>✨ Patch 1.2:</strong> New towers discovered in the Glimmering Gardens!</p>
-          <p><strong>🌙 Event:</strong> Moonflower Festival begins this weekend — double XP rewards!</p>
+    <!-- ============================================================
+         📖 STORY OVERLAY (Global)
+    ============================================================= -->
+    <div id="overlay-story" class="overlay hidden">
+        <div class="story-box">
+
+            <div class="story-content">
+                <img
+                    src="./assets/images/portraits/portrait_glitter.png"
+                    alt="Story Portrait"
+                    class="story-portrait"
+                    id="story-portrait"
+                />
+                <div class="story-text" id="story-text"></div>
+            </div>
+
+            <button id="story-next" class="story-next-btn">Continue</button>
+
         </div>
-      </div>
-
-      <!-- 🌈 HUB OVERLAYS -->
-
-      <div id="overlay-load" class="overlay hidden">
-        <div class="overlay-box">
-          <h3>Save / Load Game</h3>
-
-          <!-- Slot container -->
-          <div id="save-slots-container"></div>
-
-          <button class="overlay-close">Close</button>
-        </div>
-      </div>
-
-      <!-- Maps overlay -->
-      <div id="overlay-maps" class="overlay hidden">
-        <div class="overlay-box map-grid-container">
-          <h3 class="map-title">Choose a Map</h3>
-
-          <div class="map-grid">
-
-            <div class="map-tile" data-level="1">
-              <img src="./assets/images/thumbnails/map_one_thumb.png" class="map-thumb" alt="Map One Thumbnail">
-              <span class="map-title">Map One</span>
-            </div>
-
-            <div class="map-tile locked" data-level="2">
-              <img src="./assets/images/thumbnails/map_two_thumb.png" class="map-thumb" alt="Map Two Thumbnail">
-              <span class="map-title">2</span>
-            </div>
-
-            <div class="map-tile locked" data-level="3">
-              <img src="./assets/images/thumbnails/map_three_thumb.png" class="map-thumb" alt="Map Three Thumbnail">
-              <span class="map-title">3</span>
-            </div>
-
-            <div class="map-tile locked" data-level="4">
-              <img src="./assets/images/thumbnails/map_four_thumb.png" class="map-thumb" alt="Map Four Thumbnail">
-              <span class="map-title">4</span>
-            </div>
-
-            <div class="map-tile locked" data-level="5">
-              <img src="./assets/images/thumbnails/map_five_thumb.png" class="map-thumb" alt="Map Five Thumbnail">
-              <span class="map-title">5</span>
-            </div>
-
-            <div class="map-tile locked" data-level="6">
-              <img src="./assets/images/thumbnails/map_six_thumb.png" class="map-thumb" alt="Map Six Thumbnail">
-              <span class="map-title">6</span>
-            </div>
-
-            <div class="map-tile locked" data-level="7">
-              <img src="./assets/images/thumbnails/map_seven_thumb.png" class="map-thumb" alt="Map Seven Thumbnail">
-              <span class="map-title">7</span>
-            </div>
-
-            <div class="map-tile locked" data-level="8">
-              <img src="./assets/images/thumbnails/map_eight_thumb.png" class="map-thumb" alt="Map Eight Thumbnail">
-              <span class="map-title">8</span>
-            </div>
-
-            <div class="map-tile locked" data-level="9">
-              <img src="./assets/images/thumbnails/map_nine_thumb.png" class="map-thumb" alt="Map Nine Thumbnail">
-              <span class="map-title">9</span>
-            </div>
-
-          </div>
-
-
-          <button class="overlay-close">Close</button>
-        </div>
-      </div>
-
-      <!-- ============================================================
-          🌟 HUB STATS OVERLAY (Dynamic Skin Portrait)
-      ============================================================ -->
-      <div id="overlay-stats" class="overlay hidden">
-        <div class="overlay-box stats-container">
-          <h3 id="stats-title" class="stats-title">Princess Olivia</h3>
-
-          <div class="stats-content">
-            <div class="stats-portrait">
-              <img id="hub-stats-portrait" src="" alt="Skin Portrait" />
-            </div>
-
-            <div class="stats-table">
-              <div class="stat-row"><span class="stat-label">Level:</span><span id="stat-level">1</span></div>
-              <div class="stat-row"><span class="stat-label">XP:</span><span id="stat-xp">0 / 100</span></div>
-              <div class="stat-row"><span class="stat-label">HP:</span><span id="stat-hp">100 / 100</span></div>
-              <div class="stat-row"><span class="stat-label">Mana:</span><span id="stat-mana">50 / 50</span></div>
-              <div class="stat-row"><span class="stat-label">Spell Power:</span><span id="stat-spellPower">10</span></div>
-              <div class="stat-row"><span class="stat-label">Ranged Attack:</span><span id="stat-ranged">10</span></div>
-              <div class="stat-row"><span class="stat-label">Attack:</span><span id="stat-attack">15</span></div>
-              <div class="stat-row"><span class="stat-label">Defense:</span><span id="stat-defense">5</span></div>
-              <div class="stat-row"><span class="stat-label">Crit Chance:</span><span id="stat-crit">10%</span></div>
-            </div>
-          </div>
-
-          <button class="overlay-close">OK</button>
-        </div>
-      </div>
-
-      <!-- Turrets overlay -->
-      <div id="overlay-turrets" class="overlay hidden">
-        <div class="overlay-box turret-grid-container">
-          <h3 class="turret-title">Turrets</h3>
-
-          <div class="turret-grid">
-            <div class="turret-card" data-turret="1" data-unlock="1">
-              <img
-                src="./assets/images/turrets/basic_turret.png"
-                alt="Basic Turret"
-                class="turret-image"
-              />
-              <div class="turret-info">
-                <h4>Crystal Defender</h4>
-                <p>Fires slow but powerful crystal bolts at enemies.</p>
-                <p class="unlock-info">🔓 Unlocks at Level 2</p>
-              </div>
-            </div>
-
-            <div class="turret-card" data-turret="2" data-unlock="5">
-              <img
-                src="./assets/images/turrets/frost_turret.png"
-                alt="Frost Turret"
-                class="turret-image"
-              />
-              <div class="turret-info">
-                <h4>Frost Sentinel</h4>
-                <p>Slows enemies with shards of enchanted ice.</p>
-                <p class="unlock-info">🔒 Unlocks at Level 6</p>
-              </div>
-            </div>
-
-            <div class="turret-card" data-turret="3" data-unlock="10">
-              <img
-                src="./assets/images/turrets/flame_turret.png"
-                alt="Flame Turret"
-                class="turret-image"
-              />
-              <div class="turret-info">
-                <h4>Flameheart</h4>
-                <p>Unleashes bursts of fire, dealing area damage.</p>
-                <p class="unlock-info">🔒 Unlocks at Level 10</p>
-              </div>
-            </div>
-
-            <div class="turret-card" data-turret="4" data-unlock="15">
-              <img
-                src="./assets/images/turrets/light_turret.png"
-                alt="Light Turret"
-                class="turret-image"
-              />
-              <div class="turret-info">
-                <h4>Beacon of Light</h4>
-                <p>Heals players who are nearby</p>
-                <p class="unlock-info">🔒 Unlocks at Level 16</p>
-              </div>
-            </div>
-
-            <div class="turret-card" data-turret="5" data-unlock="20">
-              <img
-                src="./assets/images/turrets/arcane_turret.png"
-                alt="Arcane Turret"
-                class="turret-image"
-              />
-              <div class="turret-info">
-                <h4>Arcane Spire</h4>
-                <p>Fires long distance bolts</p>
-                <p class="unlock-info">🔒 Unlocks at Level 20</p>
-              </div>
-            </div>
-
-            <div class="turret-card" data-turret="6" data-unlock="25">
-              <img
-                src="./assets/images/turrets/moon_turret.png"
-                alt="Moonlight Turret"
-                class="turret-image"
-              />
-              <div class="turret-info">
-                <h4>Moonlight Aegis</h4>
-                <p>Fire gravity bolts that knock enemies back!</p>
-                <p class="unlock-info">🔒 Unlocks at Level 25</p>
-              </div>
-            </div>
-          </div>
-
-          <button class="overlay-close">Close</button>
-        </div>
-      </div>
-
-      <!-- Stats overlay (Hub) -->
-      <!-- ========================================================= -->
-      <!-- 🌈 SKINS OVERLAY (FULL-SCREEN OPTION A)                   -->
-      <!-- ========================================================= -->
-      <div id="overlay-skins" class="overlay hidden">
-          <div class="skins-panel">
-              <h2 class="skins-title">Choose Your Guardian</h2>
-
-              <div class="skins-grid">
-
-                  <!-- Glitter Guardian -->
-                  <div class="skin-card" data-skin="glitter">
-                      <img class="skin-portrait" src="./assets/images/portraits/portrait_glitter.png">
-                      <h3>Glitter Guardian</h3>
-                      <p class="skin-desc">Bright, brave, and free to all players.</p>
-                      <button class="skin-btn" data-action="equip">Equipped</button>
-                  </div>
-
-                  <!-- Moonflower Druid -->
-                  <div class="skin-card" data-skin="moon">
-                      <img class="skin-portrait" src="./assets/images/portraits/portrait_moonflower.png">
-                      <h3>Moonflower Druid</h3>
-                      <p class="skin-desc">Nature’s calmest spirit.</p>
-                      <button class="skin-btn" data-action="unlock">Unlock 2000 💎</button>
-                  </div>
-
-                  <!-- Star Sage -->
-                  <div class="skin-card" data-skin="star">
-                      <img class="skin-portrait" src="./assets/images/portraits/portrait_star_sage.png">
-                      <h3>Star Sage</h3>
-                      <p class="skin-desc">Keeper of celestial fire.</p>
-                      <button class="skin-btn" data-action="unlock">Unlock 2000 💎</button>
-                  </div>
-
-                  <!-- Silver Arrow -->
-                  <div class="skin-card" data-skin="silver">
-                      <img class="skin-portrait" src="./assets/images/portraits/portrait_silver_arrow.png">
-                      <h3>Silver Arrow</h3>
-                      <p class="skin-desc">Swiftest ranger of the Isles.</p>
-                      <button class="skin-btn" data-action="unlock">Unlock 2000 💎</button>
-                  </div>
-
-              </div>
-
-              <button id="skins-close" class="overlay-close">Close</button>
-          </div>
-      </div>
-
-      <!-- Settings overlay (Hub) -->
-      <div id="overlay-settings" class="overlay hidden">
-        <div class="overlay-box settings-container">
-          <h3 class="settings-title">Settings</h3>
-
-          <div class="settings-grid">
-            <div class="setting-item">
-              <label for="music-volume">Music Volume</label>
-              <input
-                type="range"
-                id="music-volume"
-                min="0"
-                max="100"
-                value="80"
-                class="slider"
-              />
-              <span id="music-value">80%</span>
-            </div>
-
-            <div class="setting-item">
-              <label for="sfx-volume">Sound Effects</label>
-              <input
-                type="range"
-                id="sfx-volume"
-                min="0"
-                max="100"
-                value="80"
-                class="slider"
-              />
-              <span id="sfx-value">80%</span>
-            </div>
-
-            <div class="setting-item toggle">
-              <label for="visuals-toggle">Visual Effects</label>
-              <input type="checkbox" id="visuals-toggle" checked />
-              <span>Enabled</span>
-            </div>
-
-            <div class="setting-item toggle">
-              <label for="tooltips-toggle">Tooltips</label>
-              <input type="checkbox" id="tooltips-toggle" checked />
-              <span>Enabled</span>
-            </div>
-          </div>
-
-          <button class="overlay-close">Close</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============================================================
-       📖 STORY OVERLAY (Global)
-  ============================================================= -->
-  <div id="overlay-story" class="overlay hidden">
-    <div class="story-box">
-      <div class="story-content">
-        <img
-          src="./assets/images/portraits/portrait_glitter.png"
-          alt="Story Portrait"
-          class="story-portrait"
-          id="story-portrait"
-        />
-        <div class="story-text" id="story-text"></div>
-      </div>
-      <button id="story-next" class="story-next-btn">Continue</button>
-    </div>
-  </div>
-
-  <!-- ============================================================
-       🗺️ GAME CONTAINER
-  ============================================================= -->
-  <section id="game-container" class="screen" style="display: none;">
-    <div id="hud">
-      <div id="hp-bar" class="bar small">
-        <span id="hp-text" class="bar-text">100 / 100</span>
-      </div>
-
-      <div id="center-stats">
-        <div id="wave-display">Wave 1</div>
-        <div id="lives-display">Lives 10</div>
-        <div id="gold-display">Gold: 0</div>
-        <div id="diamond-display">Diamonds: 0</div>
-      </div>
-
-      <div id="mana-bar" class="bar small">
-        <span id="mana-text" class="bar-text">50 / 50</span>
-      </div>
-    </div>
-
-    <!-- 🧭 NAVBAR -->
-    <nav id="game-navbar" class="game-navbar">
-      <button data-action="home" title="Return to Hub">🏠</button>
-      <button data-action="save" title="Save / Load">💾</button>
-      <button data-action="restart" title="Restart">🔄</button>
-      <button data-action="controls" title="Controls">🎮</button>
-      <button data-action="settings" title="Settings">⚙️</button>
-      <button data-action="player" title="Player Stats">👑</button>
-    </nav>
-
-    <canvas id="game-canvas" width="1920" height="1080"></canvas>
-
-    <!-- 🏰 TURRET BAR -->
-    <div id="turret-bar" class="turret-bar">
-      <div class="turret-slot" data-id="1">
-        <img src="./assets/images/turrets/basic_turret.png" alt="Basic Turret" />
-        <span>Lv 2</span>
-      </div>
-      <div class="turret-slot" data-id="2">
-        <img src="./assets/images/turrets/frost_turret.png" alt="Frost Turret" />
-        <span>Lv 6</span>
-      </div>
-      <div class="turret-slot" data-id="3">
-        <img src="./assets/images/turrets/flame_turret.png" alt="Flame Turret" />
-        <span>Lv 10</span>
-      </div>
-      <div class="turret-slot" data-id="4">
-        <img src="./assets/images/turrets/arcane_turret.png" alt="Arcane Turret" />
-        <span>Lv 15</span>
-      </div>
-      <div class="turret-slot" data-id="5">
-        <img src="./assets/images/turrets/light_turret.png" alt="Light Turret" />
-        <span>Lv 20</span>
-      </div>
-      <div class="turret-slot" data-id="6">
-        <img src="./assets/images/turrets/moon_turret.png" alt="Moonlight Turret" />
-        <span>Lv 25</span>
-      </div>
     </div>
 
-    <div id="bravery-bar">
-      <div id="bravery-fill"></div>
-    </div>
+    <!-- ============================================================
+         🗺️ GAME CONTAINER
+    ============================================================= -->
+    <section id="game-container" class="screen" style="display: none;">
 
+        <div id="hud">
 
-  </section>
+            <div id="hp-bar" class="bar small">
+                <span id="hp-text" class="bar-text">100 / 100</span>
+            </div>
 
-  <!-- ============================================================
-       ⚙️ IN-GAME SETTINGS OVERLAY
-  ============================================================= -->
-  <div id="overlay-settings-game" class="overlay hidden">
-    <div class="overlay-box settings-container">
-      <h3 class="settings-title">⚙️ Game Settings ⚙️</h3>
+            <div id="center-stats">
+                <div id="wave-display">Wave 1</div>
+                <div id="lives-display">Lives 10</div>
+                <div id="gold-display">Gold: 0</div>
+                <div id="diamond-display">Diamonds: 0</div>
+            </div>
 
-      <div class="settings-grid">
-        <div class="setting-item">
-          <label for="music-volume-game">Music Volume</label>
-          <input
-            type="range"
-            id="music-volume-game"
-            min="0"
-            max="100"
-            value="80"
-            class="slider"
-          />
-          <span id="music-value-game">80%</span>
+            <div id="mana-bar" class="bar small">
+                <span id="mana-text" class="bar-text">50 / 50</span>
+            </div>
+
         </div>
 
-        <div class="setting-item">
-          <label for="sfx-volume-game">Sound Effects</label>
-          <input
-            type="range"
-            id="sfx-volume-game"
-            min="0"
-            max="100"
-            value="80"
-            class="slider"
-          />
-          <span id="sfx-value-game">80%</span>
+        <!-- 🧭 NAVBAR -->
+        <nav id="game-navbar" class="game-navbar">
+            <button data-action="home" title="Return to Hub">🏠</button>
+            <button data-action="save" title="Save / Load">💾</button>
+            <button data-action="restart" title="Restart">🔄</button>
+            <button data-action="controls" title="Controls">🎮</button>
+            <button data-action="settings" title="Settings">⚙️</button>
+            <button data-action="player" title="Player Stats">👑</button>
+        </nav>
+
+        <canvas id="game-canvas" width="1920" height="1080"></canvas>
+
+        <!-- 🏰 TURRET BAR -->
+        <div id="turret-bar" class="turret-bar">
+
+            <div class="turret-slot" data-id="1">
+                <img src="./assets/images/turrets/basic_turret.png" alt="Basic Turret" />
+                <span>Lv 2</span>
+            </div>
+
+            <div class="turret-slot" data-id="2">
+                <img src="./assets/images/turrets/frost_turret.png" alt="Frost Turret" />
+                <span>Lv 6</span>
+            </div>
+
+            <div class="turret-slot" data-id="3">
+                <img src="./assets/images/turrets/flame_turret.png" alt="Flame Turret" />
+                <span>Lv 10</span>
+            </div>
+
+            <div class="turret-slot" data-id="4">
+                <img src="./assets/images/turrets/arcane_turret.png" alt="Arcane Turret" />
+                <span>Lv 15</span>
+            </div>
+
+            <div class="turret-slot" data-id="5">
+                <img src="./assets/images/turrets/light_turret.png" alt="Light Turret" />
+                <span>Lv 20</span>
+            </div>
+
+            <div class="turret-slot" data-id="6">
+                <img src="./assets/images/turrets/moon_turret.png" alt="Moonlight Turret" />
+                <span>Lv 25</span>
+            </div>
+
         </div>
 
-        <div class="setting-item toggle">
-          <label for="visuals-toggle-game">Visual Effects</label>
-          <input type="checkbox" id="visuals-toggle-game" checked />
-          <span>Enabled</span>
+        <div id="bravery-bar">
+            <div id="bravery-fill"></div>
+        </div>
+        <!-- ============================================================
+             ⚙️ IN-GAME SETTINGS OVERLAY
+        ============================================================= -->
+        <div id="overlay-settings-game" class="overlay hidden">
+            <div class="overlay-box settings-container">
+
+                <h3 class="settings-title">⚙️ Game Settings ⚙️</h3>
+
+                <div class="settings-grid">
+
+                    <div class="setting-item">
+                        <label for="music-volume-game">Music Volume</label>
+                        <input type="range" id="music-volume-game" min="0" max="100" value="80" class="slider" />
+                        <span id="music-value-game">80%</span>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="sfx-volume-game">Sound Effects</label>
+                        <input type="range" id="sfx-volume-game" min="0" max="100" value="80" class="slider" />
+                        <span id="sfx-value-game">80%</span>
+                    </div>
+
+                    <div class="setting-item toggle">
+                        <label for="visuals-toggle-game">Visual Effects</label>
+                        <input type="checkbox" id="visuals-toggle-game" checked />
+                        <span>Enabled</span>
+                    </div>
+
+                    <div class="setting-item toggle">
+                        <label for="tooltips-toggle-game">Tooltips</label>
+                        <input type="checkbox" id="tooltips-toggle-game" checked />
+                        <span>Enabled</span>
+                    </div>
+
+                </div>
+
+                <button class="overlay-close">OK</button>
+
+            </div>
         </div>
 
-        <div class="setting-item toggle">
-          <label for="tooltips-toggle-game">Tooltips</label>
-          <input type="checkbox" id="tooltips-toggle-game" checked />
-          <span>Enabled</span>
-        </div>
-      </div>
+        <!-- ============================================================
+             🎮 CONTROLS OVERLAY
+        ============================================================= -->
+        <div id="overlay-controls" class="overlay">
+            <div class="overlay-frame">
+                <div class="overlay-inner">
 
-      <button class="overlay-close">OK</button>
-    </div>
-  </div>
+                    <div class="overlay-box controls-box">
 
+                        <h2 class="overlay-title">Controls</h2>
 
-  <!-- ============================================================
-      🎮 CONTROLS OVERLAY
-  ============================================================ -->
-  <div id="overlay-controls" class="overlay">
-    <div class="overlay-frame">
-      <div class="overlay-inner">
+                        <div class="controls-grid">
+                            <div class="c-key">W / A / S / D</div><div class="c-desc">Move</div>
+                            <div class="c-key">Left Click</div><div class="c-desc">Basic Attack</div>
+                            <div class="c-key">Right Click</div><div class="c-desc">Melee Attack</div>
+                            <div class="c-key">1 – 5</div><div class="c-desc">Turrets</div>
+                            <div class="c-key">Space</div><div class="c-desc">Dodge</div>
+                            <div class="c-key">Esc</div><div class="c-desc">Pause</div>
+                        </div>
 
-        <!-- Everything inside the box -->
-        <div class="overlay-box controls-box">
-          <h2 class="overlay-title">Controls</h2>
+                        <div class="overlay-actions">
+                            <button class="overlay-close">OK</button>
+                        </div>
 
-          <div class="controls-grid">
-            <div class="c-key">W / A / S / D</div><div class="c-desc">Move</div>
-            <div class="c-key">Left Click</div><div class="c-desc">Basic Attack</div>
-            <div class="c-key">Right Click</div><div class="c-desc">Melee Attack</div>
-            <div class="c-key">1 – 5</div><div class="c-desc">Turrets</div>
-            <div class="c-key">Space</div><div class="c-desc">Dodge</div>
-            <div class="c-key">Esc</div><div class="c-desc">Pause</div>
-          </div>
+                    </div>
 
-          <div class="overlay-actions">
-            <button class="overlay-close">OK</button>
-          </div>
+                </div>
+            </div>
         </div>
 
-      </div>
-    </div>
-  </div>
+        <!-- ============================================================
+             💾 IN-GAME SAVE / LOAD OVERLAY
+        ============================================================= -->
+        <div id="overlay-save-game" class="overlay hidden">
+            <div class="overlay-box save-container">
 
+                <h3 class="save-title">💾 Save / Load Game</h3>
 
-  
-  <!-- ============================================================
-       💾 IN-GAME SAVE / LOAD OVERLAY (FINAL FIXED)
-  ============================================================= -->
-  <div id="overlay-save-game" class="overlay hidden">
-    <div class="overlay-box save-container">
-      <h3 class="save-title">💾 Save / Load Game</h3>
+                <div id="save-slots-ingame"></div>
 
-      <!-- Save slot list -->
-      <div id="save-slots-ingame"></div>
+                <button class="overlay-close">OK</button>
 
-      <!-- Close button -->
-      <button class="overlay-close">OK</button>
-    </div>
-  </div>
-
-
-  <!-- ============================================================
-      🎮 CONTROLS OVERLAY — Crystal Glass Edition
-  ============================================================ -->
-  <div id="overlay-game-controls" class="overlay hidden">
-    <div class="overlay-box controls-container crystal-panel">
-      
-      <h3 class="controls-title">🎮 Game Controls 🎮<br><br></h3>
-
-      <div class="controls-grid">
-        <div><strong>W  A  S  D or Arrow Keys</strong> — Move Princess<br><br></div>
-        <div><strong>Space</strong> — Melee Attack</div>
-        <div><strong>F</strong> — Cast Spell</div>
-        <div><strong>R</strong> — Heal (costs Mana)<br><br></div>
-        <div><strong>Keyboard 1</strong> — Place Crystal Defender</div>
-        <div><strong>Keyboard 2</strong> — Place Frost Sentinel</div>
-        <div><strong>Keyboard 3</strong> — Place Flameheart</div>
-        <div><strong>Keyboard 4</strong> — Place Arcane Spire</div>
-        <div><strong>Keyboard 5</strong> — Place Beacon of Light</div>
-        <div><strong>Keyboard 6</strong> — Place Moonlight Aegis<br><br></div>
-        <div><strong>T</strong> — Unleash Bravery Mode</div>
-      </div>
-
-      <button class="overlay-close crystal-btn">OK</button>
-
-    </div>
-  </div>
-
-  <!-- ============================================================
-       👑 PLAYER STATS OVERLAY (IN-GAME)
-  ============================================================= -->
-  <div id="overlay-player-stats" class="overlay hidden">
-    <div class="overlay-box stats-container">
-      <h3 id="player-stats-title" class="stats-title">Princess Olivia</h3>
-
-      <div class="stats-content">
-        <div class="stats-portrait">
-          <img id="player-stats-portrait" src="" alt="Player Portrait" />
+            </div>
         </div>
 
-        <div class="stats-table">
-          <div class="stat-row"><span class="stat-label">Level:</span><span id="pstat-level">1</span></div>
-          <div class="stat-row"><span class="stat-label">XP:</span><span id="pstat-xp">0 / 100</span></div>
-          <!-- <div class="stat-row"><span class="stat-label">Stat Points:</span><span id="pstat-statPoints">0</span></div> -->
-          <div class="stat-row"><span class="stat-label">HP:</span><span id="pstat-hp">100 / 100</span></div>
-          <div class="stat-row"><span class="stat-label">Mana:</span><span id="pstat-mana">50 / 50</span></div>
-          <div class="stat-row"><span class="stat-label">Spell Power:</span><span id="pstat-spellPower">10</span></div>
-          <div class="stat-row"><span class="stat-label">Ranged Attack:</span><span id="pstat-ranged">10</span></div>
-          <div class="stat-row"><span class="stat-label">Attack:</span><span id="pstat-attack">15</span></div>
-          <div class="stat-row"><span class="stat-label">Defense:</span><span id="pstat-defense">5</span></div>
-          <div class="stat-row"><span class="stat-label">Crit Chance:</span><span id="pstat-crit">10%</span></div>
+        <!-- ============================================================
+             🎮 CONTROLS OVERLAY — Crystal Glass Edition
+        ============================================================= -->
+        <div id="overlay-game-controls" class="overlay hidden">
+            <div class="overlay-box controls-container crystal-panel">
+
+                <h3 class="controls-title">🎮 Game Controls 🎮<br><br></h3>
+
+                <div class="controls-grid">
+                    <div><strong>W  A  S  D or Arrow Keys</strong> — Move Princess<br><br></div>
+                    <div><strong>Space</strong> — Melee Attack</div>
+                    <div><strong>F</strong> — Cast Spell</div>
+                    <div><strong>R</strong> — Heal (costs Mana)<br><br></div>
+                    <div><strong>Keyboard 1</strong> — Place Crystal Defender</div>
+                    <div><strong>Keyboard 2</strong> — Place Frost Sentinel</div>
+                    <div><strong>Keyboard 3</strong> — Place Flameheart</div>
+                    <div><strong>Keyboard 4</strong> — Place Arcane Spire</div>
+                    <div><strong>Keyboard 5</strong> — Place Beacon of Light</div>
+                    <div><strong>Keyboard 6</strong> — Place Moonlight Aegis<br><br></div>
+                    <div><strong>T</strong> — Unleash Bravery Mode</div>
+                </div>
+
+                <button class="overlay-close crystal-btn">OK</button>
+
+            </div>
         </div>
-      </div>
 
-      <button class="overlay-close">OK</button>
-    </div>
-  </div>
+        <!-- ============================================================
+             👑 PLAYER STATS OVERLAY (In-Game)
+        ============================================================= -->
+        <div id="overlay-player-stats" class="overlay hidden">
+            <div class="overlay-box stats-container">
 
-  <!-- ============================================================
-      CONFIRM OVERLAY (Universal Confirm)
-  ============================================================ -->
-  <div id="overlay-confirm" class="overlay hidden">
-    <div class="overlay-box">
-      <h3 id="confirm-title">Confirm</h3>
-      <p id="confirm-message">Are you sure?</p>
+                <h3 id="player-stats-title" class="stats-title">Princess Olivia</h3>
 
-      <div class="confirm-buttons">
-        <button id="confirm-yes" class="overlay-close">Yes</button>
-        <button id="confirm-no" class="overlay-close">No</button>
-      </div>
-    </div>
-  </div>
+                <div class="stats-content">
 
-  <!-- ============================================================
-      ✨ LEVEL UP OVERLAY
-  ============================================================ -->
-  <div id="overlay-levelup" class="overlay">
-    <div class="levelup-box">
-      <h2 class="levelup-title">✨ YOUR POWER GROWS! ✨ <br><br></h2>
+                    <div class="stats-portrait">
+                        <img id="player-stats-portrait" src="" alt="Player Portrait" />
+                    </div>
 
-      <p id="levelup-message" class="levelup-message">
-        You reached <strong>Level 1</strong>!<br><br><br>
-        You have <strong>1</strong> point available!
-      </p>
+                    <div class="stats-table">
+                        <div class="stat-row"><span class="stat-label">Level:</span><span id="pstat-level">1</span></div>
+                        <div class="stat-row"><span class="stat-label">XP:</span><span id="pstat-xp">0 / 100</span></div>
+                        <div class="stat-row"><span class="stat-label">HP:</span><span id="pstat-hp">100 / 100</span></div>
+                        <div class="stat-row"><span class="stat-label">Mana:</span><span id="pstat-mana">50 / 50</span></div>
+                        <div class="stat-row"><span class="stat-label">Spell Power:</span><span id="pstat-spellPower">10</span></div>
+                        <div class="stat-row"><span class="stat-label">Ranged Attack:</span><span id="pstat-ranged">10</span></div>
+                        <div class="stat-row"><span class="stat-label">Attack:</span><span id="pstat-attack">15</span></div>
+                        <div class="stat-row"><span class="stat-label">Defense:</span><span id="pstat-defense">5</span></div>
+                        <div class="stat-row"><span class="stat-label">Crit Chance:</span><span id="pstat-crit">10%</span></div>
+                    </div>
 
-      <div class="levelup-buttons">
+                </div>
 
-        <!-- Attack -->
-        <button class="levelup-btn" data-key="attack">
-          <img src="assets/images/icons/attack_level_up.png" class="levelup-icon" />
-          <span>Attack</span>
-        </button>
+                <button class="overlay-close">OK</button>
 
-        <!-- Spell Power -->
-        <button class="levelup-btn" data-key="spellPower">
-          <img src="assets/images/icons/spell_level_up.png" class="levelup-icon" />
-          <span>Spell Power</span>
-        </button>
+            </div>
+        </div>
 
-        <!-- Ranged Attack -->
-        <button class="levelup-btn" data-key="rangedAttack">
-          <img src="assets/images/icons/ranged_level_up.png" class="levelup-icon" />
-          <span>Ranged Attack</span>
-        </button>
+        <!-- ============================================================
+             CONFIRM OVERLAY
+        ============================================================= -->
+        <div id="overlay-confirm" class="overlay hidden">
+            <div class="overlay-box">
 
-      </div>
+                <h3 id="confirm-title">Confirm</h3>
+                <p id="confirm-message">Are you sure?</p>
 
-    </div>
-  </div>
+                <div class="confirm-buttons">
+                    <button id="confirm-yes" class="overlay-close">Yes</button>
+                    <button id="confirm-no" class="overlay-close">No</button>
+                </div>
 
-  <!-- ============================================================
-       💬 TOOLTIP (FIXED)
-  ============================================================= -->
-  <div id="tooltip-box-fixed" class="tooltip-fixed hidden">
-    <p id="tooltip-fixed-text">💎 Welcome to Crystal Keep!</p>
-  </div>
+            </div>
+        </div>
 
-  <!-- ============================================================
-       🎮 SCRIPT ENTRY
-  ============================================================= -->
-  <script type="module" src="./main.js"></script>
+        <!-- ============================================================
+             ✨ LEVEL UP OVERLAY
+        ============================================================= -->
+        <div id="overlay-levelup" class="overlay">
+            <div class="levelup-box">
+
+                <h2 class="levelup-title">✨ YOUR POWER GROWS! ✨ <br><br></h2>
+
+                <p id="levelup-message" class="levelup-message">
+                    You reached <strong>Level 1</strong>!<br><br><br>
+                    You have <strong>1</strong> point available!
+                </p>
+
+                <div class="levelup-buttons">
+
+                    <button class="levelup-btn" data-key="attack">
+                        <img src="assets/images/icons/attack_level_up.png" class="levelup-icon" />
+                        <span>Attack</span>
+                    </button>
+
+                    <button class="levelup-btn" data-key="spellPower">
+                        <img src="assets/images/icons/spell_level_up.png" class="levelup-icon" />
+                        <span>Spell Power</span>
+                    </button>
+
+                    <button class="levelup-btn" data-key="rangedAttack">
+                        <img src="assets/images/icons/ranged_level_up.png" class="levelup-icon" />
+                        <span>Ranged Attack</span>
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============================================================
+             💬 TOOLTIP (Fixed)
+        ============================================================= -->
+        <div id="tooltip-box-fixed" class="tooltip-fixed hidden">
+            <p id="tooltip-fixed-text">💎 Welcome to Crystal Keep!</p>
+        </div>
+
+    </section> <!-- end game-container -->
+
+    <!-- ============================================================
+         🎮 SCRIPT ENTRY
+    ============================================================= -->
+    <script type="module" src="./main.js"></script>
+
 </body>
 </html>
+
+

@@ -135,7 +135,7 @@ export function triggerDefeat(reason = "unknown") {
     // Update and save after delay
     updateHUD();
     saveProfiles();
-  }, 2000); // 5 seconds delay
+  }, 1500); // 5 seconds delay
 }
 
 

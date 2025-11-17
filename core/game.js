@@ -149,18 +149,18 @@ import {
 import { resetGoblinDrops } from "./goblinDrop.js";
 
 import { updateBraveryBar } from "./ui.js";
-
+import { showCredits } from "./credits.js";
 
 export const waveConfigs = {
   // ============================================================
   // 🌿 MAP 1 — Beginner Onboarding (Goblins only)
   // ============================================================
   1: [
-    { goblins: 50,  worgs: 50, ogres: 50, elites: 50, trolls: 50 },
+    { goblins: 3,  worgs: 0, ogres: 0, elites: 0, trolls: 0 },
     { goblins: 6,  worgs: 0, ogres: 0, elites: 1, trolls: 0 },
     { goblins: 10, worgs: 0, ogres: 0, elites: 3, trolls: 0 },
-    { goblins: 14, worgs: 0, ogres: 0, elites: 4, trolls: 0 },
-    { goblins: 20, worgs: 0, ogres: 0, elites: 5, trolls: 0 },
+    { goblins: 14, worgs: 0, ogres: 0, elites: 3, trolls: 0 },
+    { goblins: 20, worgs: 0, ogres: 0, elites: 3, trolls: 0 },
   ],
 
   // ============================================================
@@ -397,16 +397,6 @@ function noEnemiesAlive() {
 // ============================================================
 async function updateWaveSystem(delta) {
 
-  console.log("🔥 waveSystemTick", {
-    mapId: gameState.progress?.currentMap,
-    waveIndex: currentWaveIndex,
-    totalWaves: waveConfigs[gameState.progress?.currentMap]?.length,
-    waveActive,
-    waveCleared,
-    enemiesAlive: !noEnemiesAlive(),
-    spawnQueue: spawnQueue.length
-  });
-
   // 1️⃣ Handle spawn queue
   spawnTimer -= delta;
   if (spawnQueue.length > 0 && spawnTimer <= 0) {
@@ -475,6 +465,8 @@ async function updateWaveSystem(delta) {
 
   // ⭐ Unlock the next map ⭐
   const nextMap = mapId + 1;
+
+  // If NOT the final map → unlock next map normally
   if (nextMap <= 9) {
     unlockMap(nextMap);
     saveProfiles();
@@ -483,7 +475,15 @@ async function updateWaveSystem(delta) {
 
   setTimeout(() => {
     stopGameplay("victory");
+
+    // ⭐ If we just completed MAP 9 → Show Credits ⭐
+    if (mapId === 9) {
+      import("./credits.js").then(mod => {
+        mod.showCredits();
+      });
+    }
   }, VICTORY_DELAY);
+
 }
 
 
@@ -512,7 +512,6 @@ export let goblinsDefeated = 0;
 
 export function incrementGoblinDefeated() {
   goblinsDefeated++;
-  console.log(`⚔️ Goblins defeated: ${goblinsDefeated}`);
 
   // 💥 BONUS OGRE SPAWN: 1 Ogre every 100 kills
   if (ogreMilestones[goblinsDefeated] === false) {

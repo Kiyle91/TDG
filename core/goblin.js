@@ -573,7 +573,7 @@ export function damageEnemy(enemy, amount) {
     playGoblinDeath();
     incrementGoblinDefeated();
     awardXP(5);
-    addGold(5);
+    addGold(50000);
     addBravery (1);
     updateHUD();
     trySpawnGoblinDrop(enemy.x, enemy.y);

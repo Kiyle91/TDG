@@ -1,0 +1,203 @@
+/* ============================================================
+   🎬 CREDITS SCREEN — Crystal Glass Edition (Matches Story / Level-Up)
+   ------------------------------------------------------------
+   ✦ Blurred dark backdrop
+   ✦ Crystal-glass scroll panel
+   ✦ Pastel glow + Princess Sofia headings
+   ✦ Fully consistent with ALL other overlays
+============================================================ */
+
+/* Backdrop */
+#credits-screen {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  display: none;              /* hidden until shown */
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.45);   /* same dim as level-up */
+  backdrop-filter: blur(20px);       
+  -webkit-backdrop-filter: blur(20px);
+
+  z-index: 99999;
+  animation: fadeIn 0.4s ease;
+}
+
+#credits-screen.active {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ============================================================
+   💎 CRYSTAL PANEL (Matches story-box, levelup-box, end-panel)
+============================================================ */
+.credits-container {
+  position: relative;
+
+  width: 900px;
+  height: 75%;
+  padding: 50px 60px;
+
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  box-shadow:
+    0 0 25px rgba(120, 200, 255, 0.9),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  display: flex;
+  flex-direction: column;
+
+  animation: overlayPop 0.5s ease;
+}
+
+@keyframes overlayPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+/* Inner glow aura */
+.credits-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+
+  background: radial-gradient(circle, rgba(255,255,255,0.22), transparent 70%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   📜 SCROLL AREA
+============================================================ */
+.credits-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 20px;
+}
+
+.credits-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+.credits-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+}
+
+/* ============================================================
+   ✨ TEXT STYLING — Matching story.css + end-screen
+============================================================ */
+
+.credits-title {
+  text-align: center;
+  font-size: 2.6rem;
+
+  font-family: "Princess Sofia", cursive;
+  color: #ffffff;
+
+  margin-bottom: 20px;
+
+  text-shadow:
+    0 0 10px #fff,
+    0 0 18px #d6b3ff;
+}
+
+#credits-screen h2 {
+  margin-top: 25px;
+  margin-bottom: 6px;
+
+  font-size: 1.8rem;
+  color: #ffffff;
+  font-family: "Princess Sofia", cursive;
+
+  text-shadow:
+    0 0 10px #fff,
+    0 0 18px #c8b3ff;
+}
+
+#credits-screen p {
+  color: #ffffff;
+  opacity: 0.92;
+
+  font-size: 1.2rem;
+  font-family: "Comic Sans MS", cursive;
+
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.8);
+  margin: 2px 0 10px 0;
+}
+
+/* ============================================================
+   ✨ RETURN BUTTON — Matches story-next-btn / end-screen buttons
+============================================================ */
+.credits-btn {
+  align-self: center;
+
+  margin-top: 25px;
+  padding: 14px 34px;
+
+  font-size: 1.2rem;
+  font-weight: bold;
+  font-family: "Comic Sans MS", cursive;
+
+  color: #ffffff;
+  cursor: pointer;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(120,200,255,0.9),
+    inset 0 0 12px rgba(255,255,255,0.4);
+}
+
+.credits-btn:hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 0 30px rgba(224, 187, 255, 0.95),
+    inset 0 0 15px rgba(255,255,255,0.5);
+}
+
+.credits-btn:active {
+  transform: scale(0.97);
+  box-shadow:
+    0 0 18px rgba(120, 200, 255, 0.8),
+    inset 0 0 8px rgba(255,255,255,0.4);
+}
+
+/* ============================================================
+   🧚 Responsive
+============================================================ */
+@media (max-width: 800px) {
+  .credits-container {
+    width: 92%;
+    height: 80%;
+    padding: 30px;
+  }
+
+  .credits-title {
+    font-size: 2.1rem;
+  }
+
+  #credits-screen h2 {
+    font-size: 1.4rem;
+  }
+
+  #credits-screen p {
+    font-size: 1rem;
+  }
+}
