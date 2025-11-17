@@ -74,8 +74,8 @@ export function addTower(data) {
     activeFrameTimer: 0,
     attacksDone: 0,
     fadeOut: 0,
-    lastTargetUpdate: 0, // 🆕 Track when we last searched for targets
-    cachedTarget: null,  // 🆕 Cache the current target
+    lastTargetUpdate: 0,
+    cachedTarget: null,
   });
 }
 
@@ -84,21 +84,21 @@ export function addTower(data) {
 // ------------------------------------------------------------
 function findNearestEnemy(tower, enemies, range) {
   let closest = null;
-  let minDistSq = range * range; // Use squared distance for speed
+  let minDistSq = range * range;
 
   for (const e of enemies) {
     if (!e.alive) continue;
-    
+
     const dx = tower.x - e.x;
     const dy = tower.y - e.y;
     const distSq = dx * dx + dy * dy;
-    
+
     if (distSq < minDistSq) {
       minDistSq = distSq;
       closest = e;
     }
   }
-  
+
   return closest;
 }
 
@@ -108,13 +108,11 @@ function findNearestEnemy(tower, enemies, range) {
 export function updateTowers(delta) {
   const dt = delta / 1000;
 
-  // 🆕 Get combined target list ONCE per frame (not per tower)
   const combinedEnemies = [...getEnemies(), ...getWorg(), ...getElites(), ...getTrolls()];
 
   for (let i = towers.length - 1; i >= 0; i--) {
     const tower = towers[i];
 
-    // fade out & removal
     if (tower.fadeOut > 0) {
       tower.fadeOut -= dt * FADE_SPEED;
       if (tower.fadeOut <= 0) {
@@ -131,13 +129,11 @@ export function updateTowers(delta) {
 
     if (tower.cooldown > 0) continue;
 
-    // 🆕 Throttled target acquisition (every 200ms instead of every frame)
     tower.lastTargetUpdate = (tower.lastTargetUpdate || 0) + delta;
-    
+
     if (tower.lastTargetUpdate >= TARGET_UPDATE_INTERVAL) {
       tower.lastTargetUpdate = 0;
-      
-      // Update cached target based on tower type
+
       switch (tower.type) {
         case "basic_turret":
           tower.cachedTarget = findNearestEnemy(tower, combinedEnemies, TOWER_RANGE);
@@ -152,13 +148,12 @@ export function updateTowers(delta) {
           tower.cachedTarget = findNearestEnemy(tower, combinedEnemies, TOWER_RANGE * 1.5);
           break;
         case "light_turret":
-          // Light tower targets player
           const player = gameState.player;
           if (player && player.pos) {
             const dx = player.pos.x - tower.x;
             const dy = player.pos.y - tower.y;
             const distSq = dx * dx + dy * dy;
-            const rangeSq = (TOWER_RANGE * 0.8) * (TOWER_RANGE * 0.8);
+            const rangeSq = (TOWER_RANGE * 0.8) ** 2;
             tower.cachedTarget = distSq < rangeSq ? player : null;
           }
           break;
@@ -168,17 +163,14 @@ export function updateTowers(delta) {
       }
     }
 
-    // Fire at cached target if still valid
     const target = tower.cachedTarget;
     if (!target) continue;
-    
-    // Verify target is still alive (cheap check)
+
     if (target !== gameState.player && !target.alive) {
       tower.cachedTarget = null;
       continue;
     }
 
-    // Execute attack based on tower type
     switch (tower.type) {
       case "basic_turret":
         spawnProjectile(tower.x, tower.y, target, "crystal");
@@ -229,19 +221,16 @@ export function drawTowers(ctx) {
   if (!ctx) return;
 
   for (const tower of towers) {
-    // 🆕 Get sprite key once
     const base = tower.type.replace("_turret", "");
     const sprites = turretSprites[base] || turretSprites.basic;
-    
+
     if (!sprites) continue;
-    
+
     const img = tower.activeFrameTimer > 0 ? sprites.active : sprites.idle;
 
-    // Base scale
     let scale = base === "frost" ? 0.85 : 1;
     const baseSize = TOWER_SIZE * scale;
 
-    // Size adjustments
     let size = baseSize;
     if (base === "flame") {
       size = baseSize * 1.30;
@@ -249,7 +238,6 @@ export function drawTowers(ctx) {
       size = baseSize * 1.1;
     }
 
-    // Position calculations (keep consistent with base)
     const originalDrawY = tower.y - baseSize / 2 + baseSize * 0.1;
     const originalBottom = originalDrawY + baseSize;
 
@@ -280,6 +268,25 @@ export function drawTowers(ctx) {
     );
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
+
+    // ⭐ NEW — Crystal Echo Power Aura
+    if (gameState.echoPowerActive) {
+      const auraRadius = size * 0.55;
+
+      const gradient = ctx.createRadialGradient(
+        tower.x, tower.y, 0,
+        tower.x, tower.y, auraRadius
+      );
+
+      gradient.addColorStop(0, "rgba(220, 180, 255, 0.55)");
+      gradient.addColorStop(0.6, "rgba(200, 150, 255, 0.25)");
+      gradient.addColorStop(1, "rgba(200, 150, 255, 0)");
+
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(tower.x, tower.y, auraRadius, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(img, drawX, drawY, size, size);

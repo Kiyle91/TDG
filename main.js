@@ -35,6 +35,9 @@ import { startGoblinIntroStory } from "./core/story.js";
 import { initNavbar } from "./core/navbar.js";
 import { applyMapSpawn } from "./core/game.js";
 import { initCredits } from "./core/credits.js";
+import { getOgres } from "./core/ogre.js";
+import { getElites } from "./core/elite.js";
+import { getWorg } from "./core/worg.js";
 
 // ============================================================
 // 🎮 GLOBAL GAME LOOP STATE
@@ -328,7 +331,7 @@ export async function resetGameplay() {
   if (window.goblinsDefeated !== undefined)
     window.goblinsDefeated = 0;
 
-  // Reset ogres / elites / worgs
+  // Reset ogres / elites / worg
   if (window.getOgres) {
     const ogres = getOgres();
     if (ogres?.length) ogres.length = 0;
@@ -338,8 +341,8 @@ export async function resetGameplay() {
     if (elites?.length) elites.length = 0;
   }
   if (window.getWorgs) {
-    const worgs = getWorgs();
-    if (worgs?.length) worgs.length = 0;
+    const worg = getWorg();
+    if (worg?.length) worg.length = 0;
   }
 
   // Reset goblins fully
@@ -513,8 +516,7 @@ function showEndScreen(reason) {
       // 💎✨ DIAMOND REWARD FOR VICTORY
       // --------------------------------------------------------
       const reward = 100;
-      const currencies = getCurrencies();
-      currencies.diamonds += reward;
+      gameState.profile.currencies.diamonds += reward;
       saveProfiles();
 
       const rewardMsg = document.createElement("div");
