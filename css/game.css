@@ -352,3 +352,20 @@
       0 0 16px rgba(120, 90, 200, 0.7);
   }
 }
+
+/* 🔮 Flash glow when all Echoes collected */
+.echo-power-flash {
+  animation: echoPulse 1s infinite alternate ease-in-out;
+  filter: drop-shadow(0 0 12px #d9b8ff);
+}
+
+@keyframes echoPulse {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}

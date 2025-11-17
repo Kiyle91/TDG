@@ -572,8 +572,8 @@ export function damageEnemy(enemy, amount) {
     enemy.fadeTimer = 0;
     playGoblinDeath();
     incrementGoblinDefeated();
-    awardXP(5);
-    addGold(5);
+    awardXP(50);
+    addGold(50);
     addBravery (1);
     updateHUD();
     trySpawnGoblinDrop(enemy.x, enemy.y);

@@ -6,12 +6,12 @@
 // ✦ Flame DOT ticks once per second (non-stacking)
 // ✦ Frost slow applies cleanly once
 // ✦ Pure canvas glow projectiles (no images)
+// ✦ ⭐ Crystal Echo Power → all tower damage doubled
 // ============================================================
 
 import { damageEnemy } from "./enemies.js";
 import { gameState } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
-
 
 const PROJECTILE_SPEED = 480;
 
@@ -73,7 +73,6 @@ export function updateProjectiles(delta) {
     const p = projectiles[i];
     const t = p.target;
 
-    // Get real target coordinates
     const tx = t.isPlayer ? gameState.player.pos.x : t.x;
     const ty = t.isPlayer ? gameState.player.pos.y : t.y;
 
@@ -109,59 +108,70 @@ export function updateProjectiles(delta) {
       // ❄ FROST PROJECTILE — apply slow once, emoji-only
       // --------------------------------------------------------
       else if (p.type === "frost") {
+        t.slowTimer = 2000;
 
-          // Apply / refresh slow duration
-          t.slowTimer = 2000;
+        if (!t._owFrostSlowed) {
+          t.speed *= 0.5;
+          t._owFrostSlowed = true;
+          spawnFloatingText(t.x, t.y - 60, "❄️");
+        }
 
-          // Only apply speed reduction once per slow cycle
-          if (!t._owFrostSlowed) {
-              t.speed *= 0.5;
-              t._owFrostSlowed = true;
+        // ❄ frost damage
+        let dmg = PROJECTILE_DAMAGE.frost;
 
-              // Minimal one-time frost emoji
-              spawnFloatingText(t.x, t.y - 60, "❄️");
-          }
+        // ⭐ DOUBLE DAMAGE: Crystal Echo Power
+        if (gameState.echoPowerActive) dmg *= 2;
 
-          // Single hit damage for frost (kept)
-          damageEnemy(t, PROJECTILE_DAMAGE.frost);
+        damageEnemy(t, dmg);
       }
 
       // --------------------------------------------------------
-      // 🔥 FLAME PROJECTILE — apply burn only once, emoji-only
+      // 🔥 FLAME PROJECTILE — apply burn only once
       // --------------------------------------------------------
       else if (p.type === "flame") {
 
-          // First time flame hits this goblin
-          if (!t.isBurning) {
-              t.isBurning = true;
-              t.burnTimer = 15000;   // 3s total duration
-              t.burnTick = 1;       // tick immediately on next update
-              t.burnDamage = 3;
+        if (!t.isBurning) {
+          t.isBurning = true;
+          t.burnTimer = 15000;
+          t.burnTick = 1;
+          t.burnDamage = 3;
 
-              // Minimal floating text (one-time)
-              spawnFloatingText(t.x, t.y - 60, "🔥");
-          }
+          spawnFloatingText(t.x, t.y - 60, "🔥");
+        }
 
-          damageEnemy(t, 20);
+        // immediate flame hit damage
+        let dmg = 20;
 
-          // ❌ Removed the extra "hit" damage — burn handles damage over time
-          // damageEnemy(t, PROJECTILE_DAMAGE.flame);
+        // ⭐ DOUBLE DAMAGE: Crystal Echo Power
+        if (gameState.echoPowerActive) dmg *= 2;
+
+        damageEnemy(t, dmg);
       }
 
       // --------------------------------------------------------
       // 🌙 MOON PROJECTILE — STUN + damage
       // --------------------------------------------------------
       else if (p.type === "moon") {
-        t.stunTimer = 1000;  // 1 second stun
+        t.stunTimer = 1000;
         spawnFloatingText(t.x, t.y - 60, "🌙", "#ccbbff");
-        damageEnemy(t, PROJECTILE_DAMAGE.moon);
+
+        let dmg = PROJECTILE_DAMAGE.moon;
+
+        // ⭐ DOUBLE DAMAGE
+        if (gameState.echoPowerActive) dmg *= 2;
+
+        damageEnemy(t, dmg);
       }
-      
+
       // --------------------------------------------------------
-      // 💎 CRYSTAL + 💜 ARCANE
+      // 💎 CRYSTAL + 💜 ARCANE — base projectile types
       // --------------------------------------------------------
       else {
-        const dmg = PROJECTILE_DAMAGE[p.type] ?? 10;
+        let dmg = PROJECTILE_DAMAGE[p.type] ?? 10;
+
+        // ⭐ DOUBLE DAMAGE
+        if (gameState.echoPowerActive) dmg *= 2;
+
         damageEnemy(t, dmg);
       }
 

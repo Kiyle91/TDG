@@ -169,10 +169,17 @@ function drawBurstEffect(crystal) {
 }
 
 // ------------------------------------------------------------
-// 💎 AWARD FINAL BONUS
+// 💎 AWARD FINAL BONUS (Double Damage + HUD Flash)
 // ------------------------------------------------------------
 function awardCrystalBonus(lastCrystal) {
   gameState.exploration.bonusGiven = true;
+
+  // ⭐ NEW — Enable tower double damage system
+  gameState.echoPowerActive = true;
+
+  // ⭐ NEW — Flash the crystal HUD circle
+  const icon = document.getElementById("hud-crystals-circle");
+  if (icon) icon.classList.add("echo-power-flash");
 
   addDiamonds(100); // fixed to 100 for your design
   updateHUD();
@@ -185,8 +192,5 @@ function awardCrystalBonus(lastCrystal) {
   );
 
   console.log("🏆 Exploration bonus awarded: +100 Diamonds");
-}
-
-export function getRemainingEchoes() {
-  return echoes.length;
+  console.log("💠 Crystal Echo Power Activated — Towers deal DOUBLE DAMAGE!");
 }
