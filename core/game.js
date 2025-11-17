@@ -157,8 +157,8 @@ export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding (Goblins only)
   // ============================================================
   1: [
-    { goblins: 3,  worgs: 0, ogres: 0, elites: 0, trolls: 0 },
-    { goblins: 6,  worgs: 0, ogres: 0, elites: 1, trolls: 0 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0 },
+    { goblins: 4,  worgs: 0, ogres: 0, elites: 1, trolls: 0 },
     { goblins: 10, worgs: 0, ogres: 0, elites: 3, trolls: 2 },
     { goblins: 14, worgs: 0, ogres: 0, elites: 3, trolls: 0 },
     { goblins: 20, worgs: 0, ogres: 0, elites: 3, trolls: 2 },
@@ -270,8 +270,9 @@ for (let i = 1; i <= 20; i++) {
   ogreMilestones[i * 100] = false; // 100, 200, ..., 2000
 }
 
-const BETWEEN_WAVES_DELAY = 3000; 
-const VICTORY_DELAY = 5000;       
+const FIRST_WAVE_DELAY = 5000;     // ⭐ 5s delay before Wave 1
+const BETWEEN_WAVES_DELAY = 3000;  // existing logic
+const VICTORY_DELAY = 5000;   
 
 let betweenWaveTimer = 0;
 let victoryPending = false;
@@ -662,8 +663,8 @@ export async function initGame(mode = "new") {
     spawnQueue = [];
     spawnTimer = 0;
 
-    // Start first wave ONLY for new / retry
-    startNextWave();
+    // ⭐ NEW — Delay first wave by 5 seconds
+    betweenWaveTimer = FIRST_WAVE_DELAY;
   }
 
   console.log(`🌸 game.js — Initialization complete (optimized, multi-map, mode: ${mode}).`);
