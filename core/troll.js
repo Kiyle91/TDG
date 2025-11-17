@@ -23,7 +23,7 @@ let trollSprites = null;
 // ------------------------------------------------------------
 const SIZE = 96;                 // goblins = 80
 const SPEED = 55;                // goblins = 80
-const HP = 240;                  // goblins = 75
+const HP = 140;                  // goblins = 75
 const ATTACK_RANGE = 80;
 const AGGRO_RANGE = 150;
 const RETURN_RANGE = 260;
