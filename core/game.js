@@ -164,6 +164,8 @@ import { updateCrystalEchoes } from "./crystalEchoes.js";
 import { extractCrystalEchoes } from "./map.js";
 import { initCrystalEchoes } from "./crystalEchoes.js";
 
+import { renderSparkleBursts } from "./crystalEchoes.js";
+
 export const waveConfigs = {
 
   // ============================================================
@@ -845,7 +847,7 @@ export function renderGame() {
   drawHealingDrops(ctx);
   drawGoblinDrops(ctx);
   drawLoot(ctx);
-
+  renderSparkleBursts(ctx, 16);
   ctx.restore();
 
   // 3️⃣ Foreground trees

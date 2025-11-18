@@ -1,12 +1,12 @@
 // ============================================================
 // 💎 crystalEchoes.js — Exploration Collectibles System
 // ------------------------------------------------------------
-// • Fixed-position Crystal Echoes
-// • Collect → XP + Diamonds + burst effect
+// • Fixed-position Crystal Echoes (from mapData.crystalEchoes)
+// • Collect → XP + Diamonds + sparkle burst effect
 // • Random sprite per echo
 // • 74px crystals (large & readable)
-// • NO idle pulsing animation
-// • Clean burst effect on collect
+// • Soft shadow under each crystal
+// • Pretty pastel sparkle burst on collect
 // ============================================================
 
 import { gameState, addDiamonds } from "../utils/gameState.js";
@@ -41,12 +41,35 @@ function preloadCrystalImages() {
 preloadCrystalImages();
 
 // ------------------------------------------------------------
+// ✨ SPARKLE BURST STATE
+// ------------------------------------------------------------
+let sparkleBursts = [];
+
+// Small helper: star-shaped sparkle
+function drawStar(ctx, x, y, size, color) {
+  const half = size / 2;
+
+  ctx.fillStyle = color;
+  ctx.beginPath();
+
+  ctx.moveTo(x, y - size);
+  ctx.lineTo(x + half, y + half);
+  ctx.lineTo(x - size, y);
+  ctx.lineTo(x + half, y - half);
+  ctx.lineTo(x, y + size);
+
+  ctx.closePath();
+  ctx.fill();
+}
+
+// ------------------------------------------------------------
 // 🔄 INIT FOR NEW MAP
 // ------------------------------------------------------------
 export function initCrystalEchoes(mapData) {
   echoes = [];
+  sparkleBursts = [];
 
-  if (mapData.crystalEchoes && Array.isArray(mapData.crystalEchoes)) {
+  if (mapData && mapData.crystalEchoes && Array.isArray(mapData.crystalEchoes)) {
     echoes = structuredClone(mapData.crystalEchoes);
 
     // assign random sprite
@@ -72,27 +95,30 @@ export function initCrystalEchoes(mapData) {
 // 🎨 RENDER + COLLISION
 // ------------------------------------------------------------
 export function updateCrystalEchoes(ctx, player) {
+  if (!player) return;
+
   const size = 74;
 
   for (let i = echoes.length - 1; i >= 0; i--) {
     const c = echoes[i];
 
-    // >>> NO MORE PULSING <<<
     // ---------------------------------------
-    // SHADOW (troll-style)
+    // SHADOW (troll-style ellipse)
     // ---------------------------------------
-    const SHADOW_W = 26;  // width of ellipse
-    const SHADOW_H = 10;  // height of ellipse
-    const SHADOW_OFFSET = 20; // distance below crystal center
+    const SHADOW_W = 26;
+    const SHADOW_H = 10;
+    const SHADOW_OFFSET = 20;
 
     ctx.save();
     ctx.beginPath();
     ctx.ellipse(
-    c.x,
-    c.y + SHADOW_OFFSET,
-    SHADOW_W,
-    SHADOW_H,
-    0, 0, Math.PI * 3
+      c.x,
+      c.y + SHADOW_OFFSET,
+      SHADOW_W,
+      SHADOW_H,
+      0,
+      0,
+      Math.PI * 2
     );
     ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
     ctx.fill();
@@ -102,28 +128,33 @@ export function updateCrystalEchoes(ctx, player) {
     // CRYSTAL IMAGE
     // ---------------------------------------
     ctx.drawImage(
-    c.img,
-    c.x - size / 2,
-    c.y - size / 2, // slight lift so shadow is visible
-    size,
-    size
+      c.img,
+      c.x - size / 2,
+      c.y - size / 2,
+      size,
+      size
     );
 
-    // collection check
-    const dx = player.x - c.x;
-    const dy = player.y - c.y;
+    // ---------------------------------------
+    // COLLECTION CHECK
+    // ---------------------------------------
+    const px = player.pos?.x ?? player.x;
+    const py = player.pos?.y ?? player.y;
+
+    const dx = px - c.x;
+    const dy = py - c.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
     if (dist < 48) {
-      collectCrystalEcho(c, i, ctx);
+      collectCrystalEcho(c, i);
     }
   }
 }
 
 // ------------------------------------------------------------
-// ✨ COLLECTION + BURST EFFECT
+// ✨ COLLECTION + SPARKLE BURST
 // ------------------------------------------------------------
-function collectCrystalEcho(crystal, index, ctx) {
+function collectCrystalEcho(crystal, index) {
   // Remove echo from list
   echoes.splice(index, 1);
 
@@ -139,8 +170,8 @@ function collectCrystalEcho(crystal, index, ctx) {
   // HUD refresh
   updateHUD();
 
-  // ⭐ Burst animation
-  drawBurstEffect(crystal);
+  // ⭐ Spawn sparkle burst (particles stored in sparkleBursts)
+  spawnSparkleBurst(crystal);
 
   console.log(
     `💎 Crystal Echo found (${gameState.exploration.found}/${totalEchoes})`
@@ -156,39 +187,89 @@ function collectCrystalEcho(crystal, index, ctx) {
 }
 
 // ------------------------------------------------------------
-// 🌟 MAGIC BURST EFFECT
+// 🌟 SPAWN SPARKLE BURST (particle data only)
 // ------------------------------------------------------------
-function drawBurstEffect(crystal) {
-  const canvas = document.getElementById("game-canvas");
-  const ctx = canvas.getContext("2d");
-
+function spawnSparkleBurst(crystal) {
   const x = crystal.x;
   const y = crystal.y;
 
-  const maxRadius = 90;
-  const duration = 320;
-  const start = performance.now();
+  const count = 16;
+  const colors = [
+    "#FFD8FF",
+    "#EAD0FF",
+    "#D3B7FF",
+    "#B7E8FF",
+    "#FFF0B3",
+  ];
 
-  function animate(now) {
-    const t = (now - start) / duration;
-    if (t > 1) return;
+  const particles = [];
 
-    const radius = maxRadius * t;
-    const alpha = 1 - t;
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 * i) / count;
 
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = "rgba(220, 180, 255, 0.55)";
-
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    requestAnimationFrame(animate);
+    particles.push({
+      x,
+      y,
+      size: 8 + Math.random() * 6,
+      vx: Math.cos(angle) * (2 + Math.random() * 2.5),
+      vy: Math.sin(angle) * (2 + Math.random() * 2.5),
+      alpha: 1,
+      rotation: Math.random() * Math.PI * 2,
+      rotationSpeed: (Math.random() - 0.5) * 0.15,
+      color: colors[Math.floor(Math.random() * colors.length)],
+    });
   }
 
-  requestAnimationFrame(animate);
+  sparkleBursts.push({
+    particles,
+    age: 0,
+    duration: 420,
+  });
+}
+
+// ------------------------------------------------------------
+// 🌟 RENDER SPARKLE BURSTS (call from renderGame)
+// ------------------------------------------------------------
+export function renderSparkleBursts(ctx, delta) {
+  if (sparkleBursts.length === 0) return;
+
+  for (let i = sparkleBursts.length - 1; i >= 0; i--) {
+    const burst = sparkleBursts[i];
+    burst.age += delta;
+
+    const t = burst.age / burst.duration;
+    if (t >= 1) {
+      sparkleBursts.splice(i, 1);
+      continue;
+    }
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter"; // glow blend
+
+    for (const p of burst.particles) {
+      // Move outward
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Fade out
+      p.alpha = 1 - t;
+
+      // Rotate
+      p.rotation += p.rotationSpeed;
+
+      // Draw star
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation);
+
+      drawStar(ctx, 0, 0, p.size, p.color);
+
+      ctx.restore();
+    }
+
+    ctx.restore();
+  }
 }
 
 // ------------------------------------------------------------
@@ -197,10 +278,10 @@ function drawBurstEffect(crystal) {
 function awardCrystalBonus(lastCrystal) {
   gameState.exploration.bonusGiven = true;
 
-  // ⭐ NEW — Enable tower double damage system
+  // ⭐ Enable tower double damage system
   gameState.echoPowerActive = true;
 
-  // ⭐ NEW — Flash the crystal HUD circle
+  // ⭐ Flash the crystal HUD circle
   const icon = document.getElementById("hud-crystals-circle");
   if (icon) icon.classList.add("echo-power-flash");
 
