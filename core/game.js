@@ -161,6 +161,9 @@ import { updateBraveryBar } from "./ui.js";
 import { showCredits } from "./credits.js";
 import { updateCrystalEchoes } from "./crystalEchoes.js";
 
+import { extractCrystalEchoes } from "./map.js";
+import { initCrystalEchoes } from "./crystalEchoes.js";
+
 export const waveConfigs = {
 
   // ============================================================
@@ -685,6 +688,12 @@ export async function initGame(mode = "new") {
   // 3️⃣ Extract enemy path + apply
   const pathPoints = extractPathFromMap();
   setEnemyPath(pathPoints);
+
+  const echoPoints = extractCrystalEchoes();
+  gameState.exploration.total = echoPoints.length;
+  gameState.exploration.found = 0;
+
+  initCrystalEchoes({ crystalEchoes: echoPoints });
 
   // 4️⃣ Initialize subsystems
   clearLoot();

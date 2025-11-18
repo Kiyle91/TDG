@@ -1,10 +1,5 @@
 { "compressionlevel":-1,
  "height":40,
-  "crystalEchoes": [
-   { "x": 1200, "y": 850 },
-   { "x": 2400, "y": 1400 },
-   { "x": 3600, "y": 2200 }
- ],
  "infinite":false,
  "layers":[
         {
@@ -219,6 +214,7 @@
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
          "height":40,
          "id":4,
+         "locked":true,
          "name":"collision",
          "opacity":1,
          "type":"tilelayer",
@@ -226,8 +222,21 @@
          "width":60,
          "x":0,
          "y":0
+        }, 
+        {
+         "class":"crystal",
+         "draworder":"topdown",
+         "id":5,
+         "locked":true,
+         "name":"CrystalEchoes",
+         "objects":[],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":5,
+ "nextlayerid":6,
  "nextobjectid":2,
  "orientation":"orthogonal",
  "renderorder":"right-down",

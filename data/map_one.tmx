@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="35" tilewidth="32" tileheight="32" infinite="0" nextlayerid="7" nextobjectid="26">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="35" tilewidth="32" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="57">
  <editorsettings>
   <export target="map_one.json" format="json"/>
  </editorsettings>
@@ -55,7 +55,7 @@
    <polyline points="0,0 280,-0.5 280,864 665,863.5 664,-0.5 1240.5,-1 1240.5,864 1720.5,864 1720,-1 1979.5,0"/>
   </object>
  </objectgroup>
- <layer id="3" name="Trees" width="60" height="35" opacity="0.9">
+ <layer id="3" name="Trees" width="60" height="35" locked="1" opacity="0.9">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,3223,3224,3225,3226,3227,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3191,3192,3193,3194,3195,3196,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,3255,0,0,0,3259,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3223,3224,3225,3226,3227,0,0,0,0,0,0,0,0,0,
@@ -133,4 +133,90 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="7" name="CrystalEchoes" class="crystal">
+  <object id="26" x="786" y="430">
+   <point/>
+  </object>
+  <object id="27" x="814" y="1010">
+   <point/>
+  </object>
+  <object id="28" x="1364" y="562">
+   <point/>
+  </object>
+  <object id="30" x="1456" y="182">
+   <point/>
+  </object>
+  <object id="31" x="528" y="80">
+   <point/>
+  </object>
+  <object id="32" x="364" y="884">
+   <point/>
+  </object>
+  <object id="33" x="914" y="600">
+   <point/>
+  </object>
+  <object id="34" x="368" y="278">
+   <point/>
+  </object>
+  <object id="36" x="962" y="368">
+   <point/>
+  </object>
+  <object id="37" x="1396" y="92">
+   <point/>
+  </object>
+  <object id="38" x="1590" y="884">
+   <point/>
+  </object>
+  <object id="39" x="1558" y="594">
+   <point/>
+  </object>
+  <object id="40" x="1508" y="506">
+   <point/>
+  </object>
+  <object id="41" x="1342" y="168">
+   <point/>
+  </object>
+  <object id="43" x="680" y="58">
+   <point/>
+  </object>
+  <object id="44" x="792" y="586">
+   <point/>
+  </object>
+  <object id="45" x="536" y="892">
+   <point/>
+  </object>
+  <object id="46" x="552" y="614">
+   <point/>
+  </object>
+  <object id="47" x="458" y="566">
+   <point/>
+  </object>
+  <object id="48" x="140" y="544">
+   <point/>
+  </object>
+  <object id="49" x="144" y="232">
+   <point/>
+  </object>
+  <object id="50" x="200" y="56">
+   <point/>
+  </object>
+  <object id="51" x="158" y="938">
+   <point/>
+  </object>
+  <object id="52" x="30" y="818">
+   <point/>
+  </object>
+  <object id="53" x="732" y="610">
+   <point/>
+  </object>
+  <object id="54" x="958" y="838">
+   <point/>
+  </object>
+  <object id="55" x="930" y="218">
+   <point/>
+  </object>
+  <object id="56" x="978" y="262">
+   <point/>
+  </object>
+ </objectgroup>
 </map>

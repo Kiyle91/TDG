@@ -78,12 +78,35 @@ export function updateCrystalEchoes(ctx, player) {
     const c = echoes[i];
 
     // >>> NO MORE PULSING <<<
+    // ---------------------------------------
+    // SHADOW (troll-style)
+    // ---------------------------------------
+    const SHADOW_W = 26;  // width of ellipse
+    const SHADOW_H = 10;  // height of ellipse
+    const SHADOW_OFFSET = 20; // distance below crystal center
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(
+    c.x,
+    c.y + SHADOW_OFFSET,
+    SHADOW_W,
+    SHADOW_H,
+    0, 0, Math.PI * 3
+    );
+    ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+    ctx.fill();
+    ctx.restore();
+
+    // ---------------------------------------
+    // CRYSTAL IMAGE
+    // ---------------------------------------
     ctx.drawImage(
-      c.img,
-      c.x - size / 2,
-      c.y - size / 2,
-      size,
-      size
+    c.img,
+    c.x - size / 2,
+    c.y - size / 2, // slight lift so shadow is visible
+    size,
+    size
     );
 
     // collection check

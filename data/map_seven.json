@@ -1,10 +1,5 @@
 { "compressionlevel":-1,
  "height":70,
-  "crystalEchoes": [
-   { "x": 1200, "y": 850 },
-   { "x": 2400, "y": 1400 },
-   { "x": 3600, "y": 2200 }
- ],
  "infinite":false,
  "layers":[
         {
@@ -80,6 +75,7 @@
             303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303, 301, 302, 303],
          "height":70,
          "id":1,
+         "locked":true,
          "name":"Ground Layer",
          "opacity":1,
          "type":"tilelayer",
@@ -92,6 +88,7 @@
          "class":"path",
          "draworder":"topdown",
          "id":2,
+         "locked":true,
          "name":"path",
          "objects":[
                 {
@@ -105,14 +102,14 @@
                         }, 
                         {
                          "x":0,
-                         "y":2365.82487609157
+                         "y":2365.82
                         }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1115.5062544253,
-                 "y":-44.9374557469908
+                 "x":1115.51,
+                 "y":-44.9375
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -193,6 +190,7 @@
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
          "height":70,
          "id":3,
+         "locked":true,
          "name":"Trees",
          "opacity":1,
          "type":"tilelayer",
@@ -274,6 +272,7 @@
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
          "height":70,
          "id":4,
+         "locked":true,
          "name":"collision",
          "opacity":1,
          "type":"tilelayer",
@@ -281,8 +280,21 @@
          "width":70,
          "x":0,
          "y":0
+        }, 
+        {
+         "class":"crystal",
+         "draworder":"topdown",
+         "id":5,
+         "locked":true,
+         "name":"CrystalEchoes",
+         "objects":[],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":5,
+ "nextlayerid":6,
  "nextobjectid":2,
  "orientation":"orthogonal",
  "renderorder":"right-down",

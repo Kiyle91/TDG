@@ -61,3 +61,4 @@ export function isRectBlocked(x, y, w, h) {
   ];
   return points.some(p => isCollisionAt(p.x, p.y));
 }
+

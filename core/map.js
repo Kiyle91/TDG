@@ -328,6 +328,26 @@ export function drawMapLayered(
   }
 }
 
+
+
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================
+
+export function extractCrystalEchoes() {
+  if (!mapData) {
+    console.warn("⚠️ extractCrystalEchoes(): mapData is not set yet.");
+    return [];
+  }
+
+  const layer = mapData.layers.find(l => l.name === "CrystalEchoes");
+  if (!layer || !Array.isArray(layer.objects)) {
+    return [];
+  }
+
+  return layer.objects.map(obj => ({
+    x: obj.x,
+    y: obj.y,
+    type: obj.type || "crystal"
+  }));
+}
