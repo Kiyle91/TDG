@@ -202,7 +202,7 @@ function scaleEnemyHp(enemy) {
 export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding
   1: [
-    { goblins: 3,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 3,  worgs: 3, ogres: 1, elites: 3, trolls: 3, crossbows: 3 },
     { goblins: 7,  worgs: 0, ogres: 0, elites: 1, trolls: 1, crossbows: 0 },
     { goblins: 10, worgs: 0, ogres: 0, elites: 2, trolls: 2, crossbows: 0 },
     { goblins: 14, worgs: 0, ogres: 0, elites: 3, trolls: 3, crossbows: 1 },

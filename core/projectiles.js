@@ -59,11 +59,11 @@ import { damageCrossbow } from "./crossbow.js";
 const PROJECTILE_SPEED = 480;
 
 const PROJECTILE_DAMAGE = {
-  crystal: 25,
-  frost: 15,
-  flame: 12,
-  arcane: 30,
-  moon: 20,
+  crystal: 15,
+  frost: 10,
+  flame: 15,
+  arcane: 25,
+  moon: 25,
   heal: 0
 };
 

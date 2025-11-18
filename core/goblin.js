@@ -67,13 +67,13 @@ const GOBLIN_SIZE = 80;
 const BASE_SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;
-const DEFAULT_HP = 75;
+const DEFAULT_HP = 80;
 const HITBOX_OFFSET_Y = 15;
 const ATTACK_RANGE = 80;
 const AGGRO_RANGE = 150;
 const RETURN_DELAY = 1200;
 const ATTACK_COOLDOWN = 1000;
-const GOBLIN_DAMAGE = 8;
+const GOBLIN_DAMAGE = 6;
 const DEATH_LAY_DURATION = 600;
 
 const CROWD_COLLISION_INTERVAL = 100;
@@ -163,12 +163,11 @@ export function spawnGoblin() {
   if (!pathPoints.length) return;
 
   const start = pathPoints[0];
-  const spread = 40;
 
-  // Create goblin object FIRST
-  const g = {
-    x: start.x + (Math.random() - 0.5) * spread,
-    y: start.y + (Math.random() - 0.5) * spread,
+  goblins.push({
+    type: "goblin",
+    x: start.x,
+    y: start.y,
     width: 42,
     height: 42,
     hp: DEFAULT_HP,
@@ -192,15 +191,13 @@ export function spawnGoblin() {
     knockback: 0,
     speed: BASE_SPEED,
     laneOffset: 0,
-  };
+  });
 
-  // Push into array
-  goblins.push(g);
   goblinsSpawned++;
 
-  // Return actual goblin object for difficulty scaling
-  return g;
+  return goblins[goblins.length - 1];  // ✅ FIXED
 }
+
 
 // ============================================================
 // 🆕 SPATIAL PARTITIONING HELPERS (prepared for heavy hordes)

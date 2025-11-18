@@ -44,7 +44,11 @@ import { getElites } from "./elite.js";
 let spireSprites = {};
 let spires = [];
 
-const MAX_ATTACKS = 50;
+function getMaxAttacks() {
+  const scale = gameState.difficultyScale?.[gameState.difficulty] ?? 1;
+  return Math.floor(50 * scale); // base ammo = 50
+}
+
 const FIRE_RATE_MS = 800;
 const FADE_SPEED = 2;
 const SPIRE_SIZE = 96;
@@ -242,7 +246,7 @@ export function updateSpires(delta) {
     triggerSpire(spire);
 
     // Durability check
-    if (spire.attacksDone >= MAX_ATTACKS && spire.fadeOut === 0) {
+    if (spire.attacksDone >= getMaxAttacks() && spire.fadeOut === 0) {  
       spire.fadeOut = 1;
       spawnFloatingText(spire.x, spire.y - 30, "💥 Broken!", "#ff6fb1");
     }

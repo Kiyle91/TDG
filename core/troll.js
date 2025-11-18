@@ -57,7 +57,7 @@ let trollSprites = null;
 
 const SIZE = 96;
 const SPEED = 55;
-const HP = 140;
+const HP = 170;
 
 const ATTACK_RANGE = 80;
 const AGGRO_RANGE = 150;

@@ -8,10 +8,9 @@
  *   Each map can define fixed Crystal Echo spawn locations
  *   inside its Tiled JSON. This module loads those Echoes,
  *   assigns random crystal sprites, renders them with a soft
- *   shadow, checks for player collision, awards XP, and triggers
+ *   shadow, checks for player collision and triggers
  *   a pastel sparkle burst effect. Once all are found, the
  *   “Crystal Echo Power” bonus unlocks — doubling tower damage
- *   and awarding a final diamond reward.
  *
  * FEATURES:
  *   • initCrystalEchoes() — load echoes for the current map
@@ -41,9 +40,9 @@
 // ↪️ Imports
 // ------------------------------------------------------------
 
-import { gameState, addDiamonds } from "../utils/gameState.js";
-import { spawnFloatingText } from "./floatingText.js";
+import { gameState } from "../utils/gameState.js";
 import { awardXP } from "./levelSystem.js";
+import { spawnFloatingText } from "./floatingText.js";
 import { playFairySprinkle } from "./soundtrack.js";
 import { updateHUD } from "./ui.js";
 
@@ -197,11 +196,10 @@ function collectCrystalEcho(crystal, index) {
 
   gameState.exploration.found++;
 
-  // XP gain
-  awardXP(20);
 
-  spawnFloatingText("+20 XP", crystal.x, crystal.y - 10, "#DAB4FF");
+  spawnFloatingText("+5 XP", crystal.x, crystal.y - 10, "#DAB4FF");
   playFairySprinkle();
+  awardXP(5);
   updateHUD();
 
   // Sparkles
@@ -312,11 +310,10 @@ function awardCrystalBonus(lastCrystal) {
   const icon = document.getElementById("hud-crystals-circle");
   if (icon) icon.classList.add("echo-power-flash");
 
-  addDiamonds(100);
   updateHUD();
 
   spawnFloatingText(
-    "✨ Exploration Complete! +100 Diamonds ✨",
+    "✨ Exploration Complete! ✨",
     lastCrystal.x,
     lastCrystal.y - 40,
     "#FFFFFF"

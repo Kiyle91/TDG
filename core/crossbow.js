@@ -61,11 +61,11 @@ const GLOBAL_CROSSBOW_COOLDOWN_MS = 900;
 // ⚙️ CONFIGURATION
 // ============================================================
 
-const CROSSBOW_HP = 100;
+const CROSSBOW_HP = 80;
 const CROSSBOW_SPEED = 80;
 const CROSSBOW_SIZE = 80;
 
-const ATTACK_RANGE = 420;
+const ATTACK_RANGE = 500;
 const IDEAL_MIN_RANGE = 260;
 
 const ATTACK_COOLDOWN = 1600;
@@ -156,10 +156,6 @@ export async function initCrossbows(path) {
 }
 
 
-// ============================================================
-// 🧬 SPAWN (off-screen elite-style spawn)
-// ============================================================
-
 export function spawnCrossbow() {
   const p = gameState.player;
   if (!p) return;
@@ -198,7 +194,7 @@ export function spawnCrossbow() {
     attackTimer: 0,
   });
 
-  return g;
+  return crossbowList[crossbowList.length - 1];   // ← FIXED
 }
 
 

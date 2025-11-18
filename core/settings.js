@@ -235,7 +235,7 @@ export function initGameSettings() {
 
 export function getDifficultyHpMultiplier() {
   switch (settings.difficulty) {
-    case "easy": return 0.2;
+    case "easy": return 0.5;
     case "hard": return 1.5;
     default: return 1.0;
   }

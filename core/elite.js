@@ -140,54 +140,64 @@ export async function initElites() {
 
 
 // ============================================================
-// 🟥 SPAWN ELITE (off-screen)
+// 🟥 SPAWN ELITE (off-screen, no path required)
 // ============================================================
 
 export function spawnElite() {
-  const p = gameState.player;
-  if (!p) return;
-
   const mapW = gameState.mapWidth ?? 3000;
   const mapH = gameState.mapHeight ?? 3000;
 
+  // Off-screen spawn like Crossbows/Ogres
   const side = Math.floor(Math.random() * 4);
   let x, y;
 
-  if (side === 0)      { x = Math.random() * mapW; y = -200; }
-  else if (side === 1) { x = Math.random() * mapW; y = mapH + 200; }
-  else if (side === 2) { x = -200;               y = Math.random() * mapH; }
-  else                 { x = mapW + 200;         y = Math.random() * mapH; }
+  if (side === 0) { x = Math.random() * mapW; y = -300; }
+  else if (side === 1) { x = Math.random() * mapW; y = mapH + 300; }
+  else if (side === 2) { x = -300; y = Math.random() * mapH; }
+  else { x = mapW + 300; y = Math.random() * mapH; }
 
-  eliteList.push({
+  const e = {
     type: "elite",
     x,
     y,
 
     hp: ELITE_HP,
     maxHp: ELITE_HP,
-    alive: true,
-    fade: 0,
-    speed: ELITE_SPEED,
 
+    alive: true,
     dir: "down",
     frame: 0,
     frameTimer: 0,
 
+    attackCooldown: 0,
+    flashTimer: 0,
+
+    fading: false,
+    fadeTimer: 0,
+
+    // attack system
     attacking: false,
     attackFrame: 0,
     attackTimer: 0,
 
-    flashTimer: 0,
+    // elemental
     slowTimer: 0,
+    stunTimer: 0,
+
+    // burn
     isBurning: false,
     burnTimer: 0,
-    burnTick: 1000,
+    burnTick: 0,
     burnDamage: 0,
-    stunTimer: 0,
-  });
 
+    speed: ELITE_SPEED,
+  };
+
+  eliteList.push(e);
   return e;
 }
+
+
 
 
 // ============================================================

@@ -55,7 +55,7 @@ let worgSprites = null;
 // ⚙️ CONFIGURATION
 // ============================================================
 
-const WORG_HP = 175;
+const WORG_HP = 50;
 const WORG_SPEED = 150;
 const WORG_SIZE = 80;
 const WALK_FRAME_INTERVAL = 220;

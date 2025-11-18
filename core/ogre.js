@@ -30,13 +30,17 @@
 // ------------------------------------------------------------
 
 import { gameState } from "../utils/gameState.js";
+import { getDifficultyHpMultiplier } from "./settings.js";
+
 import { spawnFloatingText } from "./floatingText.js";
+
 import {
   playOgreEnter,
   playOgreAttack,
   playOgreSlain,
   playGoblinDamage
 } from "./soundtrack.js";
+
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
 import { updateHUD } from "./ui.js";
@@ -55,23 +59,23 @@ let ogreSprites = null;
 // ⚙️ CONFIGURATION
 // ------------------------------------------------------------
 
-const OGRE_SIZE = 160;
-const OGRE_SPEED = 30;
+const OGRE_SIZE   = 160;
+const OGRE_SPEED  = 30;
+const BASE_HP     = 600;
 const OGRE_DAMAGE = 25;
-const OGRE_HP = 600;
 
-const ATTACK_RANGE = 120;
+const ATTACK_RANGE    = 120;
 const ATTACK_RANGE_SQ = ATTACK_RANGE * ATTACK_RANGE;
 
 const ATTACK_COOLDOWN = 1500;
-const FADE_OUT = 900;
+const FADE_OUT        = 900;
 
 export const OGRE_HIT_RADIUS = 85;
 
-// Attack phase timings (ms)
+// Attack animation timings
 const PHASE_SWITCH_TIME = 140;
-const HIT_DELAY_TIME = 220;
-const END_ATTACK_TIME = 600;
+const HIT_DELAY_TIME    = 220;
+const END_ATTACK_TIME   = 600;
 
 
 // ------------------------------------------------------------
@@ -83,12 +87,13 @@ function loadImage(src) {
     const img = new Image();
     img.src = src;
     img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
   });
 }
 
 async function loadOgreSprites() {
   ogreSprites = {
-    idle: await loadImage("./assets/images/sprites/ogre/ogre_idle.png"),
+    idle:  await loadImage("./assets/images/sprites/ogre/ogre_idle.png"),
     slain: await loadImage("./assets/images/sprites/ogre/ogre_slain.png"),
 
     walk: {
@@ -107,16 +112,16 @@ async function loadOgreSprites() {
       right: [
         await loadImage("./assets/images/sprites/ogre/ogre_D1.png"),
         await loadImage("./assets/images/sprites/ogre/ogre_D2.png")
-      ]
+      ],
     },
 
     attack: {
-      left: await loadImage("./assets/images/sprites/ogre/ogre_attack_left.png"),
+      left:  await loadImage("./assets/images/sprites/ogre/ogre_attack_left.png"),
       right: await loadImage("./assets/images/sprites/ogre/ogre_attack_right.png")
     },
 
     melee: {
-      left: await loadImage("./assets/images/sprites/ogre/ogre_melee_left.png"),
+      left:  await loadImage("./assets/images/sprites/ogre/ogre_melee_left.png"),
       right: await loadImage("./assets/images/sprites/ogre/ogre_melee_right.png")
     }
   };
@@ -134,17 +139,33 @@ export async function initOgres() {
 
 
 // ------------------------------------------------------------
-// 👹 INTERNAL SPAWN
+// 👹 SPAWN — Off-screen brute with difficulty scaling
 // ------------------------------------------------------------
 
-function spawnOgreInternal(x, y) {
-  ogres.push({
+export function spawnOgre() {
+  const mapW = gameState.mapWidth ?? 3000;
+  const mapH = gameState.mapHeight ?? 3000;
+
+  // Choose random side of map
+  const side = Math.floor(Math.random() * 4);
+  let x, y;
+
+  if (side === 0) { x = Math.random() * mapW; y = -300; }
+  else if (side === 1) { x = Math.random() * mapW; y = mapH + 300; }
+  else if (side === 2) { x = -300; y = Math.random() * mapH; }
+  else { x = mapW + 300; y = Math.random() * mapH; }
+
+  const hpMult = getDifficultyHpMultiplier();
+  const scaledHP = Math.round(BASE_HP * hpMult);
+
+  const ogre = {
     type: "ogre",
+
     x,
     y,
 
-    hp: OGRE_HP,
-    maxHp: OGRE_HP,
+    hp: scaledHP,
+    maxHp: scaledHP,
 
     alive: true,
     fading: false,
@@ -161,53 +182,60 @@ function spawnOgreInternal(x, y) {
     frameTimer: 0,
 
     flashTimer: 0
-  });
+  };
+
+  ogres.push(ogre);
+  playOgreEnter();
+
+  return ogre;
 }
 
 
 // ------------------------------------------------------------
-// 🔁 UPDATE — CHASE + ATTACK + FLASH TIMER
+// 🔁 UPDATE — AI, chase, attack, flash, fade
 // ------------------------------------------------------------
 
 export function updateOgres(delta = 16) {
   const p = gameState.player;
   if (!p) return;
 
-  const dt = delta / 1000;
   const px = p.pos.x;
   const py = p.pos.y;
+  const dt = delta / 1000;
 
   for (let i = ogres.length - 1; i >= 0; i--) {
     const o = ogres[i];
 
-    // Death fade
+    // --- Death fade ---
     if (!o.alive) {
       o.fadeTimer += delta;
       if (o.fadeTimer >= FADE_OUT) ogres.splice(i, 1);
       continue;
     }
 
-    // Flash fade
+    // --- Hit flash ---
     if (o.flashTimer > 0) {
       o.flashTimer -= delta;
       if (o.flashTimer < 0) o.flashTimer = 0;
     }
 
-    // Position to player
     const dx = px - o.x;
     const dy = py - o.y;
     const distSq = dx * dx + dy * dy;
 
-    // -----------------------------
-    // 🗡️ ATTACK TIMERS
-    // -----------------------------
+
+    // ----------------------------------------------------
+    // 🗡 ATTACK SEQUENCE
+    // ----------------------------------------------------
     if (o.attacking) {
       o.attackTimer += delta;
 
+      // Phase switch (wind-up → swing)
       if (o.attackTimer >= PHASE_SWITCH_TIME && o.attackPhase === 0) {
         o.attackPhase = 1;
       }
 
+      // Damage application
       if (o.attackTimer >= HIT_DELAY_TIME && !o.damageApplied) {
         o.damageApplied = true;
 
@@ -220,26 +248,28 @@ export function updateOgres(delta = 16) {
         }
       }
 
+      // End attack
       if (o.attackTimer >= END_ATTACK_TIME) {
         o.attacking = false;
-        o.attackPhase = 0;
         o.attackTimer = 0;
+        o.attackPhase = 0;
         o.damageApplied = false;
       }
 
       continue;
     }
 
-    // -----------------------------
-    // 🧠 CHASE OR ATTACK
-    // -----------------------------
-    if (distSq > ATTACK_RANGE_SQ) {
-      const dist = Math.sqrt(distSq);
-      const move = OGRE_SPEED * dt;
 
-      o.x += (dx / dist) * move;
-      o.y += (dy / dist) * move;
+    // ----------------------------------------------------
+    // 🤜 CHASE / STRIKE DECISION
+    // ----------------------------------------------------
+    if (distSq > ATTACK_RANGE_SQ) {
+      // Chase
+      const dist = Math.sqrt(distSq);
+      o.x += (dx / dist) * OGRE_SPEED * dt;
+      o.y += (dy / dist) * OGRE_SPEED * dt;
     } else {
+      // Attack if cooled down
       o.attackCooldown -= delta;
       if (o.attackCooldown <= 0) {
         startOgreAttack(o, dx);
@@ -247,21 +277,22 @@ export function updateOgres(delta = 16) {
       }
     }
 
-    // Direction
-    o.dir = Math.abs(dx) > Math.abs(dy)
-      ? (dx > 0 ? "right" : "left")
-      : (dy > 0 ? "down" : "up");
+    // Direction (used for animation)
+    o.dir =
+      Math.abs(dx) > Math.abs(dy)
+        ? (dx > 0 ? "right" : "left")
+        : (dy > 0 ? "down" : "up");
 
-    // -----------------------------
-    // 🤜 OGRE ↔ OGRE COLLISION
-    // -----------------------------
+
+    // ----------------------------------------------------
+    // 🧱 OGRE ↔ OGRE COLLISION
+    // ----------------------------------------------------
     for (const other of ogres) {
       if (other === o || !other.alive) continue;
 
       const dx2 = o.x - other.x;
       const dy2 = o.y - other.y;
       const dist = Math.hypot(dx2, dy2);
-
       const minDist = 140;
 
       if (dist > 0 && dist < minDist) {
@@ -271,13 +302,12 @@ export function updateOgres(delta = 16) {
 
         o.x += nx * push;
         o.y += ny * push;
-
         other.x -= nx * push;
         other.y -= ny * push;
       }
     }
 
-    // Animation
+    // Walk animation
     o.frameTimer += delta;
     if (o.frameTimer >= 220) {
       o.frameTimer = 0;
@@ -323,6 +353,7 @@ export function damageOgre(o, amount) {
 
     spawnLoot("ogre", o.x, o.y);
     awardXP(25);
+
     spawnFloatingText(o.x, o.y - 50, "💀 Ogre Down!", "#ffccff");
     playOgreSlain();
     updateHUD();
@@ -345,9 +376,10 @@ export function drawOgres(ctx) {
     }
     else if (o.attacking) {
       const left = o.dir === "left";
-      img = left
-        ? (o.attackPhase === 0 ? ogreSprites.attack.left : ogreSprites.melee.left)
-        : (o.attackPhase === 0 ? ogreSprites.attack.right : ogreSprites.melee.right);
+      img =
+        left
+          ? (o.attackPhase === 0 ? ogreSprites.attack.left : ogreSprites.melee.left)
+          : (o.attackPhase === 0 ? ogreSprites.attack.right : ogreSprites.melee.right);
     }
     else if (ogreSprites.walk[o.dir]) {
       img = ogreSprites.walk[o.dir][o.frame] || ogreSprites.idle;
@@ -355,6 +387,7 @@ export function drawOgres(ctx) {
 
     const drawX = o.x - OGRE_SIZE / 2;
     let drawY = o.y - OGRE_SIZE / 2 - 25;
+
     if (o.alive) drawY -= 10;
     else drawY += 25;
 
@@ -372,15 +405,14 @@ export function drawOgres(ctx) {
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
 
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
+    ctx.imageSmoothingEnabled  = true;
+    ctx.imageSmoothingQuality  = "high";
 
-    // Fade
-    const alpha =
-      o.fading ? Math.max(0, 1 - o.fadeTimer / FADE_OUT) : 1;
+    // Death fade
+    const alpha = o.fading ? Math.max(0, 1 - o.fadeTimer / FADE_OUT) : 1;
     ctx.globalAlpha = alpha;
 
-    // Hit flash
+    // Hit flash filter
     if (o.flashTimer > 0) {
       const f = o.flashTimer / 150;
       ctx.filter = `contrast(1.2) brightness(${1 + f * 0.5}) saturate(${1 + f * 1.5})`;
@@ -391,18 +423,18 @@ export function drawOgres(ctx) {
     ctx.filter = "none";
     ctx.globalAlpha = 1;
 
-    // HP BAR
+    // HP bar
     if (o.alive) {
       const pct = Math.max(0, Math.min(1, o.hp / o.maxHp));
       const bw = 50;
       const bh = 6;
-      const offsetY = OGRE_SIZE * 0.55;
+      const off = OGRE_SIZE * 0.55;
 
       ctx.fillStyle = "rgba(0,0,0,0.45)";
-      ctx.fillRect(o.x - bw / 2, o.y + offsetY, bw, bh);
+      ctx.fillRect(o.x - bw / 2, o.y + off, bw, bh);
 
       ctx.fillStyle = `hsl(${pct * 120},100%,50%)`;
-      ctx.fillRect(o.x - bw / 2, o.y + offsetY, bw * pct, bh);
+      ctx.fillRect(o.x - bw / 2, o.y + off, bw * pct, bh);
     }
 
     ctx.restore();
@@ -420,14 +452,6 @@ export function getOgres() {
 
 export function clearOgres() {
   ogres = [];
-}
-
-export function spawnOgre() {
-  const x = -80;
-  const y = 0;
-  spawnOgreInternal(x, y);
-  playOgreEnter();
-  return ogres[ogres.length - 1];
 }
 
 
