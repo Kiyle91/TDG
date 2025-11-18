@@ -121,7 +121,7 @@ export function spawnWorg() {
     type: "worg",
     x: start.x,
     y: start.y,
-    targetIndex: 1,
+    targetIndex: 0,
 
     hp: WORG_HP,
     maxHp: WORG_HP,
@@ -158,7 +158,7 @@ export function spawnWorg() {
 // 🔁 UPDATE
 // ------------------------------------------------------------
 export function updateWorg(delta = 16) {
-  if (!pathPoints.length || !worgList.length) return;
+  if (!pathPoints || pathPoints.length < 2 || !worgList.length) return;
 
   const dt = delta / 1000;
 
@@ -190,20 +190,14 @@ export function updateWorg(delta = 16) {
     const dy = target.y - w.y;
     const dist = Math.hypot(dx, dy);
 
-    // Movement (affected by slow)
-    if (dist > 1) {
-      const moveSpeed = w.speed * (w.slowTimer > 0 ? 0.5 : 1);
-      w.x += (dx / dist) * moveSpeed * dt;
-      w.y += (dy / dist) * moveSpeed * dt;
+    // Actual movement speed this frame (respecting slow)
+    const moveSpeed = w.speed * (w.slowTimer > 0 ? 0.5 : 1);
+    const step = moveSpeed * dt;
 
-      // Direction
-      w.dir =
-        Math.abs(dx) > Math.abs(dy)
-          ? dx > 0 ? "right" : "left"
-          : dy > 0 ? "down" : "up";
-
-    } else {
-      // Reached a waypoint
+    // If we're close enough that this step would overshoot, snap to the waypoint
+    if (dist <= step) {
+      w.x = target.x;
+      w.y = target.y;
       w.targetIndex++;
 
       if (w.targetIndex >= pathPoints.length) {
@@ -219,7 +213,19 @@ export function updateWorg(delta = 16) {
         w.alive = false;
         w.fade = 0;
       }
+
+    } else {
+      // Normal movement toward the waypoint
+      w.x += (dx / dist) * step;
+      w.y += (dy / dist) * step;
+
+      // Direction (for animation)
+      w.dir =
+        Math.abs(dx) > Math.abs(dy)
+          ? (dx > 0 ? "right" : "left")
+          : (dy > 0 ? "down" : "up");
     }
+
 
     // Animation frame cycling
     w.frameTimer += delta;
