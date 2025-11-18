@@ -1,13 +1,39 @@
 // ============================================================
-// 🟥 elite.js — Olivia’s World: Crystal Keep (Brute Elite Hunter)
+// 🟥 elite.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// • Hunter goblin (tracks player instead of following path)
-// • Full 2-frame RUN + full 2-frame ATTACK + idle + slain
-// • Takes damage from melee, spells, arrows
-// • Frost slow, Flame burn, Moon stun
-// • HP bar + hit flash + death fade
-// • Sized exactly like goblins (80px)
+// ✦ Brute-class hunter enemy (off-path spawner)
+// ✦ Chases player directly (not the goblin path)
+// ✦ Full run + attack + idle + slain sprite set
+// ✦ Frost slow, flame burn, moon stun compatible
+// ✦ Hit flash, death fade, goblin-style HP bar
+// ✦ XP + Gold + Bravery reward on kill
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: elite.js
+ * PURPOSE:
+ *   Implements the Elite hunter enemy that pursues the player
+ *   directly, attacks at melee range, supports elemental effects,
+ *   and performs smooth rendering with hit flashes and death fade.
+ *
+ * SUMMARY:
+ *   Elites spawn off-screen, navigate toward the player using
+ *   chase logic, execute timed melee attacks, and collide with
+ *   goblins and other elites. Uses 2-frame run and 2-frame
+ *   attack animations with idle/slain frames.
+ *
+ * FEATURES:
+ *   • initElites() — load sprites + reset data
+ *   • spawnElite() — elite spawner (off-screen)
+ *   • updateElites() — hunter AI, elemental effects, melee
+ *   • drawElites() — sprite render + HP bar + VFX
+ *   • damageElite() — external damage system
+ *   • getElites(), clearElites() — public API
+ * ------------------------------------------------------------ */
+
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import { gameState, addGold } from "../utils/gameState.js";
 import { addBravery } from "./ui.js";
@@ -17,33 +43,40 @@ import { updateHUD } from "./ui.js";
 import { playGoblinDamage, playGoblinDeath } from "./soundtrack.js";
 import { getGoblins } from "./goblin.js";
 
-// ------------------------------------------------------------
+
+// ============================================================
 // 🧩 INTERNAL STATE
-// ------------------------------------------------------------
+// ============================================================
+
 let eliteList = [];
 let eliteSprites = null;
 
-// ------------------------------------------------------------
-// ⚙ CONFIG
-// ------------------------------------------------------------
+
+// ============================================================
+// ⚙️ CONFIGURATION
+// ============================================================
+
 const ELITE_HP = 100;
 const ELITE_SPEED = 90;
-const ELITE_SIZE = 80;             // SAME SIZE AS GOBLIN
+const ELITE_SIZE = 80;
+
 const FRAME_INTERVAL = 220;
+
 const ATTACK_RANGE = 55;
 const ATTACK_DAMAGE = 14;
-const ATTACK_TOTAL_TIME = 320;     // ms (0 → windup → hit)
-const ATTACK_WINDUP = 120;         // ms to switch attack frame
+const ATTACK_TOTAL_TIME = 320;
+const ATTACK_WINDUP = 120;
 
 const FADE_OUT = 900;
 
-// Rewards
 const EXP_REWARD = 10;
 const GOLD_REWARD = 10;
 
-// ------------------------------------------------------------
+
+// ============================================================
 // 📦 IMAGE LOADER
-// ------------------------------------------------------------
+// ============================================================
+
 async function loadImage(src) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -52,9 +85,11 @@ async function loadImage(src) {
   });
 }
 
-// ------------------------------------------------------------
-// 🖼 LOAD ALL SPRITES
-// ------------------------------------------------------------
+
+// ============================================================
+// 🖼️ LOAD SPRITES
+// ============================================================
+
 async function loadEliteSprites() {
   eliteSprites = {
     idle: await loadImage("./assets/images/sprites/elite/elite_idle.png"),
@@ -86,27 +121,28 @@ async function loadEliteSprites() {
       right: [
         await loadImage("./assets/images/sprites/elite/elite_attack_right.png"),
         await loadImage("./assets/images/sprites/elite/elite_melee_right.png"),
-      ]
+      ],
     },
 
     slain: await loadImage("./assets/images/sprites/elite/elite_slain.png"),
   };
-
-  console.log("🟥 Elite sprites loaded.");
 }
 
-// ------------------------------------------------------------
+
+// ============================================================
 // 🔧 INIT
-// ------------------------------------------------------------
+// ============================================================
+
 export async function initElites() {
   eliteList = [];
   await loadEliteSprites();
-  console.log("🟥 Elite system initialized.");
 }
 
-// ------------------------------------------------------------
-// 🟥 SPAWN — Hunters spawn off-screen
-// ------------------------------------------------------------
+
+// ============================================================
+// 🟥 SPAWN ELITE (off-screen)
+// ============================================================
+
 export function spawnElite() {
   const p = gameState.player;
   if (!p) return;
@@ -117,10 +153,10 @@ export function spawnElite() {
   const side = Math.floor(Math.random() * 4);
   let x, y;
 
-  if (side === 0) { x = Math.random() * mapW; y = -200; }
+  if (side === 0)      { x = Math.random() * mapW; y = -200; }
   else if (side === 1) { x = Math.random() * mapW; y = mapH + 200; }
-  else if (side === 2) { x = -200; y = Math.random() * mapH; }
-  else { x = mapW + 200; y = Math.random() * mapH; }
+  else if (side === 2) { x = -200;               y = Math.random() * mapH; }
+  else                 { x = mapW + 200;         y = Math.random() * mapH; }
 
   eliteList.push({
     type: "elite",
@@ -129,7 +165,6 @@ export function spawnElite() {
 
     hp: ELITE_HP,
     maxHp: ELITE_HP,
-
     alive: true,
     fade: 0,
     speed: ELITE_SPEED,
@@ -138,12 +173,10 @@ export function spawnElite() {
     frame: 0,
     frameTimer: 0,
 
-    // Attack state
     attacking: false,
     attackFrame: 0,
     attackTimer: 0,
 
-    // Effects
     flashTimer: 0,
     slowTimer: 0,
     isBurning: false,
@@ -152,13 +185,13 @@ export function spawnElite() {
     burnDamage: 0,
     stunTimer: 0,
   });
-
-  console.log("🟥 Elite spawned.");
 }
 
-// ------------------------------------------------------------
-// 🔁 UPDATE — Hunter AI + Attacks + Effects
-// ------------------------------------------------------------
+
+// ============================================================
+// 🔁 UPDATE — AI, EFFECTS, ATTACK
+// ============================================================
+
 export function updateElites(delta = 16) {
   if (!eliteList.length || !gameState.player) return;
 
@@ -181,17 +214,16 @@ export function updateElites(delta = 16) {
       if (e.flashTimer < 0) e.flashTimer = 0;
     }
 
-    // ⏸️ STUN
+    // Stun
     if (e.stunTimer > 0) {
       e.stunTimer -= delta;
       continue;
     }
 
-    // ------------------------------------------------------------
-    // 🔥 ELEMENTAL EFFECTS
-    // ------------------------------------------------------------
+    // Elemental: Frost
     if (e.slowTimer > 0) e.slowTimer -= dt;
 
+    // Elemental: Burn
     if (e.isBurning) {
       e.burnTimer -= dt;
       e.burnTick -= dt * 1000;
@@ -207,68 +239,46 @@ export function updateElites(delta = 16) {
       }
     }
 
-    // ------------------------------------------------------------
-    // 🧠 CHASE PLAYER (unless attacking)
-    // ------------------------------------------------------------
+    // Chase player
     const dx = p.pos.x - e.x;
     const dy = p.pos.y - e.y;
     const dist = Math.hypot(dx, dy);
 
-  // ------------------------------------------------------------
-  // 🗡️ ATTACK LOGIC (Same as goblins — ALWAYS DAMAGE)
-  // ------------------------------------------------------------
-  if (!e.attacking && dist < ATTACK_RANGE) {
-    e.attacking = true;
-    e.attackTimer = ATTACK_TOTAL_TIME;
+    // Attack logic
+    if (!e.attacking && dist < ATTACK_RANGE) {
+      e.attacking = true;
+      e.attackTimer = ATTACK_TOTAL_TIME;
+      e.attackFrame = 0;
 
-    // Start at attack frame 0 (windup)
-    e.attackFrame = 0;
+      setTimeout(() => { if (e.alive) e.attackFrame = 1; }, ATTACK_WINDUP);
 
-    // Switch to impact frame (windup delay)
-    setTimeout(() => {
-      if (e.alive) e.attackFrame = 1;
-    }, ATTACK_WINDUP);
+      setTimeout(() => {
+        if (!e.alive) return;
 
-    // Deal damage — ALWAYS applies if player is in range
-    setTimeout(() => {
-      if (!e.alive) return;
+        const pdx = p.pos.x - e.x;
+        const pdy = p.pos.y - e.y;
 
-      // Re-check distance so the player can't outrun the hit
-      const pdx = p.pos.x - e.x;
-      const pdy = p.pos.y - e.y;
-      if (Math.hypot(pdx, pdy) < ATTACK_RANGE + 20) {
+        if (Math.hypot(pdx, pdy) < ATTACK_RANGE + 20) {
+          const dmg = ATTACK_DAMAGE;
+          p.hp = Math.max(0, p.hp - dmg);
+          p.flashTimer = 200;
 
-        // Always apply damage (no invincibility / no i-frames)
-        const dmg = ATTACK_DAMAGE;
-        p.hp = Math.max(0, p.hp - dmg);
-        p.flashTimer = 200;
+          spawnFloatingText(p.pos.x, p.pos.y - 30, `-${dmg}`, "#ff5577", 20);
+          updateHUD();
+        }
+      }, 180);
 
-        spawnFloatingText(
-          p.pos.x,
-          p.pos.y - 30,
-          `-${dmg}`,
-          "#ff5577",
-          20
-        );
+      setTimeout(() => {
+        if (e.alive) {
+          e.attacking = false;
+          e.attackFrame = 0;
+        }
+      }, ATTACK_TOTAL_TIME);
 
-        updateHUD();
-      }
-    }, 180);
+      continue;
+    }
 
-    // End attack animation cleanly
-    setTimeout(() => {
-      if (e.alive) {
-        e.attacking = false;
-        e.attackFrame = 0;
-      }
-    }, ATTACK_TOTAL_TIME);
-
-    continue;
-  }
-
-    // ------------------------------------------------------------
-    // 🏃 MOVEMENT (only if not attacking)
-    // ------------------------------------------------------------
+    // Movement
     if (!e.attacking) {
       const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
 
@@ -277,67 +287,55 @@ export function updateElites(delta = 16) {
         e.y += (dy / dist) * moveSpeed * dt;
       }
 
-      // Direction
       e.dir =
         Math.abs(dx) > Math.abs(dy)
           ? (dx > 0 ? "right" : "left")
           : (dy > 0 ? "down" : "up");
 
-      // ------------------------------------------------------------
-      // 🤜 ELITE ↔ GOBLIN COLLISION (uses goblin list)
-      // ------------------------------------------------------------
+      // Elite vs Goblin collisions
       const goblins = getGoblins();
+      for (let g of goblins) {
+        if (!g?.alive) continue;
 
-      for (let j = 0; j < goblins.length; j++) {
-          const o = goblins[j];
-          if (!o?.alive) continue;
+        const dx2 = e.x - g.x;
+        const dy2 = e.y - g.y;
+        const d2 = Math.hypot(dx2, dy2);
 
-          const dx = e.x - o.x;
-          const dy = e.y - o.y;
-          const dist = Math.hypot(dx, dy);
+        const minDist = 72;
+        if (d2 > 0 && d2 < minDist) {
+          const push = (minDist - d2) / 2;
+          const nx = dx2 / d2;
+          const ny = dy2 / d2;
 
-          const minDist = 72; // same spacing used for goblins
+          e.x += nx * push;
+          e.y += ny * push;
 
-          if (dist > 0 && dist < minDist) {
-              const push = (minDist - dist) / 2;
-              const nx = dx / dist;
-              const ny = dy / dist;
-
-              e.x += nx * push;
-              e.y += ny * push;
-
-              o.x -= nx * push;
-              o.y -= ny * push;
-          }
+          g.x -= nx * push;
+          g.y -= ny * push;
+        }
       }
 
-      // ------------------------------------------------------------
-      // 🤜 ELITE ↔ ELITE COLLISION (inside eliteList)
-      // ------------------------------------------------------------
-      for (let k = 0; k < eliteList.length; k++) {
-          const o = eliteList[k];
-          if (o === e || !o.alive) continue;
+      // Elite vs Elite collisions
+      for (let o of eliteList) {
+        if (o === e || !o.alive) continue;
 
-          const dx = e.x - o.x;
-          const dy = e.y - o.y;
-          const dist = Math.hypot(dx, dy);
+        const dx2 = e.x - o.x;
+        const dy2 = e.y - o.y;
+        const d2 = Math.hypot(dx2, dy2);
 
-          const minDist = 72;
+        const minDist = 72;
+        if (d2 > 0 && d2 < minDist) {
+          const push = (minDist - d2) / 2;
+          const nx = dx2 / d2;
+          const ny = dy2 / d2;
 
-          if (dist > 0 && dist < minDist) {
-              const push = (minDist - dist) / 2;
-              const nx = dx / dist;
-              const ny = dy / dist;
+          e.x += nx * push;
+          e.y += ny * push;
 
-              e.x += nx * push;
-              e.y += ny * push;
-
-              o.x -= nx * push;
-              o.y -= ny * push;
-          }
+          o.x -= nx * push;
+          o.y -= ny * push;
+        }
       }
-
-
 
       // Run animation
       e.frameTimer += delta;
@@ -346,13 +344,14 @@ export function updateElites(delta = 16) {
         e.frame = (e.frame + 1) % 2;
       }
     }
-    
   }
 }
 
-// ------------------------------------------------------------
+
+// ============================================================
 // 💥 DAMAGE
-// ------------------------------------------------------------
+// ============================================================
+
 export function damageElite(e, amount) {
   if (!e || !e.alive) return;
 
@@ -368,45 +367,37 @@ export function damageElite(e, amount) {
     e.fade = 0;
 
     playGoblinDeath();
-    awardXP(10);
-    addGold(10);
+    awardXP(EXP_REWARD);
+    addGold(GOLD_REWARD);
     addBravery(1);
     updateHUD();
   }
 }
 
-// ------------------------------------------------------------
+
+// ============================================================
 // ❤️ HP BAR
-// ------------------------------------------------------------
+// ============================================================
+
 function drawEliteHpBar(ctx, e) {
   const barWidth = 40;
   const barHeight = 5;
-  const offsetY = ELITE_SIZE * 0.52; // same positioning you had
+  const offsetY = ELITE_SIZE * 0.52;
 
-  const hpPct = Math.max(0, Math.min(1, e.hp / e.maxHp));
+  const pct = Math.max(0, Math.min(1, e.hp / e.maxHp));
 
-  // Background
   ctx.fillStyle = "rgba(0,0,0,0.4)";
-  ctx.fillRect(
-    e.x - barWidth / 2,
-    e.y + offsetY,
-    barWidth,
-    barHeight
-  );
+  ctx.fillRect(e.x - barWidth / 2, e.y + offsetY, barWidth, barHeight);
 
-  // Fill (pure goblin style HSL)
-  ctx.fillStyle = `hsl(${hpPct * 120},100%,50%)`;
-  ctx.fillRect(
-    e.x - barWidth / 2,
-    e.y + offsetY,
-    barWidth * hpPct,
-    barHeight
-  );
+  ctx.fillStyle = `hsl(${pct * 120},100%,50%)`;
+  ctx.fillRect(e.x - barWidth / 2, e.y + offsetY, barWidth * pct, barHeight);
 }
 
-// ------------------------------------------------------------
-// 🖌 DRAW
-// ------------------------------------------------------------
+
+// ============================================================
+// 🖌️ DRAW
+// ============================================================
+
 export function drawElites(ctx) {
   if (!eliteSprites || !eliteList.length) return;
 
@@ -418,16 +409,11 @@ export function drawElites(ctx) {
 
     if (!e.alive) {
       img = eliteSprites.slain;
-    }
-    else if (e.attacking) {
+    } else if (e.attacking) {
       const dir = e.dir === "left" ? "left" : "right";
       img = eliteSprites.attack[dir][e.attackFrame];
-    }
-    else if (e.frame !== undefined) {
+    } else {
       img = eliteSprites.run[e.dir]?.[e.frame] || eliteSprites.idle;
-    }
-    else {
-      img = eliteSprites.idle;
     }
 
     const size = ELITE_SIZE;
@@ -455,16 +441,15 @@ export function drawElites(ctx) {
       ctx.globalAlpha = Math.max(0, 1 - e.fade / FADE_OUT);
     }
 
-    // Draw sprite
-        if (!e.alive) {
-        // 🟥 Death frame sits too high — shift down ~15%
-        const deadOffset = size * 0.15;
-        ctx.drawImage(img, drawX, drawY + deadOffset, size, size);
+    // Draw
+    if (!e.alive) {
+      const deadOffset = size * 0.15;
+      ctx.drawImage(img, drawX, drawY + deadOffset, size, size);
     } else {
-        ctx.drawImage(img, drawX, drawY, size, size);
+      ctx.drawImage(img, drawX, drawY, size, size);
     }
 
-    // 🔥 Burn aura
+    // Burn effect
     if (e.isBurning && e.alive) {
       ctx.save();
       ctx.globalCompositeOperation = "screen";
@@ -476,7 +461,7 @@ export function drawElites(ctx) {
       ctx.restore();
     }
 
-    // ❄ Frost aura
+    // Frost effect
     if (e.slowTimer > 0 && e.alive) {
       ctx.save();
       ctx.globalCompositeOperation = "screen";
@@ -488,16 +473,16 @@ export function drawElites(ctx) {
       ctx.restore();
     }
 
-    // HP bar
     if (e.alive) drawEliteHpBar(ctx, e);
-
     ctx.restore();
   }
 }
 
-// ------------------------------------------------------------
-// 📦 GETTER + CLEAR
-// ------------------------------------------------------------
+
+// ============================================================
+// 🧺 PUBLIC API
+// ============================================================
+
 export function getElites() {
   return eliteList;
 }
@@ -506,7 +491,7 @@ export function clearElites() {
   eliteList.length = 0;
 }
 
-if (typeof window !== "undefined") {
-  window.getElites = getElites;
-  window.spawnElite = spawnElite;
-}
+
+// ============================================================
+// 🌟 END OF FILE — elite.js
+// ============================================================

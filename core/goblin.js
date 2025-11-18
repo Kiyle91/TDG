@@ -1,16 +1,38 @@
 // ============================================================
-// 👹 goblin.js — Olivia's World: Crystal Keep (OPTIMIZED - No Stutter Edition)
+// 👹 goblin.js — Olivia's World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Adds Frost slow, Flame burn DoT, Moon knockback
-// ✦ Goblin ↔ Goblin + Goblin ↔ Player physical collision
-// ✦ Smooth chase / attack / path-follow logic + death fade
-// ✦ 🆕 PERFORMANCE FIXES:
-//    - Spatial partitioning (grid-based collision)
-//    - Throttled crowd collision (every 100ms instead of 16ms)
-//    - Cached distance calculations
-//    - Early exit optimizations
+// ✦ Core melee enemy: path-follow + chase + return-to-path
+// ✦ Frost slow, Flame burn DoT, Moon stun compatible
+// ✦ Goblin ↔ Goblin + Goblin ↔ Player collision
+// ✦ Hit flash, HP bar, death lay + fade
+// ✦ Performance tuned (dt clamp, early exits, prepared grid)
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: goblin.js
+ * PURPOSE:
+ *   Implements the primary goblin enemy type, including path
+ *   following, chase AI, melee attacks, elemental debuffs,
+ *   collisions, rewards, and rendering with fire/frost VFX.
+ *
+ * SUMMARY:
+ *   Goblins spawn at the path start, walk along waypoints,
+ *   aggro to the player in range, chase and attack, then give
+ *   up and return to the path if the player escapes. They
+ *   support frost slow, burn damage over time, and stun, and
+ *   contribute XP, gold, bravery, and loot on death.
+ *
+ * FEATURES:
+ *   • setGoblinPath(), initGoblins(), spawnGoblin()
+ *   • updateGoblins() — AI, movement, elemental handling
+ *   • damageGoblin(), handleGoblinEscape()
+ *   • drawGoblins() — sprites, fire/frost, HP bar
+ *   • getGoblins() — primary accessor
+ * ------------------------------------------------------------ */
 
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 import { TILE_SIZE } from "../utils/constants.js";
 import { addGold, gameState } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
@@ -24,9 +46,13 @@ import {
 } from "./soundtrack.js";
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
-import { spawnLoot} from "./loot.js";
+import { spawnLoot } from "./loot.js";
 import { addBravery } from "./ui.js";
 
+
+// ============================================================
+// ⚙️ CONFIG & STATE
+// ============================================================
 let goblins = [];
 let ctx = null;
 let pathPoints = [];
@@ -35,13 +61,6 @@ let crowdCollisionTimer = 0;
 let goblinsSpawned = 0;
 let storyTriggered = false;
 
-// Keep both aliases for compatibility
-window.__goblins = goblins;
-window.__goblins  = goblins;
-
-// ============================================================
-// ⚙️ CONFIG
-// ============================================================
 const GOBLIN_SIZE = 80;
 const BASE_SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
@@ -55,26 +74,23 @@ const ATTACK_COOLDOWN = 1000;
 const GOBLIN_DAMAGE = 8;
 const DEATH_LAY_DURATION = 600;
 
-// 🆕 PERFORMANCE TUNING
-const CROWD_COLLISION_INTERVAL = 100; // Only check every 100ms instead of 16ms
-const SPATIAL_GRID_SIZE = 128;       // Grid cell size for spatial partitioning
+const CROWD_COLLISION_INTERVAL = 100;
+const SPATIAL_GRID_SIZE = 128;
 
 function getChaseSpread() {
-  // Count goblins currently in chase
   let chasing = 0;
   for (const g of goblins) {
     if (g.state === "chase" && g.alive) chasing++;
   }
-
-  // Spread scaling
-  if (chasing < 5) return 10;     // small pack
-  if (chasing < 10) return 20;    // medium pack
-  if (chasing < 20) return 32;    // large pack
-  return 48;                      // massive horde
+  if (chasing < 5) return 10;
+  if (chasing < 10) return 20;
+  if (chasing < 20) return 32;
+  return 48;
 }
 
+
 // ============================================================
-// 🧩 LOAD SPRITES
+// 🧩 SPRITE LOADING
 // ============================================================
 async function loadImage(src) {
   return new Promise((resolve) => {
@@ -117,8 +133,8 @@ async function loadGoblinSprites() {
     },
     slain: await loadImage("./assets/images/sprites/goblin/goblin_slain.png"),
   };
-  console.log("👹 Goblin sprites loaded (directional + attack + death).");
 }
+
 
 // ============================================================
 // 🌍 PATH + INIT
@@ -129,29 +145,20 @@ export function setGoblinPath(points) {
 
 export async function initGoblins() {
   goblins = [];
-  window.__goblins = goblins;
-  window.__goblins = goblins;
   goblinsSpawned = 0;
   storyTriggered = false;
   await loadGoblinSprites();
 }
 
-// ============================================================
-// 🆕 MAP-AWARE GOBLIN SPAWN WRAPPER
-// (Legacy wrapper removed — waves now control all spawns)
-// ============================================================
 
 // ============================================================
 // 💀 SPAWN
 // ============================================================
 export function spawnGoblin() {
-  if (!pathPoints.length) {
-    console.warn("⚠️ No path points — cannot spawn goblins.");
-    return;
-  }
+  if (!pathPoints.length) return;
 
   const start = pathPoints[0];
-  const spread = 40; // ±20px around path start
+  const spread = 40;
 
   goblins.push({
     x: start.x + (Math.random() - 0.5) * spread,
@@ -182,14 +189,11 @@ export function spawnGoblin() {
   });
 
   goblinsSpawned++;
-
-
-  window.__goblins = goblins;
-  window.__goblins = goblins;
 }
 
+
 // ============================================================
-// 🆕 SPATIAL PARTITIONING HELPER
+// 🆕 SPATIAL PARTITIONING HELPERS (prepared for heavy hordes)
 // ============================================================
 function buildSpatialGrid(entities) {
   const grid = new Map();
@@ -201,9 +205,7 @@ function buildSpatialGrid(entities) {
     const cellY = Math.floor(entity.y / SPATIAL_GRID_SIZE);
     const key = `${cellX},${cellY}`;
 
-    if (!grid.has(key)) {
-      grid.set(key, []);
-    }
+    if (!grid.has(key)) grid.set(key, []);
     grid.get(key).push(entity);
   }
 
@@ -215,21 +217,19 @@ function getNearbyFromGrid(grid, x, y) {
   const cellX = Math.floor(x / SPATIAL_GRID_SIZE);
   const cellY = Math.floor(y / SPATIAL_GRID_SIZE);
 
-  // Check 3x3 grid around entity
   for (let dx = -1; dx <= 1; dx++) {
     for (let dy = -1; dy <= 1; dy++) {
       const key = `${cellX + dx},${cellY + dy}`;
-      if (grid.has(key)) {
-        nearby.push(...grid.get(key));
-      }
+      if (grid.has(key)) nearby.push(...grid.get(key));
     }
   }
 
   return nearby;
 }
 
+
 // ============================================================
-// 🧠 UPDATE GOBLINS — Clean, Simple, No Lag + RETURN-TO-PATH RESTORE
+// 🧠 UPDATE — AI, MOVEMENT, ATTACK
 // ============================================================
 export function updateGoblins(delta) {
   delta = Math.min(delta, 100);
@@ -240,12 +240,7 @@ export function updateGoblins(delta) {
   const px = player.pos?.x ?? player.x ?? 0;
   const py = player.pos?.y ?? player.y ?? 0;
 
-  // MAIN LOOP
   for (const e of goblins) {
-
-    // ============================================
-    // 💤 DEATH / STUN HANDLING
-    // ============================================
     if (e.stunTimer > 0) {
       e.stunTimer -= delta;
       e.state = "stunned";
@@ -262,53 +257,31 @@ export function updateGoblins(delta) {
       continue;
     }
 
-    // Tick attack cooldown
     e.attackCooldown = Math.max(0, (e.attackCooldown ?? 0) - delta);
-
-    // ============================================
-    // ❄🔥 ELEMENTAL EFFECTS
-    // ============================================
     handleElementalEffects(e, dt);
 
-    // Distance to player
     const dxp = px - e.x;
     const dyp = py - e.y;
     const distToPlayer = Math.hypot(dxp, dyp);
 
-    // ============================================
-    // 🧠 ENTER CHASE MODE
-    // ============================================
     if (distToPlayer < AGGRO_RANGE && e.state === "path") {
       e.state = "chase";
     }
 
-    // ============================================
-    // 🐺 CHASE MODE
-    // ============================================
     if (e.state === "chase") {
-
       const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
       const attackRange = ATTACK_RANGE * 1.25;
 
-      // ------------------------------------------------------------
-      // ↩️ RETURN-TO-PATH LOGIC (RESTORED)
-      // Goblin gives up if player gets too far away
-      // ------------------------------------------------------------
       if (distToPlayer > AGGRO_RANGE * 2.2) {
         e.state = "return";
         e.attacking = false;
         continue;
       }
 
-      // ------------------------------------------------------------
-      // MOVE TOWARD PLAYER
-      // ------------------------------------------------------------
       if (distToPlayer > attackRange) {
-
         e.x += (dxp / distToPlayer) * moveSpeed * dt;
         e.y += (dyp / distToPlayer) * moveSpeed * dt;
 
-        // Direction
         if (Math.abs(dxp) > Math.abs(dyp))
           e.dir = dxp > 0 ? "right" : "left";
         else
@@ -316,9 +289,6 @@ export function updateGoblins(delta) {
 
         e.attacking = false;
 
-        // ------------------------------------------------------------
-        // 🤜 GOBLIN ↔ GOBLIN COLLISION (large, looks great)
-        // ------------------------------------------------------------
         for (let j = 0; j < goblins.length; j++) {
           const o = goblins[j];
           if (o === e || !o.alive) continue;
@@ -328,7 +298,6 @@ export function updateGoblins(delta) {
           const dist = Math.hypot(dx, dy);
 
           const minDist = 72;
-
           if (dist > 0 && dist < minDist) {
             const push = (minDist - dist) / 2;
             const nx = dx / dist;
@@ -341,18 +310,12 @@ export function updateGoblins(delta) {
           }
         }
 
-        // Animation
         e.frameTimer += delta;
         if (e.frameTimer >= WALK_FRAME_INTERVAL) {
           e.frameTimer = 0;
           e.frame = (e.frame + 1) % 2;
         }
-      }
-
-      // ------------------------------------------------------------
-      // 🗡 ATTACK PLAYER (always damage)
-      // ------------------------------------------------------------
-      else {
+      } else {
         if (e.attackCooldown === 0) {
           e.attacking = true;
           attackPlayer(e, player);
@@ -361,11 +324,7 @@ export function updateGoblins(delta) {
       }
     }
 
-    // ============================================
-    // ↩️ RETURN TO PATH MODE (now reachable again)
-    // ============================================
     else if (e.state === "return") {
-
       const target = pathPoints[e.targetIndex];
       if (!target) {
         e.state = "path";
@@ -376,7 +335,6 @@ export function updateGoblins(delta) {
       const dy = target.y - e.y;
       const dist = Math.hypot(dx, dy);
 
-      // When we reach the return point, go back to path mode
       if (dist < 6) {
         e.state = "path";
         continue;
@@ -386,30 +344,23 @@ export function updateGoblins(delta) {
       e.x += (dx / dist) * moveSpeed * dt;
       e.y += (dy / dist) * moveSpeed * dt;
 
-      // Direction
       if (Math.abs(dx) > Math.abs(dy))
         e.dir = dx > 0 ? "right" : "left";
       else
         e.dir = dy > 0 ? "down" : "up";
 
-      // Walk animation
       e.frameTimer += delta;
       if (e.frameTimer >= WALK_FRAME_INTERVAL) {
         e.frameTimer = 0;
         e.frame = (e.frame + 1) % 2;
       }
 
-      // If player gets close again, resume chase
       if (distToPlayer < AGGRO_RANGE) {
         e.state = "chase";
       }
     }
 
-    // ============================================
-    // 🛣 FOLLOW PATH (normal behavior)
-    // ============================================
     else if (e.state === "path") {
-
       const target = pathPoints[e.targetIndex];
       if (target) {
         const dx = target.x - e.x;
@@ -442,15 +393,9 @@ export function updateGoblins(delta) {
       }
     }
 
-    // ============================================
-    // FLASH EFFECT
-    // ============================================
     if (e.flashTimer > 0) e.flashTimer -= delta;
   }
 
-  // ============================================
-  // CLEANUP DEAD
-  // ============================================
   for (let i = goblins.length - 1; i >= 0; i--) {
     const e = goblins[i];
     if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) {
@@ -460,21 +405,17 @@ export function updateGoblins(delta) {
 }
 
 
-
 // ============================================================
 // 🔥 ELEMENTAL EFFECTS
 // ============================================================
 function handleElementalEffects(e, dt) {
-  // ❄️ FROST (Slow debuff)
   if (e.slowTimer > 0) {
     e.slowTimer -= dt;
   }
 
-  // 🔥 FLAME (Burn DoT)
   if (e.isBurning) {
     e.burnTimer -= dt;
 
-    // Apply burn tick damage every 1 second
     if (!e.burnTick) e.burnTick = 1000;
     e.burnTick -= dt * 1000;
 
@@ -483,7 +424,6 @@ function handleElementalEffects(e, dt) {
       damageGoblin(e, e.burnDamage);
     }
 
-    // Burn expired
     if (e.burnTimer <= 0) {
       e.isBurning = false;
       e.burnDamage = 0;
@@ -491,37 +431,28 @@ function handleElementalEffects(e, dt) {
   }
 }
 
+
 // ============================================================
 // 💢 ATTACK PLAYER
 // ============================================================
 function attackPlayer(goblin, player) {
   if (!player || player.dead) {
-    // Safety: clear attack state if player is gone
     goblin.attacking = false;
     return;
   }
 
-  // Always deal damage (no invuln checks)
   playGoblinAttack();
 
   let damage = GOBLIN_DAMAGE;
-
-  // Apply defense reduction
   const def = player.defense || 5;
   const reduction = Math.min(0.5, def / 100);
   damage *= (1 - reduction);
 
-  // Apply damage immediately
   player.hp = Math.max(0, player.hp - damage);
-
-  // Flash effect
   player.flashTimer = 200;
-
-  // Disable invulnerability frames entirely
   player.invulnTimer = 0;
   player.invincible = false;
 
-  // Update HUD + FX
   updateHUD();
 
   spawnFloatingText(
@@ -535,9 +466,6 @@ function attackPlayer(goblin, player) {
   spawnDamageSparkles(player.pos.x, player.pos.y);
   playPlayerDamage();
 
-  // ============================================================
-  // 🗡️ ATTACK ANIMATION (ALWAYS RUNS)
-  // ============================================================
   goblin.attackFrame = 0;
   goblin.attackDir = goblin.dir === "left" ? "left" : "right";
 
@@ -559,7 +487,14 @@ export function damageGoblin(goblin, amount) {
   const dmg = Number(amount);
   if (isNaN(dmg) || dmg <= 0) return;
 
-  spawnFloatingText(goblin.x, goblin.y - 30, -Math.abs(Math.round(dmg)), "#ff5c8a", 18);
+  spawnFloatingText(
+    goblin.x,
+    goblin.y - 30,
+    -Math.abs(Math.round(dmg)),
+    "#ff5c8a",
+    18
+  );
+
   goblin.hp -= dmg;
   goblin.flashTimer = 150;
   playGoblinDamage();
@@ -574,14 +509,15 @@ export function damageGoblin(goblin, amount) {
     incrementGoblinDefeated();
     awardXP(50);
     addGold(50);
-    addBravery (1);
+    addBravery(1);
     updateHUD();
-    spawnLoot("goblin", goblin.x, goblin.y)
+    spawnLoot("goblin", goblin.x, goblin.y);
   }
 }
 
+
 // ============================================================
-// 💔 ESCAPE
+// 💔 ESCAPE (REACHES END OF PATH)
 // ============================================================
 function handleGoblinEscape(goblin) {
   if (gameState.player) {
@@ -594,8 +530,9 @@ function handleGoblinEscape(goblin) {
   goblin.fadeTimer = FADE_OUT_TIME;
 }
 
+
 // ============================================================
-// 🎨 DRAW GOBLINS (Fire + Frost Overlay Effects)
+// 🎨 DRAW
 // ============================================================
 export function drawGoblins(context) {
   if (!goblinSprites) return;
@@ -610,7 +547,6 @@ export function drawGoblins(context) {
 
     ctx.save();
 
-    // Shadow
     ctx.beginPath();
     ctx.ellipse(
       e.x,
@@ -625,7 +561,6 @@ export function drawGoblins(context) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // Hit Flash
     if (e.alive && e.flashTimer > 0) {
       const flashAlpha = e.flashTimer / 150;
       ctx.filter = `contrast(1.2) brightness(${1 + flashAlpha * 0.5}) saturate(${1 + flashAlpha * 1.5})`;
@@ -633,15 +568,22 @@ export function drawGoblins(context) {
       ctx.filter = "none";
     }
 
-    // Death fade
     if (!e.alive && e.fading) {
       ctx.globalAlpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
     }
 
-    // Base goblin sprite
-    ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, GOBLIN_SIZE, GOBLIN_SIZE);
+    ctx.drawImage(
+      img,
+      0,
+      0,
+      1024,
+      1024,
+      drawX,
+      drawY,
+      GOBLIN_SIZE,
+      GOBLIN_SIZE
+    );
 
-    // FIRE EFFECT
     if (e.isBurning && e.alive) {
       ctx.save();
 
@@ -658,13 +600,29 @@ export function drawGoblins(context) {
       ctx.globalAlpha = 0.22 * flicker;
       ctx.fillStyle = "rgba(255,120,60,0.5)";
       ctx.beginPath();
-      ctx.ellipse(e.x, e.y - GOBLIN_SIZE * 0.1, GOBLIN_SIZE * 0.55, GOBLIN_SIZE * 0.7, 0, 0, Math.PI * 2);
+      ctx.ellipse(
+        e.x,
+        e.y - GOBLIN_SIZE * 0.1,
+        GOBLIN_SIZE * 0.55,
+        GOBLIN_SIZE * 0.7,
+        0,
+        0,
+        Math.PI * 2
+      );
       ctx.fill();
 
       ctx.globalAlpha = 0.15 * flicker;
       ctx.fillStyle = "rgba(255,200,80,0.5)";
       ctx.beginPath();
-      ctx.ellipse(e.x, e.y - GOBLIN_SIZE * 0.25, GOBLIN_SIZE * 0.25, GOBLIN_SIZE * 0.35, 0, 0, Math.PI * 2);
+      ctx.ellipse(
+        e.x,
+        e.y - GOBLIN_SIZE * 0.25,
+        GOBLIN_SIZE * 0.25,
+        GOBLIN_SIZE * 0.35,
+        0,
+        0,
+        Math.PI * 2
+      );
       ctx.fill();
 
       for (let i = 0; i < 2; i++) {
@@ -680,7 +638,6 @@ export function drawGoblins(context) {
       ctx.restore();
     }
 
-    // FROST EFFECT
     if (e.slowTimer > 0 && e.alive) {
       ctx.save();
 
@@ -702,7 +659,9 @@ export function drawGoblins(context) {
         e.y - GOBLIN_SIZE * 0.1,
         GOBLIN_SIZE * 0.6,
         GOBLIN_SIZE * 0.75,
-        0, 0, Math.PI * 2
+        0,
+        0,
+        Math.PI * 2
       );
       ctx.fill();
 
@@ -720,7 +679,6 @@ export function drawGoblins(context) {
       ctx.restore();
     }
 
-    // Health bar
     ctx.filter = "none";
     ctx.globalAlpha = 1;
 
@@ -730,21 +688,20 @@ export function drawGoblins(context) {
   }
 }
 
+
 // ============================================================
 // ❤️ HEALTH BAR
 // ============================================================
 function drawHealthBar(ctx, x, y, hp, maxHp) {
   const barWidth = 40;
   const barHeight = 5;
-  const offsetY = GOBLIN_SIZE * 0.52; // bottom of sprite, same as elites/trolls/worgs
+  const offsetY = GOBLIN_SIZE * 0.52;
 
   const hpPct = Math.max(0, Math.min(1, hp / maxHp));
 
-  // background
   ctx.fillStyle = "rgba(0,0,0,0.4)";
   ctx.fillRect(x - barWidth / 2, y + offsetY, barWidth, barHeight);
 
-  // fill (green → red)
   ctx.fillStyle = `hsl(${hpPct * 120},100%,50%)`;
   ctx.fillRect(
     x - barWidth / 2,
@@ -753,6 +710,7 @@ function drawHealthBar(ctx, x, y, hp, maxHp) {
     barHeight
   );
 }
+
 
 // ============================================================
 // 🧩 SPRITE SELECTOR
@@ -773,6 +731,7 @@ function getGoblinSprite(e) {
   }
 }
 
+
 // ============================================================
 // 🔍 ACCESSOR
 // ============================================================
@@ -782,5 +741,5 @@ export function getGoblins() {
 
 
 // ============================================================
-// 🌟 END OF FILE
+// 🌟 END OF FILE — goblin.js
 // ============================================================

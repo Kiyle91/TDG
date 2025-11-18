@@ -1,12 +1,31 @@
 // ============================================================
 // 🧌 troll.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// Troll = Goblin AI + Troll stats + Troll sprites
-//  • Goblin-style behaviour: path → chase → return → attack
-//  • Uses same attack frames/logic as goblins
-//  • Takes damage like goblins
-//  • Only difference: slower + more HP
+// MODULE: troll.js
+// PURPOSE:
+//   Implements Troll enemies — goblin-style AI with heavier
+//   health, slower movement, goblin attack logic, and full
+//   support for flash, death fade, collisions, and loot.
+//
+// FEATURES:
+//   • initTrolls()    — Load sprites + reset troll list
+//   • spawnTroll()    — Spawn at path start
+//   • updateTrolls()  — Path → chase → attack → return AI
+//   • drawTrolls()    — Rendering with shadow, HP bar, flash
+//   • damageTroll()   — Independent damage system
+//   • getTrolls()     — Accessor
+//   • clearTrolls()   — Reset list
+//
+// NOTES:
+//   • No invulnerability — matches goblin/elite/ogre systems
+//   • Uses same attack logic as goblins
+//   • Fully standalone enemy system
 // ============================================================
+
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import { gameState, addGold } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
@@ -23,26 +42,36 @@ import { awardXP } from "./levelSystem.js";
 import { incrementGoblinDefeated } from "./game.js";
 
 
+// ------------------------------------------------------------
+// 🗺️ INTERNAL STATE
+// ------------------------------------------------------------
+
 let trolls = [];
 let pathPoints = [];
 let trollSprites = null;
 
+
 // ------------------------------------------------------------
 // ⚙️ CONFIG (Troll stats)
 // ------------------------------------------------------------
-const SIZE = 96;                 // goblins = 80
-const SPEED = 55;                // goblins = 80
-const HP = 140;                  // goblins = 75
+
+const SIZE = 96;
+const SPEED = 55;
+const HP = 140;
+
 const ATTACK_RANGE = 80;
 const AGGRO_RANGE = 150;
 const RETURN_RANGE = 260;
+
 const ATTACK_COOLDOWN = 1000;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT = 900;
 
+
 // ------------------------------------------------------------
-// 🖼 LOAD SPRITES
+// 🖼️ SPRITE LOADING
 // ------------------------------------------------------------
+
 function loadImage(src) {
   return new Promise(res => {
     const img = new Image();
@@ -55,6 +84,7 @@ async function loadTrollSprites() {
   trollSprites = {
     idle: await loadImage("./assets/images/sprites/troll/troll_idle.png"),
     slain: await loadImage("./assets/images/sprites/troll/troll_slain.png"),
+
     walk: {
       up: [
         await loadImage("./assets/images/sprites/troll/troll_A1.png"),
@@ -73,6 +103,7 @@ async function loadTrollSprites() {
         await loadImage("./assets/images/sprites/troll/troll_D2.png"),
       ],
     },
+
     attack: {
       left: [
         await loadImage("./assets/images/sprites/troll/troll_attack_left.png"),
@@ -86,19 +117,22 @@ async function loadTrollSprites() {
   };
 }
 
+
 // ------------------------------------------------------------
-// 🌱 INIT
+// 🌸 INIT
 // ------------------------------------------------------------
+
 export async function initTrolls(points) {
   trolls = [];
   pathPoints = points || [];
   await loadTrollSprites();
-  console.log("🧌 Trolls initialized.");
 }
+
 
 // ------------------------------------------------------------
 // 💀 SPAWN
 // ------------------------------------------------------------
+
 export function spawnTroll() {
   if (!pathPoints.length) return;
 
@@ -108,27 +142,34 @@ export function spawnTroll() {
     type: "troll",
     x: start.x,
     y: start.y,
+
     hp: HP,
     maxHp: HP,
+
     alive: true,
     fading: false,
     fadeTimer: 0,
-    frame: 0,
-    frameTimer: 0,
+
     pathIndex: 0,
     state: "path",
+
+    frame: 0,
+    frameTimer: 0,
     attackCooldown: 0,
     attackFrame: 0,
     attackDir: "right",
-    flashTimer: 0,
+
+    flashTimer: 0
   });
 
   return trolls[trolls.length - 1];
 }
 
+
 // ------------------------------------------------------------
-// 🗡 ATTACK PLAYER (same as goblin)
+// 🗡️ ATTACK PLAYER (Goblin-style — no invulnerability)
 // ------------------------------------------------------------
+
 function attackPlayer(t, player) {
   if (!player || player.dead) {
     t.attacking = false;
@@ -137,14 +178,13 @@ function attackPlayer(t, player) {
 
   playGoblinAttack();
 
-  let damage = 8; // same as goblins
+  let damage = 8;
   const def = player.defense || 5;
   const reduction = Math.min(0.5, def / 100);
   damage *= (1 - reduction);
 
   player.hp = Math.max(0, player.hp - damage);
-  player.flashTimer = 200;
-  player.invulnTimer = 800;
+  player.flashTimer = 200; // matches goblins/elites/ogres
 
   updateHUD();
 
@@ -154,10 +194,10 @@ function attackPlayer(t, player) {
     `-${Math.round(damage)}`,
     "#ff6fb1"
   );
+
   spawnDamageSparkles(player.pos.x, player.pos.y);
   playPlayerDamage();
 
-  // Animation
   t.attackFrame = 0;
   t.attackDir = t.dir === "left" ? "left" : "right";
 
@@ -165,63 +205,48 @@ function attackPlayer(t, player) {
   setTimeout(() => { if (t.alive) t.attacking = false; }, 400);
 }
 
+
 // ------------------------------------------------------------
-// 🧠 UPDATE — Goblin-style chase + return + collision
+// 🔁 UPDATE — Path → Chase → Attack → Return
 // ------------------------------------------------------------
+
 export function updateTrolls(delta = 16) {
   if (!trollSprites || !pathPoints.length) return;
 
   delta = Math.min(delta, 100);
   const dt = delta / 1000;
+
   const player = gameState.player;
   if (!player) return;
 
-  const px = player?.pos?.x ?? null;
-  const py = player?.pos?.y ?? null;
+  const px = player.pos.x;
+  const py = player.pos.y;
 
-  // ============================================================
-  // MAIN TROLL LOOP
-  // ============================================================
   for (const t of trolls) {
 
-    // ------------------------------
-    // DEATH HANDLING
-    // ------------------------------
+    // Death fade
     if (!t.alive) {
       t.fadeTimer += delta;
       continue;
     }
 
-    // ------------------------------
-    // ATTACK COOLDOWN
-    // ------------------------------
+    // Cooldown tick
     t.attackCooldown = Math.max(0, t.attackCooldown - delta);
 
+    // Distance to player
+    const dxp = px - t.x;
+    const dyp = py - t.y;
+    const distP = Math.hypot(dxp, dyp);
+
+    t.chasing = distP < AGGRO_RANGE;
+    if (distP > RETURN_RANGE) t.chasing = false;
+
     // ------------------------------
-    // DISTANCE TO PLAYER
+    // 🐺 CHASE
     // ------------------------------
-    let chase = false;
-    if (px !== null) {
-      const dxp = px - t.x;
-      const dyp = py - t.y;
-      const distP = Math.hypot(dxp, dyp);
+    if (t.chasing) {
 
-      if (distP < AGGRO_RANGE) chase = true;
-      if (distP > RETURN_RANGE) chase = false;
-
-      t.chasing = chase;
-      t.distToPlayer = distP;
-    }
-
-    // ============================================================
-    // 🐺 CHASE MODE
-    // ============================================================
-    if (t.chasing && px !== null) {
-      const dx = px - t.x;
-      const dy = py - t.y;
-
-      // Try to attack if close
-      if (t.distToPlayer < ATTACK_RANGE) {
+      if (distP < ATTACK_RANGE) {
         if (t.attackCooldown === 0) {
           t.attacking = true;
           attackPlayer(t, player);
@@ -230,18 +255,15 @@ export function updateTrolls(delta = 16) {
         continue;
       }
 
-      // Move toward player
-      const dist = Math.hypot(dx, dy) || 1;
-      t.x += (dx / dist) * SPEED * dt;
-      t.y += (dy / dist) * SPEED * dt;
+      const dist = distP || 1;
+      t.x += (dxp / dist) * SPEED * dt;
+      t.y += (dyp / dist) * SPEED * dt;
 
-      // Direction
       t.dir =
-        Math.abs(dx) > Math.abs(dy)
-          ? (dx > 0 ? "right" : "left")
-          : (dy > 0 ? "down" : "up");
+        Math.abs(dxp) > Math.abs(dyp)
+          ? (dxp > 0 ? "right" : "left")
+          : (dyp > 0 ? "down" : "up");
 
-      // Walk animation
       t.frameTimer += delta;
       if (t.frameTimer >= WALK_FRAME_INTERVAL) {
         t.frameTimer = 0;
@@ -250,9 +272,9 @@ export function updateTrolls(delta = 16) {
 
     }
 
-    // ============================================================
-    // 🛣 PATH MODE (back to path when not chasing)
-// ============================================================
+    // ------------------------------
+    // 🛣 PATH FOLLOW
+    // ------------------------------
     else {
       const target = pathPoints[t.pathIndex];
       if (!target) {
@@ -277,7 +299,6 @@ export function updateTrolls(delta = 16) {
             : (dy > 0 ? "down" : "up");
       }
 
-      // Walk animation
       t.frameTimer += delta;
       if (t.frameTimer >= WALK_FRAME_INTERVAL) {
         t.frameTimer = 0;
@@ -285,25 +306,19 @@ export function updateTrolls(delta = 16) {
       }
     }
 
-    // ============================================================
-    // FLASH TIMER (Hit red fade-out)
-    // ============================================================
+    // ------------------------------
+    // ✨ Flash fade-out
+    // ------------------------------
     if (t.flashTimer > 0) {
       t.flashTimer -= delta;
       if (t.flashTimer < 0) t.flashTimer = 0;
     }
 
-    // ============================================================
-    // 🟣 PLAYER ↔ TROLL COLLISION (Goblin-style soft push)
-// ============================================================
-    const dxp = player.pos.x - t.x;
-    const dyp = player.pos.y - t.y;
-    const distP = Math.hypot(dxp, dyp);
-
-    const PLAYER_COLLIDE_DIST = 50;  // same radius used for goblins
-
-    if (distP < PLAYER_COLLIDE_DIST && distP > 0) {
-      const overlap = (PLAYER_COLLIDE_DIST - distP) / 3;
+    // ------------------------------
+    // Player ↔ Troll pushback
+    // ------------------------------
+    if (distP < 50 && distP > 0) {
+      const overlap = (50 - distP) / 3;
       const nx = dxp / distP;
       const ny = dyp / distP;
 
@@ -312,11 +327,10 @@ export function updateTrolls(delta = 16) {
     }
   }
 
-  // ============================================================
-  // 🟢 TROLL ↔ TROLL COLLISION (Goblin-style)
-// ============================================================
-  const MIN_TROLL_DIST = 72; // identical spacing to goblins
-
+  // ------------------------------
+  // Troll ↔ Troll collision
+  // ------------------------------
+  const MIN_DIST = 72;
   for (let i = 0; i < trolls.length; i++) {
     const a = trolls[i];
     if (!a.alive) continue;
@@ -329,8 +343,8 @@ export function updateTrolls(delta = 16) {
       const dy = a.y - b.y;
       const dist = Math.hypot(dx, dy);
 
-      if (dist > 0 && dist < MIN_TROLL_DIST) {
-        const push = (MIN_TROLL_DIST - dist) / 2;
+      if (dist > 0 && dist < MIN_DIST) {
+        const push = (MIN_DIST - dist) / 2;
         const nx = dx / dist;
         const ny = dy / dist;
 
@@ -343,9 +357,7 @@ export function updateTrolls(delta = 16) {
     }
   }
 
-  // ============================================================
-  // CLEANUP DEAD (Unload faded corpses)
-// ============================================================
+  // Cleanup faded corpses
   for (let i = trolls.length - 1; i >= 0; i--) {
     if (!trolls[i].alive && trolls[i].fadeTimer >= FADE_OUT) {
       trolls.splice(i, 1);
@@ -353,9 +365,11 @@ export function updateTrolls(delta = 16) {
   }
 }
 
+
 // ------------------------------------------------------------
-// 💔 ESCAPE (troll reaches end of path → lose life)
+// 💔 ESCAPE
 // ------------------------------------------------------------
+
 function handleEscape(t) {
   const p = gameState.player;
   if (p) {
@@ -363,14 +377,17 @@ function handleEscape(t) {
     p.lives = Math.max(0, p.lives - 1);
     updateHUD();
   }
+
   t.alive = false;
   t.hp = 0;
   t.fadeTimer = FADE_OUT;
 }
 
+
 // ------------------------------------------------------------
 // 💥 DAMAGE
 // ------------------------------------------------------------
+
 export function damageTroll(t, amount) {
   if (!t || !t.alive) return;
 
@@ -384,20 +401,24 @@ export function damageTroll(t, amount) {
     t.hp = 0;
     t.alive = false;
     t.fadeTimer = 0;
-    playGoblinDeath();
 
+    playGoblinDeath();
     incrementGoblinDefeated();
+
     awardXP(5);
     addGold(5);
     addBravery(1);
+
     updateHUD();
     spawnLoot("troll", t.x, t.y);
   }
 }
 
+
 // ------------------------------------------------------------
-// 🎨 DRAW — crisp, goblin-quality rendering + flash fade
+// 🎨 DRAW
 // ------------------------------------------------------------
+
 export function drawTrolls(ctx) {
   if (!ctx || !trollSprites) return;
 
@@ -412,16 +433,7 @@ export function drawTrolls(ctx) {
 
     ctx.save();
 
-    // ---------------------------------------
-    // 🔍 High-quality smoothing (matches goblins)
-    // ---------------------------------------
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.mozImageSmoothingEnabled = true;
-
-    // ---------------------------------------
     // Shadow
-    // ---------------------------------------
     ctx.beginPath();
     ctx.ellipse(
       t.x,
@@ -433,26 +445,17 @@ export function drawTrolls(ctx) {
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
 
-    // ---------------------------------------
-    // Fade out corpse
-    // ---------------------------------------
+    // Fade-out corpse
     if (!t.alive) {
       ctx.globalAlpha = Math.max(0, 1 - t.fadeTimer / FADE_OUT);
     }
 
-    // ---------------------------------------
-    // Flash effect (proper fade-out)
-    // ---------------------------------------
+    // Flash effect
     if (t.flashTimer > 0) {
       const alpha = t.flashTimer / 150;
       ctx.filter = `brightness(${1 + alpha * 0.4}) saturate(${1 + alpha})`;
-    } else {
-      ctx.filter = "none";
     }
 
-    // ---------------------------------------
-    // Draw troll sprite
-    // ---------------------------------------
     ctx.drawImage(
       img,
       0, 0, img.width, img.height,
@@ -465,35 +468,19 @@ export function drawTrolls(ctx) {
     ctx.filter = "none";
     ctx.globalAlpha = 1;
 
-    // ---------------------------------------
-    // HP BAR
-    // ---------------------------------------
+    // HP bar
     if (t.alive) {
-      const barWidth = 40;
-      const barHeight = 5;
-
-      // Troll uses SIZE = 96
+      const barW = 40;
+      const barH = 5;
       const offsetY = SIZE * 0.52;
 
-      const hpPct = Math.max(0, Math.min(1, t.hp / t.maxHp));
+      const pct = Math.max(0, Math.min(1, t.hp / t.maxHp));
 
-      // Background
       ctx.fillStyle = "rgba(0,0,0,0.4)";
-      ctx.fillRect(
-        t.x - barWidth / 2,
-        t.y + offsetY,
-        barWidth,
-        barHeight
-      );
+      ctx.fillRect(t.x - barW / 2, t.y + offsetY, barW, barH);
 
-      // Fill (HSL green → red)
-      ctx.fillStyle = `hsl(${hpPct * 120},100%,50%)`;
-      ctx.fillRect(
-        t.x - barWidth / 2,
-        t.y + offsetY,
-        barWidth * hpPct,
-        barHeight
-      );
+      ctx.fillStyle = `hsl(${pct * 120},100%,50%)`;
+      ctx.fillRect(t.x - barW / 2, t.y + offsetY, barW * pct, barH);
     }
 
     ctx.restore();
@@ -502,25 +489,30 @@ export function drawTrolls(ctx) {
 
 
 // ------------------------------------------------------------
-// Sprite selector
+// SPRITE SELECTOR
 // ------------------------------------------------------------
+
 function getSprite(t) {
   if (!t.alive) return trollSprites.slain;
-
-  if (t.attacking) {
-    return trollSprites.attack[t.attackDir][t.attackFrame];
-  }
-
-  if (t.dir && trollSprites.walk[t.dir]) {
-    return trollSprites.walk[t.dir][t.frame];
-  }
-
+  if (t.attacking) return trollSprites.attack[t.attackDir][t.attackFrame];
+  if (t.dir && trollSprites.walk[t.dir]) return trollSprites.walk[t.dir][t.frame];
   return trollSprites.idle;
 }
 
 
 // ------------------------------------------------------------
-// ACCESS
+// ACCESSORS
 // ------------------------------------------------------------
-export function getTrolls() { return trolls; }
-export function clearTrolls() { trolls = []; }
+
+export function getTrolls() {
+  return trolls;
+}
+
+export function clearTrolls() {
+  trolls = [];
+}
+
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

@@ -1,17 +1,40 @@
 // ============================================================
 // 🧭 playerController.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ WASD + animation + directional attacks
-// ✦ Melee / Ranged / Heal / Spell abilities
-// ✦ Knockback + drawn silver arrows + sparkle FX (canvas-based)
-// ✦ Stat-scaled damage & mana costs
-// ✦ Uses shared goblin array via window.__goblins (kills goblins properly)
-// ✦ 🌈 Sparkle system heavily optimized (no blur, capped particles)
+// ✦ WASD movement + directional animations
+// ✦ Melee / Ranged / Heal / Spell combat system
+// ✦ Silver arrows, knockback, collisions, sparkle FX
+// ✦ Bravery aura + stat-scaled damage & mana costs
+// ✦ Unified target system (goblins, ogres, worgs, elites, trolls, crossbows)
+// ✦ NO window.__goblins — uses imported getGoblins()
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: playerController.js
+ * PURPOSE:
+ *   Controls the player character — input, movement, combat,
+ *   projectiles, animations, and visual FX.
+ *
+ * SUMMARY:
+ *   - Movement: WASD / arrows + map collision & goblin shunt
+ *   - Combat:
+ *       • Melee (Space)
+ *       • Ranged (Mouse)
+ *       • Heal (R)
+ *       • Spell (F)
+ *   - Targets:
+ *       • Goblins (getGoblins)
+ *       • Ogres (getOgres)
+ *       • Worgs (getWorg)
+ *       • Elites (getElites)
+ *       • Trolls (getTrolls)
+ *       • Crossbow goblins (getCrossbows)
+ *   - FX: glitter sparkles, damage bursts, bravery aura
+ *   - Works with fixed timestep game loop + camera
+ * ------------------------------------------------------------ */
 
 import { gameState } from "../utils/gameState.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
-import { damageGoblin } from "./goblin.js"; // shared goblin array
+import { damageGoblin, getGoblins } from "./goblin.js";
 import { updateHUD, getArrowCount } from "./ui.js";
 import {
   playFairySprinkle,
@@ -33,17 +56,15 @@ import { activateBravery } from "./ui.js";
 import { getCrossbows } from "./crossbow.js";
 
 // ------------------------------------------------------------
-// 🔢 Spire hotkeys
+// 🔢 Spire Hotkeys (1–5 etc.)
 // ------------------------------------------------------------
 window.addEventListener("keydown", (e) => {
   if (e.code.startsWith("Digit")) handleSpireKey(e.code);
 });
 
 // ------------------------------------------------------------
-// 🧩 Shared goblin helpers
+// 🧩 Unified Target Helper
 // ------------------------------------------------------------
-const getGoblins = () => window.__goblins || [];
-
 function getAllTargets() {
   return [
     ...getGoblins(),
@@ -56,7 +77,7 @@ function getAllTargets() {
 }
 
 // ------------------------------------------------------------
-// 🔧 Input + runtime state
+// 🔧 Input + Runtime State
 // ------------------------------------------------------------
 let canvasRef = null;
 const keys = new Set();
@@ -96,7 +117,7 @@ const DMG_SPELL = 4;
 let frameTimer = 0;
 
 // ------------------------------------------------------------
-// 🎨 Sprites
+// 🎨 Sprite Atlas
 // ------------------------------------------------------------
 const sprites = {
   idle: null,
@@ -107,11 +128,11 @@ const sprites = {
     right: [null, null],
   },
   attack: {
-    left: [null, null],  // 0: attack_*, 1: melee_*
+    left: [null, null], // 0: attack_*, 1: melee_*
     right: [null, null],
   },
   shoot: {
-    left: [null, null],  // 0: raise_*, 1: shoot_*
+    left: [null, null], // 0: raise_*, 1: shoot_*
     right: [null, null],
     lowerLeft: null,
     lowerRight: null,
@@ -132,11 +153,13 @@ function loadSprite(src) {
   });
 }
 
+// ------------------------------------------------------------
+// 🖼 Load Player Sprites (Skin-Aware)
+// ------------------------------------------------------------
 async function loadPlayerSprites() {
   const skinKey = gameState.player?.skin || "glitter";
   const folder = SKINS[skinKey].folder;
   const base = `./assets/images/sprites/${folder}/${folder}`;
-
   const L = (suffix) => loadSprite(`${base}${suffix}`);
 
   // Idle + Walk
@@ -179,7 +202,7 @@ async function loadPlayerSprites() {
 }
 
 // ------------------------------------------------------------
-// 🧱 Player runtime defaults
+// 🧱 Ensure Player Runtime Defaults
 // ------------------------------------------------------------
 function ensurePlayerRuntime() {
   if (!gameState.player) {
@@ -230,11 +253,12 @@ function ensurePlayerRuntime() {
 }
 
 // ------------------------------------------------------------
-// ⌨️ Input handlers
+// ⌨️ Input Handlers
 // ------------------------------------------------------------
 function onKeyDown(e) {
   keys.add(e.code);
 
+  // Bravery activate
   if (e.code === "KeyQ") {
     activateBravery();
   }
@@ -287,7 +311,7 @@ export function destroyPlayerController() {
 }
 
 // ------------------------------------------------------------
-// 🎯 Nearest goblin within radius
+// 🎯 Nearest Goblin (legacy helper for facing)
 // ------------------------------------------------------------
 function findNearestGoblinInRange(px, py, maxDist = 320) {
   let target = null;
@@ -308,7 +332,7 @@ function findNearestGoblinInRange(px, py, maxDist = 320) {
 }
 
 // ------------------------------------------------------------
-// ⚠️ Shared “not enough mana” feedback
+// ⚠️ Shared “Not Enough Mana” Feedback
 // ------------------------------------------------------------
 function notEnoughMana(p) {
   spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough mana!", "#77aaff");
@@ -316,7 +340,7 @@ function notEnoughMana(p) {
 }
 
 // ------------------------------------------------------------
-// 🗡️ Melee attack
+// 🗡️ Melee Attack (Space)
 // ------------------------------------------------------------
 function performMeleeAttack() {
   const p = gameState.player;
@@ -372,6 +396,7 @@ function performMeleeAttack() {
 
     hit = true;
 
+    // Knockback (no knockback on ogres)
     if (t.type !== "ogre") {
       const len = Math.max(1, dist);
       t.x += (dx / len) * 50;
@@ -392,7 +417,7 @@ function performMeleeAttack() {
 }
 
 // ------------------------------------------------------------
-// 🏹 Ranged — fires arrow toward mouse
+// 🏹 Ranged Attack — Silver Arrows (Mouse)
 // ------------------------------------------------------------
 function performRangedAttack(e) {
   const p = gameState.player;
@@ -500,7 +525,7 @@ function performRangedAttack(e) {
 }
 
 // ------------------------------------------------------------
-// 💖 Heal
+// 💖 Heal (R)
 // ------------------------------------------------------------
 function performHeal() {
   const p = gameState.player;
@@ -549,7 +574,7 @@ function performHeal() {
 }
 
 // ------------------------------------------------------------
-// 🔮 Spell — pastel AoE burst
+// 🔮 Spell (F) — Pastel AoE Burst
 // ------------------------------------------------------------
 function performSpell() {
   const p = gameState.player;
@@ -610,7 +635,7 @@ function performSpell() {
 }
 
 // ------------------------------------------------------------
-// 🌈 GLITTER BURSTS — Optimized (no blur, capped particles)
+// 🌈 GLITTER BURSTS — Optimized Sparkle System
 // ------------------------------------------------------------
 const sparkles = [];
 const MAX_SPARKLES = 60;
@@ -677,7 +702,7 @@ function updateAndDrawSparkles(ctx, delta) {
 }
 
 // ------------------------------------------------------------
-// 🌸 Damage Sparkle Burst (soft pink hit)
+// 🌸 Damage Sparkle Burst (Soft Pink Hit)
 // ------------------------------------------------------------
 export function spawnDamageSparkles(x, y) {
   const palette = ["#ff7aa8", "#ff99b9", "#ffb3c6", "#ffccd5"];
@@ -685,7 +710,8 @@ export function spawnDamageSparkles(x, y) {
 }
 
 // ------------------------------------------------------------
-// 🏹 Silver arrow projectiles (movement + tile collision + goblins)
+// 🏹 Legacy Silver Arrow Projectiles (Map + Goblin Only)
+// (Used in addition to the per-arrow collision system above)
 // ------------------------------------------------------------
 function updateProjectiles(delta) {
   const dt = delta / 1000;
@@ -726,7 +752,7 @@ function updateProjectiles(delta) {
 }
 
 // ============================================================
-// 🔁 UPDATE PLAYER — movement, combat, collision, regen + FX
+// 🔁 UPDATE PLAYER — Movement, Combat, Collision, Regen + FX
 // ============================================================
 export function updatePlayer(delta) {
   ensurePlayerRuntime();
@@ -749,7 +775,7 @@ export function updatePlayer(delta) {
   if (attackCooldown > 0) attackCooldown -= dt;
   updateProjectiles(delta);
 
-  // 🔮 Passive mana regen (BUGFIX: only once per frame)
+  // 🔮 Passive mana regen
   const regenRate = 0.8 + (p.level ?? 1) * 0.05;
   const prevArrows = getArrowCount();
   p.mana = Math.min(p.maxMana, p.mana + regenRate * dt);
@@ -764,8 +790,8 @@ export function updatePlayer(delta) {
   const up = keys.has("KeyW") || keys.has("ArrowUp");
   const down = keys.has("KeyS") || keys.has("ArrowDown");
 
-  let dx = 0,
-    dy = 0;
+  let dx = 0;
+  let dy = 0;
   if (left) dx -= 1;
   if (right) dx += 1;
   if (up) dy -= 1;
@@ -823,7 +849,7 @@ export function updatePlayer(delta) {
   p.pos.x = Math.max(r, Math.min(mapW - r, p.pos.x));
   p.pos.y = Math.max(r, Math.min(mapH - r, p.pos.y));
 
-  // 🟥 Player ↔ goblin contact damage
+  // 🟥 Player ↔ goblin contact damage (uses invulnTimer)
   if (!p.invincible) {
     if (p.invulnTimer > 0) {
       p.invulnTimer -= delta;
@@ -852,7 +878,7 @@ export function updatePlayer(delta) {
     }
   }
 
-  // 🐲 Ogre collision pushback (damage handled elsewhere)
+  // 🐲 Ogre collision pushback (damage handled in ogre.js)
   const ogres = getOgres() || [];
   for (const o of ogres) {
     if (!o.alive) continue;
@@ -889,7 +915,7 @@ export function updatePlayer(delta) {
 }
 
 // ============================================================
-// 🎨 DRAW PLAYER — sprite + HP bar + projectiles + sparkles
+// 🎨 DRAW PLAYER — Sprite + HP Bar + Projectiles + Sparkles
 // ============================================================
 export function drawPlayer(ctx) {
   if (!ctx) return;
@@ -949,7 +975,7 @@ export function drawPlayer(ctx) {
 
   ctx.save();
 
-  // ✨ Bravery aura (invincible)
+  // ✨ Bravery aura (invincible flag)
   if (p.invincible === true) {
     ctx.save();
 
@@ -996,7 +1022,7 @@ export function drawPlayer(ctx) {
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
 
-  // Player sprite
+  // Player sprite (melee first frame exaggerated)
   if (isAttacking && attackType === "melee" && currentFrame === 0) {
     const scale = 1.5;
     const w = SPRITE_SIZE * scale;
@@ -1074,7 +1100,7 @@ export function drawPlayer(ctx) {
     ctx.restore();
   }
 
-  // 🌈 Sparkles (using a nominal delta)
+  // 🌈 Sparkles
   updateAndDrawSparkles(ctx, 16);
 
   ctx.restore();
