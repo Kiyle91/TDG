@@ -1,10 +1,40 @@
 // ============================================================
 // 🧠 gameManager.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Handles victory / defeat conditions and session resets
-// ✦ Communicates with UI overlays and HUD
-// ✦ Controls restart + return to hub flow
+// ✦ Handles victory / defeat conditions + session resets
+// ✦ Manages reward flow + map progression
+// ✦ Controls restart / return-to-hub behaviour
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: gameManager.js
+ * PURPOSE:
+ *   Centralizes all session-level game flow logic including
+ *   victory, defeat, map restarts, and returning to the hub.
+ *
+ * SUMMARY:
+ *   The game manager tracks the number of enemies defeated in a
+ *   session, controls defeat conditions (HP or lives reaching 0),
+ *   triggers the appropriate overlays, and resets player/session
+ *   state when restarting or exiting to the hub.
+ *
+ * FEATURES:
+ *   • startSession() — initializes a new gameplay run
+ *   • registerGoblinKill() — updates kill counters + checks victory
+ *   • checkDefeatConditions() — monitors HP/lives for defeat
+ *   • triggerVictory() — handles rewards + unlocks next map
+ *   • triggerDefeat() — fades defeat overlay after timed delay
+ *   • restartMap() — restarts the current map cleanly
+ *   • returnToHub() — exits gameplay session back to hub
+ *
+ * TECHNICAL NOTES:
+ *   • Integrates tightly with gameState, HUD, overlays, and
+ *     enemy/tower subsystems.
+ *   • No rendering or movement logic lives here — only flow.
+ * ------------------------------------------------------------ */
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import { gameState, saveProfiles, setCurrentMap, unlockMap } from "../utils/gameState.js";
 import { updateHUD, showOverlay } from "./ui.js";
@@ -12,14 +42,10 @@ import { initGoblins } from "./goblin.js";
 import { initSpires } from "./spires.js";
 import { initProjectiles } from "./projectiles.js";
 
-
-
 // ------------------------------------------------------------
 // ⚙️ SESSION START
 // ------------------------------------------------------------
 export function startSession(mapId = 1, totalGoblins = 50) {
-  console.log(`🎮 Starting session for Map ${mapId}`);
-
   gameState.session = {
     goblinsDefeated: 0,
     totalGoblinsThisMap: totalGoblins,
@@ -42,7 +68,6 @@ export function startSession(mapId = 1, totalGoblins = 50) {
 export function registerGoblinKill() {
   if (!gameState.session?.mapActive) return;
   gameState.session.goblinsDefeated++;
-  console.log(`⚔️ Goblins defeated: ${gameState.session.goblinsDefeated}/${gameState.session.totalGoblinsThisMap}`);
 
   if (gameState.session.goblinsDefeated >= gameState.session.totalGoblinsThisMap) {
     triggerVictory();
@@ -56,69 +81,61 @@ export function checkDefeatConditions() {
   const p = gameState.player;
   if (!p) return;
 
-  console.log("🧩 checkDefeatConditions running — HP:", p.hp, "Lives:", p.lives);
-
   // HP = 0 → defeat
   if (p.hp <= 0) {
-    console.log("💀 checkDefeatConditions → HP = 0 detected");
     triggerDefeat("player");
   }
 
   // Lives = 0 → defeat
   if (p.lives <= 0) {
-    console.log("💀 checkDefeatConditions → Lives = 0 detected");
     triggerDefeat("lives");
   }
 }
 
 // ------------------------------------------------------------
-// 🏆 VICTORY
+// 🏆 VICTORY HANDLER
 // ------------------------------------------------------------
 export function triggerVictory() {
   if (!gameState.session?.mapActive) return;
   gameState.session.mapActive = false;
 
-  console.log("🏆 Victory! Map cleared!");
+  // Rewards
   gameState.resources.xp += 100;
   gameState.profile.currencies.gold += 200;
-  unlockMap(gameState.session.mapId + 1);
 
+  unlockMap(gameState.session.mapId + 1);
   saveProfiles();
   updateHUD();
 
-  console.log("🎉 Showing victory overlay...");
+  // Show overlay
   showOverlay("victory-overlay");
 }
 
 // ------------------------------------------------------------
-// 💀 DEFEAT (Guaranteed 5s Delay Before Overlay)
+// 💀 DEFEAT HANDLER (with delayed overlay)
 // ------------------------------------------------------------
 export function triggerDefeat(reason = "unknown") {
-  if (!gameState.session) return;
-  if (!gameState.session.mapActive) return; // prevent multiple triggers
+  if (!gameState.session || !gameState.session.mapActive) return;
 
-  console.log("💀 Defeat triggered — reason:", reason);
   gameState.session.mapActive = false;
 
-  // 🩸 Mark player as fallen
+  // Mark player dead
   if (gameState.player) {
     gameState.player.hp = 0;
     gameState.player.dead = true;
   }
 
-  // 🛑 Stop the main game loop right away
+  // Stop main game loop immediately
   cancelAnimationFrame(window.__gameLoopID);
 
-  // 🕰️ Lock out any immediate overlay display
+  // Hide overlay before fade-in
   const overlay = document.getElementById("defeat-overlay");
   if (overlay) {
     overlay.style.display = "none";
     overlay.classList.remove("active");
   }
 
-  console.log("⏳ Waiting 5 seconds before showing defeat overlay...");
-
-  // 💫 After 5s, fade in defeat overlay
+  // Delay before showing overlay
   setTimeout(() => {
     const overlay = document.getElementById("defeat-overlay");
     if (overlay) {
@@ -127,25 +144,21 @@ export function triggerDefeat(reason = "unknown") {
       overlay.style.opacity = 0;
       overlay.style.transition = "opacity 1.5s ease";
       requestAnimationFrame(() => (overlay.style.opacity = 1));
-      console.log("🎭 Defeat overlay displayed after delay!");
-    } else {
-      console.warn("⚠️ Defeat overlay not found in DOM!");
     }
 
-    // Update and save after delay
+    // Save after overlay
     updateHUD();
     saveProfiles();
-  }, 1500); // 5 seconds delay
+  }, 1500);
 }
-
 
 // ------------------------------------------------------------
 // 🔁 RESTART MAP
 // ------------------------------------------------------------
 export function restartMap() {
   const mapId = gameState.session?.mapId ?? 1;
-  console.log(`🔁 Restarting Map ${mapId}...`);
   startSession(mapId);
+
   const overlay = document.querySelector(".overlay.active");
   if (overlay) overlay.classList.remove("active");
 }
@@ -154,8 +167,10 @@ export function restartMap() {
 // 🏰 RETURN TO HUB
 // ------------------------------------------------------------
 export function returnToHub() {
-  console.log("🏰 Returning to hub...");
-  if (gameState.session) gameState.session.mapActive = false;
+  if (gameState.session) {
+    gameState.session.mapActive = false;
+  }
+
   setCurrentMap(null);
   showOverlay("hub-screen");
 }

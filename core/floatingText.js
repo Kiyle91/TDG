@@ -2,23 +2,55 @@
 // 💬 floatingText.js — Olivia's World: Crystal Keep
 //    (Ultra-Optimized Pool Edition — ZERO GC + ZERO Lag)
 // ------------------------------------------------------------
-// ✦ Fixed size behavior (no more big “-10” unless you want it)
-// ✦ Optional crit mode (OFF by default, ON with flag)
-// ✦ Hard cap (60) with indexed object pool (no searching)
+// ✦ Fixed size behavior (stable, predictable numbers)
+// ✦ Optional crit mode (OFF by default)
+// ✦ Hard cap (60) with indexed pool
 // ✦ Swap-pop removal (no splice cost)
 // ✦ Zero allocation per frame
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: floatingText.js
+ * PURPOSE:
+ *   Provides an extremely optimized floating text system used
+ *   for damage numbers, healing, elemental icons, XP bursts,
+ *   and all feedback elements that rise and fade over time.
+ *
+ * SUMMARY:
+ *   This module uses a fixed-size object pool (60 entries) to
+ *   eliminate garbage collection and avoid per-frame allocations.
+ *   Text objects are recycled using a swap-pop removal strategy,
+ *   ensuring stable performance even when hundreds of events
+ *   occur at once (e.g., large waves or DoT effects).
+ *
+ * FEATURES:
+ *   • Zero-allocation runtime (object pool only)
+ *   • Constant-time spawn & removal (swap-pop)
+ *   • Optional CRIT mode with size scaling + forced glow
+ *   • Emoji support (“🔥”, “❄”) with special rules
+ *   • Independent of enemies/towers — can be used globally
+ *
+ * PERFORMANCE NOTES:
+ *   This is one of the core systems that keeps the game feeling
+ *   responsive during heavy fights. It is intentionally low-level
+ *   and does *not* handle gameplay logic — only visuals.
+ * ------------------------------------------------------------ */
+
+
+// ------------------------------------------------------------
+// ♻️ Variables
+// ------------------------------------------------------------
+
 
 const MAX_TEXTS = 60;
 const pool = new Array(MAX_TEXTS);
 const active = [];
 let poolIndex = MAX_TEXTS - 1;
 
-// Global toggle: turn true to enable crit scaling
+// Global toggle for crit scaling
 let CRIT_MODE = false;
 
 // ------------------------------------------------------------
-// ♻️ Initialise pool
+// ♻️ Initialise object pool
 // ------------------------------------------------------------
 for (let i = 0; i < MAX_TEXTS; i++) {
   pool[i] = {
@@ -49,7 +81,7 @@ export function spawnFloatingText(
 ) {
   let t;
 
-  // Pool empty → overwrite oldest
+  // Pool empty → overwrite oldest active text
   if (poolIndex < 0) {
     t = active[0];
   } else {
@@ -67,13 +99,9 @@ export function spawnFloatingText(
     displayValue = num >= 0 ? `+${Math.round(num)}` : `${Math.round(num)}`;
   }
 
-  // Emoji mode
   const isEmoji = (displayValue === "🔥" || displayValue === "❄");
 
-  // ============================================================
-  // 🎯 FIX: SIZE IS NOW STABLE FOR ALL NUMBERS
-  // “-10” no longer appears larger unless crit mode is used
-  // ============================================================
+  // Keep size stable (no more big “-10” bug)
   let finalSize = size;
 
   if (isEmoji) {
@@ -82,11 +110,11 @@ export function spawnFloatingText(
 
   // Optional crit scaling
   if (CRIT_MODE && isCrit) {
-    finalSize = size * 1.4;   // nice punchy feel
-    aura = true;              // force glow for crits
+    finalSize = size * 1.4;
+    aura = true;
   }
 
-  // Assign
+  // Assign properties
   t.active = true;
   t.x = x;
   t.y = y;
@@ -100,7 +128,7 @@ export function spawnFloatingText(
 }
 
 // ------------------------------------------------------------
-// ⏰ UPDATE — swap-pop removal
+// ⏰ UPDATE — Automatic expiration (swap-pop removal)
 // ------------------------------------------------------------
 export function updateFloatingText(delta) {
   for (let i = active.length - 1; i >= 0; i--) {
@@ -113,15 +141,17 @@ export function updateFloatingText(delta) {
       // Return to pool
       pool[++poolIndex] = t;
 
-      // Swap-pop
+      // Swap-pop removal
       const last = active.pop();
-      if (i < active.length) active[i] = last;
+      if (i < active.length) {
+        active[i] = last;
+      }
     }
   }
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW
+// 🎨 DRAW FLOATING TEXT
 // ------------------------------------------------------------
 export function drawFloatingText(ctx) {
   const len = active.length;
@@ -143,7 +173,7 @@ export function drawFloatingText(ctx) {
     const drawX = t.x;
     const drawY = t.y + yOffset;
 
-    // ⚡ Emoji-only
+    // Emoji mode — no glow
     if (!t.aura) {
       ctx.fillStyle = t.color;
       ctx.fillText(t.value, drawX, drawY);
@@ -151,7 +181,7 @@ export function drawFloatingText(ctx) {
       continue;
     }
 
-    // ✨ Glow path
+    // Glow for normal text
     ctx.shadowColor = t.color;
     ctx.shadowBlur = 20;
 
@@ -167,7 +197,7 @@ export function drawFloatingText(ctx) {
 }
 
 // ------------------------------------------------------------
-// 🔧 OPTIONAL: enable/disable crit mode globally
+// 🔧 OPTIONAL: Enable/Disable crit mode
 // ------------------------------------------------------------
 export function enableCritMode(v = true) {
   CRIT_MODE = v;

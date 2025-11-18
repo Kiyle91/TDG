@@ -1,19 +1,56 @@
+/* ------------------------------------------------------------
+ * MODULE: crystalEchoes.js
+ * PURPOSE:
+ *   Implements the Crystal Echoes exploration collectible
+ *   system used across every campaign map.
+ *
+ * SUMMARY:
+ *   Each map can define fixed Crystal Echo spawn locations
+ *   inside its Tiled JSON. This module loads those Echoes,
+ *   assigns random crystal sprites, renders them with a soft
+ *   shadow, checks for player collision, awards XP, and triggers
+ *   a pastel sparkle burst effect. Once all are found, the
+ *   “Crystal Echo Power” bonus unlocks — doubling tower damage
+ *   and awarding a final diamond reward.
+ *
+ * FEATURES:
+ *   • initCrystalEchoes() — load echoes for the current map
+ *   • updateCrystalEchoes() — render & handle player pickup
+ *   • renderSparkleBursts() — draws burst particles each frame
+ *   • Full-screen sparkle effects on collect
+ *   • Final reward grants Diamonds + activates Echo Power
+ *
+ * PROGRESSION NOTES:
+ *   The state (found, total, bonusGiven) is stored in
+ *   gameState.exploration per map. Echo Power is temporary and
+ *   resets each time a new map loads.
+ * ------------------------------------------------------------ */
+
+
 // ============================================================
 // 💎 crystalEchoes.js — Exploration Collectibles System
 // ------------------------------------------------------------
-// • Fixed-position Crystal Echoes (from mapData.crystalEchoes)
-// • Collect → XP + Diamonds + sparkle burst effect
-// • Random sprite per echo
-// • 74px crystals (large & readable)
-// • Soft shadow under each crystal
-// • Pretty pastel sparkle burst on collect
+// • Fixed-position Crystal Echoes from mapData.crystalEchoes
+// • Collect for XP + Diamonds + sparkle effect
+// • Random sprite assignment per echo
+// • Rendered at 74px with soft shadow
+// • Beautiful pastel sparkle bursts on collect
 // ============================================================
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import { gameState, addDiamonds } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { awardXP } from "./levelSystem.js";
 import { playFairySprinkle } from "./soundtrack.js";
 import { updateHUD } from "./ui.js";
+
+
+// ------------------------------------------------------------
+// ♻️ Variables
+// ------------------------------------------------------------
 
 let echoes = [];
 let totalEchoes = 0;
@@ -41,11 +78,11 @@ function preloadCrystalImages() {
 preloadCrystalImages();
 
 // ------------------------------------------------------------
-// ✨ SPARKLE BURST STATE
+// ✨ SPARKLE BURST DATA
 // ------------------------------------------------------------
 let sparkleBursts = [];
 
-// Small helper: star-shaped sparkle
+// Small helper: pastel star
 function drawStar(ctx, x, y, size, color) {
   const half = size / 2;
 
@@ -69,13 +106,13 @@ export function initCrystalEchoes(mapData) {
   echoes = [];
   sparkleBursts = [];
 
-  if (mapData && mapData.crystalEchoes && Array.isArray(mapData.crystalEchoes)) {
+  if (mapData && Array.isArray(mapData.crystalEchoes)) {
     echoes = structuredClone(mapData.crystalEchoes);
 
-    // assign random sprite
     for (const e of echoes) {
-      e.img =
-        preloadedImages[Math.floor(Math.random() * preloadedImages.length)];
+      e.img = preloadedImages[
+        Math.floor(Math.random() * preloadedImages.length)
+      ];
     }
   }
 
@@ -88,7 +125,6 @@ export function initCrystalEchoes(mapData) {
   };
 
   updateHUD();
-  console.log(`💎 Loaded ${totalEchoes} Crystal Echoes.`);
 }
 
 // ------------------------------------------------------------
@@ -103,7 +139,7 @@ export function updateCrystalEchoes(ctx, player) {
     const c = echoes[i];
 
     // ---------------------------------------
-    // SHADOW (troll-style ellipse)
+    // SHADOW
     // ---------------------------------------
     const SHADOW_W = 26;
     const SHADOW_H = 10;
@@ -127,13 +163,7 @@ export function updateCrystalEchoes(ctx, player) {
     // ---------------------------------------
     // CRYSTAL IMAGE
     // ---------------------------------------
-    ctx.drawImage(
-      c.img,
-      c.x - size / 2,
-      c.y - size / 2,
-      size,
-      size
-    );
+    ctx.drawImage(c.img, c.x - size / 2, c.y - size / 2, size, size);
 
     // ---------------------------------------
     // COLLECTION CHECK
@@ -152,32 +182,24 @@ export function updateCrystalEchoes(ctx, player) {
 }
 
 // ------------------------------------------------------------
-// ✨ COLLECTION + SPARKLE BURST
+// ✨ COLLECTION HANDLER
 // ------------------------------------------------------------
 function collectCrystalEcho(crystal, index) {
-  // Remove echo from list
   echoes.splice(index, 1);
 
   gameState.exploration.found++;
 
-  // Small XP reward
+  // XP gain
   awardXP(20);
 
-  // Floating text
   spawnFloatingText("+20 XP", crystal.x, crystal.y - 10, "#DAB4FF");
   playFairySprinkle();
-
-  // HUD refresh
   updateHUD();
 
-  // ⭐ Spawn sparkle burst (particles stored in sparkleBursts)
+  // Sparkles
   spawnSparkleBurst(crystal);
 
-  console.log(
-    `💎 Crystal Echo found (${gameState.exploration.found}/${totalEchoes})`
-  );
-
-  // final diamond bonus
+  // final map reward
   if (
     gameState.exploration.found === totalEchoes &&
     !gameState.exploration.bonusGiven
@@ -187,7 +209,7 @@ function collectCrystalEcho(crystal, index) {
 }
 
 // ------------------------------------------------------------
-// 🌟 SPAWN SPARKLE BURST (particle data only)
+// 🌟 SPAWN SPARKLE BURST
 // ------------------------------------------------------------
 function spawnSparkleBurst(crystal) {
   const x = crystal.x;
@@ -228,7 +250,7 @@ function spawnSparkleBurst(crystal) {
 }
 
 // ------------------------------------------------------------
-// 🌟 RENDER SPARKLE BURSTS (call from renderGame)
+// 🌟 RENDER SPARKLE BURSTS
 // ------------------------------------------------------------
 export function renderSparkleBursts(ctx, delta) {
   if (sparkleBursts.length === 0) return;
@@ -244,20 +266,15 @@ export function renderSparkleBursts(ctx, delta) {
     }
 
     ctx.save();
-    ctx.globalCompositeOperation = "lighter"; // glow blend
+    ctx.globalCompositeOperation = "lighter";
 
     for (const p of burst.particles) {
-      // Move outward
       p.x += p.vx;
       p.y += p.vy;
 
-      // Fade out
       p.alpha = 1 - t;
-
-      // Rotate
       p.rotation += p.rotationSpeed;
 
-      // Draw star
       ctx.save();
       ctx.globalAlpha = p.alpha;
       ctx.translate(p.x, p.y);
@@ -273,19 +290,18 @@ export function renderSparkleBursts(ctx, delta) {
 }
 
 // ------------------------------------------------------------
-// 💎 AWARD FINAL BONUS (Double Damage + HUD Flash)
+// 💎 FINAL BONUS: DOUBLE DAMAGE + DIAMONDS
 // ------------------------------------------------------------
 function awardCrystalBonus(lastCrystal) {
   gameState.exploration.bonusGiven = true;
 
-  // ⭐ Enable spire double damage system
+  // Enable tower double-damage mode
   gameState.echoPowerActive = true;
 
-  // ⭐ Flash the crystal HUD circle
   const icon = document.getElementById("hud-crystals-circle");
   if (icon) icon.classList.add("echo-power-flash");
 
-  addDiamonds(100); // fixed to 100 for your design
+  addDiamonds(100);
   updateHUD();
 
   spawnFloatingText(
@@ -294,7 +310,8 @@ function awardCrystalBonus(lastCrystal) {
     lastCrystal.y - 40,
     "#FFFFFF"
   );
-
-  console.log("🏆 Exploration bonus awarded: +100 Diamonds");
-  console.log("💠 Crystal Echo Power Activated — Spires deal DOUBLE DAMAGE!");
 }
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

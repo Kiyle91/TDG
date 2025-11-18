@@ -2,10 +2,44 @@
 // 🌸 alert.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ Custom pastel alert, confirm, and input modals
-// ✦ Plays Fairy Sparkle (OK/Yes) and Cancel SFX (No/Cancel)
+// ✦ Fairy Sprinkle (OK/Yes) and Cancel SFX
+// ✦ Cleaned for production (no internal debug logs)
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: alert.js
+ * PURPOSE:
+ *   Provides a unified system for displaying custom modal
+ *   interactions to the player, including alerts, confirmation
+ *   prompts, and text input requests.
+ *
+ * SUMMARY:
+ *   This module injects a reusable pastel-themed modal component
+ *   into the DOM (once only), and exposes clean functions that
+ *   open each type of user prompt with the appropriate buttons
+ *   and inputs. All modals pause the game visually and use the
+ *   game's Fairy Sprinkle and Cancel audio cues.
+ *
+ * FEATURES:
+ *   • showAlert()  — simple OK modal
+ *   • showConfirm() — Yes/No branching modal
+ *   • showInput() — text field modal with callback
+ *   • Automatic DOM creation + cleanup
+ *   • Fully theme-consistent pastel UI
+ *
+ * NOTES:
+ *   No gameplay state is affected directly — only callbacks
+ *   provided by callers define behaviour.
+ * ------------------------------------------------------------ */
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import { playFairySprinkle, playCancelSound } from "./soundtrack.js";
+
+// ------------------------------------------------------------
+// ♻️ Variables
+// ------------------------------------------------------------
 
 let modal = null;
 
@@ -29,7 +63,7 @@ function createModal() {
 }
 
 // ------------------------------------------------------------
-// 💖 SHOW ALERT (simple OK dialog)
+// 💖 SHOW ALERT
 // ------------------------------------------------------------
 export function showAlert(message, callback = null) {
   if (!modal) createModal();
@@ -45,6 +79,7 @@ export function showAlert(message, callback = null) {
   ok.textContent = "OK";
 
   modal.style.display = "flex";
+
   ok.onclick = () => {
     playFairySprinkle();
     modal.style.display = "none";
@@ -53,7 +88,7 @@ export function showAlert(message, callback = null) {
 }
 
 // ------------------------------------------------------------
-// 🌺 SHOW CONFIRM (yes/no dialog) — Crystal Overlay Edition
+// 🌺 SHOW CONFIRM
 // ------------------------------------------------------------
 export function showConfirm(message, onYes, onNo = null) {
   if (!modal) createModal();
@@ -64,23 +99,19 @@ export function showConfirm(message, onYes, onNo = null) {
   const cancel = modal.querySelector("#ow-alert-cancel");
   const box = modal.querySelector(".ow-alert-box");
 
-  // Apply unified crystal styling
   box.classList.add("confirm-box");
   text.classList.add("confirm-message");
   ok.classList.add("confirm-btn", "yes");
   cancel.classList.add("confirm-btn", "no");
 
-  // Message setup
   text.textContent = message;
   extra.innerHTML = "";
   cancel.style.display = "inline-flex";
   ok.textContent = "Yes";
   cancel.textContent = "No";
 
-  // Show modal
   modal.style.display = "flex";
 
-  // 🎵 Click sounds + callbacks
   ok.onclick = () => {
     playFairySprinkle();
     modal.style.display = "none";
@@ -94,9 +125,8 @@ export function showConfirm(message, onYes, onNo = null) {
   };
 }
 
-
 // ------------------------------------------------------------
-// 🌷 SHOW INPUT (custom name entry / text prompt)
+// 🌷 SHOW INPUT
 // ------------------------------------------------------------
 export function showInput(message, onSubmit, placeholder = "Type here...") {
   if (!modal) createModal();

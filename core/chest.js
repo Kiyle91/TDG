@@ -2,17 +2,49 @@
 // 🎁 chest.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ Handles daily reward chest logic
-// ✦ Rewards gold & diamonds per profile
-// ✦ Each profile has its own cooldown (1 hour)
-// ✦ Adds sparkle burst on claim
+// ✦ Rewards diamonds (currently fixed at 10 per claim)
+// ✦ Individual cooldown per profile (1 hour)
+// ✦ Includes hub sparkle burst animation
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: chest.js
+ * PURPOSE:
+ *   Controls the Daily Reward Chest system inside the Hub.
+ *
+ * SUMMARY:
+ *   This module manages a per-profile reward chest that can be
+ *   claimed once per hour. It updates its timer automatically,
+ *   applies the correct gold/diamond rewards, triggers sparkle
+ *   effects, and syncs the result to profile storage.
+ *
+ * FEATURES:
+ *   • initChest() — main setup, attaches listeners & timers
+ *   • claimReward() — grants reward + plays chest animation
+ *   • updateChestState() — updates timer text & cooldown logic
+ *   • spawnSparkles() — visual effect on claim
+ *
+ * TECHNICAL NOTES:
+ *   • Cooldown stored individually for each profile
+ *   • reward persists instantly via saveProfiles()
+ *   • UI updated through updateHUD() + updateHubCurrencies()
+ * ------------------------------------------------------------ */
+
+
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import { gameState, addGold, addDiamonds, saveProfiles } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
 import { updateHubCurrencies } from "./hub.js";
 import { playChestOpen } from "../core/soundtrack.js";
 
-const COOLDOWN_MS = 60 * 60 * 1000; // 1 hour
+// ------------------------------------------------------------
+// ♻️ Variables
+// ------------------------------------------------------------
+
+const COOLDOWN_MS = 60 * 60 * 1000;
 let chestEl, timerEl, imgEl;
 
 // ------------------------------------------------------------
@@ -28,45 +60,38 @@ export function initChest() {
   updateChestState();
 
   imgEl.addEventListener("click", () => {
-    if (chestEl.classList.contains("disabled")) return;
-    claimReward();
+    if (!chestEl.classList.contains("disabled")) {
+      claimReward();
+    }
   });
 
-  // Update timer every second
   setInterval(updateChestState, 1000);
 }
 
 // ------------------------------------------------------------
-// 💖 CLAIM REWARD (per profile)
+// 💖 CLAIM REWARD
 // ------------------------------------------------------------
 function claimReward() {
-  if (!gameState.profile) {
-    console.warn("⚠️ No active profile — cannot claim chest reward.");
-    return;
-  }
+  if (!gameState.profile) return;
 
   const profile = gameState.profile;
 
-  // 💎 Reward
   addDiamonds(10);
   updateHUD();
   updateHubCurrencies();
 
-  // 💥 Visual sparkle burst
   spawnSparkles();
   playChestOpen();
 
-  // 💾 Save claim time inside this profile
   profile.lastChestClaim = Date.now();
   saveProfiles();
 
-  // Disable chest + reset timer text
   chestEl.classList.add("disabled");
   timerEl.textContent = "Next reward in 1:00:00";
 }
 
 // ------------------------------------------------------------
-// ⏰ UPDATE CHEST STATE (per profile)
+// ⏰ UPDATE CHEST STATE
 // ------------------------------------------------------------
 function updateChestState() {
   if (!gameState.profile) return;
@@ -89,52 +114,53 @@ function updateChestState() {
   } else {
     chestEl.classList.add("disabled");
     const remaining = COOLDOWN_MS - diff;
+
     const h = Math.floor(remaining / (1000 * 60 * 60));
     const m = Math.floor((remaining / (1000 * 60)) % 60);
     const s = Math.floor((remaining / 1000) % 60);
-    timerEl.textContent = `Next reward in ${h}:${m
-      .toString()
-      .padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+
+    timerEl.textContent =
+      `Next reward in ${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   }
 }
 
 // ------------------------------------------------------------
-// 🌈 Sparkle Burst Effect — Enhanced Magical Explosion
+// 🌈 SPARKLE BURST EFFECT
 // ------------------------------------------------------------
 function spawnSparkles() {
-  const sparkleCount = 80; // 🌸 was 25 → now MUCH bigger
-  const maxRadius = 400;   // how far sparkles travel
-  const duration = 1500;   // how long each lasts (ms)
+  const sparkleCount = 80;
+  const maxRadius = 400;
+  const duration = 1500;
 
   for (let i = 0; i < sparkleCount; i++) {
     const sparkle = document.createElement("div");
     sparkle.className = "sparkle";
     document.body.appendChild(sparkle);
 
-    // Random direction + distance
     const angle = Math.random() * Math.PI * 2;
     const radius = Math.random() * maxRadius;
     const x = Math.cos(angle) * radius;
     const y = Math.sin(angle) * radius;
 
-    // Random size & color
-    const size = Math.random() * 16 + 10; // 10–26px
+    const size = Math.random() * 16 + 10;
     sparkle.style.width = `${size}px`;
     sparkle.style.height = `${size}px`;
     sparkle.style.borderRadius = "50%";
     sparkle.style.left = `${window.innerWidth / 2}px`;
     sparkle.style.top = `${window.innerHeight / 2}px`;
-    sparkle.style.background = `hsl(${Math.random() * 360}, 100%, ${70 + Math.random() * 20}%)`;
-    sparkle.style.boxShadow = `0 0 20px ${sparkle.style.background}`;
 
-    // Animate outward (CSS handles movement via custom props)
+    const color = `hsl(${Math.random() * 360}, 100%, ${70 + Math.random() * 20}%)`;
+    sparkle.style.background = color;
+    sparkle.style.boxShadow = `0 0 20px ${color}`;
+
     sparkle.style.setProperty("--x", `${x}px`);
     sparkle.style.setProperty("--y", `${y}px`);
-
-    // Longer animation
     sparkle.style.animation = `sparkleFly ${duration}ms ease-out forwards`;
 
-    // Remove after it fades out
     setTimeout(() => sparkle.remove(), duration);
   }
 }
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================
