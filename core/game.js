@@ -626,6 +626,7 @@ export async function initGame(mode = "new") {
 
   // Subsystems
   clearLoot();
+  await loadLootImages();
   initEnemies();
   await initWorg(pathPoints);
   await initElites();
@@ -634,7 +635,7 @@ export async function initGame(mode = "new") {
   initTowers();
   initOgres();
   initProjectiles();
-  await loadLootImages();
+  
 
   // Player
   if (!gameState.player) {

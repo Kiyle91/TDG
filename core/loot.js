@@ -40,16 +40,16 @@ function loadImage(src) {
 const LOOT_ITEMS = [
   { type: "chest",   amount: 20,   weight: 6 },   // small gold chest
   { type: "diamond", amount: 25,   weight: 2 },   // diamonds
-  { type: "heart",   amount: 20,   weight: 2 },   // heal
-  { type: "mana",    amount: 40,   weight: 2 },   // mana potion
+  { type: "heart",   amount: 100,   weight: 2 },   // heal
+  { type: "mana",    amount: 100,   weight: 2 },   // mana potion
 ];
 
 // ------------------------------------------------------------
 // 🎲 PER-ENEMY DROP CHANCES
 // ------------------------------------------------------------
 const LOOT_TABLE = {
-  goblin:  { chance: 0.05, rolls: 1 }, // 5%
-  troll:   { chance: 0.12, rolls: 1 }, // 12%
+  goblin:  { chance: 1.0, rolls: 1 }, // 5%
+  troll:   { chance: 1.0, rolls: 1 }, // 12%
   worg:    { chance: 0.10, rolls: 1 }, // 10%
   elite:   { chance: 0.15, rolls: 1 }, // 15%
   crossbow: { chance: 0.08, rolls: 1 },// 8%
@@ -133,24 +133,27 @@ function scatterPosition(x, y) {
   };
 }
 
-/**
- * Spawn loot for a given source.
- * `source` should be a key from LOOT_TABLE, e.g. "goblin", "ogre", "pegasus".
- */
 export function spawnLoot(source, x, y) {
   const table = LOOT_TABLE[source];
   if (!table) return;
 
-  // Roll chance
+  // Optional safety guard
+  if (!isFinite(x) || !isFinite(y)) {
+    console.warn("⚠️ Invalid loot coords:", source, x, y);
+    return;
+  }
+
+  // Roll chance (0–1)
   if (Math.random() > table.chance) return;
 
   const rolls = table.rolls ?? 1;
+
   for (let i = 0; i < rolls; i++) {
-    const item = pickWeightedItem(table.items);
+    // 🔥 Use the global pool now
+    const item = pickWeightedItem(LOOT_ITEMS);
     if (!item) continue;
 
-    const pos =
-      rolls > 1 ? scatterPosition(x, y) : { x, y };
+    const pos = rolls > 1 ? scatterPosition(x, y) : { x, y };
 
     drops.push({
       type: item.type,
