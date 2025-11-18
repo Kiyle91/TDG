@@ -576,7 +576,7 @@ export function damageEnemy(enemy, amount) {
     addGold(50);
     addBravery (1);
     updateHUD();
-    spawnLoot ("goblin", enemy)
+    spawnLoot("goblin", enemy.x, enemy.y)
   }
 }
 

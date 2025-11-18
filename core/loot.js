@@ -50,17 +50,17 @@ function loadImage(src) {
 //
 const LOOT_TABLE = {
   goblin: {
-    chance: 0.20,  // 20% chance
+    chance: 0.05,  // 20% chance
     rolls: 1,
     items: [
-      { type: "chest", amount: 25, weight: 9 },    // +25 gold
+      { type: "chest", amount: 20, weight: 9 },    // +25 gold
       { type: "diamond", amount: 25, weight: 1 },  // +25 diamonds
     ],
   },
 
   troll: {
     // Trolls were using goblin drops; keep similar but a bit tweaked
-    chance: 0.12,
+    chance: 1,
     rolls: 1,
     items: [
       { type: "chest", amount: 15, weight: 6 },
@@ -295,63 +295,89 @@ function applyLootReward(d) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW
+// 🎨 DRAW — Safe, optimized loot renderer
 // ------------------------------------------------------------
 export function drawLoot(ctx) {
-  
-
-  if (!ctx || !drops.length) return;
+  if (!ctx || drops.length === 0) return;
 
   const time = Date.now() / 1000;
 
   for (const d of drops) {
-    const img = lootImages[d.type];
-    if (!img) continue;
 
+    // --------------------------------------------------------
+    // 🛡 SAFETY GUARD — prevent NaN crashes
+    // --------------------------------------------------------
+    if (!isFinite(d.x) || !isFinite(d.y)) {
+      console.warn("⚠️ Skipping loot with invalid coordinates:", d);
+      continue;
+    }
+
+    const img = lootImages[d.type];
+    if (!img) continue; // Invalid image? Skip gracefully.
+
+    // --------------------------------------------------------
+    // 📏 SIZE + ANIMATION
+    // --------------------------------------------------------
     const pulse = 1 + Math.sin(time * 2) * 0.08;
     const float = Math.sin(time * 3 + d.x * 0.01) * 4;
     const glowPulse = (Math.sin(time * 4) + 1) * 0.5;
 
-    // Base size tweaks per type
-    const baseSize =
-      d.type === "heart" ? 65 :
-      d.type === "mana" ? 60 :
-      48;
+    // Base sizing by type
+    let baseSize = 48;
+    if (d.type === "heart") baseSize = 65;
+    else if (d.type === "mana") baseSize = 60;
 
     const size = baseSize * pulse;
 
+    // Position
     const x = d.x;
     const y = d.y + float;
 
+    // Double-check safety
+    if (!isFinite(size) || size <= 0) continue;
+
     ctx.save();
 
-    // Soft aura
-    const gradient = ctx.createRadialGradient(
-      x, y, size * 0.2,
-      x, y, size * 0.9
-    );
+    // --------------------------------------------------------
+    // ✨ SOFT AURA GLOW (safe gradient)
+    // --------------------------------------------------------
+    let gradient;
+    try {
+      gradient = ctx.createRadialGradient(
+        x, y, size * 0.2,
+        x, y, size * 0.9
+      );
+    } catch (err) {
+      console.warn("⚠️ Gradient error — skipping drop:", d, err);
+      ctx.restore();
+      continue;
+    }
+
     if (d.type === "diamond") {
       gradient.addColorStop(0, `rgba(255, 255, 255, ${0.7 * d.opacity})`);
-      gradient.addColorStop(1, `rgba(180, 200, 255, ${0.0 * d.opacity})`);
+      gradient.addColorStop(1, `rgba(180, 200, 255, 0)`);
     } else if (d.type === "heart") {
       gradient.addColorStop(0, `rgba(255, 170, 200, ${0.7 * d.opacity})`);
-      gradient.addColorStop(1, `rgba(255, 120, 180, ${0.0 * d.opacity})`);
+      gradient.addColorStop(1, `rgba(255, 120, 180, 0)`);
     } else if (d.type === "mana") {
       gradient.addColorStop(0, `rgba(150, 220, 255, ${0.7 * d.opacity})`);
-      gradient.addColorStop(1, `rgba(80, 180, 255, ${0.0 * d.opacity})`);
+      gradient.addColorStop(1, `rgba(80, 180, 255, 0)`);
     } else {
       // chest / generic
       gradient.addColorStop(0, `rgba(255, 230, 170, ${0.7 * d.opacity})`);
-      gradient.addColorStop(1, `rgba(255, 200, 120, ${0.0 * d.opacity})`);
+      gradient.addColorStop(1, `rgba(255, 200, 120, 0)`);
     }
 
+    // Aura glow
     ctx.globalAlpha = d.opacity * (0.7 + glowPulse * 0.3);
     ctx.beginPath();
     ctx.fillStyle = gradient;
     ctx.arc(x, y, size * 0.8, 0, Math.PI * 2);
     ctx.fill();
 
-    // Icon
+    // --------------------------------------------------------
+    // 🖼️ ICON DRAW
+    // --------------------------------------------------------
     ctx.globalAlpha = d.opacity;
     ctx.drawImage(
       img,
