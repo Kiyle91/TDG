@@ -1,10 +1,29 @@
 // ============================================================
 // 💬 story.js — Olivia’s World: Crystal Keep (Dynamic Portraits)
-// -------------------------------------------------------------
-// ✦ Story portrait now matches the player's skin
-// ✦ Ariana can be forced for lore moments
-// ✦ Used for Wave 1, Wave 5, Goblin Intro & Victory
+// ------------------------------------------------------------
+// PURPOSE:
+//   Central narrative system controlling all in-game story events.
+//   Displays story overlays with portraits + text, pauses gameplay,
+//   and resumes when the player continues.
+//
+// FEATURES:
+//   • Portrait automatically matches the player's current skin
+//   • Optional Ariana override for lore moments
+//   • Story triggers for Wave 1, Wave 5, Goblin Intro, Victory
+//   • Prevents repeated firing using per-map story flags
+//
+// USED BY:
+//   game.js → triggers end-of-wave stories
+//   gameplay start → goblin intro
+//   victory → optional victory story
+//
+// UI:
+//   Uses #overlay-story injected directly into DOM
 // ============================================================
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------ 
 
 import { showScreen } from "./screens.js";
 import { startGameplay } from "../main.js";
@@ -25,19 +44,21 @@ function resolvePortrait(useAriana = false) {
   const key = player.skin || "glitter";
   const skin = SKINS[key];
 
-  return `./assets/images/portraits/${skin.portrait}`;
+  // Fallback protection
+  return `./assets/images/portraits/${skin?.portrait || "portrait_glitter.png"}`;
 }
 
 // ------------------------------------------------------------
-// 📜 UNIVERSAL STORY BOX
+// 📜 UNIVERSAL STORY BOX OVERLAY HANDLER
 // ------------------------------------------------------------
 async function showStory({ text, useAriana = false, autoStart = false }) {
   return new Promise((resolve) => {
-    // Remove any existing overlay first
+    // Remove any existing story overlay (safety)
     document.getElementById("overlay-story")?.remove();
 
     const portrait = resolvePortrait(useAriana);
 
+    // Build DOM
     const overlay = document.createElement("div");
     overlay.id = "overlay-story";
     overlay.className = "overlay active";
@@ -59,11 +80,13 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
 
     document.body.appendChild(overlay);
 
+    // Button handling
     const nextBtn = overlay.querySelector("#story-next");
     nextBtn.disabled = false;
 
     nextBtn.addEventListener("click", () => {
       overlay.classList.add("fade-out");
+
       setTimeout(() => {
         overlay.remove();
 
@@ -79,9 +102,8 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
 }
 
 // ------------------------------------------------------------
-// 📜 MAP-SPECIFIC STORY TEXT
+// 📜 MAP-SPECIFIC STORY TEXT (Wave 1 & 5)
 // ------------------------------------------------------------
-
 export const wave1Text = {
   1: "Guardian, the goblins test our borders. Stay sharp — this is only the beginning.",
   2: "These woods hide old magic — and darker creatures. Even the goblins seem wary.",
@@ -107,7 +129,7 @@ export const wave5Text = {
 };
 
 // ------------------------------------------------------------
-// ⭐ WAVE STORY FLAGS (per map)
+// ⭐ WAVE STORY FLAGS (prevents repeat triggers)
 // ------------------------------------------------------------
 export const waveStoryFlags = {};
 for (let i = 1; i <= 9; i++) {
@@ -125,7 +147,7 @@ export async function triggerEndOfWave1Story(mapId) {
 
   await showStory({
     text: wave1Text[mapId] || "The battle continues...",
-    useAriana: false,    // ⭐ Player portrait
+    useAriana: false,
   });
 
   gameState.paused = false;
@@ -143,7 +165,7 @@ export async function triggerEndOfWave5Story(mapId) {
 
   await showStory({
     text: wave5Text[mapId] || "You stand victorious, Guardian.",
-    useAriana: false,    // ⭐ Player portrait
+    useAriana: false,
   });
 
   gameState.paused = false;
@@ -167,7 +189,7 @@ Press E to fire a silver arrow.
 
   await showStory({
     text: goblinText,
-    useAriana: false,    // ⭐ use the player portrait
+    useAriana: false,
   });
 
   gameState.paused = false;
@@ -183,7 +205,7 @@ export async function showVictoryStory() {
 💎 The final goblin falls, and peace returns — for now.
 The crystals glow once again under your protection.
     `.trim(),
-    useAriana: false,    // ⭐ player portrait
+    useAriana: false,
   });
 
   console.log("🏰 Victory story finished.");
