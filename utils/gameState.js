@@ -34,11 +34,16 @@
  *       - resetEchoBuff()
  * ------------------------------------------------------------ */
 
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
+
 import { createPlayer } from "../core/player.js";
 
 // ============================================================
 // 💾 GLOBAL RUNTIME STATE
 // ============================================================
+
 export const gameState = {
   player: null,
   profile: null,
@@ -75,6 +80,7 @@ export const gameState = {
 // ============================================================
 // 👑 LOAD PROFILE INTO GAMESTATE
 // ============================================================
+
 export function setProfile(profile) {
   gameState.profile = profile;
 
@@ -109,6 +115,7 @@ export function setProfile(profile) {
 // ============================================================
 // 🧬 SAFE PROFILE MIGRATION
 // ============================================================
+
 function migrateProfile(profile) {
   if (!profile.currencies) {
     profile.currencies = { gold: 0, diamonds: 0 };
@@ -159,6 +166,7 @@ function migrateProfile(profile) {
 // ============================================================
 // 📘 PROFILE ACCESS
 // ============================================================
+
 export function getProfile() {
   return gameState.profile;
 }
@@ -166,6 +174,7 @@ export function getProfile() {
 // ============================================================
 // ➕ ADD NEW PROFILE
 // ============================================================
+
 export function addProfile(name) {
   if (gameState.profiles.length >= 6) return false;
 
@@ -210,6 +219,7 @@ export function addProfile(name) {
 // ============================================================
 // 💾 SAVE ALL PROFILES (Silent, production-safe)
 // ============================================================
+
 export function saveProfiles() {
   try {
     if (gameState.profile) {
@@ -228,6 +238,7 @@ export function saveProfiles() {
 // ============================================================
 // 💾 LOAD PROFILES FROM STORAGE
 // ============================================================
+
 export function loadProfiles() {
   try {
     const data = localStorage.getItem("td_profiles");
@@ -243,6 +254,7 @@ export function loadProfiles() {
 // ============================================================
 // 🗺️ MAP CONTROL
 // ============================================================
+
 export function unlockMap(id) {
   const index = id - 1;
   if (index >= 0 && index < 9) {
@@ -262,6 +274,7 @@ export function setCurrentMap(id) {
 // ============================================================
 // 💰 CURRENCY CONTROL
 // ============================================================
+
 export function addXP(amount) {
   gameState.resources.xp += amount;
 }
@@ -308,6 +321,7 @@ export function getCurrencies() {
 // ============================================================
 // 💎 ECHO BUFF RESET
 // ============================================================
+
 export function resetEchoBuff() {
   gameState.echoPowerActive = false;
 

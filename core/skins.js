@@ -35,6 +35,7 @@ import { gameState, saveProfiles } from "../utils/gameState.js";
 // ------------------------------------------------------------
 // 🎨 SKIN REGISTRY
 // ------------------------------------------------------------
+
 export const SKINS = {
   glitter: {
     name: "Glitter Guardian",
@@ -65,6 +66,7 @@ export const SKINS = {
 // ------------------------------------------------------------
 // 🛡️ ENSURE COSMETICS EXIST (profile → player sync)
 // ------------------------------------------------------------
+
 export function ensureSkin(player) {
 
   // Make sure profile is valid
@@ -90,6 +92,7 @@ export function ensureSkin(player) {
 // ------------------------------------------------------------
 // 🔓 UNLOCK A SKIN
 // ------------------------------------------------------------
+
 export function unlockSkin(player, key) {
   if (!player.unlockedSkins.includes(key)) {
     player.unlockedSkins.push(key);
@@ -107,6 +110,7 @@ export function unlockSkin(player, key) {
 // ------------------------------------------------------------
 // 👗 EQUIP A SKIN
 // ------------------------------------------------------------
+
 export function selectSkin(player, key) {
   if (!player.unlockedSkins.includes(key)) return;
 

@@ -33,6 +33,7 @@ import { SKINS, ensureSkin } from "./skins.js";
 // ------------------------------------------------------------
 // 🌟 RESOLVE PORTRAIT (player skin OR Ariana override)
 // ------------------------------------------------------------
+
 function resolvePortrait(useAriana = false) {
   if (useAriana) {
     return "./assets/images/portraits/princess_ariana.png";
@@ -51,6 +52,7 @@ function resolvePortrait(useAriana = false) {
 // ------------------------------------------------------------
 // 📜 UNIVERSAL STORY BOX OVERLAY HANDLER
 // ------------------------------------------------------------
+
 async function showStory({ text, useAriana = false, autoStart = false }) {
   return new Promise((resolve) => {
     // Remove any existing story overlay (safety)
@@ -104,6 +106,7 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
 // ------------------------------------------------------------
 // 📜 MAP-SPECIFIC STORY TEXT (Wave 1 & 5)
 // ------------------------------------------------------------
+
 export const wave1Text = {
   1: "Guardian, the goblins test our borders. Stay sharp — this is only the beginning.",
   2: "These woods hide old magic — and darker creatures. Even the goblins seem wary.",
@@ -131,6 +134,7 @@ export const wave5Text = {
 // ------------------------------------------------------------
 // ⭐ WAVE STORY FLAGS (prevents repeat triggers)
 // ------------------------------------------------------------
+
 export const waveStoryFlags = {};
 for (let i = 1; i <= 9; i++) {
   waveStoryFlags[i] = { 1: false, 5: false };
@@ -139,6 +143,7 @@ for (let i = 1; i <= 9; i++) {
 // ------------------------------------------------------------
 // ⭐ END OF WAVE 1 STORY
 // ------------------------------------------------------------
+
 export async function triggerEndOfWave1Story(mapId) {
   if (!waveStoryFlags[mapId] || waveStoryFlags[mapId][1]) return;
 
@@ -157,6 +162,7 @@ export async function triggerEndOfWave1Story(mapId) {
 // ------------------------------------------------------------
 // ⭐ END OF WAVE 5 STORY
 // ------------------------------------------------------------
+
 export async function triggerEndOfWave5Story(mapId) {
   if (!waveStoryFlags[mapId] || waveStoryFlags[mapId][5]) return;
 
@@ -175,6 +181,7 @@ export async function triggerEndOfWave5Story(mapId) {
 // ------------------------------------------------------------
 // 🏹 GOBLIN INTRO STORY
 // ------------------------------------------------------------
+
 export async function startGoblinIntroStory() {
   console.log("🎬 Goblin scout intro story triggered!");
   gameState.paused = true;
@@ -199,6 +206,7 @@ Press E to fire a silver arrow.
 // ------------------------------------------------------------
 // 🏆 VICTORY STORY (Optional)
 // ------------------------------------------------------------
+
 export async function showVictoryStory() {
   await showStory({
     text: `

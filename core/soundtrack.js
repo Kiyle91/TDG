@@ -36,6 +36,7 @@ let musicUnlocked = false;
 // ------------------------------------------------------------
 // 🌸 Initialize background music (gesture-unlocked)
 // ------------------------------------------------------------
+
 export function initMusic() {
   if (musicAudio) return;
 
@@ -62,6 +63,7 @@ export function initMusic() {
 // ------------------------------------------------------------
 // 🎚️ Volume Controls
 // ------------------------------------------------------------
+
 export function setMusicVolume(value) {
   if (musicAudio) musicAudio.volume = value;
 }
@@ -74,6 +76,7 @@ export function setSfxVolume(value) {
 // ------------------------------------------------------------
 // 💥 Universal one-shot SFX helper
 // ------------------------------------------------------------
+
 export function playSfx(path) {
   if (!musicUnlocked) return;       // block until user unlocks
   const sfx = new Audio(path);
@@ -84,6 +87,7 @@ export function playSfx(path) {
 // ------------------------------------------------------------
 // 🧚‍♀️ Fairy Sparkle Menu / Alert SFX
 // ------------------------------------------------------------
+
 const fairySparklePath = "./assets/sounds/fairy-sparkle.mp3";
 export function playFairySprinkle() {
   playSfx(fairySparklePath);
@@ -92,6 +96,7 @@ export function playFairySprinkle() {
 // ------------------------------------------------------------
 // 💰 Chest Opening
 // ------------------------------------------------------------
+
 const chestOpenPath = "./assets/sounds/chest-open.mp3";
 export function playChestOpen() {
   playSfx(chestOpenPath);
@@ -100,6 +105,7 @@ export function playChestOpen() {
 // ------------------------------------------------------------
 // 🚫 Cancel Button
 // ------------------------------------------------------------
+
 const cancelButtonPath = "./assets/sounds/cancel-button.mp3";
 export function playCancelSound() {
   playSfx(cancelButtonPath);
@@ -108,6 +114,7 @@ export function playCancelSound() {
 // ------------------------------------------------------------
 // ⚔️ Combat SFX
 // ------------------------------------------------------------
+
 const meleePath = "./assets/sounds/melee_swing.mp3";
 const arrowPath = "./assets/sounds/arrow_swish.mp3";
 const spellPath = "./assets/sounds/spell_cast.mp3";
@@ -119,6 +126,7 @@ export function playSpellCast()  { playSfx(spellPath); }
 // ------------------------------------------------------------
 // 👺 Goblin SFX
 // ------------------------------------------------------------
+
 const goblinAttackPath = "./assets/sounds/goblin_attack.mp3";
 const goblinDeathPath  = "./assets/sounds/goblin_death.mp3";
 const goblinDamagePath = "./assets/sounds/goblin_damage.mp3";
@@ -130,6 +138,7 @@ export function playGoblinDamage() { playSfx(goblinDamagePath); }
 // ------------------------------------------------------------
 // 👹 Ogre SFX
 // ------------------------------------------------------------
+
 const ogreEnterPath  = "./assets/sounds/ogre_enter.mp3";
 const ogreAttackPath = "./assets/sounds/ogre_attack.mp3";
 const ogreSlainPath  = "./assets/sounds/ogre_slain.mp3";
@@ -141,6 +150,7 @@ export function playOgreSlain()  { playSfx(ogreSlainPath); }
 // ------------------------------------------------------------
 // 🕊️ Pegasus Spawn (summon chime)
 // ------------------------------------------------------------
+
 const pegasusSpawnPath = "./assets/sounds/pegasus.mp3";
 export function playPegasusSpawn() {
   playSfx(pegasusSpawnPath);
@@ -159,6 +169,7 @@ export function stopMusic() {
 // ------------------------------------------------------------
 // ❤️ Player Damage SFX
 // ------------------------------------------------------------
+
 const playerDamagePath = "./assets/sounds/player_damage.mp3";
 export function playPlayerDamage() {
   playSfx(playerDamagePath);

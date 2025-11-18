@@ -38,6 +38,7 @@ import { updateHUD } from "./ui.js";
 // ------------------------------------------------------------
 // ⏱️ PLACEMENT COOLDOWN (anti-spam)
 // ------------------------------------------------------------
+
 let spirePlaceCooldown = 0;
 const SPIRE_PLACE_DELAY = 300; // ms
 
@@ -45,6 +46,7 @@ const SPIRE_PLACE_DELAY = 300; // ms
 // ------------------------------------------------------------
 // ⚙️ CONFIG
 // ------------------------------------------------------------
+
 const TILE_SIZE = 64;
 const SPIRE_COST = 50;
 const SPIRE_RADIUS = 75; // minimum spacing between spires
@@ -62,6 +64,7 @@ const SPIRE_UNLOCKS = {
 // ------------------------------------------------------------
 // 🎮 handleSpireKey()
 // ------------------------------------------------------------
+
 export function handleSpireKey(keyCode) {
   if (spirePlaceCooldown > 0) return;
 
@@ -76,6 +79,7 @@ export function handleSpireKey(keyCode) {
 // ------------------------------------------------------------
 // 🏗️ tryPlaceSpire()
 // ------------------------------------------------------------
+
 function tryPlaceSpire(num) {
   const player = gameState.player;
   if (!player || !gameState.profile) return;
@@ -132,6 +136,7 @@ function tryPlaceSpire(num) {
 // ------------------------------------------------------------
 // 🔁 COOL DOWN TICKER (approx. 60fps)
 // ------------------------------------------------------------
+
 setInterval(() => {
   if (spirePlaceCooldown > 0) {
     spirePlaceCooldown -= 16;
@@ -143,6 +148,7 @@ setInterval(() => {
 // ------------------------------------------------------------
 // 📤 Exports
 // ------------------------------------------------------------
+
 export { spirePlaceCooldown, SPIRE_PLACE_DELAY };
 
 

@@ -39,6 +39,7 @@ import { gameState } from "../utils/gameState.js";
 // ------------------------------------------------------------
 // 🎀 CREATE NEW PLAYER OBJECT
 // ------------------------------------------------------------
+
 export function createPlayer() {
   return {
     name: "",
@@ -72,6 +73,7 @@ export function createPlayer() {
 // ------------------------------------------------------------
 // 🌸 INITIALIZE NEW PLAYER
 // ------------------------------------------------------------
+
 export function initPlayer() {
   gameState.player = createPlayer();
 }
@@ -79,6 +81,7 @@ export function initPlayer() {
 // ------------------------------------------------------------
 // 💾 RESTORE PLAYER FROM SAVE SLOT
 // ------------------------------------------------------------
+
 export function restorePlayer(savedPlayer) {
   if (!savedPlayer) return;
   gameState.player = { ...savedPlayer };

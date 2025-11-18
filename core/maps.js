@@ -47,6 +47,7 @@ import { resetCombatState } from "./game.js";
 // ------------------------------------------------------------
 // 🔐 UPDATE TILE VISUAL STATES
 // ------------------------------------------------------------
+
 export function updateMapTiles() {
   document.querySelectorAll(".map-tile").forEach((tile) => {
     const level = parseInt(tile.dataset.level);
@@ -69,6 +70,7 @@ export function updateMapTiles() {
 // ------------------------------------------------------------
 // 🎮 MAP SELECT INITIALISATION
 // ------------------------------------------------------------
+
 export function initMapSelect() {
   updateMapTiles();
 

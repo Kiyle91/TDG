@@ -23,6 +23,7 @@
 // ------------------------------------------------------------
 // 🗺️ MAP & LAYERS
 // ------------------------------------------------------------
+
 import {
   loadMap,
   extractPathFromMap,
@@ -34,6 +35,7 @@ import {
 // ------------------------------------------------------------
 // 👹 ENEMIES (Goblin / Troll / Ogre / Worg / Elite / Crossbow)
 // ------------------------------------------------------------
+
 import {
   initGoblins,
   updateGoblins,
@@ -90,6 +92,7 @@ import {
 // ------------------------------------------------------------
 // 🏹 SPIRES & PROJECTILES
 // ------------------------------------------------------------
+
 import {
   initSpires,
   updateSpires,
@@ -105,6 +108,7 @@ import {
 // ------------------------------------------------------------
 // 🎁 UNIFIED LOOT SYSTEM
 // ------------------------------------------------------------
+
 import {
   loadLootImages,
   updateLoot,
@@ -115,6 +119,7 @@ import {
 // ------------------------------------------------------------
 // 🧭 PLAYER CONTROLLER
 // ------------------------------------------------------------
+
 import {
   initPlayerController,
   updatePlayer,
@@ -124,6 +129,7 @@ import {
 // ------------------------------------------------------------
 // 🧩 UI / HUD
 // ------------------------------------------------------------
+
 import {
   initUI,
   updateHUD,
@@ -133,6 +139,7 @@ import {
 // ------------------------------------------------------------
 // 💬 FLOATING COMBAT TEXT
 // ------------------------------------------------------------
+
 import {
   updateFloatingText,
   drawFloatingText,
@@ -141,6 +148,7 @@ import {
 // ------------------------------------------------------------
 // 🪽 PEGASUS (ambient flight only)
 // ------------------------------------------------------------
+
 import {
   loadPegasus,
   initPegasus,
@@ -151,6 +159,7 @@ import {
 // ------------------------------------------------------------
 // ✨ CRYSTAL ECHOES (ambient sparkle bursts)
 // ------------------------------------------------------------
+
 import {
   updateCrystalEchoes,
   initCrystalEchoes,
@@ -160,6 +169,7 @@ import {
 // ------------------------------------------------------------
 // ⚙️ GLOBAL STATE & STORY
 // ------------------------------------------------------------
+
 import {
   gameState,
   unlockMap,
@@ -176,6 +186,7 @@ import {
 // ============================================================
 // 🌊 WAVE CONFIGS
 // ============================================================
+
 export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding
   1: [
@@ -262,6 +273,7 @@ export const waveConfigs = {
 // ============================================================
 // 🎯 WAVE STATE
 // ============================================================
+
 let currentWaveIndex = 0;
 let waveActive = false;
 let waveCleared = false;
@@ -276,6 +288,7 @@ window.betweenWaveTimerActive = false;
 // ============================================================
 // 🧩 BONUS OGRE SPAWN — 1 per 100 goblins killed
 // ============================================================
+
 let ogreMilestones = {};
 for (let i = 1; i <= 20; i++) {
   ogreMilestones[i * 100] = false;
@@ -295,6 +308,7 @@ if (typeof gameState.victoryPending !== "boolean") {
 // ============================================================
 // 🐣 SPAWN QUEUE (4-second spacing)
 // ============================================================
+
 const SPAWN_INTERVAL = 4000;
 let spawnQueue = [];
 let spawnTimer = 0;
@@ -302,6 +316,7 @@ let spawnTimer = 0;
 // ============================================================
 // 🔄 RESET WAVE SYSTEM (call on map load / new game)
 // ============================================================
+
 export function resetWaveSystem() {
   currentWaveIndex = 0;
   waveActive = false;
@@ -325,6 +340,7 @@ export function resetWaveSystem() {
 // ============================================================
 // 🚀 START NEXT WAVE
 // ============================================================
+
 function startNextWave() {
   firstWaveStarted = true;
   window.firstWaveStarted = true;
@@ -383,6 +399,7 @@ function startNextWave() {
 // ============================================================
 // 👁 CHECK ACTIVE ENEMIES
 // ============================================================
+
 function noEnemiesAlive() {
   const g = getGoblins();
   const w = getWorg();
@@ -410,6 +427,7 @@ function noEnemiesAlive() {
 // ============================================================
 // 🔁 UPDATE WAVE PROGRESSION
 // ============================================================
+
 async function updateWaveSystem(delta) {
   // Initial delay before first wave
   if (!firstWaveStarted) {
@@ -505,6 +523,7 @@ async function updateWaveSystem(delta) {
 // ------------------------------------------------------------
 // 🎥 LOCAL CAMERA STATE
 // ------------------------------------------------------------
+
 let canvas = null;
 let ctx = null;
 
@@ -523,6 +542,7 @@ const HUD_UPDATE_INTERVAL = 100;
 // ------------------------------------------------------------
 // 🏆 VICTORY COUNTER
 // ------------------------------------------------------------
+
 export let goblinsDefeated = 0;
 
 export function incrementGoblinDefeated() {
@@ -537,6 +557,7 @@ export function incrementGoblinDefeated() {
 // ------------------------------------------------------------
 // 🧭 MAP-AWARE PLAYER SPAWN (Maps 1–9)
 // ------------------------------------------------------------
+
 function applyMapSpawn() {
   if (!gameState.player) return;
 
@@ -568,6 +589,7 @@ function applyMapSpawn() {
 // ============================================================
 // 🌷 INIT — called once when entering the Game screen
 // ============================================================
+
 export async function initGame(mode = "new") {
   gameState.echoPowerActive = false;
 
@@ -656,6 +678,7 @@ export async function initGame(mode = "new") {
 // ============================================================
 // 🔁 UPDATE — synchronized world logic (OPTIMIZED)
 // ============================================================
+
 export function updateGame(delta) {
   if (gameState.paused) return;
 
@@ -711,6 +734,7 @@ export function updateGame(delta) {
 // ============================================================
 // 🎨 RENDER — ordered by layer depth + camera offset
 // ============================================================
+
 export function renderGame() {
   if (!ctx || !canvas) return;
 
@@ -755,6 +779,7 @@ export function renderGame() {
 // ============================================================
 // 🧠 VICTORY / DEFEAT CHECK
 // ============================================================
+
 function checkVictoryDefeat() {
   const p = gameState.player;
   if (!p) return;
@@ -782,6 +807,7 @@ function checkVictoryDefeat() {
 // ============================================================
 // ♻️ RESET COMBAT STATE — Try Again / Continue / New Map
 // ============================================================
+
 export function resetCombatState() {
   goblinsDefeated = 0;
   gameState.victoryPending = false;
@@ -838,6 +864,7 @@ export function resetCombatState() {
 // ============================================================
 // 🔁 RESET PLAYER STATE — used by "Try Again"
 // ============================================================
+
 export function resetPlayerState() {
   const p = gameState.player;
   if (!p) return;

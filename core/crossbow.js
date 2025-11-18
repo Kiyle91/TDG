@@ -33,6 +33,7 @@
 // ------------------------------------------------------------
 // ↪️ Imports
 // ------------------------------------------------------------
+
 import { gameState, addGold } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { awardXP } from "./levelSystem.js";
@@ -45,6 +46,7 @@ import { spawnLoot } from "./loot.js";
 // ============================================================
 // 🧩 INTERNAL STATE
 // ============================================================
+
 let crossbowList = [];
 let pathPoints = [];
 let crossbowSprites = null;
@@ -58,6 +60,7 @@ const GLOBAL_CROSSBOW_COOLDOWN_MS = 900;
 // ============================================================
 // ⚙️ CONFIGURATION
 // ============================================================
+
 const CROSSBOW_HP = 100;
 const CROSSBOW_SPEED = 80;
 const CROSSBOW_SIZE = 80;
@@ -77,6 +80,7 @@ const ATTACK_FRAME_INTERVAL = 180;
 // ============================================================
 // 📦 SPRITE LOADER
 // ============================================================
+
 function loadImage(src) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -141,6 +145,7 @@ async function loadCrossbowSprites() {
 // ============================================================
 // 🔧 INIT
 // ============================================================
+
 export async function initCrossbows(path) {
   pathPoints = Array.isArray(path) ? path : [];
   crossbowList = [];
@@ -154,6 +159,7 @@ export async function initCrossbows(path) {
 // ============================================================
 // 🧬 SPAWN (off-screen elite-style spawn)
 // ============================================================
+
 export function spawnCrossbow() {
   const p = gameState.player;
   if (!p) return;
@@ -197,6 +203,7 @@ export function spawnCrossbow() {
 // ============================================================
 // 🔥 FIRE PROJECTILE
 // ============================================================
+
 function spawnCrossbowBolt(c, targetX, targetY) {
   const angle = Math.atan2(targetY - c.y, targetX - c.x);
   const speed = 580;
@@ -215,6 +222,7 @@ function spawnCrossbowBolt(c, targetX, targetY) {
 // ============================================================
 // 🔁 UPDATE LOOP
 // ============================================================
+
 export function updateCrossbows(delta) {
   delta = Math.min(delta, 100);
   const dt = delta / 1000;
@@ -359,6 +367,7 @@ export function updateCrossbows(delta) {
 // ============================================================
 // 🔁 PROJECTILE UPDATES
 // ============================================================
+
 function updateCrossbowBolts(delta) {
   globalCrossbowCooldown = Math.max(0, globalCrossbowCooldown - delta);
 
@@ -399,6 +408,7 @@ function updateCrossbowBolts(delta) {
 // ============================================================
 // 🔁 DRAW PROJECTILES
 // ============================================================
+
 function drawCrossbowBolts(ctx) {
   ctx.save();
   ctx.fillStyle = "rgba(255, 230, 120, 0.95)";
@@ -416,6 +426,7 @@ function drawCrossbowBolts(ctx) {
 // ============================================================
 // 🎨 DRAW CROSSBOWS
 // ============================================================
+
 export function drawCrossbows(ctx) {
   if (!ctx || !crossbowSprites) return;
 
@@ -481,6 +492,7 @@ export function drawCrossbows(ctx) {
 // ============================================================
 // 💥 DAMAGE API
 // ============================================================
+
 export function damageCrossbow(c, amount) {
   if (!c || !c.alive) return;
 
@@ -513,6 +525,7 @@ function killCrossbow(c) {
 // ============================================================
 // 🧺 PUBLIC API
 // ============================================================
+
 export function getCrossbows() {
   return crossbowList;
 }

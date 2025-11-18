@@ -52,6 +52,7 @@ let CRIT_MODE = false;
 // ------------------------------------------------------------
 // ♻️ Initialise object pool
 // ------------------------------------------------------------
+
 for (let i = 0; i < MAX_TEXTS; i++) {
   pool[i] = {
     active: false,
@@ -70,6 +71,7 @@ for (let i = 0; i < MAX_TEXTS; i++) {
 // ------------------------------------------------------------
 // 🌸 SPAWN FLOATING TEXT
 // ------------------------------------------------------------
+
 export function spawnFloatingText(
   x,
   y,
@@ -130,6 +132,7 @@ export function spawnFloatingText(
 // ------------------------------------------------------------
 // ⏰ UPDATE — Automatic expiration (swap-pop removal)
 // ------------------------------------------------------------
+
 export function updateFloatingText(delta) {
   for (let i = active.length - 1; i >= 0; i--) {
     const t = active[i];
@@ -153,6 +156,7 @@ export function updateFloatingText(delta) {
 // ------------------------------------------------------------
 // 🎨 DRAW FLOATING TEXT
 // ------------------------------------------------------------
+
 export function drawFloatingText(ctx) {
   const len = active.length;
 
@@ -199,6 +203,7 @@ export function drawFloatingText(ctx) {
 // ------------------------------------------------------------
 // 🔧 OPTIONAL: Enable/Disable crit mode
 // ------------------------------------------------------------
+
 export function enableCritMode(v = true) {
   CRIT_MODE = v;
 }

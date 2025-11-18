@@ -40,6 +40,7 @@ import { getElites } from "./elite.js";
 // ------------------------------------------------------------
 // INTERNAL STATE
 // ------------------------------------------------------------
+
 let spireSprites = {};
 let spires = [];
 
@@ -54,6 +55,7 @@ const TARGET_UPDATE_INTERVAL = 200; // ms
 // ------------------------------------------------------------
 // ASSET LOADING
 // ------------------------------------------------------------
+
 function loadImage(src) {
   return new Promise(resolve => {
     const img = new Image();
@@ -77,6 +79,7 @@ async function loadSpireSprites() {
 // ------------------------------------------------------------
 // INIT
 // ------------------------------------------------------------
+
 export async function initSpires() {
   spires.length = 0;
   await loadSpireSprites();
@@ -86,6 +89,7 @@ export async function initSpires() {
 // ------------------------------------------------------------
 // ADD NEW SPIRE
 // ------------------------------------------------------------
+
 export function addSpire(data) {
   spires.push({
     ...data,
@@ -102,6 +106,7 @@ export function addSpire(data) {
 // ------------------------------------------------------------
 // OPTIMIZED NEAREST-ENEMY CALCULATOR
 // ------------------------------------------------------------
+
 function findNearestEnemy(spire, enemies, range) {
   let closest = null;
   const maxDistSq = range * range;
@@ -127,6 +132,7 @@ function findNearestEnemy(spire, enemies, range) {
 // ------------------------------------------------------------
 // UPDATE — targeting + firing + fade-out
 // ------------------------------------------------------------
+
 export function updateSpires(delta) {
   const dt = delta / 1000;
 
@@ -247,6 +253,7 @@ export function updateSpires(delta) {
 // ------------------------------------------------------------
 // INTERNAL: trigger fire animation & cooldown
 // ------------------------------------------------------------
+
 function triggerSpire(spire) {
   spire.cooldown = FIRE_RATE_MS / 1000;
   spire.activeFrameTimer = 200;
@@ -257,6 +264,7 @@ function triggerSpire(spire) {
 // ------------------------------------------------------------
 // DRAW ALL SPIRES
 // ------------------------------------------------------------
+
 export function drawSpires(ctx) {
   if (!ctx) return;
 
@@ -332,6 +340,7 @@ export function drawSpires(ctx) {
 // ------------------------------------------------------------
 // GETTER
 // ------------------------------------------------------------
+
 export function getSpires() {
   return spires;
 }

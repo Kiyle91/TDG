@@ -6,12 +6,17 @@
 // ✦ Fully silent (no console logs)
 // ============================================================
 
+// ------------------------------------------------------------
+// 🗺️ Module-level variables
+// ------------------------------------------------------------ 
+
 let collisionLayer = null;
 let tileSize = 32;
 
 // ------------------------------------------------------------
 // 🌿 Initialize with full Tiled map JSON
 // ------------------------------------------------------------
+
 export function initCollision(mapData, providedTileSize = 32) {
   tileSize = providedTileSize;
   collisionLayer = null;
@@ -26,6 +31,7 @@ export function initCollision(mapData, providedTileSize = 32) {
 // ------------------------------------------------------------
 // ⛔ Check if a pixel position is inside a blocking tile
 // ------------------------------------------------------------
+
 export function isCollisionAt(px, py) {
   if (!collisionLayer) return false;
 
@@ -49,6 +55,7 @@ export function isCollisionAt(px, py) {
 // ------------------------------------------------------------
 // 📦 Check if a rectangle (player feet/body) hits collision
 // ------------------------------------------------------------
+
 export function isRectBlocked(x, y, w, h) {
   const points = [
     { x,          y },

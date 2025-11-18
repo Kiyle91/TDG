@@ -54,6 +54,7 @@ const POINTS_PER_LEVEL = 1;
 // ------------------------------------------------------------
 // 🧠 XP GAIN
 // ------------------------------------------------------------
+
 export function awardXP(amount = 25) {
   const p = gameState.player;
   if (!p) return;
@@ -69,6 +70,7 @@ export function awardXP(amount = 25) {
 // ------------------------------------------------------------
 // 🎯 LEVEL-UP CHECK
 // ------------------------------------------------------------
+
 function checkLevelUp() {
   const p = gameState.player;
   if (!p) return;
@@ -108,6 +110,7 @@ function checkLevelUp() {
 // ------------------------------------------------------------
 // 📈 XP THRESHOLD CURVE
 // ------------------------------------------------------------
+
 function getXpForLevel(level) {
   return Math.floor(XP_PER_LEVEL_BASE * Math.pow(XP_SCALING, level - 1));
 }
@@ -115,6 +118,7 @@ function getXpForLevel(level) {
 // ------------------------------------------------------------
 // 💫 LEVEL-UP OVERLAY
 // ------------------------------------------------------------
+
 function showLevelUpOverlay(p, onClose) {
   const overlay = document.getElementById("overlay-levelup");
   if (!overlay) {
@@ -149,6 +153,7 @@ function showLevelUpOverlay(p, onClose) {
 // ------------------------------------------------------------
 // 🧮 STAT UPGRADE HANDLER
 // ------------------------------------------------------------
+
 function handleStatUpgrade(p, key, overlay, onClose) {
   if (!p || p.statPoints <= 0) return;
 
@@ -183,6 +188,7 @@ function handleStatUpgrade(p, key, overlay, onClose) {
 // ------------------------------------------------------------
 // 🧹 CLOSE LEVEL-UP OVERLAY
 // ------------------------------------------------------------
+
 function closeLevelUpOverlay(overlay, onClose) {
   if (!overlay) return;
 

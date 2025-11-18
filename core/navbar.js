@@ -47,6 +47,7 @@ import { pauseGame, resumeGame } from "./ui.js";
 // ------------------------------------------------------------
 // 🌸 INIT NAVBAR
 // ------------------------------------------------------------
+
 export function initNavbar() {
   const nav = document.getElementById("game-navbar");
   if (!nav) return;
@@ -59,6 +60,7 @@ export function initNavbar() {
 // ------------------------------------------------------------
 // ✅ LOCAL CONFIRM OVERLAY (uses #overlay-confirm)
 // ------------------------------------------------------------
+
 function showConfirmOverlay(message, onYes, onNo) {
   const overlay = document.getElementById("overlay-confirm");
   const msgEl = document.getElementById("confirm-message");
@@ -98,6 +100,7 @@ function showConfirmOverlay(message, onYes, onNo) {
 // ------------------------------------------------------------
 // 💖 ACTION HANDLER
 // ------------------------------------------------------------
+
 function handleNavAction(action) {
   playFairySprinkle();
 
@@ -105,6 +108,7 @@ function handleNavAction(action) {
     // --------------------------------------------------------
     // 🏠 HOME — Safe exit to Hub
     // --------------------------------------------------------
+
     case "home":
       showConfirmOverlay(
         "Return to the Crystal Hub? Your progress will be saved safely.",
@@ -119,6 +123,7 @@ function handleNavAction(action) {
     // --------------------------------------------------------
     // 🔄 RESTART MAP
     // --------------------------------------------------------
+
     case "restart":
       showConfirmOverlay(
         "Restart this map? You’ll keep your player stats, but spires and goblins will reset.",
@@ -133,6 +138,7 @@ function handleNavAction(action) {
     // --------------------------------------------------------
     // 💾 SAVE / LOAD (in-game)
     // --------------------------------------------------------
+
     case "save": {
       playFairySprinkle();
       const container = document.getElementById("save-slots-ingame");
@@ -150,6 +156,7 @@ function handleNavAction(action) {
     // --------------------------------------------------------
     // ⚙️ SETTINGS
     // --------------------------------------------------------
+
     case "settings":
       playFairySprinkle();
       import("./settings.js").then((mod) => mod.initGameSettings?.());
@@ -161,6 +168,7 @@ function handleNavAction(action) {
     // --------------------------------------------------------
     // 👑 PLAYER STATS
     // --------------------------------------------------------
+
     case "player":
       playFairySprinkle();
       import("./ui.js").then((mod) => {
@@ -172,6 +180,7 @@ function handleNavAction(action) {
     // --------------------------------------------------------
     // 🎮 CONTROLS
     // --------------------------------------------------------
+
     case "controls":
       playFairySprinkle();
       import("./ui.js").then((mod) =>
@@ -187,6 +196,7 @@ function handleNavAction(action) {
 // ------------------------------------------------------------
 // ✨ FLASH EFFECT (restart feedback)
 // ------------------------------------------------------------
+
 function flashScreen() {
   const flash = document.createElement("div");
   Object.assign(flash.style, {
@@ -212,6 +222,7 @@ function flashScreen() {
 // ------------------------------------------------------------
 // 🌈 FADE HELPERS
 // ------------------------------------------------------------
+
 function fadeOut(element, callback) {
   if (!element) return;
 

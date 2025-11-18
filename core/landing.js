@@ -33,6 +33,7 @@ import { showScreen } from "../core/screens.js";
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
 // ------------------------------------------------------------
+
 export function initLanding() {
   const landing = document.getElementById("landing-screen");
   if (!landing) return;
@@ -48,6 +49,7 @@ export function initLanding() {
 // ------------------------------------------------------------
 // 🌈 FADE HELPERS
 // ------------------------------------------------------------
+
 function fadeOut(element, callback) {
   element.style.transition = "opacity 0.8s ease";
   element.style.opacity = 0;

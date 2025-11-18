@@ -30,6 +30,7 @@ import { gameState } from "../utils/gameState.js";
 // ------------------------------------------------------------
 // ⚙️ SPIRE CONFIG
 // ------------------------------------------------------------
+
 const spireData = {
   1: { name: "Crystal Defender",  level: 2,  cost: 50,  key: "1" },
   2: { name: "Frost Sentinel",    level: 5,  cost: 100, key: "2" },
@@ -42,6 +43,7 @@ const spireData = {
 // ------------------------------------------------------------
 // 🌸 INITIALIZE — inject hotkey labels + initial refresh
 // ------------------------------------------------------------
+
 export function initSpireBar() {
   document.querySelectorAll(".spire-slot").forEach((slot, i) => {
     const id = i + 1;
@@ -62,6 +64,7 @@ export function initSpireBar() {
 // ------------------------------------------------------------
 // 🔄 UPDATE VISUAL STATE (locked → unlocked)
 // ------------------------------------------------------------
+
 export function updateSpireBar() {
   const level = gameState.player?.level ?? 1;
 
@@ -77,6 +80,7 @@ export function updateSpireBar() {
     // --------------------------------------------------------
     // 🌑 LOCKED STATE
     // --------------------------------------------------------
+
     if (level < data.level) {
       slot.classList.remove("unlocked");
       label.textContent = `Lv ${data.level}`;
@@ -92,6 +96,7 @@ export function updateSpireBar() {
     // --------------------------------------------------------
     // 🌕 UNLOCKED STATE
     // --------------------------------------------------------
+    
     slot.classList.add("unlocked");
     label.textContent = `🪙 ${data.cost}`;
     label.style.color = "#fff";

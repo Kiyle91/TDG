@@ -27,10 +27,10 @@
  *   • toggleMagicSparkles() — global effect toggle
  * ------------------------------------------------------------ */
 
-
 // ------------------------------------------------------------
 // ↪️ Imports
 // ------------------------------------------------------------
+
 import { gameState, getCurrencies, saveProfiles } from "../utils/gameState.js";
 import { playCancelSound } from "./soundtrack.js";
 import { initSpireBar, updateSpireBar } from "./spireBar.js";
@@ -40,6 +40,7 @@ import { SKINS, ensureSkin } from "./skins.js";
 // ============================================================
 // ⏸️ GAME PAUSE / RESUME
 // ============================================================
+
 export function pauseGame() {
   gameState.paused = true;
 }
@@ -52,6 +53,7 @@ export function resumeGame() {
 // ------------------------------------------------------------
 // ⚙️ LOCAL STATE
 // ------------------------------------------------------------
+
 let waveDisplay, goldDisplay, diamondDisplay, livesDisplay;
 
 let gameStats = {
@@ -67,6 +69,7 @@ let lastArrowCount = -1;
 // ============================================================
 // 🌷 INITIALIZATION
 // ============================================================
+
 export function initUI() {
   waveDisplay = document.getElementById("wave-display");
   goldDisplay = document.getElementById("gold-display");
@@ -81,6 +84,7 @@ export function initUI() {
 // ============================================================
 // 💖 UPDATE HUD
 // ============================================================
+
 export function updateHUD() {
   if (!waveDisplay || !goldDisplay || !diamondDisplay || !livesDisplay) return;
 
@@ -90,6 +94,7 @@ export function updateHUD() {
   // ------------------------------------------------------------
   // 🌟 WAVE DISPLAY
   // ------------------------------------------------------------
+
   const wave  = gameState.wave ?? 1;
   const total = gameState.totalWaves ?? 1;
 
@@ -110,6 +115,7 @@ export function updateHUD() {
   // ------------------------------------------------------------
   // ❤️ HP & 🔮 MANA BARS
   // ------------------------------------------------------------
+
   const hpBar = document.getElementById("hp-bar");
   const manaBar = document.getElementById("mana-bar");
   const hpText = document.getElementById("hp-text");
@@ -131,6 +137,7 @@ export function updateHUD() {
   // ------------------------------------------------------------
   // 🏹 ARROW COUNTER (Mana-based)
   // ------------------------------------------------------------
+
   const arrowCircle = document.getElementById("hud-arrows-circle");
   const arrowsEl = document.getElementById("hud-arrows");
 
@@ -151,6 +158,7 @@ export function updateHUD() {
   // ------------------------------------------------------------
   // ✧ CRYSTAL ECHOES
   // ------------------------------------------------------------
+
   if (gameState.exploration) {
     const foundEl = document.getElementById("hud-crystals-found");
     const totalEl = document.getElementById("hud-crystals-total");
@@ -181,6 +189,7 @@ export function updateHUD() {
 // ============================================================
 // 📜 GAME STATS ACCESSOR
 // ============================================================
+
 export function getStats() {
   return gameStats;
 }
@@ -189,6 +198,7 @@ export function getStats() {
 // ============================================================
 // 🌸 OVERLAY HELPERS
 // ============================================================
+
 export function showOverlay(id) {
   const overlay = document.getElementById(id);
   if (!overlay) return;
@@ -222,6 +232,7 @@ export function closeOverlay(overlay) {
 // ============================================================
 // ⚙️ SETTINGS MENU
 // ============================================================
+
 export function initSettingsMenu() {
   const visualsToggle = document.getElementById("visuals-toggle");
   const visualsLabel = visualsToggle?.nextElementSibling;
@@ -249,6 +260,7 @@ export function initSettingsMenu() {
 // ============================================================
 // ✨ MAGIC SPARKLES VISIBILITY
 // ============================================================
+
 export function toggleMagicSparkles(enabled) {
   document.querySelectorAll(".magic-sparkle").forEach((el) => {
     el.style.opacity = enabled ? "1" : "0";
@@ -260,6 +272,7 @@ export function toggleMagicSparkles(enabled) {
 // ============================================================
 // 👑 HUB & IN-GAME STATS OVERLAYS
 // ============================================================
+
 function setText(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = value;
@@ -374,6 +387,7 @@ export function updatePlayerStatsOverlay() {
 // ============================================================
 // 💖 BRAVERY BAR SYSTEM
 // ============================================================
+
 export function updateBraveryBar() {
   const bar = document.getElementById("bravery-bar");
   const fill = document.getElementById("bravery-fill");

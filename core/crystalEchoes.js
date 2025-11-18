@@ -58,6 +58,7 @@ let totalEchoes = 0;
 // ------------------------------------------------------------
 // 📦 CRYSTAL SPRITE IMAGES
 // ------------------------------------------------------------
+
 const crystalImages = [
   "./assets/images/characters/crystal_echo_black.png",
   "./assets/images/characters/crystal_echo_blue.png",
@@ -80,6 +81,7 @@ preloadCrystalImages();
 // ------------------------------------------------------------
 // ✨ SPARKLE BURST DATA
 // ------------------------------------------------------------
+
 let sparkleBursts = [];
 
 // Small helper: pastel star
@@ -102,6 +104,7 @@ function drawStar(ctx, x, y, size, color) {
 // ------------------------------------------------------------
 // 🔄 INIT FOR NEW MAP
 // ------------------------------------------------------------
+
 export function initCrystalEchoes(mapData) {
   echoes = [];
   sparkleBursts = [];
@@ -130,6 +133,7 @@ export function initCrystalEchoes(mapData) {
 // ------------------------------------------------------------
 // 🎨 RENDER + COLLISION
 // ------------------------------------------------------------
+
 export function updateCrystalEchoes(ctx, player) {
   if (!player) return;
 
@@ -141,6 +145,7 @@ export function updateCrystalEchoes(ctx, player) {
     // ---------------------------------------
     // SHADOW
     // ---------------------------------------
+
     const SHADOW_W = 26;
     const SHADOW_H = 10;
     const SHADOW_OFFSET = 20;
@@ -163,11 +168,13 @@ export function updateCrystalEchoes(ctx, player) {
     // ---------------------------------------
     // CRYSTAL IMAGE
     // ---------------------------------------
+
     ctx.drawImage(c.img, c.x - size / 2, c.y - size / 2, size, size);
 
     // ---------------------------------------
     // COLLECTION CHECK
     // ---------------------------------------
+
     const px = player.pos?.x ?? player.x;
     const py = player.pos?.y ?? player.y;
 
@@ -184,6 +191,7 @@ export function updateCrystalEchoes(ctx, player) {
 // ------------------------------------------------------------
 // ✨ COLLECTION HANDLER
 // ------------------------------------------------------------
+
 function collectCrystalEcho(crystal, index) {
   echoes.splice(index, 1);
 
@@ -211,6 +219,7 @@ function collectCrystalEcho(crystal, index) {
 // ------------------------------------------------------------
 // 🌟 SPAWN SPARKLE BURST
 // ------------------------------------------------------------
+
 function spawnSparkleBurst(crystal) {
   const x = crystal.x;
   const y = crystal.y;
@@ -252,6 +261,7 @@ function spawnSparkleBurst(crystal) {
 // ------------------------------------------------------------
 // 🌟 RENDER SPARKLE BURSTS
 // ------------------------------------------------------------
+
 export function renderSparkleBursts(ctx, delta) {
   if (sparkleBursts.length === 0) return;
 
@@ -292,6 +302,7 @@ export function renderSparkleBursts(ctx, delta) {
 // ------------------------------------------------------------
 // 💎 FINAL BONUS: DOUBLE DAMAGE + DIAMONDS
 // ------------------------------------------------------------
+
 function awardCrystalBonus(lastCrystal) {
   gameState.exploration.bonusGiven = true;
 

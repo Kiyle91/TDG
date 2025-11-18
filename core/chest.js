@@ -50,6 +50,7 @@ let chestEl, timerEl, imgEl;
 // ------------------------------------------------------------
 // 🌸 INITIALIZATION
 // ------------------------------------------------------------
+
 export function initChest() {
   chestEl = document.getElementById("daily-chest");
   timerEl = document.getElementById("chest-timer");
@@ -71,6 +72,7 @@ export function initChest() {
 // ------------------------------------------------------------
 // 💖 CLAIM REWARD
 // ------------------------------------------------------------
+
 function claimReward() {
   if (!gameState.profile) return;
 
@@ -93,6 +95,7 @@ function claimReward() {
 // ------------------------------------------------------------
 // ⏰ UPDATE CHEST STATE
 // ------------------------------------------------------------
+
 function updateChestState() {
   if (!gameState.profile) return;
 
@@ -127,6 +130,7 @@ function updateChestState() {
 // ------------------------------------------------------------
 // 🌈 SPARKLE BURST EFFECT
 // ------------------------------------------------------------
+
 function spawnSparkles() {
   const sparkleCount = 80;
   const maxRadius = 400;

@@ -32,6 +32,10 @@
  *   - Works with fixed timestep game loop + camera
  * ------------------------------------------------------------ */
 
+// ------------------------------------------------------------ 
+// ↪️ Imports
+// ------------------------------------------------------------
+
 import { gameState } from "../utils/gameState.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
 import { damageGoblin, getGoblins } from "./goblin.js";
@@ -58,6 +62,7 @@ import { getCrossbows } from "./crossbow.js";
 // ------------------------------------------------------------
 // 🔢 Spire Hotkeys (1–5 etc.)
 // ------------------------------------------------------------
+
 window.addEventListener("keydown", (e) => {
   if (e.code.startsWith("Digit")) handleSpireKey(e.code);
 });
@@ -65,6 +70,7 @@ window.addEventListener("keydown", (e) => {
 // ------------------------------------------------------------
 // 🧩 Unified Target Helper
 // ------------------------------------------------------------
+
 function getAllTargets() {
   return [
     ...getGoblins(),
@@ -79,6 +85,7 @@ function getAllTargets() {
 // ------------------------------------------------------------
 // 🔧 Input + Runtime State
 // ------------------------------------------------------------
+
 let canvasRef = null;
 const keys = new Set();
 
@@ -119,6 +126,7 @@ let frameTimer = 0;
 // ------------------------------------------------------------
 // 🎨 Sprite Atlas
 // ------------------------------------------------------------
+
 const sprites = {
   idle: null,
   walk: {
@@ -156,6 +164,7 @@ function loadSprite(src) {
 // ------------------------------------------------------------
 // 🖼 Load Player Sprites (Skin-Aware)
 // ------------------------------------------------------------
+
 async function loadPlayerSprites() {
   const skinKey = gameState.player?.skin || "glitter";
   const folder = SKINS[skinKey].folder;
@@ -204,6 +213,7 @@ async function loadPlayerSprites() {
 // ------------------------------------------------------------
 // 🧱 Ensure Player Runtime Defaults
 // ------------------------------------------------------------
+
 function ensurePlayerRuntime() {
   if (!gameState.player) {
     gameState.player = {
@@ -255,6 +265,7 @@ function ensurePlayerRuntime() {
 // ------------------------------------------------------------
 // ⌨️ Input Handlers
 // ------------------------------------------------------------
+
 function onKeyDown(e) {
   keys.add(e.code);
 
@@ -291,6 +302,7 @@ function onMouseDown(e) {
 // ------------------------------------------------------------
 // 🔧 Init / Destroy
 // ------------------------------------------------------------
+
 export async function initPlayerController(canvas) {
   canvasRef = canvas;
   ensurePlayerRuntime();
@@ -313,6 +325,7 @@ export function destroyPlayerController() {
 // ------------------------------------------------------------
 // 🎯 Nearest Goblin (legacy helper for facing)
 // ------------------------------------------------------------
+
 function findNearestGoblinInRange(px, py, maxDist = 320) {
   let target = null;
   let best = maxDist;
@@ -334,6 +347,7 @@ function findNearestGoblinInRange(px, py, maxDist = 320) {
 // ------------------------------------------------------------
 // ⚠️ Shared “Not Enough Mana” Feedback
 // ------------------------------------------------------------
+
 function notEnoughMana(p) {
   spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough mana!", "#77aaff");
   if (typeof playCancelSound === "function") playCancelSound();
@@ -342,6 +356,7 @@ function notEnoughMana(p) {
 // ------------------------------------------------------------
 // 🗡️ Melee Attack (Space)
 // ------------------------------------------------------------
+
 function performMeleeAttack() {
   const p = gameState.player;
   if (!p) return;
@@ -419,6 +434,7 @@ function performMeleeAttack() {
 // ------------------------------------------------------------
 // 🏹 Ranged Attack — Silver Arrows (Mouse)
 // ------------------------------------------------------------
+
 function performRangedAttack(e) {
   const p = gameState.player;
   if (!p || !canvasRef) return;
@@ -527,6 +543,7 @@ function performRangedAttack(e) {
 // ------------------------------------------------------------
 // 💖 Heal (R)
 // ------------------------------------------------------------
+
 function performHeal() {
   const p = gameState.player;
   if (!p) return;
@@ -576,6 +593,7 @@ function performHeal() {
 // ------------------------------------------------------------
 // 🔮 Spell (F) — Pastel AoE Burst
 // ------------------------------------------------------------
+
 function performSpell() {
   const p = gameState.player;
   if (!p) return;
@@ -637,6 +655,7 @@ function performSpell() {
 // ------------------------------------------------------------
 // 🌈 GLITTER BURSTS — Optimized Sparkle System
 // ------------------------------------------------------------
+
 const sparkles = [];
 const MAX_SPARKLES = 60;
 
@@ -704,6 +723,7 @@ function updateAndDrawSparkles(ctx, delta) {
 // ------------------------------------------------------------
 // 🌸 Damage Sparkle Burst (Soft Pink Hit)
 // ------------------------------------------------------------
+
 export function spawnDamageSparkles(x, y) {
   const palette = ["#ff7aa8", "#ff99b9", "#ffb3c6", "#ffccd5"];
   spawnCanvasSparkleBurst(x, y, 10, 50, palette);
@@ -713,6 +733,7 @@ export function spawnDamageSparkles(x, y) {
 // 🏹 Legacy Silver Arrow Projectiles (Map + Goblin Only)
 // (Used in addition to the per-arrow collision system above)
 // ------------------------------------------------------------
+
 function updateProjectiles(delta) {
   const dt = delta / 1000;
 
@@ -754,6 +775,7 @@ function updateProjectiles(delta) {
 // ============================================================
 // 🔁 UPDATE PLAYER — Movement, Combat, Collision, Regen + FX
 // ============================================================
+
 export function updatePlayer(delta) {
   ensurePlayerRuntime();
   const p = gameState.player;
@@ -917,6 +939,7 @@ export function updatePlayer(delta) {
 // ============================================================
 // 🎨 DRAW PLAYER — Sprite + HP Bar + Projectiles + Sparkles
 // ============================================================
+
 export function drawPlayer(ctx) {
   if (!ctx) return;
   ensurePlayerRuntime();
@@ -1109,6 +1132,7 @@ export function drawPlayer(ctx) {
 // ------------------------------------------------------------
 // 🧭 Controller Reset (for Try Again)
 // ------------------------------------------------------------
+
 export function resetPlayerControllerState() {
   isAttacking = false;
   attackType = null;

@@ -33,6 +33,7 @@
 // ------------------------------------------------------------
 // ↪️ Imports
 // ------------------------------------------------------------
+
 import { gameState, addGold } from "../utils/gameState.js";
 import { addBravery } from "./ui.js";
 import { spawnFloatingText } from "./floatingText.js";
@@ -44,6 +45,7 @@ import { playGoblinDeath, playGoblinDamage } from "./soundtrack.js";
 // ============================================================
 // 🧩 INTERNAL STATE
 // ============================================================
+
 let worgList = [];
 let pathPoints = [];
 let worgSprites = null;
@@ -52,6 +54,7 @@ let worgSprites = null;
 // ============================================================
 // ⚙️ CONFIGURATION
 // ============================================================
+
 const WORG_HP = 175;
 const WORG_SPEED = 150;
 const WORG_SIZE = 80;
@@ -65,6 +68,7 @@ const WORG_GOLD_REWARD = 5;
 // ============================================================
 // 🖼️ SPRITE LOADER (CACHED & RESIZED)
 // ============================================================
+
 async function loadAndCache(src, targetSize = 128) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -93,6 +97,7 @@ async function loadAndCache(src, targetSize = 128) {
 // ============================================================
 // 🖼️ LOAD ALL SPRITES
 // ============================================================
+
 async function loadWorgSprites() {
   worgSprites = {
     idle: await loadAndCache("./assets/images/sprites/worg/worg_idle.png"),
@@ -124,6 +129,7 @@ async function loadWorgSprites() {
 // ============================================================
 // 🔧 INITIALIZE SYSTEM
 // ============================================================
+
 export async function initWorg(path) {
   pathPoints = Array.isArray(path) ? path : [];
   worgList = [];
@@ -134,6 +140,7 @@ export async function initWorg(path) {
 // ============================================================
 // 🐺 SPAWN ONE WORG
 // ============================================================
+
 export function spawnWorg() {
   if (!pathPoints.length) return;
 
@@ -173,6 +180,7 @@ export function spawnWorg() {
 // ============================================================
 // 🔁 UPDATE LOOP
 // ============================================================
+
 export function updateWorg(delta = 16) {
   if (!pathPoints.length || worgList.length === 0) return;
 
@@ -243,6 +251,7 @@ export function updateWorg(delta = 16) {
 // ============================================================
 // 🔥 ELEMENTAL EFFECTS
 // ============================================================
+
 function handleWorgElementalEffects(w, dt) {
   if (w.slowTimer > 0) w.slowTimer -= dt;
 
@@ -273,6 +282,7 @@ function handleWorgElementalEffects(w, dt) {
 // ============================================================
 // 💥 DAMAGE HANDLING
 // ============================================================
+
 export function damageWorg(w, amount) {
   if (!w || !w.alive) return;
 
@@ -303,6 +313,7 @@ export function hitWorg(w, amount) {
 // ============================================================
 // 🎨 HP BAR
 // ============================================================
+
 function drawWorgHpBar(ctx, w) {
   if (!w.alive) return;
 
@@ -322,6 +333,7 @@ function drawWorgHpBar(ctx, w) {
 // ============================================================
 // 🖌️ DRAW
 // ============================================================
+
 export function drawWorg(ctx) {
   if (!ctx || !worgSprites || worgList.length === 0) return;
 
@@ -408,6 +420,7 @@ export function drawWorg(ctx) {
 // ============================================================
 // 📦 GETTER
 // ============================================================
+
 export function getWorg() {
   return worgList;
 }

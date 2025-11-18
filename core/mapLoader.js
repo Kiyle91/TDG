@@ -41,6 +41,7 @@ let tileSize = 32;
 // ------------------------------------------------------------
 // 🌿 INITIALISE COLLISION FROM TILED MAP JSON
 // ------------------------------------------------------------
+
 export function initCollision(mapData, providedTileSize = 32) {
   tileSize = providedTileSize;
   collisionLayer = null;
@@ -55,6 +56,7 @@ export function initCollision(mapData, providedTileSize = 32) {
 // ------------------------------------------------------------
 // ⛔ CHECK A SINGLE PIXEL AGAINST COLLISION GRID
 // ------------------------------------------------------------
+
 export function isCollisionAt(px, py) {
   if (!collisionLayer) return false;
 
@@ -79,6 +81,7 @@ export function isCollisionAt(px, py) {
 // ------------------------------------------------------------
 // 📦 CHECK A RECTANGLE (PLAYER FEET, ENEMY HITBOXES)
 // ------------------------------------------------------------
+
 export function isRectBlocked(x, y, w, h) {
   const points = [
     { x,         y },

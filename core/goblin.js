@@ -33,6 +33,7 @@
 // ------------------------------------------------------------
 // ↪️ Imports
 // ------------------------------------------------------------
+
 import { TILE_SIZE } from "../utils/constants.js";
 import { addGold, gameState } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
@@ -53,6 +54,7 @@ import { addBravery } from "./ui.js";
 // ============================================================
 // ⚙️ CONFIG & STATE
 // ============================================================
+
 let goblins = [];
 let ctx = null;
 let pathPoints = [];
@@ -92,6 +94,7 @@ function getChaseSpread() {
 // ============================================================
 // 🧩 SPRITE LOADING
 // ============================================================
+
 async function loadImage(src) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -139,6 +142,7 @@ async function loadGoblinSprites() {
 // ============================================================
 // 🌍 PATH + INIT
 // ============================================================
+
 export function setGoblinPath(points) {
   pathPoints = points || [];
 }
@@ -154,6 +158,7 @@ export async function initGoblins() {
 // ============================================================
 // 💀 SPAWN
 // ============================================================
+
 export function spawnGoblin() {
   if (!pathPoints.length) return;
 
@@ -195,6 +200,7 @@ export function spawnGoblin() {
 // ============================================================
 // 🆕 SPATIAL PARTITIONING HELPERS (prepared for heavy hordes)
 // ============================================================
+
 function buildSpatialGrid(entities) {
   const grid = new Map();
 
@@ -231,6 +237,7 @@ function getNearbyFromGrid(grid, x, y) {
 // ============================================================
 // 🧠 UPDATE — AI, MOVEMENT, ATTACK
 // ============================================================
+
 export function updateGoblins(delta) {
   delta = Math.min(delta, 100);
   const dt = delta / 1000;
@@ -408,6 +415,7 @@ export function updateGoblins(delta) {
 // ============================================================
 // 🔥 ELEMENTAL EFFECTS
 // ============================================================
+
 function handleElementalEffects(e, dt) {
   if (e.slowTimer > 0) {
     e.slowTimer -= dt;
@@ -435,6 +443,7 @@ function handleElementalEffects(e, dt) {
 // ============================================================
 // 💢 ATTACK PLAYER
 // ============================================================
+
 function attackPlayer(goblin, player) {
   if (!player || player.dead) {
     goblin.attacking = false;
@@ -482,6 +491,7 @@ function attackPlayer(goblin, player) {
 // ============================================================
 // 🎯 DAMAGE
 // ============================================================
+
 export function damageGoblin(goblin, amount) {
   if (!goblin || !goblin.alive) return;
   const dmg = Number(amount);
@@ -519,6 +529,7 @@ export function damageGoblin(goblin, amount) {
 // ============================================================
 // 💔 ESCAPE (REACHES END OF PATH)
 // ============================================================
+
 function handleGoblinEscape(goblin) {
   if (gameState.player) {
     if (gameState.player.lives === undefined) gameState.player.lives = 10;
@@ -534,6 +545,7 @@ function handleGoblinEscape(goblin) {
 // ============================================================
 // 🎨 DRAW
 // ============================================================
+
 export function drawGoblins(context) {
   if (!goblinSprites) return;
   ctx = context;
@@ -692,6 +704,7 @@ export function drawGoblins(context) {
 // ============================================================
 // ❤️ HEALTH BAR
 // ============================================================
+
 function drawHealthBar(ctx, x, y, hp, maxHp) {
   const barWidth = 40;
   const barHeight = 5;
@@ -715,6 +728,7 @@ function drawHealthBar(ctx, x, y, hp, maxHp) {
 // ============================================================
 // 🧩 SPRITE SELECTOR
 // ============================================================
+
 function getGoblinSprite(e) {
   if (!goblinSprites) return null;
   if (!e.alive) return goblinSprites.slain;
@@ -735,6 +749,7 @@ function getGoblinSprite(e) {
 // ============================================================
 // 🔍 ACCESSOR
 // ============================================================
+
 export function getGoblins() {
   return goblins;
 }

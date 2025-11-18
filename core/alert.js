@@ -46,6 +46,7 @@ let modal = null;
 // ------------------------------------------------------------
 // 🌷 CREATE MODAL CONTAINER
 // ------------------------------------------------------------
+
 function createModal() {
   modal = document.createElement("div");
   modal.id = "ow-alert-modal";
@@ -65,6 +66,7 @@ function createModal() {
 // ------------------------------------------------------------
 // 💖 SHOW ALERT
 // ------------------------------------------------------------
+
 export function showAlert(message, callback = null) {
   if (!modal) createModal();
 
@@ -90,6 +92,7 @@ export function showAlert(message, callback = null) {
 // ------------------------------------------------------------
 // 🌺 SHOW CONFIRM
 // ------------------------------------------------------------
+
 export function showConfirm(message, onYes, onNo = null) {
   if (!modal) createModal();
 
@@ -128,6 +131,7 @@ export function showConfirm(message, onYes, onNo = null) {
 // ------------------------------------------------------------
 // 🌷 SHOW INPUT
 // ------------------------------------------------------------
+
 export function showInput(message, onSubmit, placeholder = "Type here...") {
   if (!modal) createModal();
 

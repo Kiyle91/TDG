@@ -65,6 +65,7 @@ function loadImage(src) {
 // ------------------------------------------------------------
 // 🎲 UNIVERSAL ITEM POOL
 // ------------------------------------------------------------
+
 const LOOT_ITEMS = [
   { type: "chest",   amount: 20,  weight: 6 },
   { type: "diamond", amount: 25,  weight: 2 },
@@ -75,6 +76,7 @@ const LOOT_ITEMS = [
 // ------------------------------------------------------------
 // 🎲 PER-ENEMY DROP RATES
 // ------------------------------------------------------------
+
 const LOOT_TABLE = {
   goblin:   { chance: 1.0, rolls: 1 },
   troll:    { chance: 1.0, rolls: 1 },
@@ -88,6 +90,7 @@ const LOOT_TABLE = {
 // ------------------------------------------------------------
 // 💾 RUNTIME DROP STORAGE
 // ------------------------------------------------------------
+
 const drops = [];
 
 const DROP_LIFETIME = 15000;     // 15 seconds
@@ -97,6 +100,7 @@ const COLLECT_RADIUS = 80;
 // ------------------------------------------------------------
 // 🔁 LOAD LOOT IMAGES (called once)
 // ------------------------------------------------------------
+
 export async function loadLootImages() {
   if (lootImg) return;
 
@@ -123,6 +127,7 @@ export function clearLoot() {
 // ------------------------------------------------------------
 // 🎲 WEIGHTED PICK
 // ------------------------------------------------------------
+
 function pickWeightedItem(items) {
   if (!items?.length) return null;
 
@@ -150,6 +155,7 @@ function scatterPosition(x, y) {
 // ------------------------------------------------------------
 // 💠 SPAWN LOOT
 // ------------------------------------------------------------
+
 export function spawnLoot(source, x, y) {
   const table = LOOT_TABLE[source];
   if (!table) return;
@@ -179,6 +185,7 @@ export function spawnLoot(source, x, y) {
 // ------------------------------------------------------------
 // 🔄 UPDATE LOOT
 // ------------------------------------------------------------
+
 export function updateLoot(delta) {
   if (!drops.length) return;
 
@@ -223,6 +230,7 @@ export function updateLoot(delta) {
 // ------------------------------------------------------------
 // 💝 APPLY REWARD
 // ------------------------------------------------------------
+
 function applyLootReward(d) {
   const player = gameState.player;
   playFairySprinkle?.();
@@ -272,6 +280,7 @@ function applyLootReward(d) {
 // ------------------------------------------------------------
 // 🎨 DRAW LOOT WITH GLOWS + FLOATS
 // ------------------------------------------------------------
+
 export function drawLoot(ctx) {
   if (!ctx || drops.length === 0) return;
 

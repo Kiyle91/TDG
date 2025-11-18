@@ -38,6 +38,7 @@ import { TILE_SIZE } from "../utils/constants.js";
 // ------------------------------------------------------------
 // 🗺️ STATIC PATH DATA (Tile-grid coordinates)
 // ------------------------------------------------------------
+
 export const pathPoints = [
   { x: 0,  y: 4 },
   { x: 4,  y: 4 },
@@ -50,6 +51,7 @@ export const pathPoints = [
 // ------------------------------------------------------------
 // 🎨 DRAW PATH
 // ------------------------------------------------------------
+
 export function drawPath(ctx) {
   ctx.strokeStyle = "rgba(255, 192, 230, 0.6)"; 
   ctx.lineWidth = 8;

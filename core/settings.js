@@ -56,6 +56,7 @@ let settings = {
 // ------------------------------------------------------------
 // 🌈 INITIAL LOAD
 // ------------------------------------------------------------
+
 export function initSettings() {
   const saved = localStorage.getItem(SETTINGS_KEY);
   if (saved) {
@@ -72,6 +73,7 @@ export function initSettings() {
 // ------------------------------------------------------------
 // 🩵 APPLY SETTINGS TO UI
 // ------------------------------------------------------------
+
 function applySettingsToUI() {
   const musicRange = document.getElementById("music-volume");
   const sfxRange = document.getElementById("sfx-volume");
@@ -89,6 +91,7 @@ function applySettingsToUI() {
 // ------------------------------------------------------------
 // 🎚️ APPLY SETTINGS TO SYSTEMS
 // ------------------------------------------------------------
+
 function applySettingsToGame() {
   setMusicVolume(settings.musicVolume);
   setSfxVolume(settings.sfxVolume);
@@ -98,6 +101,7 @@ function applySettingsToGame() {
 // ------------------------------------------------------------
 // 🎵 EVENT LISTENERS
 // ------------------------------------------------------------
+
 function setupListeners() {
   const musicRange = document.getElementById("music-volume");
   const sfxRange = document.getElementById("sfx-volume");
@@ -143,6 +147,7 @@ function setupListeners() {
 // ------------------------------------------------------------
 // 💾 PERSIST SETTINGS
 // ------------------------------------------------------------
+
 function saveSettings() {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   console.log("💾 Settings saved:", settings);
@@ -151,6 +156,7 @@ function saveSettings() {
 // ------------------------------------------------------------
 // 🌸 UPDATE LABELS (e.g. "80%")
 // ------------------------------------------------------------
+
 function updateLabels() {
   const musicLabel = document.getElementById("music-value");
   const sfxLabel = document.getElementById("sfx-value");
@@ -165,6 +171,7 @@ function updateLabels() {
 // ------------------------------------------------------------
 // 🔮 EXPOSE TOOLTIP SETTING
 // ------------------------------------------------------------
+
 export function getTooltipSetting() {
   return settings.tooltipsEnabled;
 }
@@ -172,6 +179,7 @@ export function getTooltipSetting() {
 // ------------------------------------------------------------
 // 🎮 IN-GAME SETTINGS OVERLAY
 // ------------------------------------------------------------
+
 export function initGameSettings() {
   const musicRange = document.getElementById("music-volume-game");
   if (!musicRange) return; // not on this screen

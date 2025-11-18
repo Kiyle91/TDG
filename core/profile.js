@@ -55,6 +55,7 @@ import { playFairySprinkle } from "./soundtrack.js";
 // ------------------------------------------------------------
 // 🌷 INITIALIZATION
 // ------------------------------------------------------------
+
 export function initProfiles() {
   const profileScreen = document.getElementById("profile-screen");
   const slotsContainer = document.querySelector(".profile-slots");
@@ -69,6 +70,7 @@ export function initProfiles() {
   // ------------------------------------------------------------
   // 💖 CREATE NEW PROFILE
   // ------------------------------------------------------------
+
   createBtn.addEventListener("click", () => {
     playFairySprinkle();
 
@@ -119,6 +121,7 @@ export function initProfiles() {
   // ------------------------------------------------------------
   // ✨ PROFILE SLOT INTERACTIONS
   // ------------------------------------------------------------
+
   slotsContainer.addEventListener("click", (e) => {
     playFairySprinkle();
 
@@ -171,6 +174,7 @@ export function initProfiles() {
 // ------------------------------------------------------------
 // 🧩 RENDER PROFILE SLOTS
 // ------------------------------------------------------------
+
 function renderProfileSlots(container) {
   container.innerHTML = "";
 
@@ -199,6 +203,7 @@ function renderProfileSlots(container) {
 // ------------------------------------------------------------
 // 🌈 FADE-IN UTILITY
 // ------------------------------------------------------------
+
 function fadeIn(element) {
   element.style.opacity = 0;
   element.style.transition = "opacity 0.8s ease";

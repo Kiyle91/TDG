@@ -79,6 +79,7 @@ import { showCredits } from "./credits.js";
 // ============================================================
 // 🌷 INIT HUB
 // ============================================================
+
 export function initHub() {
   const hub = document.getElementById("hub-screen");
   if (!hub) return;
@@ -108,6 +109,7 @@ export function initHub() {
   // ============================================================
   // NEW STORY
   // ============================================================
+
   newStoryBtn.addEventListener("click", () => {
     playFairySprinkle();
     showConfirm("Start a new story from Map 1?", () => {
@@ -129,6 +131,7 @@ export function initHub() {
   // ============================================================
   // LOAD GAME
   // ============================================================
+
   loadGameBtn.addEventListener("click", () => {
     playFairySprinkle();
 
@@ -169,6 +172,7 @@ export function initHub() {
   // ============================================================
   // MAPS
   // ============================================================
+
   mapsBtn.addEventListener("click", () => {
     playFairySprinkle();
     const ov = document.getElementById("overlay-maps");
@@ -181,6 +185,7 @@ export function initHub() {
   // ============================================================
   // SPIRES
   // ============================================================
+
   spiresBtn.addEventListener("click", () => {
     playFairySprinkle();
     updateSpireUnlocks();
@@ -190,6 +195,7 @@ export function initHub() {
   // ============================================================
   // SKINS MENU
   // ============================================================
+
   skinsBtn.addEventListener("click", () => {
     playFairySprinkle();
     ensureSkin(gameState.player);
@@ -201,6 +207,7 @@ export function initHub() {
   // ============================================================
   // STATS
   // ============================================================
+
   statsBtn.addEventListener("click", () => {
     playFairySprinkle();
     updateStatsOverlay();
@@ -210,6 +217,7 @@ export function initHub() {
   // ============================================================
   // SETTINGS
   // ============================================================
+
   settingsBtn.addEventListener("click", () => {
     playFairySprinkle();
     showOverlay("overlay-settings");
@@ -218,6 +226,7 @@ export function initHub() {
   // ============================================================
   // EXIT → PROFILE SCREEN
   // ============================================================
+  
   if (exitBtn) {
     exitBtn.addEventListener("click", () => {
       playFairySprinkle();
@@ -231,6 +240,7 @@ export function initHub() {
   // ============================================================
   // CREDITS
   // ============================================================
+
   const creditsBtn = document.getElementById("credits-btn");
   if (creditsBtn) {
     creditsBtn.onclick = () => {
@@ -246,6 +256,7 @@ export function initHub() {
 // ============================================================
 // 🌈 SKINS MENU — FULL FIXED VERSION
 // ============================================================
+
 export function initSkinsMenu() {
   const overlay = document.getElementById("overlay-skins");
   const closeBtn = document.getElementById("skins-close");
@@ -300,6 +311,7 @@ export function initSkinsMenu() {
 // ============================================================
 // REFRESH SKINS MENU UI
 // ============================================================
+
 function refreshSkinsMenu() {
   const player = gameState.player;
   ensureSkin(player);
@@ -337,6 +349,7 @@ function refreshSkinsMenu() {
 // ============================================================
 // HUB PROFILE + CURRENCY UI
 // ============================================================
+
 export function updateHubCurrencies() {
   const { gold, diamonds } = getCurrencies();
   document.getElementById("hub-diamonds").textContent = `Diamonds: ${diamonds}`;
@@ -358,6 +371,7 @@ export function updateHubProfile() {
 // ============================================================
 // PLACEHOLDER / UTILITY FUNCTIONS
 // ============================================================
+
 function updateSpireUnlocks() {
   // Intentionally left as a stub — spire unlock UI handled elsewhere
 }

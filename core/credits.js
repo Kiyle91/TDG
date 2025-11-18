@@ -34,6 +34,7 @@ import { initHub } from "./hub.js";
 // ------------------------------------------------------------
 // 🎞️ INITIALIZE CREDITS SCREEN
 // ------------------------------------------------------------
+
 export function initCredits() {
   const btn = document.getElementById("credits-back-btn");
   if (!btn) return;
@@ -47,6 +48,7 @@ export function initCredits() {
 // ------------------------------------------------------------
 // 🎉 DISPLAY CREDITS (used after Map 9 victory)
 // ------------------------------------------------------------
+
 export function showCredits() {
   showScreen("credits-screen");
 }

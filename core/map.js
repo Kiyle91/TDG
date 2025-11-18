@@ -68,6 +68,7 @@ function resolveRelative(pathFromMap) {
 // ------------------------------------------------------------
 // 📦 LOAD TSX TILESET (XML)
 // ------------------------------------------------------------
+
 async function loadTSX(tsxUrl) {
   const res = await fetch(tsxUrl);
   const xml = await res.text();
@@ -90,6 +91,7 @@ async function loadTSX(tsxUrl) {
 // ------------------------------------------------------------
 // 🗺️ LOAD MAP JSON + TILESETS
 // ------------------------------------------------------------
+
 export async function loadMap() {
   const id = gameState.progress?.currentMap || 1;
 
@@ -156,6 +158,7 @@ export async function loadMap() {
 // ------------------------------------------------------------
 // 🔍 FIND TILESET FOR GID
 // ------------------------------------------------------------
+
 function getTilesetForGid(gid) {
   let chosen = null;
   for (const ts of tilesets) {
@@ -167,6 +170,7 @@ function getTilesetForGid(gid) {
 // ------------------------------------------------------------
 // 🎨 DRAW MAP (All tile layers)
 // ------------------------------------------------------------
+
 export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
   if (!mapData) return;
 
@@ -213,6 +217,7 @@ export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
 // ------------------------------------------------------------
 // 🛣️ EXTRACT ENEMY PATH (Polyline layer "path")
 // ------------------------------------------------------------
+
 export function extractPathFromMap() {
   if (!mapData) return [];
 
@@ -235,6 +240,7 @@ export function extractPathFromMap() {
 // ------------------------------------------------------------
 // 📏 MAP PIXEL SIZE
 // ------------------------------------------------------------
+
 export function getMapPixelSize() {
   return { width: mapPixelWidth, height: mapPixelHeight };
 }
@@ -242,6 +248,7 @@ export function getMapPixelSize() {
 // ------------------------------------------------------------
 // 🧭 PATH GETTER
 // ------------------------------------------------------------
+
 export function getPathPoints() {
   return pathPoints;
 }
@@ -249,6 +256,7 @@ export function getPathPoints() {
 // ------------------------------------------------------------
 // 🪄 FILTERED LAYER RENDERER (ground/trees/all)
 // ------------------------------------------------------------
+
 export function drawMapLayered(
   ctx,
   group = "all",
@@ -316,6 +324,7 @@ export function drawMapLayered(
 // ------------------------------------------------------------
 // 💎 EXTRACT CRYSTAL ECHO POSITIONS (object layer "CrystalEchoes")
 // ------------------------------------------------------------
+
 export function extractCrystalEchoes() {
   if (!mapData) return [];
 

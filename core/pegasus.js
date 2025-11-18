@@ -68,6 +68,7 @@ let pegasus = {
 // ------------------------------------------------------------
 // 🌈 LOAD PEGASUS SPRITE
 // ------------------------------------------------------------
+
 export async function loadPegasus() {
   return new Promise((resolve) => {
     const img = new Image();
@@ -83,6 +84,7 @@ export async function loadPegasus() {
 // ------------------------------------------------------------
 // ✨ INIT — Ambient flight system
 // ------------------------------------------------------------
+
 export function initPegasus(canvasContext) {
   ctx = canvasContext;
   flightTimer = 0;
@@ -91,6 +93,7 @@ export function initPegasus(canvasContext) {
 // ------------------------------------------------------------
 // 🔁 UPDATE — called every frame from game.js
 // ------------------------------------------------------------
+
 export function updatePegasus(delta = 16) {
   if (!ctx || !pegasusImg || gameState.paused) return;
 
@@ -149,6 +152,7 @@ export function updatePegasus(delta = 16) {
 // ------------------------------------------------------------
 // 🕊️ START NEW RANDOMIZED FLIGHT
 // ------------------------------------------------------------
+
 function startPegasusFlight() {
   if (!ctx) return;
   const canvas = ctx.canvas;
@@ -175,6 +179,7 @@ function startPegasusFlight() {
 // ------------------------------------------------------------
 // 🎨 DRAW — called from renderGame()
 // ------------------------------------------------------------
+
 export function drawPegasusFrame(context) {
   if (!active || !pegasusImg) return;
 

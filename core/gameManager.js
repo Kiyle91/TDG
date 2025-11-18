@@ -45,6 +45,7 @@ import { initProjectiles } from "./projectiles.js";
 // ------------------------------------------------------------
 // ⚙️ SESSION START
 // ------------------------------------------------------------
+
 export function startSession(mapId = 1, totalGoblins = 50) {
   gameState.session = {
     goblinsDefeated: 0,
@@ -65,6 +66,7 @@ export function startSession(mapId = 1, totalGoblins = 50) {
 // ------------------------------------------------------------
 // ⚔️ REGISTER GOBLIN KILL
 // ------------------------------------------------------------
+
 export function registerGoblinKill() {
   if (!gameState.session?.mapActive) return;
   gameState.session.goblinsDefeated++;
@@ -77,6 +79,7 @@ export function registerGoblinKill() {
 // ------------------------------------------------------------
 // 💔 DEFEAT CONDITIONS
 // ------------------------------------------------------------
+
 export function checkDefeatConditions() {
   const p = gameState.player;
   if (!p) return;
@@ -95,6 +98,7 @@ export function checkDefeatConditions() {
 // ------------------------------------------------------------
 // 🏆 VICTORY HANDLER
 // ------------------------------------------------------------
+
 export function triggerVictory() {
   if (!gameState.session?.mapActive) return;
   gameState.session.mapActive = false;
@@ -114,6 +118,7 @@ export function triggerVictory() {
 // ------------------------------------------------------------
 // 💀 DEFEAT HANDLER (with delayed overlay)
 // ------------------------------------------------------------
+
 export function triggerDefeat(reason = "unknown") {
   if (!gameState.session || !gameState.session.mapActive) return;
 
@@ -155,6 +160,7 @@ export function triggerDefeat(reason = "unknown") {
 // ------------------------------------------------------------
 // 🔁 RESTART MAP
 // ------------------------------------------------------------
+
 export function restartMap() {
   const mapId = gameState.session?.mapId ?? 1;
   startSession(mapId);
@@ -166,6 +172,7 @@ export function restartMap() {
 // ------------------------------------------------------------
 // 🏰 RETURN TO HUB
 // ------------------------------------------------------------
+
 export function returnToHub() {
   if (gameState.session) {
     gameState.session.mapActive = false;
@@ -178,6 +185,7 @@ export function returnToHub() {
 // ------------------------------------------------------------
 // 🌍 GLOBAL ACCESS (for inline HTML buttons)
 // ------------------------------------------------------------
+
 window.restartMap = restartMap;
 window.returnToHub = returnToHub;
 
