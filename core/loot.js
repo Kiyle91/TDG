@@ -35,62 +35,26 @@ function loadImage(src) {
 
 
 // ------------------------------------------------------------
-// 🎲 LOOT TABLE (data-driven drops)
+// 🎲 UNIVERSAL ITEM POOL
 // ------------------------------------------------------------
-//
-// chance: 0–1 roll per source (enemy / Pegasus)
-// rolls: how many items to spawn when triggered (default 1)
-// items: weighted table of possible items for that source
-//
-// type:
-//   "chest"  → +gold (uses amount)
-//   "diamond"→ +diamonds
-//   "heart"  → +HP heal
-//   "mana"   → +mana (amount or "full")
-//
+const LOOT_ITEMS = [
+  { type: "chest",   amount: 20,   weight: 6 },   // small gold chest
+  { type: "diamond", amount: 25,   weight: 2 },   // diamonds
+  { type: "heart",   amount: 20,   weight: 2 },   // heal
+  { type: "mana",    amount: 40,   weight: 2 },   // mana potion
+];
+
+// ------------------------------------------------------------
+// 🎲 PER-ENEMY DROP CHANCES
+// ------------------------------------------------------------
 const LOOT_TABLE = {
-  goblin: {
-    chance: 0.05,  // 20% chance
-    rolls: 1,
-    items: [
-      { type: "chest", amount: 20, weight: 9 },    // +25 gold
-      { type: "diamond", amount: 25, weight: 1 },  // +25 diamonds
-    ],
-  },
-
-  troll: {
-    // Trolls were using goblin drops; keep similar but a bit tweaked
-    chance: 1,
-    rolls: 1,
-    items: [
-      { type: "chest", amount: 15, weight: 6 },
-      { type: "diamond", amount: 10, weight: 2 },
-      { type: "heart", amount: 15, weight: 2 },
-    ],
-  },
-
-  ogre: {
-    // Ogres always dropped 4 mixed items
-    chance: 1,
-    rolls: 4,
-    items: [
-      { type: "chest", amount: 100, weight: 6 },     // +100 gold
-      { type: "diamond", amount: 25, weight: 2 },    // +25 diamonds
-      { type: "heart", amount: 100, weight: 3 },     // +100 HP
-      { type: "mana", amount: "full", weight: 3 },   // full mana
-    ],
-  },
-
-  pegasus: {
-    // Pegasus always drops SOMETHING when it flies past
-    chance: 1,
-    rolls: 1,
-    items: [
-      { type: "heart", amount: 25, weight: 3 },      // +25 HP
-      { type: "mana", amount: 50, weight: 3 },       // +50 Mana
-      { type: "diamond", amount: 10, weight: 1 },    // +10 diamonds
-    ],
-  },
+  goblin:  { chance: 0.05, rolls: 1 }, // 5%
+  troll:   { chance: 0.12, rolls: 1 }, // 12%
+  worg:    { chance: 0.10, rolls: 1 }, // 10%
+  elite:   { chance: 0.15, rolls: 1 }, // 15%
+  crossbow: { chance: 0.08, rolls: 1 },// 8%
+  ogre:    { chance: 1.0,  rolls: 4 }, // always drop 4
+  pegasus: { chance: 1.0,  rolls: 1 }, // always drop 1
 };
 
 // ------------------------------------------------------------

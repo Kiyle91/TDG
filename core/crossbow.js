@@ -531,6 +531,7 @@ function killCrossbow(c) {
   addGold(8);
   updateHUD();
   playGoblinDeath();
+  spawnLoot("crossbow", enemy.x, enemy.y);
 
   spawnFloatingText("✝", c.x, c.y - 50, "#ffffff");
 }
