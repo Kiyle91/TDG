@@ -408,6 +408,7 @@ function showEndScreen(reason) {
 
       // Diamonds reward
       gameState.profile.currencies.diamonds += 100;
+      gameState.profile.currencies.gold = 0;
       saveProfiles();
 
       showTempMsg("💎 +100 Diamonds");

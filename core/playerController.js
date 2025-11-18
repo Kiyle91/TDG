@@ -1,5 +1,5 @@
 // ============================================================
-// 🧭 playerController.js — Olivia’s World: Crystal Keep (Combat + Glitter FX Optimized)
+// 🧭 playerController.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ WASD + animation + directional attacks
 // ✦ Melee / Ranged / Heal / Spell abilities
@@ -11,17 +11,16 @@
 
 import { gameState } from "../utils/gameState.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
-import { damageEnemy } from "./enemies.js"; // ✅ shared enemy array mutated inside enemies.js
+import { damageEnemy } from "./enemies.js"; // shared goblin array
 import { updateHUD, getArrowCount } from "./ui.js";
-import { 
-  playFairySprinkle, 
-  playMeleeSwing, 
-  playArrowSwish, 
-  playSpellCast, 
+import {
+  playFairySprinkle,
+  playMeleeSwing,
+  playArrowSwish,
+  playSpellCast,
   playPlayerDamage,
-  playCancelSound             // ✅ REQUIRED
+  playCancelSound,
 } from "./soundtrack.js";
-
 import { spawnFloatingText } from "./floatingText.js";
 import { handleTowerKey } from "./towerPlacement.js";
 import { getOgres, damageOgre, OGRE_HIT_RADIUS } from "./ogre.js";
@@ -33,16 +32,31 @@ import { SKINS } from "./skins.js";
 import { activateBravery } from "./ui.js";
 import { getCrossbows } from "./crossbow.js";
 
-
-// Tower hotkeys
+// ------------------------------------------------------------
+// 🔢 Tower hotkeys
+// ------------------------------------------------------------
 window.addEventListener("keydown", (e) => {
   if (e.code.startsWith("Digit")) handleTowerKey(e.code);
 });
 
 // ------------------------------------------------------------
-// ✅ Shared enemy getter (same instance towers & player use)
+// 🧩 Shared enemy helpers
+// ------------------------------------------------------------
 const getEnemies = () => window.__enemies || [];
 
+function getAllTargets() {
+  return [
+    ...getEnemies(),
+    ...getOgres(),
+    ...getWorg(),
+    ...getElites(),
+    ...getTrolls(),
+    ...getCrossbows(),
+  ];
+}
+
+// ------------------------------------------------------------
+// 🔧 Input + runtime state
 // ------------------------------------------------------------
 let canvasRef = null;
 const keys = new Set();
@@ -60,7 +74,7 @@ let currentFrame = 0;
 let currentDir = "down";
 let isMoving = false;
 
-// Projectiles
+// Ranged projectiles (silver arrows)
 let projectiles = [];
 
 // Cooldowns (seconds)
@@ -82,19 +96,39 @@ const DMG_SPELL = 4;
 let frameTimer = 0;
 
 // ------------------------------------------------------------
-// Sprites
+// 🎨 Sprites
+// ------------------------------------------------------------
 const sprites = {
   idle: null,
-  walk: { up: [null, null], left: [null, null], down: [null, null], right: [null, null] },
-  attack: { left: [null, null], right: [null, null] }, // 0: attack_*, 1: melee_*
-  shoot:  { left: [null, null], right: [null, null] }, // 0: raise_*,  1: shoot_*
+  walk: {
+    up: [null, null],
+    left: [null, null],
+    down: [null, null],
+    right: [null, null],
+  },
+  attack: {
+    left: [null, null],  // 0: attack_*, 1: melee_*
+    right: [null, null],
+  },
+  shoot: {
+    left: [null, null],  // 0: raise_*, 1: shoot_*
+    right: [null, null],
+    lowerLeft: null,
+    lowerRight: null,
+  },
+  spell: {
+    charge: null,
+    explode: null,
+  },
+  heal: null,
+  dead: null,
 };
 
 function loadSprite(src) {
-  return new Promise((r) => {
+  return new Promise((resolve) => {
     const img = new Image();
     img.src = src;
-    img.onload = () => r(img);
+    img.onload = () => resolve(img);
   });
 }
 
@@ -103,51 +137,49 @@ async function loadPlayerSprites() {
   const folder = SKINS[skinKey].folder;
   const base = `./assets/images/sprites/${folder}/${folder}`;
 
-  function L(path) {
-    return loadSprite(path);
-  }
+  const L = (suffix) => loadSprite(`${base}${suffix}`);
 
   // Idle + Walk
-  sprites.idle = await L(`${base}_idle.png`);
+  sprites.idle = await L("_idle.png");
 
-  sprites.walk.up[0] = await L(`${base}_W1.png`);
-  sprites.walk.up[1] = await L(`${base}_W2.png`);
-  sprites.walk.left[0] = await L(`${base}_A1.png`);
-  sprites.walk.left[1] = await L(`${base}_A2.png`);
-  sprites.walk.down[0] = await L(`${base}_S1.png`);
-  sprites.walk.down[1] = await L(`${base}_S2.png`);
-  sprites.walk.right[0] = await L(`${base}_D1.png`);
-  sprites.walk.right[1] = await L(`${base}_D2.png`);
+  sprites.walk.up[0] = await L("_W1.png");
+  sprites.walk.up[1] = await L("_W2.png");
+  sprites.walk.left[0] = await L("_A1.png");
+  sprites.walk.left[1] = await L("_A2.png");
+  sprites.walk.down[0] = await L("_S1.png");
+  sprites.walk.down[1] = await L("_S2.png");
+  sprites.walk.right[0] = await L("_D1.png");
+  sprites.walk.right[1] = await L("_D2.png");
 
   // Attack
-  sprites.attack.left[0]  = await L(`${base}_attack_left.png`);
-  sprites.attack.left[1]  = await L(`${base}_melee_left.png`);
-  sprites.attack.right[0] = await L(`${base}_attack_right.png`);
-  sprites.attack.right[1] = await L(`${base}_melee_right.png`);
+  sprites.attack.left[0] = await L("_attack_left.png");
+  sprites.attack.left[1] = await L("_melee_left.png");
+  sprites.attack.right[0] = await L("_attack_right.png");
+  sprites.attack.right[1] = await L("_melee_right.png");
 
   // Shooting
-  sprites.shoot.left[0]   = await L(`${base}_raise_left.png`);
-  sprites.shoot.left[1]   = await L(`${base}_shoot_left.png`);
-  sprites.shoot.right[0]  = await L(`${base}_raise_right.png`);
-  sprites.shoot.right[1]  = await L(`${base}_shoot_right.png`);
-  sprites.shoot.lowerLeft  = await L(`${base}_lower_left.png`);
-  sprites.shoot.lowerRight = await L(`${base}_lower_right.png`);
+  sprites.shoot.left[0] = await L("_raise_left.png");
+  sprites.shoot.left[1] = await L("_shoot_left.png");
+  sprites.shoot.right[0] = await L("_raise_right.png");
+  sprites.shoot.right[1] = await L("_shoot_right.png");
+  sprites.shoot.lowerLeft = await L("_lower_left.png");
+  sprites.shoot.lowerRight = await L("_lower_right.png");
 
   // Spell
-  sprites.spell = {};
-  sprites.spell.charge  = await L(`${base}_spell_charge.png`);
-  sprites.spell.explode = await L(`${base}_spell_explode.png`);
+  sprites.spell.charge = await L("_spell_charge.png");
+  sprites.spell.explode = await L("_spell_explode.png");
 
   // Heal
-  sprites.heal = await L(`${base}_heal_kneel.png`);
+  sprites.heal = await L("_heal_kneel.png");
 
   // Dead
-  sprites.dead = await L(`${base}_slain.png`);
+  sprites.dead = await L("_slain.png");
 
   console.log(`🦄 Loaded sprites for ${skinKey}`);
 }
 
-
+// ------------------------------------------------------------
+// 🧱 Player runtime defaults
 // ------------------------------------------------------------
 function ensurePlayerRuntime() {
   if (!gameState.player) {
@@ -155,9 +187,14 @@ function ensurePlayerRuntime() {
       name: gameState.profile?.name || "Princess",
       pos: { x: 400, y: 400 },
       speed: DEFAULT_SPEED,
-      hp: 100, maxHp: 100,
-      mana: 50, maxMana: 50,
-      attack: 15, defense: 5,
+      hp: 100,
+      maxHp: 100,
+      mana: 50,
+      maxMana: 50,
+      attack: 15,
+      defense: 5,
+      rangedAttack: 10,
+      spellPower: 10,
     };
   }
 
@@ -165,24 +202,18 @@ function ensurePlayerRuntime() {
 
   if (!p.name) p.name = gameState.profile?.name || "Princess";
 
-  if (
-    !p.pos ||
-    typeof p.pos.x !== "number" ||
-    typeof p.pos.y !== "number"
-  ) {
+  if (!p.pos || typeof p.pos.x !== "number" || typeof p.pos.y !== "number") {
     p.pos = { x: 400, y: 400 };
   }
-  
-  if (typeof p.speed   !== "number") p.speed   = DEFAULT_SPEED;
-  if (typeof p.attack  !== "number" || isNaN(p.attack))  p.attack  = 15;
 
-  // ⭐⭐⭐ FIXED: Missing stats for ranged + spell ⭐⭐⭐
+  if (typeof p.speed !== "number") p.speed = DEFAULT_SPEED;
+  if (typeof p.attack !== "number" || isNaN(p.attack)) p.attack = 15;
   if (typeof p.rangedAttack !== "number" || isNaN(p.rangedAttack)) p.rangedAttack = 10;
-  if (typeof p.spellPower   !== "number" || isNaN(p.spellPower))   p.spellPower   = 10;
+  if (typeof p.spellPower !== "number" || isNaN(p.spellPower)) p.spellPower = 10;
 
-  if (typeof p.hp      !== "number" || isNaN(p.hp))      p.hp      = 100;
-  if (typeof p.maxHp   !== "number" || isNaN(p.maxHp))   p.maxHp   = 100;
-  if (typeof p.mana    !== "number" || isNaN(p.mana))    p.mana    = 50;
+  if (typeof p.hp !== "number" || isNaN(p.hp)) p.hp = 100;
+  if (typeof p.maxHp !== "number" || isNaN(p.maxHp)) p.maxHp = 100;
+  if (typeof p.mana !== "number" || isNaN(p.mana)) p.mana = 50;
   if (typeof p.maxMana !== "number" || isNaN(p.maxMana)) p.maxMana = 50;
   if (typeof p.defense !== "number" || isNaN(p.defense)) p.defense = 5;
   if (typeof p.dead === "undefined") p.dead = false;
@@ -194,23 +225,31 @@ function ensurePlayerRuntime() {
     const oy = SPRITE_SIZE * 0.20;
     p.body = { bw, bh, ox, oy };
   }
+
+  if (typeof p.invulnTimer !== "number") p.invulnTimer = 0;
 }
 
-
+// ------------------------------------------------------------
+// ⌨️ Input handlers
 // ------------------------------------------------------------
 function onKeyDown(e) {
   keys.add(e.code);
 
-  // ⭐ Bravery activation
   if (e.code === "KeyQ") {
     activateBravery();
   }
 
   if (!isAttacking && attackCooldown <= 0) {
     switch (e.code) {
-      case "Space": performMeleeAttack(); break;
-      case "KeyR":  performHeal();        break;
-      case "KeyF":  performSpell();       break;
+      case "Space":
+        performMeleeAttack();
+        break;
+      case "KeyR":
+        performHeal();
+        break;
+      case "KeyF":
+        performSpell();
+        break;
     }
   }
 }
@@ -226,13 +265,16 @@ function onMouseDown(e) {
 }
 
 // ------------------------------------------------------------
-// Init / Destroy
+// 🔧 Init / Destroy
+// ------------------------------------------------------------
 export async function initPlayerController(canvas) {
   canvasRef = canvas;
   ensurePlayerRuntime();
+
   window.addEventListener("keydown", onKeyDown);
   window.addEventListener("keyup", onKeyUp);
   window.addEventListener("mousedown", onMouseDown);
+
   await loadPlayerSprites();
   console.log("🧭 PlayerController initialized (Combat + FX Optimized).");
 }
@@ -245,67 +287,72 @@ export function destroyPlayerController() {
 }
 
 // ------------------------------------------------------------
-// Nearest enemy within a search radius (px/py = player position)
+// 🎯 Nearest enemy within radius
+// ------------------------------------------------------------
 function findNearestEnemyInRange(px, py, maxDist = 320) {
   let target = null;
   let best = maxDist;
+
   for (const g of getEnemies()) {
     if (!g?.alive) continue;
     const dx = g.x - px;
     const dy = g.y - py;
-    const d  = Math.hypot(dx, dy);
-    if (d < best) { best = d; target = g; }
+    const d = Math.hypot(dx, dy);
+    if (d < best) {
+      best = d;
+      target = g;
+    }
   }
+
   return { target, dist: best };
 }
 
 // ------------------------------------------------------------
-// 🗡️ Melee (Auto-face nearest enemy during swing, then restore)
+// ⚠️ Shared “not enough mana” feedback
+// ------------------------------------------------------------
+function notEnoughMana(p) {
+  spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough mana!", "#77aaff");
+  if (typeof playCancelSound === "function") playCancelSound();
+}
+
+// ------------------------------------------------------------
+// 🗡️ Melee attack
 // ------------------------------------------------------------
 function performMeleeAttack() {
   const p = gameState.player;
+  if (!p) return;
+
   const dmg = p.attack * DMG_MELEE;
 
-  // 🧭 Remember facing before swing
   const prevDir = currentDir;
-
-  // 🧠 Find nearest enemy and face them
   const { target } = findNearestEnemyInRange(p.pos.x, p.pos.y, 320);
+
   if (target) {
     const dxToEnemy = target.x - p.pos.x;
     currentDir = dxToEnemy < 0 ? "left" : "right";
   }
 
-  // 🎬 Begin attack animation sequence
   isAttacking = true;
   attackType = "melee";
   attackCooldown = CD_MELEE;
   currentFrame = 0;
 
-  setTimeout(() => { currentFrame = 1; }, 180);
+  setTimeout(() => {
+    currentFrame = 1;
+  }, 180);
 
   setTimeout(() => {
     isAttacking = false;
     currentFrame = 0;
-    currentDir = prevDir; // 🔁 restore movement direction
+    currentDir = prevDir;
   }, 400);
 
-  // ------------------------------------------------------------
-  // ⚔️ DAMAGE LOGIC (Goblins + Ogres + Worg Packs)
-  // ------------------------------------------------------------
   const range = 80;
   const ox = p.pos.x;
   const oy = p.pos.y;
   let hit = false;
 
-  const goblins = getEnemies();
-  const ogres = getOgres();
-  const worgs = getWorg();
-  const elites = getElites();
-  const trolls = getTrolls();
-  const crossbows =getCrossbows();
-
-  const allTargets = [...goblins, ...ogres, ...worgs, ...elites, ...trolls, ...crossbows];
+  const allTargets = getAllTargets();
 
   for (const t of allTargets) {
     if (!t.alive) continue;
@@ -313,32 +360,25 @@ function performMeleeAttack() {
     const dx = t.x - ox;
     const dy = t.y - oy;
     const dist = Math.hypot(dx, dy);
+    if (dist > range + (t.width || 32) / 2) continue;
 
-    if (dist <= range + (t.width || 32) / 2) {
-      if (t.type === "elite") {
-          damageElite(t, dmg, "player");
-      }
-      else if (t.type === "ogre" || t.maxHp >= 400) {
-          damageOgre(t, dmg, "player");
-      }
-      else {
-          damageEnemy(t, dmg);
-      }
+    if (t.type === "elite") {
+      damageElite(t, dmg, "player");
+    } else if (t.type === "ogre" || t.maxHp >= 400) {
+      damageOgre(t, dmg, "player");
+    } else {
+      damageEnemy(t, dmg);
+    }
 
-      hit = true;
+    hit = true;
 
-      // 💥 Knockback (Ogres stay firm)
-      if (t.type !== "ogre") {
-        const len = Math.max(1, dist);
-        t.x += (dx / len) * 50;
-        t.y += (dy / len) * 50;
-      }
+    if (t.type !== "ogre") {
+      const len = Math.max(1, dist);
+      t.x += (dx / len) * 50;
+      t.y += (dy / len) * 50;
     }
   }
 
-  // ------------------------------------------------------------
-  // ✨ FX + SFX (smaller, cheaper burst)
-  // ------------------------------------------------------------
   spawnCanvasSparkleBurst(
     p.pos.x,
     p.pos.y,
@@ -348,20 +388,18 @@ function performMeleeAttack() {
   );
 
   playMeleeSwing();
-
   console.log(`🗡️ Melee attack executed | ${hit ? "Hit" : "Miss"}`);
 }
 
-// ============================================================
-// 🏹 Ranged — Fires Arrow Toward Mouse (Goblins + Ogres + Worg Packs)
-// ============================================================
+// ------------------------------------------------------------
+// 🏹 Ranged — fires arrow toward mouse
+// ------------------------------------------------------------
 function performRangedAttack(e) {
   const p = gameState.player;
   if (!p || !canvasRef) return;
 
   if (p.mana < 2) {
-    spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough mana!", "#77aaff");
-    playCancelSound?.();
+    notEnoughMana(p);
     return;
   }
 
@@ -392,12 +430,15 @@ function performRangedAttack(e) {
   else if (deg >= 210 && deg < 270) facing = "topLeft";
   else if (deg >= 270 && deg < 330) facing = "topRight";
   else facing = "right";
+
   p.facing = facing;
 
   isAttacking = true;
   attackType = "ranged";
   attackCooldown = CD_RANGED;
-  setTimeout(() => { isAttacking = false; }, 300);
+  setTimeout(() => {
+    isAttacking = false;
+  }, 300);
 
   const speed = 1200;
   const startX = p.pos.x + Math.cos(angle) * 30;
@@ -423,7 +464,7 @@ function performRangedAttack(e) {
     projectile.y += Math.sin(projectile.angle) * projectile.speed * dt;
     projectile.life += 16;
 
-    const targets = [...getEnemies(), ...getOgres(), ...getWorg(), ...getElites(), ...getTrolls(), ...getCrossbows()];
+    const targets = getAllTargets();
     for (const t of targets) {
       if (!t.alive) continue;
 
@@ -432,19 +473,13 @@ function performRangedAttack(e) {
       const dist = Math.hypot(dx, dy);
 
       let hitRadius = 26;
-
-      // Elite → medium-large hitbox
       if (t.type === "elite") {
         hitRadius = 50;
-      }
-      // Ogre → largest hitbox
-      else if (t.type === "ogre" || t.maxHp >= 400) {
+      } else if (t.type === "ogre" || t.maxHp >= 400) {
         hitRadius = OGRE_HIT_RADIUS || 60;
-      }
-      // Goblins & worgs → smaller hitbox
-      else {
+      } else {
         hitRadius = 32;
-}
+      }
 
       if (dist < hitRadius) {
         if (t.type === "elite") damageElite(t, dmg);
@@ -456,23 +491,25 @@ function performRangedAttack(e) {
       }
     }
 
-    if (projectile.alive && projectile.life < 1000)
+    if (projectile.alive && projectile.life < 1000) {
       requestAnimationFrame(checkArrowCollision);
+    }
   };
 
   requestAnimationFrame(checkArrowCollision);
 }
 
 // ------------------------------------------------------------
-// 💖 Heal — pastel shimmer, SP + MaxHP scaling, NaN-safe
+// 💖 Heal
 // ------------------------------------------------------------
 function performHeal() {
   const p = gameState.player;
+  if (!p) return;
+
   const cost = Number(COST_HEAL) || 0;
 
-  if (!p || p.mana < cost) {
-    spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough mana!", "#77aaff");
-    playCancelSound?.();
+  if (p.mana < cost) {
+    notEnoughMana(p);
     return;
   }
 
@@ -480,13 +517,15 @@ function performHeal() {
   attackType = "heal";
   attackCooldown = CD_HEAL;
   currentFrame = 0;
-  setTimeout(() => { isAttacking = false; currentFrame = 0; }, 1000);
+  setTimeout(() => {
+    isAttacking = false;
+    currentFrame = 0;
+  }, 1000);
 
   p.mana = Math.max(0, p.mana - cost);
 
   const sp = Number(p.spellPower) || 0;
   const mh = Number(p.maxHp) || 0;
-
   const rawHeal = sp * 1.2 + mh * 0.08 + 10;
   const amount = Math.max(1, Math.round(rawHeal));
 
@@ -510,14 +549,14 @@ function performHeal() {
 }
 
 // ------------------------------------------------------------
-// 🔮 Spell — pastel AoE burst (Goblins + Ogres + Worg Packs)
+// 🔮 Spell — pastel AoE burst
 // ------------------------------------------------------------
 function performSpell() {
   const p = gameState.player;
+  if (!p) return;
 
-  if (!p || p.mana < COST_SPELL) {
-    spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough mana!", "#77aaff");
-    playCancelSound?.();
+  if (p.mana < COST_SPELL) {
+    notEnoughMana(p);
     return;
   }
 
@@ -527,7 +566,9 @@ function performSpell() {
   p.mana -= COST_SPELL;
 
   currentFrame = 0;
-  setTimeout(() => (currentFrame = 1), 350);
+  setTimeout(() => {
+    currentFrame = 1;
+  }, 350);
   setTimeout(() => {
     isAttacking = false;
     currentFrame = 0;
@@ -538,8 +579,7 @@ function performSpell() {
     const radius = 150;
     let hits = 0;
 
-    const targets = [...getEnemies(), ...getOgres(), ...getWorg(), ...getElites(), ...getTrolls(), ...getCrossbows()];
-
+    const targets = getAllTargets();
     for (const t of targets) {
       if (!t.alive) continue;
 
@@ -555,7 +595,6 @@ function performSpell() {
       }
     }
 
-    // Slightly higher sparkle count than melee, still cheap
     spawnCanvasSparkleBurst(
       p.pos.x,
       p.pos.y,
@@ -566,7 +605,6 @@ function performSpell() {
 
     updateHUD();
     playSpellCast();
-
     console.log(`🔮 Spell hit ${hits} targets for ${dmg.toFixed(1)} each.`);
   }, 400);
 }
@@ -575,13 +613,12 @@ function performSpell() {
 // 🌈 GLITTER BURSTS — Optimized (no blur, capped particles)
 // ------------------------------------------------------------
 const sparkles = [];
-const MAX_SPARKLES = 60;  // hard cap for performance
+const MAX_SPARKLES = 60;
 
 function spawnCanvasSparkleBurst(x, y, count = 50, radius = 140, colors) {
   colors ??= ["#ffd6eb", "#b5e2ff", "#fff2b3"];
 
   for (let i = 0; i < count; i++) {
-    // Respect global cap: drop oldest if needed
     if (sparkles.length >= MAX_SPARKLES) {
       sparkles.shift();
     }
@@ -594,9 +631,9 @@ function spawnCanvasSparkleBurst(x, y, count = 50, radius = 140, colors) {
       y,
       vx: Math.cos(ang) * speed,
       vy: Math.sin(ang) * speed,
-      life: 600 + Math.random() * 400,   // 0.6–1.0s
+      life: 600 + Math.random() * 400,
       age: 0,
-      size: 2 + Math.random() * 2.5,     // small, tight
+      size: 2 + Math.random() * 2.5,
       color: colors[Math.floor(Math.random() * colors.length)],
     });
   }
@@ -608,7 +645,7 @@ function updateAndDrawSparkles(ctx, delta) {
   const dt = delta / 1000;
 
   ctx.save();
-  ctx.globalCompositeOperation = "lighter"; // cheap glow
+  ctx.globalCompositeOperation = "lighter";
 
   for (let i = sparkles.length - 1; i >= 0; i--) {
     const s = sparkles[i];
@@ -621,11 +658,10 @@ function updateAndDrawSparkles(ctx, delta) {
 
     const t = s.age / s.life;
 
-    // Mild deceleration
     s.vx *= 0.985;
     s.vy *= 0.985;
-    s.x  += s.vx * dt;
-    s.y  += s.vy * dt;
+    s.x += s.vx * dt;
+    s.y += s.vy * dt;
 
     const alpha = (1 - t) * 0.9;
     const r = s.size * (1 + 0.4 * (1 - t));
@@ -641,28 +677,34 @@ function updateAndDrawSparkles(ctx, delta) {
 }
 
 // ------------------------------------------------------------
-// 🌸 Damage Sparkle Burst (soft pink hit) — uses same system
+// 🌸 Damage Sparkle Burst (soft pink hit)
 // ------------------------------------------------------------
 export function spawnDamageSparkles(x, y) {
-  const pinkRedPalette = ["#ff7aa8", "#ff99b9", "#ffb3c6", "#ffccd5"];
-  spawnCanvasSparkleBurst(x, y, 10, 50, pinkRedPalette);
+  const palette = ["#ff7aa8", "#ff99b9", "#ffb3c6", "#ffccd5"];
+  spawnCanvasSparkleBurst(x, y, 10, 50, palette);
 }
 
 // ------------------------------------------------------------
-// 🏹 Projectiles — accuracy + map collision + lifetime + damage
+// 🏹 Silver arrow projectiles (movement + tile collision + goblins)
 // ------------------------------------------------------------
 function updateProjectiles(delta) {
   const dt = delta / 1000;
 
   for (let i = projectiles.length - 1; i >= 0; i--) {
     const a = projectiles[i];
-    if (!a.alive) { projectiles.splice(i, 1); continue; }
+    if (!a.alive) {
+      projectiles.splice(i, 1);
+      continue;
+    }
 
     a.x += Math.cos(a.angle) * a.speed * dt;
     a.y += Math.sin(a.angle) * a.speed * dt;
 
     a.life += delta;
-    if (a.life > 1500) { a.alive = false; continue; }
+    if (a.life > 1500) {
+      a.alive = false;
+      continue;
+    }
 
     const hitbox = 8;
     if (isRectBlocked(a.x - hitbox / 2, a.y - hitbox / 2, hitbox, hitbox)) {
@@ -692,7 +734,6 @@ export function updatePlayer(delta) {
   const dt = Math.max(0, delta) / 1000;
   const speed = p.speed ?? DEFAULT_SPEED;
 
-  // ⚰️ Death check
   if (p.hp <= 0 && !p.dead) {
     p.hp = 0;
     p.dead = true;
@@ -708,31 +749,27 @@ export function updatePlayer(delta) {
   if (attackCooldown > 0) attackCooldown -= dt;
   updateProjectiles(delta);
 
-  // 🔮 PASSIVE MANA REGENERATION
+  // 🔮 Passive mana regen (BUGFIX: only once per frame)
   const regenRate = 0.8 + (p.level ?? 1) * 0.05;
-  p.mana = Math.min(p.maxMana, p.mana + regenRate * dt);
-
-  // 🔁 Update arrow counter when mana regen increases arrow capacity
   const prevArrows = getArrowCount();
-  const prevMana = p.mana;
-
   p.mana = Math.min(p.maxMana, p.mana + regenRate * dt);
 
   if (getArrowCount() !== prevArrows) {
-      updateHUD();
+    updateHUD();
   }
 
-  // 🎮 MOVEMENT INPUT
-  const left  = keys.has("KeyA") || keys.has("ArrowLeft");
+  // 🎮 Movement input
+  const left = keys.has("KeyA") || keys.has("ArrowLeft");
   const right = keys.has("KeyD") || keys.has("ArrowRight");
-  const up    = keys.has("KeyW") || keys.has("ArrowUp");
-  const down  = keys.has("KeyS") || keys.has("ArrowDown");
+  const up = keys.has("KeyW") || keys.has("ArrowUp");
+  const down = keys.has("KeyS") || keys.has("ArrowDown");
 
-  let dx = 0, dy = 0;
-  if (left)  dx -= 1;
+  let dx = 0,
+    dy = 0;
+  if (left) dx -= 1;
   if (right) dx += 1;
-  if (up)    dy -= 1;
-  if (down)  dy += 1;
+  if (up) dy -= 1;
+  if (down) dy += 1;
 
   isMoving = dx !== 0 || dy !== 0;
 
@@ -743,12 +780,13 @@ export function updatePlayer(delta) {
     dy *= inv;
   }
 
-  // 🚶 Movement + goblin body shunt (no damage here)
+  // 🚶 Movement + goblin body shunt
   if (!isAttacking) {
     let nextX = p.pos.x + dx * speed * dt;
     let nextY = p.pos.y + dy * speed * dt;
     const { bw, bh, ox, oy } = p.body;
-    const feetX = nextX + ox, feetY = nextY + oy;
+    const feetX = nextX + ox;
+    const feetY = nextY + oy;
 
     if (!isRectBlocked(feetX, feetY, bw, bh)) {
       for (const g of getEnemies()) {
@@ -771,23 +809,21 @@ export function updatePlayer(delta) {
     }
   }
 
-  // FACING
-  if (left || right)
-    currentDir = left && !right ? "left" : right && !left ? "right" : currentDir;
-  else if (up || down)
+  // Facing
+  if (left || right) {
+    if (left && !right) currentDir = "left";
+    else if (right && !left) currentDir = "right";
+  } else if (up || down) {
     currentDir = up ? "up" : "down";
+  }
 
-  // CLAMP TO MAP WORLD (not canvas!)
+  // Clamp to map world
   const { width: mapW, height: mapH } = getMapPixelSize();
   const r = SPRITE_SIZE / 2;
   p.pos.x = Math.max(r, Math.min(mapW - r, p.pos.x));
   p.pos.y = Math.max(r, Math.min(mapH - r, p.pos.y));
 
-  // ------------------------------------------------------------
-  // 🟥 PLAYER ↔ GOBLIN CONTACT DAMAGE (respects invincible)
-  // ------------------------------------------------------------
-  if (!p.invulnTimer) p.invulnTimer = 0;
-
+  // 🟥 Player ↔ goblin contact damage
   if (!p.invincible) {
     if (p.invulnTimer > 0) {
       p.invulnTimer -= delta;
@@ -816,17 +852,14 @@ export function updatePlayer(delta) {
     }
   }
 
-  // ------------------------------------------------------------
-  // 🐲 Ogre collision pushback (damage handled in ogre.js)
-  // ------------------------------------------------------------
-  const ogres = getOgres ? getOgres() : [];
+  // 🐲 Ogre collision pushback (damage handled elsewhere)
+  const ogres = getOgres() || [];
   for (const o of ogres) {
     if (!o.alive) continue;
 
     const dxo = o.x - p.pos.x;
     const dyo = o.y - p.pos.y;
     const dist = Math.hypot(dxo, dyo);
-
     const combinedRadius = 60;
 
     if (dist < combinedRadius && dist > 0) {
@@ -836,10 +869,7 @@ export function updatePlayer(delta) {
     }
   }
 
-
-  // ------------------------------------------------------------
-  // 🌀 ANIMATION
-  // ------------------------------------------------------------
+  // 🌀 Animation
   if (isAttacking) {
     // handled by attack timeouts
   } else if (isMoving) {
@@ -853,17 +883,18 @@ export function updatePlayer(delta) {
     currentFrame = 0;
   }
 
-  // Sync convenience mirrors
+  // Mirror convenience
   gameState.player.x = p.pos.x;
   gameState.player.y = p.pos.y;
 }
 
 // ============================================================
-// 🎨 DRAW PLAYER — incl. HP bar + projectiles + sparkles + bravery aura
+// 🎨 DRAW PLAYER — sprite + HP bar + projectiles + sparkles
 // ============================================================
 export function drawPlayer(ctx) {
   if (!ctx) return;
   ensurePlayerRuntime();
+
   const p = gameState.player;
   const { x, y } = p.pos;
 
@@ -874,24 +905,34 @@ export function drawPlayer(ctx) {
   } else if (isAttacking) {
     if (attackType === "melee") {
       const dir = currentDir === "left" ? "left" : "right";
-      img = currentFrame === 0
-        ? sprites.attack[dir][0]
-        : sprites.attack[dir][1];
+      img = currentFrame === 0 ? sprites.attack[dir][0] : sprites.attack[dir][1];
     } else if (attackType === "ranged") {
       const facing = p.facing || "right";
       switch (facing) {
-        case "left":        img = sprites.shoot.left[1];  break;
-        case "right":       img = sprites.shoot.right[1]; break;
-        case "topLeft":     img = sprites.shoot.left[0];  break;
-        case "topRight":    img = sprites.shoot.right[0]; break;
-        case "bottomLeft":  img = sprites.shoot.lowerLeft; break;
-        case "bottomRight": img = sprites.shoot.lowerRight; break;
-        default:            img = sprites.shoot.right[1]; break;
+        case "left":
+          img = sprites.shoot.left[1];
+          break;
+        case "right":
+          img = sprites.shoot.right[1];
+          break;
+        case "topLeft":
+          img = sprites.shoot.left[0];
+          break;
+        case "topRight":
+          img = sprites.shoot.right[0];
+          break;
+        case "bottomLeft":
+          img = sprites.shoot.lowerLeft;
+          break;
+        case "bottomRight":
+          img = sprites.shoot.lowerRight;
+          break;
+        default:
+          img = sprites.shoot.right[1];
+          break;
       }
     } else if (attackType === "spell") {
-      img = currentFrame === 0
-        ? sprites.spell.charge
-        : sprites.spell.explode;
+      img = currentFrame === 0 ? sprites.spell.charge : sprites.spell.explode;
     } else if (attackType === "heal") {
       img = sprites.heal;
     }
@@ -908,50 +949,46 @@ export function drawPlayer(ctx) {
 
   ctx.save();
 
-  // ------------------------------------------------------------
-  // ✨ BRIGHT BRAVERY AURA (supercharged princess glow)
-  // ------------------------------------------------------------
+  // ✨ Bravery aura (invincible)
   if (p.invincible === true) {
-      ctx.save();
+    ctx.save();
 
-      // Big pulsing aura
-      const pulse = 0.6 + 0.4 * Math.sin(Date.now() / 120); // stronger pulse
-      const auraRadius = SPRITE_SIZE * (0.9 + pulse * 0.25); // large glowing bubble
+    const pulse = 0.6 + 0.4 * Math.sin(Date.now() / 120);
+    const auraRadius = SPRITE_SIZE * (0.9 + pulse * 0.25);
 
-      // Powerful gradient
-      const gradient = ctx.createRadialGradient(x, y, 0, x, y, auraRadius);
-      gradient.addColorStop(0.0, "rgba(255, 255, 255, 0.95)");     // bright white core
-      gradient.addColorStop(0.35, "rgba(255, 170, 255, 0.75)");    // strong pink glow
-      gradient.addColorStop(0.7, "rgba(190, 120, 255, 0.55)");     // deeper magical tone
-      gradient.addColorStop(1.0, "rgba(170, 0, 255, 0)");          // smooth fade out
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, auraRadius);
+    gradient.addColorStop(0.0, "rgba(255, 255, 255, 0.95)");
+    gradient.addColorStop(0.35, "rgba(255, 170, 255, 0.75)");
+    gradient.addColorStop(0.7, "rgba(190, 120, 255, 0.55)");
+    gradient.addColorStop(1.0, "rgba(170, 0, 255, 0)");
 
-      ctx.fillStyle = gradient;
-      ctx.globalAlpha = 1;
-      ctx.beginPath();
-      ctx.arc(x, y, auraRadius, 0, Math.PI * 2);
-      ctx.fill();
+    ctx.fillStyle = gradient;
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.arc(x, y, auraRadius, 0, Math.PI * 2);
+    ctx.fill();
 
-      // Outer arc halo ring
-      ctx.strokeStyle = `rgba(255, 200, 255, ${0.8 + 0.2 * Math.sin(Date.now() / 150)})`;
-      ctx.lineWidth = 6;
-      ctx.beginPath();
-      ctx.arc(x, y, auraRadius * 0.95, 0, Math.PI * 2);
-      ctx.stroke();
+    ctx.strokeStyle = `rgba(255, 200, 255, ${
+      0.8 + 0.2 * Math.sin(Date.now() / 150)
+    })`;
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(x, y, auraRadius * 0.95, 0, Math.PI * 2);
+    ctx.stroke();
 
-      ctx.restore();
+    ctx.restore();
   }
 
-
-  // ------------------------------------------------------------
   // Shadow
-  // ------------------------------------------------------------
   ctx.beginPath();
   ctx.ellipse(
     x,
     y + SPRITE_SIZE / 2.3,
     SPRITE_SIZE * 0.35,
     SPRITE_SIZE * 0.15,
-    0, 0, Math.PI * 2
+    0,
+    0,
+    Math.PI * 2
   );
   ctx.fillStyle = `rgba(0,0,0,${SHADOW_OPACITY})`;
   ctx.fill();
@@ -959,48 +996,44 @@ export function drawPlayer(ctx) {
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
 
-  // ------------------------------------------------------------
-  // DRAW PLAYER SPRITE (unchanged)
-  // ------------------------------------------------------------
+  // Player sprite
   if (isAttacking && attackType === "melee" && currentFrame === 0) {
     const scale = 1.5;
     const w = SPRITE_SIZE * scale;
     const h = SPRITE_SIZE * scale;
-    ctx.drawImage(img, 0, 0, 1024, 1024, x - w/2, y - h/2, w, h);
+    ctx.drawImage(img, 0, 0, 1024, 1024, x - w / 2, y - h / 2, w, h);
   } else {
     const isDownWalk = !isAttacking && isMoving && currentDir === "down";
-    const isUpWalk   = !isAttacking && isMoving && currentDir === "up";
+    const isUpWalk = !isAttacking && isMoving && currentDir === "up";
 
     if (isDownWalk || isUpWalk) {
-      const scale = 1.20;
+      const scale = 1.2;
       const w = SPRITE_SIZE * scale;
       const h = SPRITE_SIZE * scale;
 
       const lowerFeet = SPRITE_SIZE * 0.18;
-      const raiseUp   = SPRITE_SIZE * 0.20;
+      const raiseUp = SPRITE_SIZE * 0.2;
 
       const offsetX = x - w / 2;
       const offsetY = y - h / 2 + lowerFeet - raiseUp;
 
-      ctx.drawImage(
-        img,
-        0, 0, 1024, 1024,
-        offsetX, offsetY,
-        w, h
-      );
+      ctx.drawImage(img, 0, 0, 1024, 1024, offsetX, offsetY, w, h);
     } else {
       ctx.drawImage(
         img,
-        0, 0, 1024, 1024,
-        drawX, drawY,
-        SPRITE_SIZE, SPRITE_SIZE
+        0,
+        0,
+        1024,
+        1024,
+        drawX,
+        drawY,
+        SPRITE_SIZE,
+        SPRITE_SIZE
       );
     }
   }
 
-  // ------------------------------------------------------------
-  // ❤️ Player HP Bar
-  // ------------------------------------------------------------
+  // ❤️ Player HP bar
   if (!p.dead) {
     const barWidth = 42;
     const barHeight = 4;
@@ -1010,20 +1043,28 @@ export function drawPlayer(ctx) {
     ctx.fillStyle = "rgba(0,0,0,0.4)";
     ctx.fillRect(x - barWidth / 2, y + offsetY, barWidth, barHeight);
 
-    const grad = ctx.createLinearGradient(x - barWidth / 2, 0, x + barWidth / 2, 0);
+    const grad = ctx.createLinearGradient(
+      x - barWidth / 2,
+      0,
+      x + barWidth / 2,
+      0
+    );
     grad.addColorStop(0, "#ff66b3");
     grad.addColorStop(1, "#ff99cc");
     ctx.fillStyle = grad;
-    ctx.fillRect(x - barWidth / 2, y + offsetY, barWidth * hpPct, barHeight);
+    ctx.fillRect(
+      x - barWidth / 2,
+      y + offsetY,
+      barWidth * hpPct,
+      barHeight
+    );
 
     ctx.strokeStyle = "rgba(255,182,193,0.6)";
     ctx.lineWidth = 1;
     ctx.strokeRect(x - barWidth / 2, y + offsetY, barWidth, barHeight);
   }
 
-  // ------------------------------------------------------------
-  // 🏹 Silver Arrow projectiles
-  // ------------------------------------------------------------
+  // 🏹 Silver arrow projectiles
   ctx.fillStyle = "rgba(240,240,255,0.9)";
   for (const a of projectiles) {
     ctx.save();
@@ -1033,9 +1074,7 @@ export function drawPlayer(ctx) {
     ctx.restore();
   }
 
-  // ------------------------------------------------------------
-  // 🌈 Sparkles
-  // ------------------------------------------------------------
+  // 🌈 Sparkles (using a nominal delta)
   updateAndDrawSparkles(ctx, 16);
 
   ctx.restore();
@@ -1052,8 +1091,8 @@ export function resetPlayerControllerState() {
   attackCooldown = 0;
   console.log("🎮 Player controller reset (Try Again).");
 }
-window.__playerControllerReset = resetPlayerControllerState;
 
+window.__playerControllerReset = resetPlayerControllerState;
 
 // ============================================================
 // 🌟 END OF FILE
