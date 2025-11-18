@@ -17,7 +17,7 @@ import { damageEnemy } from "./enemies.js";
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
 import { updateHUD } from "./ui.js";
-import { spawnOgreLoot } from "./ogreLoot.js";
+import { spawnLoot } from "./loot.js";
 
 
 let ctx = null;
@@ -255,15 +255,8 @@ export function damageOgre(o, amount) {
     o.alive = false;
     o.fading = true;
 
-    // Spawn loot with error handling
-    try { 
-      if (typeof spawnOgreLoot === 'function') {
-        spawnOgreLoot(o.x, o.y);
-      }
-    } catch (err) { 
-      console.warn("⚠️ Failed to spawn ogre loot:", err); 
-    }
 
+    spawnLoot("ogre", o.x, o.y);
     awardXP(25);
     spawnFloatingText(o.x, o.y - 50, "💀 Ogre Down!", "#ffccff");
     playOgreSlain();

@@ -18,7 +18,7 @@ import {
   playPlayerDamage
 } from "./soundtrack.js";
 import { spawnDamageSparkles } from "./playerController.js";
-import { trySpawnGoblinDrop } from "./goblinDrop.js";
+import { spawnLoot } from "./loot.js";
 import { awardXP } from "./levelSystem.js";
 import { incrementGoblinDefeated } from "./game.js";
 
@@ -396,7 +396,7 @@ export function damageTroll(t, amount) {
     updateHUD();
 
     // 🪙 Troll loot drops
-    trySpawnGoblinDrop(t.x, t.y);
+    spawnLoot("troll", t.x, t.y);
   }
 }
 

@@ -20,6 +20,12 @@
 //    - Unified victory after final wave clear
 // ============================================================
 
+// ============================================================
+// 🌸 game.js — Olivia's World: Crystal Keep (OPTIMIZED + Multi-Map Spawns)
+// ------------------------------------------------------------
+// Core game controller — update loop, render loop, system orchestration
+// ============================================================
+
 // ------------------------------------------------------------
 // 🗺️ MAP & LAYERS
 // ------------------------------------------------------------
@@ -32,7 +38,7 @@ import {
 } from "./map.js";
 
 // ------------------------------------------------------------
-// 👹 ENEMIES / TOWERS / PROJECTILES
+// 👹 ENEMIES (Goblin / Troll / Ogre / Worg / Elite / Crossbow)
 // ------------------------------------------------------------
 import {
   initEnemies,
@@ -50,66 +56,19 @@ import {
   spawnOgre,
 } from "./ogre.js";
 
-import { getGoblins, spawnGoblin } from "./goblin.js";
+import {
+  getGoblins,
+  spawnGoblin,
+} from "./goblin.js";
 
 import {
-  initTowers,
-  updateTowers,
-  drawTowers,
-} from "./towers.js";
-
-import {
-  initProjectiles,
-  updateProjectiles,
-  drawProjectiles,
-} from "./projectiles.js";
-
-import {
-  loadLootImages,
-  updateLoot,
-  drawLoot,
-  clearLoot,
-} from "./ogreLoot.js";
-
-// ------------------------------------------------------------
-// 🧭 PLAYER CONTROLLER
-// ------------------------------------------------------------
-import {
-  initPlayerController,
-  updatePlayer,
-  drawPlayer,
-  spawnDamageSparkles,
-} from "./playerController.js";
-
-// ------------------------------------------------------------
-// 🧩 UI / HUD
-// ------------------------------------------------------------
-import { initUI, updateHUD, updateBraveryBar } from "./ui.js";
-
-// ------------------------------------------------------------
-// 💬 FLOATING COMBAT TEXT
-// ------------------------------------------------------------
-import {
-  updateFloatingText,
-  drawFloatingText,
-} from "./floatingText.js";
-
-// ------------------------------------------------------------
-// 🪽 PEGASUS (ambient flight) + Healing Drops / Goblin Drops
-// ------------------------------------------------------------
-import {
-  loadPegasus,
-  initPegasus,
-  updatePegasus,
-  drawPegasusFrame,
-} from "./pegasus.js";
-
-import {
-  loadHealingGem,
-  initHealingDrops,
-  updateHealingDrops,
-  drawHealingDrops,
-} from "./pegasusDrop.js";
+  initTrolls,
+  updateTrolls,
+  drawTrolls,
+  spawnTroll,
+  getTrolls,
+  clearTrolls,
+} from "./troll.js";
 
 import {
   initWorg,
@@ -129,22 +88,6 @@ import {
 } from "./elite.js";
 
 import {
-  initTrolls,
-  updateTrolls,
-  drawTrolls,
-  spawnTroll,
-  getTrolls,
-  clearTrolls,
-} from "./troll.js";
-
-import {
-  initGoblinDrops,
-  updateGoblinDrops,
-  drawGoblinDrops,
-  resetGoblinDrops,
-} from "./goblinDrop.js";
-
-import {
   initCrossbows,
   updateCrossbows,
   drawCrossbows,
@@ -154,20 +97,92 @@ import {
 } from "./crossbow.js";
 
 // ------------------------------------------------------------
-// ⚙️ GLOBAL STATE IMPORTS
+// 🏹 TOWERS & PROJECTILES
 // ------------------------------------------------------------
-import { gameState, unlockMap, saveProfiles } from "../utils/gameState.js";
-import { stopGameplay } from "../main.js";
 import {
-  triggerEndOfWave1Story,
-  triggerEndOfWave5Story,
-} from "./story.js";
+  initTowers,
+  updateTowers,
+  drawTowers,
+} from "./towers.js";
 
+import {
+  initProjectiles,
+  updateProjectiles,
+  drawProjectiles,
+} from "./projectiles.js";
+
+// ------------------------------------------------------------
+// 🎁 UNIFIED LOOT SYSTEM
+// ------------------------------------------------------------
+import {
+  loadLootImages,
+  updateLoot,
+  drawLoot,
+  clearLoot,
+} from "./loot.js";
+
+// ------------------------------------------------------------
+// 🧭 PLAYER CONTROLLER
+// ------------------------------------------------------------
+import {
+  initPlayerController,
+  updatePlayer,
+  drawPlayer,
+  spawnDamageSparkles,
+} from "./playerController.js";
+
+// ------------------------------------------------------------
+// 🧩 UI / HUD
+// ------------------------------------------------------------
+import {
+  initUI,
+  updateHUD,
+  updateBraveryBar,
+} from "./ui.js";
+
+// ------------------------------------------------------------
+// 💬 FLOATING COMBAT TEXT
+// ------------------------------------------------------------
+import {
+  updateFloatingText,
+  drawFloatingText,
+} from "./floatingText.js";
+
+// ------------------------------------------------------------
+// 🪽 PEGASUS (ambient flight only)
+// ------------------------------------------------------------
+import {
+  loadPegasus,
+  initPegasus,
+  updatePegasus,
+  drawPegasusFrame,
+} from "./pegasus.js";
+
+// ------------------------------------------------------------
+// ✨ CRYSTAL ECHOES (ambient sparkle bursts)
+// ------------------------------------------------------------
 import {
   updateCrystalEchoes,
   initCrystalEchoes,
   renderSparkleBursts,
 } from "./crystalEchoes.js";
+
+// ------------------------------------------------------------
+// ⚙️ GLOBAL STATE & STORY
+// ------------------------------------------------------------
+import {
+  gameState,
+  unlockMap,
+  saveProfiles,
+} from "../utils/gameState.js";
+
+import { stopGameplay } from "../main.js";
+
+import {
+  triggerEndOfWave1Story,
+  triggerEndOfWave5Story,
+} from "./story.js";
+
 
 // ============================================================
 // 🌊 WAVE CONFIGS
@@ -611,7 +626,6 @@ export async function initGame(mode = "new") {
 
   // Subsystems
   clearLoot();
-  resetGoblinDrops();
   initEnemies();
   await initWorg(pathPoints);
   await initElites();
@@ -643,9 +657,6 @@ export async function initGame(mode = "new") {
   // Pegasus + healing + drops
   await loadPegasus();
   initPegasus(ctx);
-  await loadHealingGem();
-  initHealingDrops(ctx);
-  initGoblinDrops(ctx);
 
   // Wave state (only on new/retry)
   if (mode !== "load") {
@@ -682,8 +693,6 @@ export function updateGame(delta) {
   updatePlayer(delta);
   updateFloatingText(delta);
   updatePegasus(delta);
-  updateHealingDrops(delta);
-  updateGoblinDrops(delta);
   updateLoot(delta);
   updateWaveSystem(delta);
 
@@ -746,8 +755,6 @@ export function renderGame() {
 
   drawProjectiles(ctx);
   drawFloatingText(ctx);
-  drawHealingDrops(ctx);
-  drawGoblinDrops(ctx);
   drawLoot(ctx);
   renderSparkleBursts(ctx, 16);
 

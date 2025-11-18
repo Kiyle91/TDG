@@ -24,7 +24,7 @@ import {
 } from "./soundtrack.js";
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
-import { trySpawnGoblinDrop } from "./goblinDrop.js";
+import { spawnLoot} from "./loot.js";
 import { addBravery } from "./ui.js";
 
 let enemies = [];
@@ -576,7 +576,7 @@ export function damageEnemy(enemy, amount) {
     addGold(50);
     addBravery (1);
     updateHUD();
-    trySpawnGoblinDrop(enemy.x, enemy.y);
+    spawnLoot ("goblin", enemy)
   }
 }
 

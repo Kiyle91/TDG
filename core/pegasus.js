@@ -7,7 +7,7 @@
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
-import { spawnHealingDrop } from "./pegasusDrop.js"; // 💎 Healing gem system
+import { spawnLoot } from "./loot.js";
 import { playPegasusSpawn } from "./soundtrack.js";
 
 
@@ -106,9 +106,10 @@ export function updatePegasus(delta = 16) {
         (pegasus.direction === 1 && pegasus.x > halfway) ||
         (pegasus.direction === -1 && pegasus.x < halfway)
     )) {
-      spawnHealingDrop(pegasus.x, pegasus.y + 80);
+      // Unified loot: Pegasus always drops from its own table
+      spawnLoot("pegasus", pegasus.x, pegasus.y + 80);
       pegasus.hasDropped = true;
-      console.log("💎 Pegasus dropped a healing gem mid-flight!");
+      console.log("💎 Pegasus dropped a magical loot gem mid-flight!");
     }
 
     // 🚫 End flight when completely off-screen
