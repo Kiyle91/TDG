@@ -11,7 +11,6 @@
 import { gameState } from "../utils/gameState.js";
 import { updateHUD, pauseGame, resumeGame } from "./ui.js";
 import { spawnFloatingText } from "./floatingText.js";
-import { checkTowerUnlocks } from "./towerUnlock.js";
 
 // ------------------------------------------------------------
 // ⚙️ CONFIGURATION
@@ -65,7 +64,6 @@ function checkLevelUp() {
     // 🔧 Pass a callback that runs once stat allocation is complete
     showLevelUpOverlay(p, async () => {
       console.log("🎯 Stat allocation complete — checking tower unlocks...");
-      await checkTowerUnlocks(); // will show tower popup if new tower unlocked
       resumeGame();
       console.log("▶️ Gameplay resumed after tower unlock popup");
     });
