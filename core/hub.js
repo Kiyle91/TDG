@@ -249,6 +249,24 @@ export function initHub() {
     };
   }
 
+  // ============================================================
+  // SUPPORT BUTTON
+  // ============================================================
+
+  const supportBtn = document.getElementById("support-btn");
+  const supportScreen = document.getElementById("support-screen");
+  const supportBack = document.getElementById("support-back-btn");
+
+  supportBtn?.addEventListener("click", () => {
+      supportScreen.classList.remove("hidden");
+      supportScreen.classList.add("active");
+  });
+
+  supportBack?.addEventListener("click", () => {
+      supportScreen.classList.remove("active");
+      supportScreen.classList.add("hidden");
+  });
+
   initSkinsMenu();
 }
 

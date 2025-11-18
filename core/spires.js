@@ -44,7 +44,7 @@ import { getElites } from "./elite.js";
 let spireSprites = {};
 let spires = [];
 
-const MAX_ATTACKS = 150;
+const MAX_ATTACKS = 50;
 const FIRE_RATE_MS = 800;
 const FADE_SPEED = 2;
 const SPIRE_SIZE = 96;
