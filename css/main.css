@@ -2086,12 +2086,14 @@ canvas {
   color: #fff;
 }
 
-/* Row for the 3 options */
+/* Difficulty row container */
 .difficulty-options {
   display: flex;
+  justify-content: center;   /* ⭐ fixes “squished left” */
   align-items: center;
-  justify-content: flex-start;
-  gap: 22px; /* smaller gap between options */
+  gap: 20px;
+  margin-top: 6px;
+  width: 100%;
 }
 
 /* Keep real radios visible (your screenshot shows circles) */
