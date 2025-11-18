@@ -354,6 +354,61 @@ export function updateCrossbows(delta) {
         // No actual movement needed, keep idle
       }
 
+      // ------------------------------------------------------------
+      // 🤜 CROSSBOW ↔ CROSSBOW COLLISION (same spacing as elites)
+      // ------------------------------------------------------------
+      for (let j = 0; j < crossbowList.length; j++) {
+        const o = crossbowList[j];
+        if (o === c || !o.alive) continue;
+
+        const dx2 = c.x - o.x;
+        const dy2 = c.y - o.y;
+        const dist2 = Math.hypot(dx2, dy2);
+
+        const minDist = 72; // identical to elite spacing
+
+        if (dist2 > 0 && dist2 < minDist) {
+          const push = (minDist - dist2) / 2;
+          const nx = dx2 / dist2;
+          const ny = dy2 / dist2;
+
+          c.x += nx * push;
+          c.y += ny * push;
+
+          o.x -= nx * push;
+          o.y -= ny * push;
+        }
+      }
+
+
+      // ------------------------------------------------------------
+      // 🤜 CROSSBOW ↔ GOBLIN COLLISION (same as elite ↔ goblin)
+      // ------------------------------------------------------------
+      const goblins = window.__enemies || [];
+      for (let k = 0; k < goblins.length; k++) {
+        const g = goblins[k];
+        if (!g?.alive) continue;
+
+        const dx3 = c.x - g.x;
+        const dy3 = c.y - g.y;
+        const dist3 = Math.hypot(dx3, dy3);
+
+        const minDistG = 72;
+
+        if (dist3 > 0 && dist3 < minDistG) {
+          const push = (minDistG - dist3) / 2;
+          const nx = dx3 / dist3;
+          const ny = dy3 / dist3;
+
+          c.x += nx * push;
+          c.y += ny * push;
+
+          g.x -= nx * push;
+          g.y -= ny * push;
+        }
+      }
+
+
       // ----------------------------------------------------
       // 🚶 WALK ANIMATION
       // ----------------------------------------------------
