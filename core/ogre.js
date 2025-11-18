@@ -242,19 +242,18 @@ function startOgreAttack(o, dx) {
 // 💥 DAMAGE (OPTIMIZED - removed setTimeout)
 // ------------------------------------------------------------
 export function damageOgre(o, amount) {
-  if (!o.alive) return;
+  if (!o || !o.alive) return;
 
   o.hp -= amount;
   o.flashTimer = 150;
-  
-  playGoblinDamage();
+
   spawnFloatingText(o.x, o.y - 50, `-${amount}`, "#ff9999");
+  playGoblinDamage();
 
   if (o.hp <= 0) {
     o.hp = 0;
     o.alive = false;
     o.fading = true;
-
 
     spawnLoot("ogre", o.x, o.y);
     awardXP(25);

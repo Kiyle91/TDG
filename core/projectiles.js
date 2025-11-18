@@ -9,10 +9,15 @@
 // ✦ ⭐ Crystal Echo Power → all spire damage doubled
 // ============================================================
 
-import { damageGoblin } from "./goblin.js";
 import { gameState } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
+import { damageGoblin } from "./goblin.js";
+import { damageWorg } from "./worg.js";
+import { damageElite } from "./elite.js";
+import { damageTroll } from "./troll.js";
+import { damageOgre } from "./ogre.js"; 
 import { damageCrossbow } from "./crossbow.js";
+
 
 const PROJECTILE_SPEED = 480;
 
@@ -63,6 +68,42 @@ export function spawnProjectile(x, y, target, type = "crystal") {
     life: 0
   });
 }
+
+function damageFromProjectile(target, amount) {
+
+  // ❌ Ogres are immune to tower projectiles
+  if (target.type === "ogre" || target.maxHp === 600) {
+    return;
+  }
+
+  switch (target.type) {
+    case "goblin":
+      damageGoblin(target, amount);
+      break;
+
+    case "worg":
+      damageWorg(target, amount);
+      break;
+
+    case "elite":
+      damageElite(target, amount);
+      break;
+
+    case "troll":
+      damageTroll(target, amount);
+      break;
+
+    case "crossbow":
+      damageCrossbow(target, amount);
+      break;
+
+    default:
+      // fallback for older / legacy goblins
+      damageGoblin(target, amount);
+      break;
+  }
+}
+
 
 // ------------------------------------------------------------
 // 🧠 UPDATE PROJECTILES
@@ -123,7 +164,7 @@ export function updateProjectiles(delta) {
         // ⭐ DOUBLE DAMAGE: Crystal Echo Power
         if (gameState.echoPowerActive) dmg *= 2;
 
-        damageGoblin(t, dmg);
+        damageFromProjectile(t, dmg);
 
       }
 
@@ -147,7 +188,7 @@ export function updateProjectiles(delta) {
         // ⭐ DOUBLE DAMAGE: Crystal Echo Power
         if (gameState.echoPowerActive) dmg *= 2;
 
-        damageGoblin(t, dmg);
+        damageFromProjectile(t, dmg);
       }
 
       // --------------------------------------------------------
@@ -162,7 +203,7 @@ export function updateProjectiles(delta) {
         // ⭐ DOUBLE DAMAGE
         if (gameState.echoPowerActive) dmg *= 2;
 
-        damageGoblin(t, dmg);
+        damageFromProjectile(t, dmg);
       }
 
       // --------------------------------------------------------
@@ -174,7 +215,7 @@ export function updateProjectiles(delta) {
         // ⭐ DOUBLE DAMAGE
         if (gameState.echoPowerActive) dmg *= 2;
 
-        damageGoblin(t, dmg);
+        damageFromProjectile(t, dmg);
       }
 
       projectiles.splice(i, 1);

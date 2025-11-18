@@ -269,31 +269,25 @@ function handleWorgElementalEffects(worg, dt) {
 // ------------------------------------------------------------
 // 💥 DAMAGE (Independent system)
 // ------------------------------------------------------------
-export function damageWorg(worg, amount) {
-  if (!worg || !worg.alive) return;
-  
-  const dmg = Number(amount);
-  if (isNaN(dmg) || dmg <= 0) return;
+export function damageWorg(w, amount) {
+  if (!w || !w.alive) return;
 
-  spawnFloatingText(worg.x, worg.y - 30, -Math.abs(Math.round(dmg)), "#ff5c8a", 18);
-  worg.hp -= dmg;
-  worg.flashTimer = 150;
+  w.hp -= amount;
+  w.flashTimer = 150;
+
+  spawnFloatingText(w.x, w.y - 30, -Math.abs(Math.round(amount)), "#ff5c8a", 18);
   playGoblinDamage();
 
-  if (worg.hp <= 0) {
-    worg.hp = 0;
-    worg.alive = false;
-    worg.fade = 0;
-    
+  if (w.hp <= 0) {
+    w.hp = 0;
+    w.alive = false;
+    w.fade = 0;
+
     playGoblinDeath();
-    
-    // 🆕 Award XP and Gold
-    awardXP(WORG_XP_REWARD);
-    addGold(WORG_GOLD_REWARD);
-    updateHUD();
+    awardXP(5);
+    addGold(5);
     addBravery(1);
-    
-    console.log(`🐺 Worg defeated! Awarded ${WORG_XP_REWARD} XP and ${WORG_GOLD_REWARD} gold.`);
+    updateHUD();
   }
 }
 

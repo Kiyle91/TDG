@@ -17,6 +17,7 @@ import {
   playGoblinDamage,
 } from "./soundtrack.js";
 import { spawnDamageSparkles } from "./playerController.js";
+import { spawnLoot } from "./loot.js";
 
 // ------------------------------------------------------------
 // 🧩 INTERNAL STATE
@@ -196,6 +197,7 @@ export function spawnCrossbow() {
   else { x = mapW + 200; y = Math.random() * mapH; }
 
   crossbowList.push({
+    type: "crossbow",
     x,
     y,
     width: CROSSBOW_SIZE,
@@ -521,15 +523,17 @@ export function drawCrossbows(ctx) {
 // ------------------------------------------------------------
 // 💥 DAMAGE API (for spires / player attacks to call later)
 // ------------------------------------------------------------
-export function damageCrossbow(crossbow, amount) {
-  if (!crossbow || !crossbow.alive) return;
+export function damageCrossbow(c, amount) {
+  if (!c || !c.alive) return;
 
-  crossbow.hp -= amount;
-  spawnFloatingText(`-${amount}`, crossbow.x, crossbow.y - 40, "#ff8080");
+  c.hp -= amount;
+  c.flashTimer = 150;
+
+  spawnFloatingText(`-${amount}`, c.x, c.y - 40, "#ff8080");
   playGoblinDamage();
 
-  if (crossbow.hp <= 0) {
-    killCrossbow(crossbow);
+  if (c.hp <= 0) {
+    killCrossbow(c);
   }
 }
 
@@ -544,7 +548,7 @@ function killCrossbow(c) {
   addGold(8);
   updateHUD();
   playGoblinDeath();
-  spawnLoot("crossbow", goblin.x, goblin.y);
+  spawnLoot("crossbow", c.x, c.y);
 
   spawnFloatingText("✝", c.x, c.y - 50, "#ffffff");
 }

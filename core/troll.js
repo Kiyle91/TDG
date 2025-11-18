@@ -373,14 +373,11 @@ function handleEscape(t) {
 export function damageTroll(t, amount) {
   if (!t || !t.alive) return;
 
-  const dmg = Math.max(0, Number(amount));
-  if (dmg <= 0) return;
-
-  t.hp -= dmg;
-
-  spawnFloatingText(t.x, t.y - 40, `-${Math.round(dmg)}`, "#ff7777");
-  playGoblinDamage();
+  t.hp -= amount;
   t.flashTimer = 150;
+
+  spawnFloatingText(t.x, t.y - 40, `-${Math.round(amount)}`, "#ff7777");
+  playGoblinDamage();
 
   if (t.hp <= 0) {
     t.hp = 0;
@@ -388,14 +385,11 @@ export function damageTroll(t, amount) {
     t.fadeTimer = 0;
     playGoblinDeath();
 
-    // 🧮 Full goblin-style rewards
     incrementGoblinDefeated();
     awardXP(5);
     addGold(5);
     addBravery(1);
     updateHUD();
-
-    // 🪙 Troll loot drops
     spawnLoot("troll", t.x, t.y);
   }
 }

@@ -356,11 +356,10 @@ export function updateElites(delta = 16) {
 export function damageElite(e, amount) {
   if (!e || !e.alive) return;
 
-  const dmg = Math.round(Math.abs(amount));
-  e.hp -= dmg;
+  e.hp -= amount;
   e.flashTimer = 150;
 
-  spawnFloatingText(e.x, e.y - 40, `-${dmg}`, "#ff3355");
+  spawnFloatingText(e.x, e.y - 40, `-${amount}`, "#ff3355");
   playGoblinDamage();
 
   if (e.hp <= 0) {
@@ -369,9 +368,9 @@ export function damageElite(e, amount) {
     e.fade = 0;
 
     playGoblinDeath();
-    awardXP(EXP_REWARD);
-    addGold(GOLD_REWARD);
-    addBravery (1)
+    awardXP(10);
+    addGold(10);
+    addBravery(1);
     updateHUD();
   }
 }
