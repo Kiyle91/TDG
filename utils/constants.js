@@ -18,9 +18,9 @@ export const GRID_ROWS = 35;
 // ⚔️ GAMEPLAY CONSTANTS
 // ------------------------------------------------------------
 
-export const GOBLIN_SPEED = 60;        // pixels per second
-export const SPIRE_RANGE = 250;        // px
-export const PROJECTILE_SPEED = 300;   // px/s
+export const GOBLIN_SPEED = 60;        
+export const SPIRE_RANGE = 250;        
+export const PROJECTILE_SPEED = 300;   
 
 // ============================================================
 // 🌟 END OF FILE

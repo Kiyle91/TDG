@@ -35,7 +35,7 @@ export function initCollision(mapData, providedTileSize = 32) {
 export function isCollisionAt(px, py) {
   if (!collisionLayer) return false;
 
-  if (px < 0 || py < 0) return true; // treat OOB as blocked
+  if (px < 0 || py < 0) return true; 
 
   const tileX = Math.floor(px / tileSize);
   const tileY = Math.floor(py / tileSize);
@@ -62,7 +62,7 @@ export function isRectBlocked(x, y, w, h) {
     { x: x + w,   y },
     { x,          y: y + h },
     { x: x + w,   y: y + h },
-    { x: x + w/2, y: y + h }, // center bottom (player feet)
+    { x: x + w/2, y: y + h }, 
   ];
   return points.some(p => isCollisionAt(p.x, p.y));
 }

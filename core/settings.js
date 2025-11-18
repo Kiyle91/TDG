@@ -1,7 +1,7 @@
 // ============================================================
 // ⚙️ settings.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Handles music & SFX volume, visual & tooltip toggles
+// ✦ Handles music & SFX volume, visual & 
 // ✦ Syncs with soundtrack.js + localStorage
 // ============================================================
 /* ------------------------------------------------------------
@@ -9,14 +9,13 @@
  * PURPOSE:
  *   Manages all user-configurable settings for Olivia’s World:
  *   Crystal Keep. This includes audio volumes, visual toggles,
- *   and tooltip preferences — synced across both the Hub and
+ *   synced across both the Hub and
  *   the in-game settings overlays.
  *
  * SUMMARY:
  *   • initSettings()      — loads from localStorage + applies UI
  *   • initGameSettings()  — same, but for in-game overlay IDs
- *   • getTooltipSetting() — used by tooltip system
- *
+
  * FEATURES:
  *   • Independent SFX + Music volume sliders
  *   • Visuals toggle for aesthetic/particle-heavy systems
@@ -50,7 +49,6 @@ let settings = {
   musicVolume: 0.8,
   sfxVolume: 0.8,
   visualsEnabled: true,
-  tooltipsEnabled: true,
 };
 
 // ------------------------------------------------------------
@@ -78,12 +76,10 @@ function applySettingsToUI() {
   const musicRange = document.getElementById("music-volume");
   const sfxRange = document.getElementById("sfx-volume");
   const visualsToggle = document.getElementById("visuals-toggle");
-  const tooltipsToggle = document.getElementById("tooltips-toggle");
 
   if (musicRange) musicRange.value = settings.musicVolume * 100;
   if (sfxRange) sfxRange.value = settings.sfxVolume * 100;
   if (visualsToggle) visualsToggle.checked = settings.visualsEnabled;
-  if (tooltipsToggle) tooltipsToggle.checked = settings.tooltipsEnabled;
 
   updateLabels();
 }
@@ -95,7 +91,6 @@ function applySettingsToUI() {
 function applySettingsToGame() {
   setMusicVolume(settings.musicVolume);
   setSfxVolume(settings.sfxVolume);
-  // Visuals / tooltip toggles used by other modules
 }
 
 // ------------------------------------------------------------
@@ -106,7 +101,6 @@ function setupListeners() {
   const musicRange = document.getElementById("music-volume");
   const sfxRange = document.getElementById("sfx-volume");
   const visualsToggle = document.getElementById("visuals-toggle");
-  const tooltipsToggle = document.getElementById("tooltips-toggle");
 
   const musicLabel = document.getElementById("music-value");
   const sfxLabel = document.getElementById("sfx-value");
@@ -132,13 +126,6 @@ function setupListeners() {
   // Visual toggle
   visualsToggle?.addEventListener("change", (e) => {
     settings.visualsEnabled = e.target.checked;
-    playFairySprinkle();
-    saveSettings();
-  });
-
-  // Tooltip toggle
-  tooltipsToggle?.addEventListener("change", (e) => {
-    settings.tooltipsEnabled = e.target.checked;
     playFairySprinkle();
     saveSettings();
   });
@@ -168,13 +155,8 @@ function updateLabels() {
     sfxLabel.textContent = `${Math.round(settings.sfxVolume * 100)}%`;
 }
 
-// ------------------------------------------------------------
-// 🔮 EXPOSE TOOLTIP SETTING
-// ------------------------------------------------------------
 
-export function getTooltipSetting() {
-  return settings.tooltipsEnabled;
-}
+
 
 // ------------------------------------------------------------
 // 🎮 IN-GAME SETTINGS OVERLAY
@@ -186,13 +168,11 @@ export function initGameSettings() {
 
   const sfxRange = document.getElementById("sfx-volume-game");
   const visualsToggle = document.getElementById("visuals-toggle-game");
-  const tooltipsToggle = document.getElementById("tooltips-toggle-game");
 
   // Sync UI from settings
   musicRange.value = settings.musicVolume * 100;
   sfxRange.value = settings.sfxVolume * 100;
   visualsToggle.checked = settings.visualsEnabled;
-  tooltipsToggle.checked = settings.tooltipsEnabled;
 
   document.getElementById("music-value-game").textContent =
     `${Math.round(settings.musicVolume * 100)}%`;
@@ -221,13 +201,10 @@ export function initGameSettings() {
     saveSettings();
     playFairySprinkle();
   };
-
-  tooltipsToggle.onchange = (e) => {
-    settings.tooltipsEnabled = e.target.checked;
-    saveSettings();
-    playFairySprinkle();
-  };
 }
+  
+
+
 
 // ============================================================
 // 🌟 END OF FILE

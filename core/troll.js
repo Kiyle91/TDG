@@ -184,7 +184,7 @@ function attackPlayer(t, player) {
   damage *= (1 - reduction);
 
   player.hp = Math.max(0, player.hp - damage);
-  player.flashTimer = 200; // matches goblins/elites/ogres
+  player.flashTimer = 200; 
 
   updateHUD();
 

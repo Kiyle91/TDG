@@ -231,7 +231,7 @@ export function saveProfiles() {
 
     localStorage.setItem("td_profiles", JSON.stringify(gameState.profiles));
   } catch {
-    // Silent fail (intentionally clean — no logs)
+    
   }
 }
 
@@ -329,7 +329,7 @@ export function resetEchoBuff() {
   if (icon) icon.classList.remove("echo-power-flash");
 }
 
-// Load profiles immediately at startup
+
 loadProfiles();
 
 // ============================================================
