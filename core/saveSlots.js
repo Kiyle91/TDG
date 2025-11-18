@@ -1,10 +1,42 @@
 // ============================================================
 // 💾 saveSlots.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Renders 10 save slots into any container
-// ✦ Save / Load / Delete support
-// ✦ FULLY FIXED: loads correct map when loading in-game
+// ✦ Renders 10 save slots (Hub or Navbar)
+// ✦ Save / Load / Delete functionality
+// ✦ FULLY FIXED: loads correct map + applies snapshot cleanly
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: saveSlots.js
+ * PURPOSE:
+ *   Renders up to 10 save slots in any container (Hub or
+ *   in-game navbar), allowing saving, loading, and deleting
+ *   individual slots. Ensures correct map restoration,
+ *   full game reinitialization, and safe UI transitions.
+ *
+ * SUMMARY:
+ *   • renderSlots(container, allowSave)
+ *       - Shows 10 slots with Save/Overwrite, Load, Delete.
+ *   • Correctly loads snapshot → applies map, player, spires,
+ *     goblins, currencies, and skins, then resumes gameplay.
+ *   • Works in hub OR during gameplay (navbar save overlay).
+ *
+ * FEATURES:
+ *   • Save / Overwrite (when allowSave = true)
+ *   • Load snapshot correctly restores currentMap before init
+ *   • Delete individual slot with instant UI refresh
+ *   • Applies snapshot AFTER initGame() for full reconstruction
+ *   • Skin system guaranteed via ensureSkin()
+ *
+ * TECHNICAL NOTES:
+ *   • Snapshot structure stored in localStorage via saveSystem.js
+ *   • showScreen("game-container") must be called BEFORE initGame()
+ *   • ResumeGame() returns the loop to active state after load
+ * ------------------------------------------------------------ */
+
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import {
   saveToSlot,
@@ -15,22 +47,17 @@ import {
 } from "./saveSystem.js";
 
 import { playFairySprinkle, playCancelSound } from "./soundtrack.js";
-
-// FIXED: showScreen comes from screens.js, not ui.js
 import { resumeGame } from "./ui.js";
 import { showScreen } from "./screens.js";
-
-import { gameState } from "../utils/gameState.js";
-import { saveProfiles } from "../utils/gameState.js";
+import { gameState, saveProfiles } from "../utils/gameState.js";
 import { ensureSkin } from "./skins.js";
+
 // ------------------------------------------------------------
-// 🧱 RENDER SLOTS
+// 🧱 RENDER SAVE SLOTS
 // ------------------------------------------------------------
+
 export function renderSlots(container, allowSave = true) {
-  if (!container) {
-    console.warn("💾 renderSlots: no container provided.");
-    return;
-  }
+  if (!container) return;
 
   container.innerHTML = "";
   const summaries = getSlotSummaries() || [];
@@ -41,8 +68,9 @@ export function renderSlots(container, allowSave = true) {
     slotEl.className = "save-slot";
 
     // --------------------------------------------------------
-    // TITLE
+    // TITLE / SLOT HEADER
     // --------------------------------------------------------
+
     const titleEl = document.createElement("div");
     titleEl.className = "save-slot-title";
 
@@ -58,20 +86,22 @@ export function renderSlots(container, allowSave = true) {
       });
 
       titleEl.textContent =
-        `Map ${summary.map}  ,` +
-        `  Wave ${summary.wave}  ,  Lv ${summary.level}  ,` +
-        `  ${timeStr} `;
+        `Map ${summary.map}, ` +
+        `Wave ${summary.wave}, Lv ${summary.level}, ` +
+        `${timeStr}`;
     }
 
     // --------------------------------------------------------
     // BUTTON ROW
     // --------------------------------------------------------
+
     const btnRow = document.createElement("div");
     btnRow.className = "save-slot-buttons";
 
     // ========================================================
-    // SAVE / OVERWRITE (in-game only)
+    // SAVE / OVERWRITE (In-game only)
     // ========================================================
+
     if (allowSave) {
       const saveBtn = document.createElement("button");
       saveBtn.className = "save-btn";
@@ -83,17 +113,16 @@ export function renderSlots(container, allowSave = true) {
         try {
           saveToSlot(i);
           renderSlots(container, allowSave);
-        } catch (err) {
-          console.error("💾 Save failed:", err);
-        }
+        } catch (err) {}
       });
 
       btnRow.appendChild(saveBtn);
     }
 
     // ========================================================
-    // LOAD BUTTON (Hub & Navbar)
+    // LOAD BUTTON (Hub or Navbar)
     // ========================================================
+
     if (summary) {
       const loadBtn = document.createElement("button");
       loadBtn.className = "load-btn";
@@ -104,38 +133,34 @@ export function renderSlots(container, allowSave = true) {
         playFairySprinkle();
 
         try {
-          // 1️⃣ Read snapshot
+          // 1️⃣ Load snapshot from slot
           const snap = loadFromSlot(i);
           if (!snap) return;
 
-          console.log("💾 [NAVBAR] Loaded snapshot:", snap);
-
-          // 2️⃣ Set correct map BEFORE initGame()
+          // 2️⃣ Set correct map BEFORE game init
           if (snap.progress?.currentMap) {
             gameState.progress.currentMap = snap.progress.currentMap;
           }
 
-          // 3️⃣ Switch to game screen
+          // 3️⃣ Move to game container screen
           showScreen("game-container");
 
-          // 4️⃣ FULL game reinit
+          // 4️⃣ Full map + combat reinitialisation
           const gameMod = await import("./game.js");
           await gameMod.initGame();
 
-          // 5️⃣ Apply snapshot (player, spires, goblins, etc)
+          // 5️⃣ Restore player + structures + enemies
           applySnapshot(snap);
 
-          ensureSkin(gameState.player);     // guarantee unlocked array
-          saveProfiles();     
+          ensureSkin(gameState.player);
+          saveProfiles();
 
-          // 6️⃣ Resume gameplay loop
+          // 6️⃣ Resume gameplay
           resumeGame();
 
-        } catch (err) {
-          console.error("💾 Load failed:", err);
-        }
+        } catch (err) {}
 
-        // 7️⃣ Close navbar save overlay if present
+        // 7️⃣ Hide save overlay if shown in-game
         const overlay = document.getElementById("overlay-save-game");
         if (overlay) {
           overlay.classList.remove("active");
@@ -149,6 +174,7 @@ export function renderSlots(container, allowSave = true) {
     // ========================================================
     // DELETE BUTTON
     // ========================================================
+
     if (summary) {
       const delBtn = document.createElement("button");
       delBtn.className = "delete-btn";
@@ -165,10 +191,15 @@ export function renderSlots(container, allowSave = true) {
     }
 
     // --------------------------------------------------------
-    // Assemble slot
+    // Final assembly
     // --------------------------------------------------------
+    
     slotEl.appendChild(titleEl);
     slotEl.appendChild(btnRow);
     container.appendChild(slotEl);
   }
 }
+ 
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

@@ -1,13 +1,47 @@
 // ============================================================
-// 💫 projectiles.js — Olivia’s World: Crystal Keep (Elemental Projectiles)
+// 💫 projectiles.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Crystal, Frost, Flame, Arcane, Moon, Heal projectiles
-// ✦ Heal bolts target player correctly (player.pos.x / pos.y)
-// ✦ Flame DOT ticks once per second (non-stacking)
-// ✦ Frost slow applies cleanly once
-// ✦ Pure canvas glow projectiles (no images)
-// ✦ ⭐ Crystal Echo Power → all spire damage doubled
+// ✦ Elemental projectile system (canvas-based)
+// ✦ Frost / Flame / Arcane / Moon / Crystal / Heal
+// ✦ Crystal Echo Power → DOUBLE DAMAGE
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: projectiles.js
+ * PURPOSE:
+ *   Implements the full elemental projectile system used by all
+ *   Spire towers, including movement, collision, damage, status
+ *   effects, healing bolts, and rendering.
+ *
+ * SUMMARY:
+ *   The game uses a pure-canvas projectile system (no images).
+ *   Each projectile travels toward its assigned target, applying
+ *   fire burn, frost slow, arcane burst, moon stun, crystal hit,
+ *   or healing to the player. Damage is routed to the appropriate
+ *   enemy handler, and Crystal Echo Power can double all damage.
+ *
+ * FEATURES:
+ *   • spawnProjectile() — creates any projectile type
+ *   • updateProjectiles() — movement, hit detection, effects
+ *   • drawProjectiles() — soft-glow canvas rendering
+ *   • Elemental behaviours:
+ *        - Frost → slow (applies once)
+ *        - Flame → burn DoT (non-stacking)
+ *        - Moon  → stun
+ *        - Heal  → targets player.pos
+ *        - Crystal / Arcane → direct hits
+ *   • Fully compatible with all enemy types and loot-power systems
+ *
+ * TECHNICAL NOTES:
+ *   • Ogres are immune to all tower projectile damage
+ *   • Healing projectiles use player.pos.x/y at cast time
+ *   • Projectiles auto-destroy on impact or target death
+ *   • Uses radial gradients for pastel projectile glow
+ * ------------------------------------------------------------ */
+
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import { gameState } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
@@ -15,13 +49,15 @@ import { damageGoblin } from "./goblin.js";
 import { damageWorg } from "./worg.js";
 import { damageElite } from "./elite.js";
 import { damageTroll } from "./troll.js";
-import { damageOgre } from "./ogre.js"; 
+import { damageOgre } from "./ogre.js";
 import { damageCrossbow } from "./crossbow.js";
 
+// ------------------------------------------------------------
+// 🗺️ MODULE-LEVEL VARIABLES
+// ------------------------------------------------------------
 
 const PROJECTILE_SPEED = 480;
 
-// Per-type damage table
 const PROJECTILE_DAMAGE = {
   crystal: 25,
   frost: 15,
@@ -36,18 +72,19 @@ let projectiles = [];
 // ------------------------------------------------------------
 // 🌱 INITIALIZATION
 // ------------------------------------------------------------
+
 export function initProjectiles() {
   projectiles = [];
-  console.log("💫 Projectiles initialized.");
 }
 
 // ------------------------------------------------------------
 // 💥 SPAWN PROJECTILE
 // ------------------------------------------------------------
+
 export function spawnProjectile(x, y, target, type = "crystal") {
   if (!target) return;
 
-  // Player targeting → convert to virtual target
+  // Player target adapter
   if (target === gameState.player) {
     target = {
       x: gameState.player.pos.x,
@@ -56,7 +93,6 @@ export function spawnProjectile(x, y, target, type = "crystal") {
     };
   }
 
-  // Goblin check
   if (!target.isPlayer && !target.alive) return;
 
   projectiles.push({
@@ -65,49 +101,35 @@ export function spawnProjectile(x, y, target, type = "crystal") {
     target,
     type,
     angle: 0,
-    life: 0
+    life: 0,
   });
 }
 
+// ------------------------------------------------------------
+// 🎯 DAMAGE ROUTER
+// ------------------------------------------------------------
+
 function damageFromProjectile(target, amount) {
 
-  // ❌ Ogres are immune to tower projectiles
+  // Ogres are projectile-immune
   if (target.type === "ogre" || target.maxHp === 600) {
     return;
   }
 
   switch (target.type) {
-    case "goblin":
-      damageGoblin(target, amount);
-      break;
-
-    case "worg":
-      damageWorg(target, amount);
-      break;
-
-    case "elite":
-      damageElite(target, amount);
-      break;
-
-    case "troll":
-      damageTroll(target, amount);
-      break;
-
-    case "crossbow":
-      damageCrossbow(target, amount);
-      break;
-
-    default:
-      // fallback for older / legacy goblins
-      damageGoblin(target, amount);
-      break;
+    case "goblin":   damageGoblin(target, amount); break;
+    case "worg":     damageWorg(target, amount); break;
+    case "elite":    damageElite(target, amount); break;
+    case "troll":    damageTroll(target, amount); break;
+    case "crossbow": damageCrossbow(target, amount); break;
+    default:         damageGoblin(target, amount); break;
   }
 }
-
 
 // ------------------------------------------------------------
 // 🧠 UPDATE PROJECTILES
 // ------------------------------------------------------------
+
 export function updateProjectiles(delta) {
   const dt = delta / 1000;
 
@@ -118,37 +140,36 @@ export function updateProjectiles(delta) {
     const tx = t.isPlayer ? gameState.player.pos.x : t.x;
     const ty = t.isPlayer ? gameState.player.pos.y : t.y;
 
-    // If goblin died
     if (!t.isPlayer && !t.alive) {
       projectiles.splice(i, 1);
       continue;
     }
 
-    // Movement
+    // Movement vector
     const dx = tx - p.x;
     const dy = ty - p.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    const step = PROJECTILE_SPEED * dt;
 
     p.angle = Math.atan2(dy, dx);
 
-    // 🎯 ON HIT
+    // 🎯 IMPACT
     if (dist < 8) {
-
       // --------------------------------------------------------
       // 💛 HEAL PROJECTILE
       // --------------------------------------------------------
+
       if (p.type === "heal") {
-        const player = gameState.player;
-        if (player) {
-          player.hp = Math.min(player.maxHp, player.hp + 15);
-          spawnFloatingText(player.pos.x, player.pos.y - 60, "✨");
+        const pl = gameState.player;
+        if (pl) {
+          pl.hp = Math.min(pl.maxHp, pl.hp + 15);
+          spawnFloatingText(pl.pos.x, pl.pos.y - 60, "✨");
         }
       }
 
       // --------------------------------------------------------
-      // ❄ FROST PROJECTILE — apply slow once, emoji-only
+      // ❄ FROST
       // --------------------------------------------------------
+
       else if (p.type === "frost") {
         t.slowTimer = 2000;
 
@@ -158,19 +179,16 @@ export function updateProjectiles(delta) {
           spawnFloatingText(t.x, t.y - 60, "❄️");
         }
 
-        // ❄ frost damage
         let dmg = PROJECTILE_DAMAGE.frost;
-
-        // ⭐ DOUBLE DAMAGE: Crystal Echo Power
         if (gameState.echoPowerActive) dmg *= 2;
 
         damageFromProjectile(t, dmg);
-
       }
 
       // --------------------------------------------------------
-      // 🔥 FLAME PROJECTILE — apply burn only once
+      // 🔥 FLAME
       // --------------------------------------------------------
+
       else if (p.type === "flame") {
 
         if (!t.isBurning) {
@@ -178,41 +196,35 @@ export function updateProjectiles(delta) {
           t.burnTimer = 15000;
           t.burnTick = 1;
           t.burnDamage = 3;
-
           spawnFloatingText(t.x, t.y - 60, "🔥");
         }
 
-        // immediate flame hit damage
         let dmg = 20;
-
-        // ⭐ DOUBLE DAMAGE: Crystal Echo Power
         if (gameState.echoPowerActive) dmg *= 2;
 
         damageFromProjectile(t, dmg);
       }
 
       // --------------------------------------------------------
-      // 🌙 MOON PROJECTILE — STUN + damage
+      // 🌙 MOON — STUN
       // --------------------------------------------------------
+
       else if (p.type === "moon") {
         t.stunTimer = 1000;
         spawnFloatingText(t.x, t.y - 60, "🌙", "#ccbbff");
 
         let dmg = PROJECTILE_DAMAGE.moon;
-
-        // ⭐ DOUBLE DAMAGE
         if (gameState.echoPowerActive) dmg *= 2;
 
         damageFromProjectile(t, dmg);
       }
 
       // --------------------------------------------------------
-      // 💎 CRYSTAL + 💜 ARCANE — base projectile types
+      // 💎 CRYSTAL / ARCANE
       // --------------------------------------------------------
+
       else {
         let dmg = PROJECTILE_DAMAGE[p.type] ?? 10;
-
-        // ⭐ DOUBLE DAMAGE
         if (gameState.echoPowerActive) dmg *= 2;
 
         damageFromProjectile(t, dmg);
@@ -222,15 +234,17 @@ export function updateProjectiles(delta) {
       continue;
     }
 
-    // Move projectile
+    // Continue movement toward target
+    const step = PROJECTILE_SPEED * dt;
     p.x += (dx / dist) * step;
     p.y += (dy / dist) * step;
   }
 }
 
 // ------------------------------------------------------------
-// 🎨 Projectile color definitions
+// 🎨 PROJECTILE COLOR THEMES
 // ------------------------------------------------------------
+
 function getProjectileColors(type) {
   switch (type) {
     case "frost": return {
@@ -240,32 +254,32 @@ function getProjectileColors(type) {
     };
 
     case "flame": return {
-      inner: "rgba(255, 150, 80, 0.95)",
-      mid:   "rgba(255, 100, 50, 0.5)",
-      outer: "rgba(255, 80, 40, 0)"
+      inner: "rgba(255,150,80,0.95)",
+      mid:   "rgba(255,100,50,0.5)",
+      outer: "rgba(255,80,40,0)"
     };
 
     case "arcane": return {
-      inner: "rgba(220, 160, 255, 0.95)",
-      mid:   "rgba(180, 120, 255, 0.5)",
-      outer: "rgba(160, 80, 255, 0)"
+      inner: "rgba(220,160,255,0.95)",
+      mid:   "rgba(180,120,255,0.5)",
+      outer: "rgba(160,80,255,0)"
     };
 
     case "moon": return {
-      inner: "rgba(200, 220, 255, 0.95)",
-      mid:   "rgba(150, 180, 255, 0.5)",
-      outer: "rgba(130, 160, 255, 0)"
+      inner: "rgba(200,220,255,0.95)",
+      mid:   "rgba(150,180,255,0.5)",
+      outer: "rgba(130,160,255,0)"
     };
 
     case "heal": return {
-      inner: "rgba(255, 240, 120, 0.95)",
-      mid:   "rgba(255, 220, 100, 0.5)",
-      outer: "rgba(255, 200, 80, 0)"
+      inner: "rgba(255,240,120,0.95)",
+      mid:   "rgba(255,220,100,0.5)",
+      outer: "rgba(255,200,80,0)"
     };
 
     default: return {
-      inner: "rgba(190, 240, 255, 0.9)",
-      mid:   "rgba(160, 210, 255, 0.5)",
+      inner: "rgba(190,240,255,0.9)",
+      mid:   "rgba(160,210,255,0.5)",
       outer: "rgba(255,255,255,0)"
     };
   }
@@ -274,6 +288,7 @@ function getProjectileColors(type) {
 // ------------------------------------------------------------
 // 🎨 DRAW PROJECTILES
 // ------------------------------------------------------------
+
 export function drawProjectiles(ctx) {
   if (!ctx) return;
 

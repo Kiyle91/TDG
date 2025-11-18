@@ -1,11 +1,43 @@
 // ============================================================
 // 🌸 profile.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Manages player profile creation, selection, and deletion
-// ✦ Each profile includes its own Glitter Guardian data
-// ✦ Uses custom pastel alert, confirm, and input modals
-// ✦ Handles smooth fade transitions to the hub screen
+// ✦ Player profile creation, selection, deletion
+// ✦ Each profile contains full Glitter Guardian data
+// ✦ Integrated with pastel modal system + hub transitions
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: profile.js
+ * PURPOSE:
+ *   Handles profile creation, selection, deletion, and loading.
+ *   Each profile maintains its own player data, currencies,
+ *   progress, and unlocked systems. This module manages the
+ *   profile screen UI, modal interactions, and transitions
+ *   into the Hub screen.
+ *
+ * SUMMARY:
+ *   • initProfiles() — entry point for rendering slots, binding
+ *     events, and loading stored profiles.
+ *   • Profiles support: create, delete, select, persistence.
+ *   • Creates a fresh Glitter Guardian (player.js) for each
+ *     new profile.
+ *   • Smooth pastel transitions + custom alert/confirm/input.
+ *
+ * FEATURES:
+ *   • Up to 6 profiles stored in localStorage
+ *   • Automatic activeProfileIndex tracking
+ *   • Uses Hub UI updates immediately after selection
+ *   • Fully integrated with skins, currencies, story system
+ *
+ * TECHNICAL NOTES:
+ *   • saveProfiles() must be called after any modification
+ *   • restorePlayer() reinstalls the saved player object
+ *   • Profile name syncs directly to gameState.player.name
+ * ------------------------------------------------------------ */
+
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import {
   gameState,
@@ -17,8 +49,7 @@ import {
 
 import { createPlayer, restorePlayer } from "../core/player.js";
 import { showAlert, showConfirm, showInput } from "../core/alert.js";
-import { updateHubProfile } from "./hub.js";
-import { updateHubCurrencies } from "./hub.js";
+import { updateHubProfile, updateHubCurrencies } from "./hub.js";
 import { playFairySprinkle } from "./soundtrack.js";
 
 // ------------------------------------------------------------
@@ -30,21 +61,20 @@ export function initProfiles() {
   const createBtn = document.getElementById("create-profile-btn");
   const hub = document.getElementById("hub-screen");
 
-  if (!profileScreen || !slotsContainer) return;
+  if (!profileScreen || !slotsContainer || !createBtn) return;
 
-  // 🌸 Load profiles from localStorage
   loadProfiles();
   renderProfileSlots(slotsContainer);
 
   // ------------------------------------------------------------
-  // 💖 CREATE NEW PROFILE (custom input modal)
+  // 💖 CREATE NEW PROFILE
   // ------------------------------------------------------------
   createBtn.addEventListener("click", () => {
     playFairySprinkle();
+
     showInput("Enter your profile name:", (name) => {
       if (!name) return;
 
-      // ✨ Create new profile and attach a Glitter Guardian
       const profile = addProfile(name);
 
       if (profile === false) {
@@ -59,23 +89,16 @@ export function initProfiles() {
         return;
       }
 
-      // Create Glitter Guardian
       profile.player = createPlayer();
-
-      // Save and rerender DOM so the new slot appears immediately
       saveProfiles();
       renderProfileSlots(slotsContainer);
 
-      // ⭐ FIX: Newly created profile becomes the active profile
-      const newIndex = gameState.profiles.length - 1;
-      gameState.activeProfileIndex = newIndex;
+      gameState.activeProfileIndex = gameState.profiles.length - 1;
 
-      // Auto-select this profile
       setProfile(profile);
       restorePlayer(profile.player);
       gameState.player.name = profile.name;
 
-      // Now fade out and enter hub
       playFairySprinkle();
 
       profileScreen.style.opacity = 0;
@@ -93,41 +116,33 @@ export function initProfiles() {
     });
   });
 
-  console.log("👑 Profile screen initialized");
-
   // ------------------------------------------------------------
   // ✨ PROFILE SLOT INTERACTIONS
   // ------------------------------------------------------------
   slotsContainer.addEventListener("click", (e) => {
     playFairySprinkle();
 
-    // 🗑️ DELETE PROFILE (with pastel confirm)
+    // Delete
     if (e.target.classList.contains("profile-delete")) {
       const index = e.target.dataset.index;
       const profile = gameState.profiles[index];
       if (!profile) return;
 
       showConfirm(
-        `Are you sure you want to DELETE this profile?`,
+        "Are you sure you want to DELETE this profile?",
         () => {
-          // ✅ Confirmed delete
           gameState.profiles.splice(index, 1);
           saveProfiles();
           renderProfileSlots(slotsContainer);
           showAlert(`Profile "${profile.name}" deleted successfully.`);
-          console.log(`🗑️ Deleted profile: ${profile.name}`);
           playFairySprinkle();
         },
-        () => {
-          // ❎ Cancelled delete
-          console.log("❎ Profile deletion cancelled");
-          playFairySprinkle();
-        }
+        () => playFairySprinkle()
       );
       return;
     }
 
-    // 👑 SELECT PROFILE
+    // Select
     const slot = e.target.closest(".profile-slot");
     if (!slot || slot.classList.contains("empty")) return;
 
@@ -135,18 +150,14 @@ export function initProfiles() {
     const profile = gameState.profiles[index];
     if (!profile) return;
 
-    // ⭐ FIX FOR ISSUE #3 — track active profile for saves
     gameState.activeProfileIndex = index;
 
-    // 🪞 Restore Glitter Guardian for this profile
     setProfile(profile);
     restorePlayer(profile.player);
-    gameState.player.name = profile.name; // 🩵 sync profile name to player
-
-    console.log(`👑 Profile selected: ${profile.name}`);
-    playFairySprinkle();
+    gameState.player.name = profile.name;
 
     profileScreen.style.opacity = 0;
+
     setTimeout(() => {
       profileScreen.style.display = "none";
       hub.style.display = "flex";

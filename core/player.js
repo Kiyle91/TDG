@@ -1,16 +1,48 @@
 // ============================================================
 // 👑 player.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Defines base player stats
-// ✦ Name is now provided by the Profile system
+// ✦ Defines base player stats template
+// ✦ Name/title injected from Profile system
+// ✦ Supports init + save-slot restoration
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: player.js
+ * PURPOSE:
+ *   Provides creation, initialization, and restoration of the
+ *   player's core stats. The profile system supplies the
+ *   player's name; this module strictly defines base stats and
+ *   handles assignment into gameState.
+ *
+ * SUMMARY:
+ *   createPlayer() returns the default player template. 
+ *   initPlayer() installs a fresh player object into gameState.
+ *   restorePlayer() restores a saved snapshot into gameState.
+ *
+ * FEATURES:
+ *   • createPlayer() — base stats for a new character
+ *   • initPlayer() — installs fresh player (used by new story)
+ *   • restorePlayer() — merges saved data back into runtime
+ *
+ * TECHNICAL NOTES:
+ *   • Stats are tuned for early-game balancing
+ *   • Name/title fields are set by profile creation flow
+ *   • Skin and sprite assignment align with skins.js
+ * ------------------------------------------------------------ */
+
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import { gameState } from "../utils/gameState.js";
 
+// ------------------------------------------------------------
+// 🎀 CREATE NEW PLAYER OBJECT
+// ------------------------------------------------------------
 export function createPlayer() {
   return {
-    name: "",                     // ← filled from profile
-    title: "",                    // optional, can be customized later
+    name: "",
+    title: "",
 
     skinId: "default",
 
@@ -37,14 +69,21 @@ export function createPlayer() {
   };
 }
 
-// For runtime convenience
+// ------------------------------------------------------------
+// 🌸 INITIALIZE NEW PLAYER
+// ------------------------------------------------------------
 export function initPlayer() {
   gameState.player = createPlayer();
-  console.log("👑 Player initialized.");
 }
 
+// ------------------------------------------------------------
+// 💾 RESTORE PLAYER FROM SAVE SLOT
+// ------------------------------------------------------------
 export function restorePlayer(savedPlayer) {
   if (!savedPlayer) return;
   gameState.player = { ...savedPlayer };
-  console.log("💾 Player restored:", gameState.player.name);
 }
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

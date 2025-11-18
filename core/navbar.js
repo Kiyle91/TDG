@@ -1,32 +1,59 @@
 // ============================================================
-// 🧭 navbar.js — Olivia’s World: Crystal Keep (Restart Confirm + Safe Exit)
+// 🧭 navbar.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Adds restart with confirmation (same as Try Again)
-// ✦ Keeps player data intact (no profile wipe)
-// ✦ Uses resetGameplay() from main.js
-// ✦ Home still uses confirm + safe hub exit
+// ✦ Restart confirmation + safe exit handler
+// ✦ Pauses gameplay when overlays open
+// ✦ Full in-game UI navigation system
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: navbar.js
+ * PURPOSE:
+ *   Handles all in-game navbar actions: home, restart, save,
+ *   load, settings, controls, and player stats. Provides safe
+ *   exit to hub, restart confirmation, and consistent overlay
+ *   handling during gameplay.
+ *
+ * SUMMARY:
+ *   This module binds click events to the navbar buttons,
+ *   displays a custom confirmation overlay, pauses/resumes
+ *   gameplay during modal interactions, and performs the
+ *   appropriate navigation actions such as restarting a map
+ *   or exiting to the hub.
+ *
+ * FEATURES:
+ *   • initNavbar() — attaches behaviours to navbar buttons
+ *   • showConfirmOverlay() — reusable local confirm dialog
+ *   • Safe exit → returns to Hub without breaking state
+ *   • Restart map → cleans combat then resets gameplay loop
+ *   • Save / Load from in-game context
+ *   • Player stats + controls + settings overlays
+ *
+ * TECHNICAL NOTES:
+ *   • Does NOT modify profile or player data except via exposed
+ *     functions in main.js and ui.js.
+ *   • Uses pauseGame() / resumeGame() to ensure gameplay freeze
+ *     during confirm dialogs.
+ * ------------------------------------------------------------ */
+
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------ 
 
 import { playFairySprinkle } from "./soundtrack.js";
 import { stopGameplay, resetGameplay } from "../main.js";
 import { pauseGame, resumeGame } from "./ui.js";
-import { renderSlots } from "./saveSlots.js";
 
 // ------------------------------------------------------------
 // 🌸 INIT NAVBAR
 // ------------------------------------------------------------
 export function initNavbar() {
   const nav = document.getElementById("game-navbar");
-  if (!nav) {
-    console.warn("🧭 Navbar not found in DOM.");
-    return;
-  }
+  if (!nav) return;
 
   nav.querySelectorAll("button").forEach((btn) => {
     btn.addEventListener("click", () => handleNavAction(btn.dataset.action));
   });
-
-  console.log("🧭 Navbar initialized (safe exit + restart confirm).");
 }
 
 // ------------------------------------------------------------
@@ -38,18 +65,12 @@ function showConfirmOverlay(message, onYes, onNo) {
   const yes = document.getElementById("confirm-yes");
   const no = document.getElementById("confirm-no");
 
-  if (!overlay || !msgEl || !yes || !no) {
-    console.warn("⚠️ Confirm overlay elements missing.");
-    return;
-  }
+  if (!overlay || !msgEl || !yes || !no) return;
 
   msgEl.textContent = message;
 
-  // 👉 Pause the game when the confirm box opens
   pauseGame();
 
-  // Make sure the overlay is actually visible even if another
-  // .overlay helper previously set display:none
   overlay.style.display = "flex";
   overlay.classList.add("active");
 
@@ -60,18 +81,14 @@ function showConfirmOverlay(message, onYes, onNo) {
     overlay.classList.remove("active");
     overlay.style.display = "none";
 
-    if (shouldResume) {
-      resumeGame();
-    }
+    if (shouldResume) resumeGame();
   };
 
-  // YES → do not resume here; leave it to the follow-up flow
   yes.onclick = () => {
     cleanup(false);
     onYes?.();
   };
 
-  // NO  → just close & resume gameplay
   no.onclick = () => {
     cleanup(true);
     onNo?.();
@@ -86,55 +103,55 @@ function handleNavAction(action) {
 
   switch (action) {
     // --------------------------------------------------------
-    // 🏠 HOME — Confirm safe hub exit
+    // 🏠 HOME — Safe exit to Hub
     // --------------------------------------------------------
     case "home":
       showConfirmOverlay(
         "Return to the Crystal Hub? Your progress will be saved safely.",
         () => {
-          console.log("🏠 Confirmed: graceful exit to hub.");
           const gameContainer = document.getElementById("game-container");
           fadeOut(gameContainer, () => stopGameplay("exit"));
         },
-        () => console.log("❎ Cancelled hub return.")
+        () => {}
       );
       break;
 
     // --------------------------------------------------------
-    // 🔄 RESTART MAP — Confirm + ResetGameplay
+    // 🔄 RESTART MAP
     // --------------------------------------------------------
     case "restart":
       showConfirmOverlay(
         "Restart this map? You’ll keep your player stats, but spires and goblins will reset.",
         () => {
-          console.log("🔄 Confirmed: restarting map...");
           flashScreen();
           resetGameplay();
         },
-        () => console.log("❎ Restart cancelled.")
+        () => {}
       );
       break;
 
     // --------------------------------------------------------
-    // 💾 SAVE / LOAD
+    // 💾 SAVE / LOAD (in-game)
     // --------------------------------------------------------
-    case "save":
+    case "save": {
       playFairySprinkle();
-
       const container = document.getElementById("save-slots-ingame");
-      import("./saveSlots.js").then(mod => {
-        mod.renderSlots(container, true); // allowSave = true
+
+      import("./saveSlots.js").then((mod) => {
+        mod.renderSlots(container, true);
       });
 
-      import("./ui.js").then(mod => mod.showOverlay?.("overlay-save-game"));
+      import("./ui.js").then((mod) =>
+        mod.showOverlay?.("overlay-save-game")
+      );
       break;
+    }
 
     // --------------------------------------------------------
-    // ⚙️ SETTINGS (in-game version)
+    // ⚙️ SETTINGS
     // --------------------------------------------------------
     case "settings":
       playFairySprinkle();
-      console.log("⚙️ Opening in-game settings overlay...");
       import("./settings.js").then((mod) => mod.initGameSettings?.());
       import("./ui.js").then((mod) =>
         mod.showOverlay?.("overlay-settings-game")
@@ -146,7 +163,6 @@ function handleNavAction(action) {
     // --------------------------------------------------------
     case "player":
       playFairySprinkle();
-      console.log("👑 Opening player stats overlay...");
       import("./ui.js").then((mod) => {
         mod.updatePlayerStatsOverlay?.();
         mod.showOverlay?.("overlay-player-stats");
@@ -154,24 +170,22 @@ function handleNavAction(action) {
       break;
 
     // --------------------------------------------------------
-    // 🎮 CONTROLS (in-game controls / keybinds screen)
+    // 🎮 CONTROLS
     // --------------------------------------------------------
     case "controls":
       playFairySprinkle();
-      import("./ui.js").then(mod => {
-        mod.showOverlay?.("overlay-controls");
-      });
+      import("./ui.js").then((mod) =>
+        mod.showOverlay?.("overlay-controls")
+      );
       break;
 
     default:
-      console.warn("Unknown navbar action:", action);
-
-    
+      break;
   }
 }
 
 // ------------------------------------------------------------
-// ✨ FLASH EFFECT (short white pulse for restart feedback)
+// ✨ FLASH EFFECT (restart feedback)
 // ------------------------------------------------------------
 function flashScreen() {
   const flash = document.createElement("div");
@@ -184,7 +198,9 @@ function flashScreen() {
     zIndex: "9999",
     opacity: "0",
   });
+
   document.body.appendChild(flash);
+
   flash
     .animate(
       [{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }],
@@ -194,15 +210,17 @@ function flashScreen() {
 }
 
 // ------------------------------------------------------------
-// 🌈 FADE HELPERS (used only for hub exit)
+// 🌈 FADE HELPERS
 // ------------------------------------------------------------
 function fadeOut(element, callback) {
   if (!element) return;
+
   element.style.transition = "opacity 0.8s ease";
   element.style.opacity = 0;
+
   setTimeout(() => {
     element.style.display = "none";
-    if (callback) callback();
+    callback?.();
   }, 800);
 }
 
