@@ -18,8 +18,8 @@
 
  * FEATURES:
  *   • Independent SFX + Music volume sliders
- *   • Visuals toggle for aesthetic/particle-heavy systems
- *   • Tooltip toggle for accessibility / clarity
+ *   • Visuals toggle for aesthetic/particle-heavy systems#
+ *   • Difficulty selector (easy, normal, hard)
  *   • Auto-save to localStorage (persistent)
  *
  * TECHNICAL NOTES:
@@ -49,6 +49,7 @@ let settings = {
   musicVolume: 0.8,
   sfxVolume: 0.8,
   visualsEnabled: true,
+  difficulty: "normal",
 };
 
 // ------------------------------------------------------------
@@ -76,10 +77,16 @@ function applySettingsToUI() {
   const musicRange = document.getElementById("music-volume");
   const sfxRange = document.getElementById("sfx-volume");
   const visualsToggle = document.getElementById("visuals-toggle");
+  const diffEasy = document.getElementById("difficulty-easy");
+  const diffNormal = document.getElementById("difficulty-normal");
+  const diffHard = document.getElementById("difficulty-hard");
 
   if (musicRange) musicRange.value = settings.musicVolume * 100;
   if (sfxRange) sfxRange.value = settings.sfxVolume * 100;
   if (visualsToggle) visualsToggle.checked = settings.visualsEnabled;
+  if (diffEasy)   diffEasy.checked = settings.difficulty === "easy";
+  if (diffNormal) diffNormal.checked = settings.difficulty === "normal";
+  if (diffHard)   diffHard.checked = settings.difficulty === "hard";
 
   updateLabels();
 }
@@ -128,6 +135,14 @@ function setupListeners() {
     settings.visualsEnabled = e.target.checked;
     playFairySprinkle();
     saveSettings();
+  });
+
+  const diffRadios = document.querySelectorAll("input[name='difficulty']");
+  diffRadios.forEach(radio => {
+    radio.addEventListener("change", (e) => {
+      settings.difficulty = e.target.value;
+      saveSettings();
+    });
   });
 }
 
@@ -201,10 +216,30 @@ export function initGameSettings() {
     saveSettings();
     playFairySprinkle();
   };
+
+  document.getElementById("difficulty-easy-game").checked   = settings.difficulty === "easy";
+  document.getElementById("difficulty-normal-game").checked = settings.difficulty === "normal";
+  document.getElementById("difficulty-hard-game").checked   = settings.difficulty === "hard";
+
+  document.querySelectorAll("input[name='difficulty-game']").forEach(radio => {
+    radio.onchange = (e) => {
+      settings.difficulty = e.target.value;
+      saveSettings();
+    };
+  });
 }
   
+// ------------------------------------------------------------
+// 🛡️ DIFFICULTY HP MULTIPLIER
+// ------------------------------------------------------------
 
-
+export function getDifficultyHpMultiplier() {
+  switch (settings.difficulty) {
+    case "easy": return 0.2;
+    case "hard": return 1.5;
+    default: return 1.0;
+  }
+}
 
 // ============================================================
 // 🌟 END OF FILE

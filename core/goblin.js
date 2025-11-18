@@ -165,7 +165,8 @@ export function spawnGoblin() {
   const start = pathPoints[0];
   const spread = 40;
 
-  goblins.push({
+  // Create goblin object FIRST
+  const g = {
     x: start.x + (Math.random() - 0.5) * spread,
     y: start.y + (Math.random() - 0.5) * spread,
     width: 42,
@@ -191,11 +192,15 @@ export function spawnGoblin() {
     knockback: 0,
     speed: BASE_SPEED,
     laneOffset: 0,
-  });
+  };
 
+  // Push into array
+  goblins.push(g);
   goblinsSpawned++;
-}
 
+  // Return actual goblin object for difficulty scaling
+  return g;
+}
 
 // ============================================================
 // 🆕 SPATIAL PARTITIONING HELPERS (prepared for heavy hordes)

@@ -420,7 +420,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initSparkles();
   initSettings();
   initNavbar();
-  initTooltipSystem();
   initCredits();
 });
 

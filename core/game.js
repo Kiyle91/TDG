@@ -183,6 +183,18 @@ import {
   triggerEndOfWave5Story,
 } from "./story.js";
 
+// ------------------------------------------------------------
+// Difficulty
+// ------------------------------------------------------------
+
+import { getDifficultyHpMultiplier } from "../core/settings.js";
+
+function scaleEnemyHp(enemy) {
+  const mult = getDifficultyHpMultiplier();
+  enemy.hp = Math.round(enemy.hp * mult);
+  enemy.maxHp = Math.round(enemy.maxHp * mult);
+}
+
 // ============================================================
 // 🌊 WAVE CONFIGS
 // ============================================================
@@ -190,7 +202,7 @@ import {
 export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding
   1: [
-    { goblins: 2,  worgs: 5, ogres: 1, elites: 5, trolls: 6, crossbows: 6 },
+    { goblins: 3,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 7,  worgs: 0, ogres: 0, elites: 1, trolls: 1, crossbows: 0 },
     { goblins: 10, worgs: 0, ogres: 0, elites: 2, trolls: 2, crossbows: 0 },
     { goblins: 14, worgs: 0, ogres: 0, elites: 3, trolls: 3, crossbows: 1 },
@@ -352,6 +364,7 @@ function startNextWave() {
   const wave = waves[currentWaveIndex];
   if (!wave) return;
 
+  // Reset queue
   spawnQueue.length = 0;
 
   waveActive = true;
@@ -362,39 +375,80 @@ function startNextWave() {
   gameState.totalWaves = waves.length;
   updateHUD();
 
-  // Baseline goblin-driven loop
+  const hpMult = getDifficultyHpMultiplier();
+
+  // 🔧 Small helper to apply difficulty on any enemy returned by a spawn function
+  const spawnScaled = (fn) => {
+    const enemy = fn();
+    if (enemy) {
+      enemy.hp = Math.round(enemy.hp * hpMult);
+      enemy.maxHp = Math.round(enemy.maxHp * hpMult);
+    }
+    return enemy;
+  };
+
+  // ============================================================
+  // 🐉 BASELINE LOOP (Driven by goblin count)
+  // ============================================================
+
   for (let i = 0; i < wave.goblins; i++) {
     spawnQueue.push(() => {
-      spawnGoblin();
+      // GOBLIN
+      spawnScaled(spawnGoblin);
 
-      if (i < wave.worgs)      spawnWorg();
-      if (i < wave.elites)     spawnElite();
-      if (i < wave.trolls)     spawnTroll();
-      if (i < wave.ogres)      spawnOgre();
-      if (i < wave.crossbows)  spawnCrossbow();
+      // WORG
+      if (i < wave.worgs) spawnScaled(spawnWorg);
+
+      // ELITE
+      if (i < wave.elites) spawnScaled(spawnElite);
+
+      // TROLL
+      if (i < wave.trolls) spawnScaled(spawnTroll);
+
+      // OGRE
+      if (i < wave.ogres) spawnScaled(spawnOgre);
+
+      // CROSSBOW
+      if (i < wave.crossbows) spawnScaled(spawnCrossbow);
     });
   }
 
-  // Overflow Worgs
+  // ============================================================
+  // 🐺 OVERFLOW Worgs
+  // ============================================================
+
   for (let i = wave.goblins; i < wave.worgs; i++) {
-    spawnQueue.push(() => spawnWorg());
+    spawnQueue.push(() => spawnScaled(spawnWorg));
   }
 
-  // Overflow Elites
+  // ============================================================
+  // 🛡 OVERFLOW Elites
+  // ============================================================
+
   for (let i = wave.goblins; i < wave.elites; i++) {
-    spawnQueue.push(() => spawnElite());
+    spawnQueue.push(() => spawnScaled(spawnElite));
   }
 
-  // Overflow Trolls
+  // ============================================================
+  // 👹 OVERFLOW Trolls
+  // ============================================================
+
   for (let i = wave.goblins; i < wave.trolls; i++) {
-    spawnQueue.push(() => spawnTroll());
+    spawnQueue.push(() => spawnScaled(spawnTroll));
   }
 
-  // Overflow Crossbows
+  // ============================================================
+  // 🎯 OVERFLOW Crossbow Orcs
+  // ============================================================
+
   for (let i = wave.goblins; i < wave.crossbows; i++) {
-    spawnQueue.push(() => spawnCrossbow());
+    spawnQueue.push(() => spawnScaled(spawnCrossbow));
   }
+
+  // NOTE: Ogres do not have overflow because wave.ogres
+  // is always ≤ goblins in your wave configs.
 }
+
 
 // ============================================================
 // 👁 CHECK ACTIVE ENEMIES

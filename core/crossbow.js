@@ -197,6 +197,8 @@ export function spawnCrossbow() {
     attackFrame: 0,
     attackTimer: 0,
   });
+
+  return g;
 }
 
 

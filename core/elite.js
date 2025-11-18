@@ -185,6 +185,8 @@ export function spawnElite() {
     burnDamage: 0,
     stunTimer: 0,
   });
+
+  return e;
 }
 
 

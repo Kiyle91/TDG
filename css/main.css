@@ -2067,9 +2067,82 @@ canvas {
   100% { box-shadow: 0 0 20px rgba(181, 226, 255, 0.6); }
 }
 
+/* ============================================================
+   🌸 Difficulty — Final Crystal Buttons + Real Radio Circles
+============================================================ */
 
+/* Container */
+.difficulty-group {
+  display: flex;
+  flex-direction: column;
+  margin-top: 18px;
+  gap: 8px;
+}
 
+.difficulty-group .settings-subtitle {
+  margin-bottom: 8px;
+  font-family: "Comic Sans MS", cursive;
+  font-weight: bold;
+  color: #fff;
+}
 
+/* Row for the 3 options */
+.difficulty-options {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 22px; /* smaller gap between options */
+}
+
+/* Keep real radios visible (your screenshot shows circles) */
+.difficulty-options input[type="radio"] {
+  transform: scale(1.3);              /* bigger circle */
+  accent-color: #d4b5ff;              /* pastel lavender */
+  cursor: pointer;
+}
+
+/* Label next to the circle (crystal button) */
+.difficulty-options label {
+  padding: 8px 22px;  /* ⭐ MORE PADDING — final polish */
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+
+  color: #fff;
+  font-family: "Comic Sans MS", cursive;
+  font-size: 0.95rem;
+  cursor: pointer;
+
+  box-shadow:
+    0 0 10px rgba(200, 160, 255, 0.4),
+    inset 0 0 8px rgba(255, 255, 255, 0.2);
+
+  transition: all 0.25s ease;
+}
+
+/* Hover effect */
+.difficulty-options label:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 18px rgba(220, 180, 255, 0.8),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Selected pastel gradient */
+.difficulty-options input[type="radio"]:checked + label {
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  transform: scale(1.10);
+
+  box-shadow:
+    0 0 24px rgba(255, 200, 255, 0.9),
+    inset 0 0 14px rgba(255, 255, 255, 0.5);
+}
+
+/* Tighten radio+label alignment */
+.difficulty-options input[type="radio"] + label {
+  margin-left: 4px; /* circle close to the crystal pill */
+}
 
 /* ============================================================
    🌟 END OF FILE
