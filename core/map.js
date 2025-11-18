@@ -1,17 +1,55 @@
 // ============================================================
 // 🗺️ map.js — Olivia’s World: Crystal Keep (Multi-Map Loader)
 // ------------------------------------------------------------
-// ✦ Automatically loads map_1.json → map_9.json
-// ✦ Supports TSX tilesets + JSON tilesets
-// ✦ Extracts "path" polyline for goblin movement
-// ✦ Handles collision layer + layered draw
-// ✦ Fully compatible with all engine systems
+// ✦ Loads map_1.json → map_9.json automatically
+// ✦ Supports TSX + JSON tilesets
+// ✦ Extracts polyline “path” object for enemy movement
+// ✦ Layered draw (ground/trees/all)
+// ✦ Collision + Crystal Echo integration
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: map.js
+ * PURPOSE:
+ *   Loads, parses, and renders all Tiled JSON maps used in the
+ *   game (map_one.json → map_nine.json), including tilesets,
+ *   collision data, draw layers, paths for enemy movement, and
+ *   collectible Crystal Echo positions.
+ *
+ * SUMMARY:
+ *   This module handles all map-related loading: Tileset TSX/XML
+ *   parsing, JSON map parsing, tile-layer rendering, path
+ *   extraction, collision grid initialization, and layered
+ *   rendering groups (ground / trees / all). It is the primary
+ *   source of map dimensions and pathing data for enemies.
+ *
+ * FEATURES:
+ *   • loadMap() — fetches correct map JSON, loads tilesets,
+ *     initializes collision + crystal echoes
+ *   • drawMap() — draws all tile layers visible in viewport
+ *   • drawMapLayered() — filtered draw (ground / trees)
+ *   • extractPathFromMap() — builds goblin/walk polyline path
+ *   • getMapPixelSize() — returns map width/height in pixels
+ *   • extractCrystalEchoes() — returns map-defined echo points
+ *
+ * TECHNICAL NOTES:
+ *   • Supports external TSX tilesets (XML parsing)
+ *   • Supports embedded JSON tilesets
+ *   • Compatible with Tiled’s infinite/finite maps and layers
+ * ------------------------------------------------------------ */
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------ 
 
 import { TILE_SIZE, GRID_COLS, GRID_ROWS } from "../utils/constants.js";
 import { initCollision } from "../utils/mapCollision.js";
 import { gameState } from "../utils/gameState.js";
 import { initCrystalEchoes } from "./crystalEchoes.js";
+
+
+// ------------------------------------------------------------
+// 🗺️ MODULE-LEVEL VARIABLES
+// ------------------------------------------------------------
 
 let mapData = null;
 let layers = [];
@@ -21,15 +59,14 @@ let mapPixelHeight = GRID_ROWS * TILE_SIZE;
 let pathPoints = [];
 
 // ------------------------------------------------------------
-// 🔗 PATH UTILITIES
+// 🔗 RELATIVE PATH RESOLUTION
 // ------------------------------------------------------------
 function resolveRelative(pathFromMap) {
-  // convert "../" to "./" so assets load correctly
   return pathFromMap.replace(/^..\//, "./");
 }
 
 // ------------------------------------------------------------
-// 📦 LOAD TSX FILE (external tileset XML)
+// 📦 LOAD TSX TILESET (XML)
 // ------------------------------------------------------------
 async function loadTSX(tsxUrl) {
   const res = await fetch(tsxUrl);
@@ -50,11 +87,12 @@ async function loadTSX(tsxUrl) {
   return { columns, image, imageWidth: iw, imageHeight: ih };
 }
 
+// ------------------------------------------------------------
+// 🗺️ LOAD MAP JSON + TILESETS
+// ------------------------------------------------------------
 export async function loadMap() {
-  // Current map ID from gameState
-  let id = gameState.progress?.currentMap || 1;
+  const id = gameState.progress?.currentMap || 1;
 
-  // File name mapping to match your actual files
   const fileMap = {
     1: "map_one.json",
     2: "map_two.json",
@@ -69,41 +107,27 @@ export async function loadMap() {
 
   const mapFile = fileMap[id] || "map_one.json";
 
-  console.log(`🗺️ Loading map ID ${id} → ${mapFile}`);
-
-  // ===========================
   // 1️⃣ Load map JSON
-  // ===========================
   const res = await fetch(`./data/${mapFile}`);
   if (!res.ok) {
-    console.error(`❌ Failed to load map file: ${mapFile}`);
     throw new Error(`Map file not found: ${mapFile}`);
   }
 
   mapData = await res.json();
   layers = mapData.layers || [];
 
-  // ===========================
-  // 2️⃣ Init collision
-  // ===========================
+  // 2️⃣ Collision
   initCollision(mapData, TILE_SIZE);
 
-  // ===========================
-  // 3️⃣ Set pixel size
-  // ===========================
+  // 3️⃣ Map dimensions
   mapPixelWidth = (mapData.width || GRID_COLS) * TILE_SIZE;
   mapPixelHeight = (mapData.height || GRID_ROWS) * TILE_SIZE;
 
-  // ===========================
-  // 4️⃣ Load tilesets
-  // ===========================
+  // 4️⃣ Tilesets
   tilesets = [];
-
   for (const ts of mapData.tilesets) {
     if (ts.source) {
-      const tsxUrl = resolveRelative(ts.source);
-      const parsed = await loadTSX(tsxUrl);
-
+      const parsed = await loadTSX(resolveRelative(ts.source));
       tilesets.push({
         firstgid: ts.firstgid,
         columns: parsed.columns,
@@ -115,7 +139,6 @@ export async function loadMap() {
       const image = new Image();
       image.src = resolveRelative(ts.image);
       await new Promise((r) => (image.onload = r));
-
       tilesets.push({
         firstgid: ts.firstgid,
         columns: ts.columns,
@@ -126,15 +149,9 @@ export async function loadMap() {
     }
   }
 
-  // ===========================
-  // ⭐ 5️⃣ Init Crystal Echoes
-  // ===========================
+  // 5️⃣ Crystal Echoes
   initCrystalEchoes(mapData);
-
-  console.log(`✅ Loaded ${mapFile} — ${mapData.width}×${mapData.height} tiles`);
 }
-
-
 
 // ------------------------------------------------------------
 // 🔍 FIND TILESET FOR GID
@@ -148,20 +165,18 @@ function getTilesetForGid(gid) {
 }
 
 // ------------------------------------------------------------
-// 🎨 DRAW MAP (all tile layers)
+// 🎨 DRAW MAP (All tile layers)
 // ------------------------------------------------------------
 export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
   if (!mapData) return;
 
   const startCol = Math.floor(cameraX / TILE_SIZE);
-  const endCol = Math.min(
-    mapData.width - 1,
+  const endCol = Math.min(mapData.width - 1,
     Math.floor((cameraX + viewportWidth) / TILE_SIZE)
   );
 
   const startRow = Math.floor(cameraY / TILE_SIZE);
-  const endRow = Math.min(
-    mapData.height - 1,
+  const endRow = Math.min(mapData.height - 1,
     Math.floor((cameraY + viewportHeight) / TILE_SIZE)
   );
 
@@ -185,59 +200,40 @@ export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
         const localId = gid - ts.firstgid;
         const sx = (localId % ts.columns) * TILE_SIZE;
         const sy = Math.floor(localId / ts.columns) * TILE_SIZE;
+
         const dx = col * TILE_SIZE - cameraX;
         const dy = row * TILE_SIZE - cameraY;
 
-        ctx.drawImage(
-          ts.image,
-          sx,
-          sy,
-          TILE_SIZE,
-          TILE_SIZE,
-          dx,
-          dy,
-          TILE_SIZE,
-          TILE_SIZE
-        );
+        ctx.drawImage(ts.image, sx, sy, TILE_SIZE, TILE_SIZE, dx, dy, TILE_SIZE, TILE_SIZE);
       }
     }
   }
 }
 
 // ------------------------------------------------------------
-// 🛣️ EXTRACT PATH (Polyline Layer "path")
+// 🛣️ EXTRACT ENEMY PATH (Polyline layer "path")
 // ------------------------------------------------------------
 export function extractPathFromMap() {
-  if (!mapData) {
-    console.warn("⚠️ Map not loaded — cannot extract path");
-    return [];
-  }
+  if (!mapData) return [];
 
   const pathLayer = layers.find(
     (l) => l.type === "objectgroup" && l.name.toLowerCase() === "path"
   );
-  if (!pathLayer) {
-    console.warn("⚠️ No 'path' layer found in map JSON");
-    return [];
-  }
+  if (!pathLayer) return [];
 
   const obj = pathLayer.objects.find((o) => o.polyline);
-  if (!obj || !obj.polyline) {
-    console.warn("⚠️ No polyline object found in path layer");
-    return [];
-  }
+  if (!obj?.polyline) return [];
 
   pathPoints = obj.polyline.map((p) => ({
     x: obj.x + p.x,
     y: obj.y + p.y,
   }));
 
-  console.log(`✅ Extracted ${pathPoints.length} path points from map`);
   return pathPoints;
 }
 
 // ------------------------------------------------------------
-// 📏 SIZE HELPER
+// 📏 MAP PIXEL SIZE
 // ------------------------------------------------------------
 export function getMapPixelSize() {
   return { width: mapPixelWidth, height: mapPixelHeight };
@@ -251,7 +247,7 @@ export function getPathPoints() {
 }
 
 // ------------------------------------------------------------
-// 🪄 drawMapLayered — safe filtered rendering
+// 🪄 FILTERED LAYER RENDERER (ground/trees/all)
 // ------------------------------------------------------------
 export function drawMapLayered(
   ctx,
@@ -264,14 +260,12 @@ export function drawMapLayered(
   if (!mapData || !ctx) return;
 
   const startCol = Math.floor(cameraX / TILE_SIZE);
-  const endCol = Math.min(
-    mapData.width - 1,
+  const endCol = Math.min(mapData.width - 1,
     Math.floor((cameraX + viewportWidth) / TILE_SIZE)
   );
 
   const startRow = Math.floor(cameraY / TILE_SIZE);
-  const endRow = Math.min(
-    mapData.height - 1,
+  const endRow = Math.min(mapData.height - 1,
     Math.floor((cameraY + viewportHeight) / TILE_SIZE)
   );
 
@@ -309,41 +303,24 @@ export function drawMapLayered(
         const localId = gid - ts.firstgid;
         const sx = (localId % ts.columns) * TILE_SIZE;
         const sy = Math.floor(localId / ts.columns) * TILE_SIZE;
+
         const dx = col * TILE_SIZE - cameraX;
         const dy = row * TILE_SIZE - cameraY;
 
-        ctx.drawImage(
-          ts.image,
-          sx,
-          sy,
-          TILE_SIZE,
-          TILE_SIZE,
-          dx,
-          dy,
-          TILE_SIZE,
-          TILE_SIZE
-        );
+        ctx.drawImage(ts.image, sx, sy, TILE_SIZE, TILE_SIZE, dx, dy, TILE_SIZE, TILE_SIZE);
       }
     }
   }
 }
 
-
-
-// ============================================================
-// 🌟 END OF FILE
-// ============================================================
-
+// ------------------------------------------------------------
+// 💎 EXTRACT CRYSTAL ECHO POSITIONS (object layer "CrystalEchoes")
+// ------------------------------------------------------------
 export function extractCrystalEchoes() {
-  if (!mapData) {
-    console.warn("⚠️ extractCrystalEchoes(): mapData is not set yet.");
-    return [];
-  }
+  if (!mapData) return [];
 
   const layer = mapData.layers.find(l => l.name === "CrystalEchoes");
-  if (!layer || !Array.isArray(layer.objects)) {
-    return [];
-  }
+  if (!layer || !Array.isArray(layer.objects)) return [];
 
   return layer.objects.map(obj => ({
     x: obj.x,
@@ -351,3 +328,7 @@ export function extractCrystalEchoes() {
     type: obj.type || "crystal"
   }));
 }
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

@@ -38,7 +38,7 @@
 import { playFairySprinkle, playCancelSound } from "./soundtrack.js";
 
 // ------------------------------------------------------------
-// ♻️ Variables
+// 🗺️ MODULE-LEVEL VARIABLES
 // ------------------------------------------------------------
 
 let modal = null;

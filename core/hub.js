@@ -3,8 +3,38 @@
 // ------------------------------------------------------------
 // ✦ Handles hub buttons, overlays, currencies, map loading
 // ✦ Skins system (corrected + persistent)
-// ✦ Save/load, maps, spires, settings, stats
+// ✦ Save/load, maps, spires, settings, stats, credits
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: hub.js
+ * PURPOSE:
+ *   Coordinates the main Hub screen behaviour: profile display,
+ *   currency display, navigation overlays, skins, maps, spires,
+ *   save/load, and access to the campaign story.
+ *
+ * SUMMARY:
+ *   This module wires up all hub buttons, ensures the player’s
+ *   skin system is initialised, updates hub currency/profile
+ *   UI, and exposes helper functions to refresh specific hub
+ *   sections (e.g., skins, currencies, profile).
+ *
+ * FEATURES:
+ *   • initHub() — main entry point for the Hub screen
+ *   • Handles New Story, Load Game, Maps, Spires, Skins, Stats,
+ *     Settings, Exit to Profile, and Credits
+ *   • initSkinsMenu() + refreshSkinsMenu() for skin unlocks
+ *   • updateHubCurrencies() + updateHubProfile() for HUD labels
+ *
+ * TECHNICAL NOTES:
+ *   • Integrates with main.js for starting gameplay/story
+ *   • Uses gameState + saveProfiles for persistence
+ *   • Uses UI overlays for modals and submenus
+ * ------------------------------------------------------------ */
+
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import { showScreen } from "./screens.js";
 import {
@@ -53,21 +83,20 @@ export function initHub() {
   const hub = document.getElementById("hub-screen");
   if (!hub) return;
 
-  // ⭐ CRITICAL: Ensure skin system exists BEFORE anything else
+  // Ensure skin system exists before anything else
   if (!gameState.player) gameState.player = {};
   ensureSkin(gameState.player);
   saveProfiles();
 
   // Buttons
-  const newStoryBtn   = document.getElementById("new-story-btn");
-  const loadGameBtn   = document.getElementById("load-game-btn");
-  const mapsBtn       = document.getElementById("maps-btn");
-  const spiresBtn    = document.getElementById("spires-btn");
-  const skinsBtn      = document.getElementById("skins-btn");
-  const statsBtn      = document.getElementById("stats-btn");
-  const settingsBtn   = document.getElementById("settings-btn");
-  const exitBtn       = document.getElementById("exit-hub-btn");
-  
+  const newStoryBtn = document.getElementById("new-story-btn");
+  const loadGameBtn = document.getElementById("load-game-btn");
+  const mapsBtn = document.getElementById("maps-btn");
+  const spiresBtn = document.getElementById("spires-btn");
+  const skinsBtn = document.getElementById("skins-btn");
+  const statsBtn = document.getElementById("stats-btn");
+  const settingsBtn = document.getElementById("settings-btn");
+  const exitBtn = document.getElementById("exit-hub-btn");
 
   // Initialize hub subsystems
   initChest();
@@ -82,13 +111,13 @@ export function initHub() {
   newStoryBtn.addEventListener("click", () => {
     playFairySprinkle();
     showConfirm("Start a new story from Map 1?", () => {
-
       if (gameActive) stopGameplay("restart");
 
       document.querySelectorAll("#end-screen, .end-overlay")
         .forEach(el => el.remove());
 
-      fullNewGameReset();         // fresh character, BUT preserves skins
+      // Fresh character, but preserves skins
+      fullNewGameReset();
       ensureSkin(gameState.player);
       saveProfiles();
 
@@ -115,8 +144,6 @@ export function initHub() {
       const snap = loadFromSlot(slotIndex);
       if (!snap) return;
 
-      console.log("💾 Loaded snapshot:", snap);
-
       if (snap.progress?.currentMap) {
         gameState.progress.currentMap = snap.progress.currentMap;
       }
@@ -127,7 +154,7 @@ export function initHub() {
 
       showScreen("game-container");
 
-      // ⭐ initGame in LOAD MODE
+      // initGame in LOAD MODE
       const gameMod = await import("./game.js");
       await gameMod.initGame("load");
 
@@ -136,7 +163,6 @@ export function initHub() {
       saveProfiles();
 
       startGameplay();
-
     }, { once: true });
   });
 
@@ -166,7 +192,7 @@ export function initHub() {
   // ============================================================
   skinsBtn.addEventListener("click", () => {
     playFairySprinkle();
-    ensureSkin(gameState.player);  // ⭐ guarantees array exists
+    ensureSkin(gameState.player);
     saveProfiles();
     refreshSkinsMenu();
     showOverlay("overlay-skins");
@@ -192,12 +218,9 @@ export function initHub() {
   // ============================================================
   // EXIT → PROFILE SCREEN
   // ============================================================
-  const exitHubBtn = document.getElementById("exit-hub-btn");
-
-  if (exitHubBtn) {
-    exitHubBtn.addEventListener("click", () => {
+  if (exitBtn) {
+    exitBtn.addEventListener("click", () => {
       playFairySprinkle();
-
       showConfirm(
         "Return to the Profile Select?",
         () => fadeOut(hub, () => showScreen("profile-screen"))
@@ -205,16 +228,18 @@ export function initHub() {
     });
   }
 
+  // ============================================================
+  // CREDITS
+  // ============================================================
+  const creditsBtn = document.getElementById("credits-btn");
+  if (creditsBtn) {
+    creditsBtn.onclick = () => {
+      playFairySprinkle();
+      showCredits();
+    };
+  }
+
   initSkinsMenu();
-  console.log("🏰 Hub ready — all buttons linked");
-
-  // ============================================================
-  // credits
-  // ============================================================
-
-  document.getElementById("credits-btn").onclick = () => {
-    showCredits();
-};
 }
 
 
@@ -225,7 +250,7 @@ export function initSkinsMenu() {
   const overlay = document.getElementById("overlay-skins");
   const closeBtn = document.getElementById("skins-close");
 
-  // ⭐ Ensure skin system always exists
+  // Ensure skin system always exists
   if (!gameState.player) gameState.player = {};
   ensureSkin(gameState.player);
   saveProfiles();
@@ -244,7 +269,7 @@ export function initSkinsMenu() {
       const player = gameState.player;
       const skin = SKINS[key];
 
-      ensureSkin(player);  // ⭐ guarantees unlockedSkins array
+      ensureSkin(player);
       saveProfiles();
 
       // Already equipped
@@ -304,7 +329,7 @@ function refreshSkinsMenu() {
     }
   });
 
-  const { gold, diamonds } = getCurrencies();
+  const { diamonds } = getCurrencies();
   document.getElementById("hub-diamonds").textContent = diamonds;
 }
 
@@ -331,13 +356,15 @@ export function updateHubProfile() {
 
 
 // ============================================================
-// PLACEHOLDERS FOR UNCHANGED FUNCTIONS
+// PLACEHOLDER / UTILITY FUNCTIONS
 // ============================================================
-function updateSpireUnlocks() { /* unchanged */ }
+function updateSpireUnlocks() {
+  // Intentionally left as a stub — spire unlock UI handled elsewhere
+}
+
 function fadeOut(element, callback) {
   if (!element) {
-    console.warn("fadeOut: element missing");
-    callback?.();
+    if (typeof callback === "function") callback();
     return;
   }
 
@@ -354,5 +381,5 @@ function fadeOut(element, callback) {
 }
 
 // ============================================================
-// END OF FILE
+// 🌟 END OF FILE
 // ============================================================

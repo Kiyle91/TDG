@@ -41,7 +41,7 @@ import { updateHubCurrencies } from "./hub.js";
 import { playChestOpen } from "../core/soundtrack.js";
 
 // ------------------------------------------------------------
-// ♻️ Variables
+// 🗺️ MODULE-LEVEL VARIABLES
 // ------------------------------------------------------------
 
 const COOLDOWN_MS = 60 * 60 * 1000;

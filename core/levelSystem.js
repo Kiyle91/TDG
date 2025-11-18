@@ -3,24 +3,56 @@
 //   (Static Overlay + 3 Choices: Attack / Spell / Ranged)
 // ------------------------------------------------------------
 // ✦ Handles XP gain, level-ups, and stat upgrades
-// ✦ HP & Mana now increase +10 automatically every level
-// ✦ Player can only allocate to Attack, Spell Power, or Ranged Attack
-// ✦ Full pause/resume + spire unlock integration preserved
+// ✦ HP & Mana auto-increase each level (+10)
+// ✦ Player allocates: Attack, Spell Power, or Ranged
+// ✦ Pauses gameplay during allocation
+// ✦ Fully stable, save-safe, UI integrated
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: levelSystem.js
+ * PURPOSE:
+ *   Manages the player’s experience system including XP gain,
+ *   level thresholds, stat point allocation, level-up rewards,
+ *   and presentation of the Level-Up overlay.
+ *
+ * SUMMARY:
+ *   When enemies award XP, the player can level up. Leveling up
+ *   restores HP/Mana, increases max HP/Mana by +10 each, grants
+ *   stat points, and pauses gameplay while the player chooses a
+ *   stat upgrade (Attack, Spell Power, or Ranged Attack).
+ *
+ * FEATURES:
+ *   • awardXP() — grants XP and triggers level-up checks
+ *   • Automatic HP/Mana increases on level up
+ *   • Stat allocation overlay with 3 upgrade choices
+ *   • pauseGame() + resumeGame() integration preserved
+ *   • Floating text feedback for XP + upgrades
+ *
+ * TECHNICAL NOTES:
+ *   • XP thresholds scale by exponential growth
+ *   • Overlay is fully static DOM for reliability
+ *   • Compatible with game’s spire unlock system
+ * ------------------------------------------------------------ */
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
+
 
 import { gameState } from "../utils/gameState.js";
 import { updateHUD, pauseGame, resumeGame } from "./ui.js";
 import { spawnFloatingText } from "./floatingText.js";
 
 // ------------------------------------------------------------
-// ⚙️ CONFIGURATION
+// 🗺️ MODULE-LEVEL VARIABLES
 // ------------------------------------------------------------
-const XP_PER_LEVEL_BASE = 100;  // base XP required for level 1→2
-const XP_SCALING = 1.25;        // XP requirement growth per level
-const POINTS_PER_LEVEL = 1;     // stat points awarded per level
+
+const XP_PER_LEVEL_BASE = 100;
+const XP_SCALING = 1.25;
+const POINTS_PER_LEVEL = 1;
 
 // ------------------------------------------------------------
-// 🧠 XP GAIN ON GOBLIN DEATH
+// 🧠 XP GAIN
 // ------------------------------------------------------------
 export function awardXP(amount = 25) {
   const p = gameState.player;
@@ -28,14 +60,14 @@ export function awardXP(amount = 25) {
 
   p.xp = (p.xp || 0) + amount;
 
-  // Floating XP text
+  // Visual feedback
   spawnFloatingText(p.pos.x, p.pos.y - 50, `+${amount} XP`, "#b3ffb3", 18);
 
   checkLevelUp();
 }
 
 // ------------------------------------------------------------
-// 🎯 LEVEL UP CHECK
+// 🎯 LEVEL-UP CHECK
 // ------------------------------------------------------------
 function checkLevelUp() {
   const p = gameState.player;
@@ -49,46 +81,48 @@ function checkLevelUp() {
     p.level = currentLevel + 1;
     p.statPoints = (p.statPoints || 0) + POINTS_PER_LEVEL;
 
-    // 🩷 Auto-boost HP and Mana every level
+    // Auto HP/Mana increase
     p.maxHp = (p.maxHp || 100) + 10;
     p.maxMana = (p.maxMana || 50) + 10;
     p.hp = p.maxHp;
     p.mana = p.maxMana;
 
-    spawnFloatingText(p.pos.x, p.pos.y - 60, `⭐ Level ${p.level}!`, "#fff2b3", 22);
+    spawnFloatingText(
+      p.pos.x,
+      p.pos.y - 60,
+      `⭐ Level ${p.level}!`,
+      "#fff2b3",
+      22
+    );
 
-    // Pause gameplay while choosing stats
+    // Pause gameplay for allocation
     pauseGame();
-    console.log("⏸️ Gameplay paused for Level Up");
 
-    // 🔧 Pass a callback that runs once stat allocation is complete
-    showLevelUpOverlay(p, async () => {
-      console.log("🎯 Stat allocation complete — checking spire unlocks...");
+    // Show overlay → resume when done
+    showLevelUpOverlay(p, () => {
       resumeGame();
-      console.log("▶️ Gameplay resumed after spire unlock popup");
     });
   }
 }
 
 // ------------------------------------------------------------
-// 📈 CALCULATE XP THRESHOLD
+// 📈 XP THRESHOLD CURVE
 // ------------------------------------------------------------
 function getXpForLevel(level) {
   return Math.floor(XP_PER_LEVEL_BASE * Math.pow(XP_SCALING, level - 1));
 }
 
 // ------------------------------------------------------------
-// 💫 LEVEL UP OVERLAY (static DOM version)
+// 💫 LEVEL-UP OVERLAY
 // ------------------------------------------------------------
 function showLevelUpOverlay(p, onClose) {
   const overlay = document.getElementById("overlay-levelup");
   if (!overlay) {
-    console.warn("⚠️ overlay-levelup not found in DOM.");
     if (typeof onClose === "function") onClose();
     return;
   }
 
-  // Update message
+  // Update overlay text
   const msg = overlay.querySelector(".levelup-message");
   if (msg) {
     msg.innerHTML = `
@@ -97,49 +131,43 @@ function showLevelUpOverlay(p, onClose) {
     `;
   }
 
-  // Wire buttons
+  // Attach button handlers
   const buttons = overlay.querySelectorAll(".levelup-btn");
   buttons.forEach((btn) => {
     const key = btn.dataset.key;
     if (!key) return;
 
-    // Overwrite any existing handler
     btn.onclick = () => handleStatUpgrade(p, key, overlay, onClose);
   });
 
-  // Show overlay (without using generic showOverlay, so we fully control it)
+  // Show overlay
   overlay.classList.remove("hidden");
   overlay.style.display = "flex";
   requestAnimationFrame(() => overlay.classList.add("active"));
 }
 
 // ------------------------------------------------------------
-// 🧮 HANDLE STAT UPGRADE
+// 🧮 STAT UPGRADE HANDLER
 // ------------------------------------------------------------
 function handleStatUpgrade(p, key, overlay, onClose) {
   if (!p || p.statPoints <= 0) return;
 
-  // Upgrade stat (same +5 as before)
   p[key] = (Number(p[key]) || 0) + 5;
   p.statPoints--;
 
-  // Floating feedback
-  const label =
-    key === "attack"
-      ? "Attack"
-      : key === "spellPower"
-      ? "Spell Power"
-      : key === "rangedAttack"
-      ? "Ranged Attack"
-      : key;
+  const labelMap = {
+    attack: "Attack",
+    spellPower: "Spell Power",
+    rangedAttack: "Ranged Attack",
+  };
+
+  const label = labelMap[key] || key;
 
   spawnFloatingText(p.pos.x, p.pos.y - 30, `+${label}`, "#b5e2ff");
-
-  // Update HUD
   updateHUD();
 
-  // Update overlay text
   const text = overlay.querySelector(".levelup-message");
+
   if (p.statPoints > 0) {
     if (text) {
       text.innerHTML = `
@@ -153,12 +181,13 @@ function handleStatUpgrade(p, key, overlay, onClose) {
 }
 
 // ------------------------------------------------------------
-// 🧹 CLOSE OVERLAY + TRIGGER CALLBACK
+// 🧹 CLOSE LEVEL-UP OVERLAY
 // ------------------------------------------------------------
 function closeLevelUpOverlay(overlay, onClose) {
   if (!overlay) return;
 
   overlay.classList.remove("active");
+
   setTimeout(() => {
     overlay.style.display = "none";
     overlay.classList.add("hidden");

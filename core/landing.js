@@ -2,8 +2,31 @@
 // 🌸 landing.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ Handles landing screen logic and transitions
-// ✦ Now transitions to profile screen on first click anywhere
+// ✦ First click anywhere transitions to Profile Select
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: landing.js
+ * PURPOSE:
+ *   Controls the behaviour of the Landing screen — the very
+ *   first screen the player sees when launching the game.
+ *
+ * SUMMARY:
+ *   This module listens for the first click anywhere on the
+ *   landing screen and then gracefully transitions into the
+ *   Profile Select screen using a soft fade animation.
+ *
+ * FEATURES:
+ *   • initLanding() — enables one-time click-to-start
+ *   • fadeOut() / fadeIn() — helper animations for transitions
+ *
+ * FLOW:
+ *   User loads game → landing screen active →
+ *   first click → fadeOut → showScreen("profile-screen")
+ * ------------------------------------------------------------ */
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import { showScreen } from "../core/screens.js";
 
@@ -12,15 +35,12 @@ import { showScreen } from "../core/screens.js";
 // ------------------------------------------------------------
 export function initLanding() {
   const landing = document.getElementById("landing-screen");
-
   if (!landing) return;
 
-  // 🌸 First click anywhere starts the game
   const handleClick = () => {
-    landing.removeEventListener("click", handleClick); // prevent multiple triggers
+    landing.removeEventListener("click", handleClick);
     fadeOut(landing, () => showScreen("profile-screen"));
   };
-  
 
   landing.addEventListener("click", handleClick);
 }
