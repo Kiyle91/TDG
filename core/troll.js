@@ -22,6 +22,7 @@ import { spawnLoot } from "./loot.js";
 import { awardXP } from "./levelSystem.js";
 import { incrementGoblinDefeated } from "./game.js";
 
+
 let trolls = [];
 let pathPoints = [];
 let trollSprites = null;

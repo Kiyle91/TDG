@@ -1,28 +1,45 @@
 // ============================================================
-// 💎 spires.js — Olivia's World: Crystal Keep (OPTIMIZED Edition)
-//    (Elemental Projectiles + Smart Targeting + Performance Boost)
-// ------------------------------------------------------------
-// ✔ Frost / Flame now projectile-based (no AoE lag)
-// ✔ Heal spire sends a HEAL PROJECTILE at player.pos.x/y
-// ✔ Frost slows ON HIT, Flame burns ON HIT, Moon knockback ON HIT
-// ✔ Arcane long-range
-// ✔ Smart targeting, durability fade, shadows intact
-// ✔ 🆕 PERFORMANCE OPTIMIZATIONS:
-//    - Cached distance calculations (squared distance)
-//    - Throttled targeting updates (every 200ms instead of 16ms)
-//    - Optimized nearest-goblin algorithm
-//    - Reduced redundant sprite lookups
+// 💎 spires.js — Optimized Multi-Spire Combat Engine
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: spires.js
+ * PURPOSE:
+ *   Full management system for all placed spires (towers).
+ *   Handles projectiles, targeting, sprite rendering,
+ *   fade-out destruction, and optimized enemy scanning.
+ *
+ * SUMMARY:
+ *   • initSpires() — load all spire sprites + reset array
+ *   • addSpire() — place a new tower in the world
+ *   • updateSpires(delta) — throttled AI + projectile emission
+ *   • drawSpires(ctx) — optimized rendering w/ shadows + aura
+ *   • getSpires() — accessor for placement & save/load systems
+ *
+ * DESIGN NOTES:
+ *   • Targeting updates are throttled (200ms) for performance
+ *   • Distance checks use squared distance where possible
+ *   • Each spire has a limited durability (MAX_ATTACKS)
+ *   • Crystal Echo Power adds a soft aura glow + double damage
+ * ------------------------------------------------------------ */
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------ 
 
 import { SPIRE_RANGE } from "../utils/constants.js";
 import { spawnProjectile } from "./projectiles.js";
 import { getGoblins } from "./goblin.js";
 import { getWorg } from "./worg.js";
-import { spawnFloatingText } from "./floatingText.js";
-import { gameState } from "../utils/gameState.js";
 import { getTrolls } from "./troll.js";
 import { getCrossbows } from "./crossbow.js";
+import { spawnFloatingText } from "./floatingText.js";
+import { gameState } from "../utils/gameState.js";
+import { getElites } from "./elite.js";
 
+
+// ------------------------------------------------------------
+// INTERNAL STATE
+// ------------------------------------------------------------
 let spireSprites = {};
 let spires = [];
 
@@ -31,14 +48,14 @@ const FIRE_RATE_MS = 800;
 const FADE_SPEED = 2;
 const SPIRE_SIZE = 96;
 
-// 🆕 Performance optimization: Throttle targeting updates
-const TARGET_UPDATE_INTERVAL = 200; // Update targets every 200ms instead of every frame
+const TARGET_UPDATE_INTERVAL = 200; // ms
+
 
 // ------------------------------------------------------------
-// LOAD IMAGES
+// ASSET LOADING
 // ------------------------------------------------------------
 function loadImage(src) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const img = new Image();
     img.src = src;
     img.onload = () => resolve(img);
@@ -47,26 +64,27 @@ function loadImage(src) {
 
 async function loadSpireSprites() {
   const list = ["basic", "frost", "flame", "arcane", "light", "moon"];
+
   for (const t of list) {
     spireSprites[t] = {
       idle: await loadImage(`./assets/images/spires/${t}_spire.png`),
-      active: await loadImage(`./assets/images/spires/${t}_spire_active.png`),
+      active: await loadImage(`./assets/images/spires/${t}_spire_active.png`)
     };
   }
-  console.log("🰰 Spire sprites loaded:", Object.keys(spireSprites).length);
 }
+
 
 // ------------------------------------------------------------
 // INIT
 // ------------------------------------------------------------
 export async function initSpires() {
-  spires = [];
+  spires.length = 0;
   await loadSpireSprites();
-  console.log("🹹 Spire system initialized (optimized).");
 }
 
+
 // ------------------------------------------------------------
-// ADD SPIRE
+// ADD NEW SPIRE
 // ------------------------------------------------------------
 export function addSpire(data) {
   spires.push({
@@ -80,14 +98,16 @@ export function addSpire(data) {
   });
 }
 
-// ------------------------------------------------------------
-// 🆕 OPTIMIZED NEAREST GOBLIN FINDER (uses squared distance)
-// ------------------------------------------------------------
-function findNearestGoblin(spire, goblins, range) {
-  let closest = null;
-  let minDistSq = range * range;
 
-  for (const e of goblins) {
+// ------------------------------------------------------------
+// OPTIMIZED NEAREST-ENEMY CALCULATOR
+// ------------------------------------------------------------
+function findNearestEnemy(spire, enemies, range) {
+  let closest = null;
+  const maxDistSq = range * range;
+  let minDistSq = maxDistSq;
+
+  for (const e of enemies) {
     if (!e.alive) continue;
 
     const dx = spire.x - e.x;
@@ -103,22 +123,29 @@ function findNearestGoblin(spire, goblins, range) {
   return closest;
 }
 
+
 // ------------------------------------------------------------
-// UPDATE SPIRES
+// UPDATE — targeting + firing + fade-out
 // ------------------------------------------------------------
 export function updateSpires(delta) {
   const dt = delta / 1000;
 
-  const combinedGoblins = [...getGoblins(), ...getWorg(), ...getElites(), ...getTrolls(), ...getCrossbows()];
+  const combinedEnemies = [
+    ...getGoblins(),
+    ...getWorg(),
+    ...getElites(),
+    ...getTrolls(),
+    ...getCrossbows(),
+  ];
 
   for (let i = spires.length - 1; i >= 0; i--) {
     const spire = spires[i];
 
+    // Fade-out / destroy
     if (spire.fadeOut > 0) {
       spire.fadeOut -= dt * FADE_SPEED;
       if (spire.fadeOut <= 0) {
         spires.splice(i, 1);
-        continue;
       }
       continue;
     }
@@ -130,25 +157,29 @@ export function updateSpires(delta) {
 
     if (spire.cooldown > 0) continue;
 
-    spire.lastTargetUpdate = (spire.lastTargetUpdate || 0) + delta;
-
+    // Throttled targeting
+    spire.lastTargetUpdate += delta;
     if (spire.lastTargetUpdate >= TARGET_UPDATE_INTERVAL) {
       spire.lastTargetUpdate = 0;
 
       switch (spire.type) {
         case "basic_spire":
-          spire.cachedTarget = findNearestGoblin(spire, combinedGoblins, SPIRE_RANGE);
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE);
           break;
+
         case "frost_spire":
-          spire.cachedTarget = findNearestGoblin(spire, combinedGoblins, SPIRE_RANGE * 0.9);
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE * 0.9);
           break;
+
         case "flame_spire":
-          spire.cachedTarget = findNearestGoblin(spire, combinedGoblins, SPIRE_RANGE * 0.9);
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE * 0.9);
           break;
+
         case "arcane_spire":
-          spire.cachedTarget = findNearestGoblin(spire, combinedGoblins, SPIRE_RANGE * 1.5);
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE * 1.5);
           break;
-        case "light_spire":
+
+        case "light_spire": {
           const player = gameState.player;
           if (player && player.pos) {
             const dx = player.pos.x - spire.x;
@@ -158,8 +189,10 @@ export function updateSpires(delta) {
             spire.cachedTarget = distSq < rangeSq ? player : null;
           }
           break;
+        }
+
         case "moon_spire":
-          spire.cachedTarget = findNearestGoblin(spire, combinedGoblins, SPIRE_RANGE);
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE);
           break;
       }
     }
@@ -167,38 +200,42 @@ export function updateSpires(delta) {
     const target = spire.cachedTarget;
     if (!target) continue;
 
+    // Target died
     if (target !== gameState.player && !target.alive) {
       spire.cachedTarget = null;
       continue;
     }
 
+    // Fire projectile
     switch (spire.type) {
       case "basic_spire":
         spawnProjectile(spire.x, spire.y, target, "crystal");
-        trigger(spire);
         break;
+
       case "frost_spire":
         spawnProjectile(spire.x, spire.y, target, "frost");
-        trigger(spire);
         break;
+
       case "flame_spire":
         spawnProjectile(spire.x, spire.y, target, "flame");
-        trigger(spire);
         break;
+
       case "arcane_spire":
         spawnProjectile(spire.x, spire.y, target, "arcane");
-        trigger(spire);
         break;
+
       case "light_spire":
         spawnProjectile(spire.x, spire.y, target, "heal");
-        trigger(spire);
         break;
+
       case "moon_spire":
         spawnProjectile(spire.x, spire.y, target, "moon");
-        trigger(spire);
         break;
     }
 
+    triggerSpire(spire);
+
+    // Durability check
     if (spire.attacksDone >= MAX_ATTACKS && spire.fadeOut === 0) {
       spire.fadeOut = 1;
       spawnFloatingText(spire.x, spire.y - 30, "💥 Broken!", "#ff6fb1");
@@ -206,17 +243,19 @@ export function updateSpires(delta) {
   }
 }
 
+
 // ------------------------------------------------------------
-// TRIGGER ATTACK
+// INTERNAL: trigger fire animation & cooldown
 // ------------------------------------------------------------
-function trigger(spire) {
+function triggerSpire(spire) {
   spire.cooldown = FIRE_RATE_MS / 1000;
   spire.activeFrameTimer = 200;
   spire.attacksDone++;
 }
 
+
 // ------------------------------------------------------------
-// DRAW SPIRES (with optimized sprite selection)
+// DRAW ALL SPIRES
 // ------------------------------------------------------------
 export function drawSpires(ctx) {
   if (!ctx) return;
@@ -224,29 +263,24 @@ export function drawSpires(ctx) {
   for (const spire of spires) {
     const base = spire.type.replace("_spire", "");
     const sprites = spireSprites[base] || spireSprites.basic;
-
-    if (!sprites) continue;
-
     const img = spire.activeFrameTimer > 0 ? sprites.active : sprites.idle;
 
+    // Size tweaks
     let scale = base === "frost" ? 0.85 : 1;
+    let size = SPIRE_SIZE * scale;
+
+    if (base === "flame") size *= 1.30;
+    if (base === "moon") size *= 1.10;
+
     const baseSize = SPIRE_SIZE * scale;
-
-    let size = baseSize;
-    if (base === "flame") {
-      size = baseSize * 1.30;
-    } else if (base === "moon") {
-      size = baseSize * 1.1;
-    }
-
-    const originalDrawY = spire.y - baseSize / 2 + baseSize * 0.1;
-    const originalBottom = originalDrawY + baseSize;
+    const baseY = spire.y - baseSize / 2 + baseSize * 0.1;
+    const bottom = baseY + baseSize;
 
     const drawX = spire.x - size / 2;
     const drawY =
       base === "flame" || base === "moon"
-        ? originalBottom - size
-        : originalDrawY;
+        ? bottom - size
+        : baseY;
 
     ctx.save();
     ctx.globalAlpha = spire.fadeOut > 0 ? spire.fadeOut : 1;
@@ -270,15 +304,13 @@ export function drawSpires(ctx) {
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
 
-    // ⭐ NEW — Crystal Echo Power Aura
+    // Crystal Echo Aura
     if (gameState.echoPowerActive) {
       const auraRadius = size * 0.55;
-
       const gradient = ctx.createRadialGradient(
         spire.x, spire.y, 0,
         spire.x, spire.y, auraRadius
       );
-
       gradient.addColorStop(0, "rgba(220, 180, 255, 0.55)");
       gradient.addColorStop(0.6, "rgba(200, 150, 255, 0.25)");
       gradient.addColorStop(1, "rgba(200, 150, 255, 0)");
@@ -296,12 +328,14 @@ export function drawSpires(ctx) {
   }
 }
 
+
 // ------------------------------------------------------------
-// ACCESSOR
+// GETTER
 // ------------------------------------------------------------
 export function getSpires() {
   return spires;
 }
+
 
 // ============================================================
 // END OF FILE

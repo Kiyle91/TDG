@@ -1,18 +1,36 @@
 // ============================================================
 // ✨ sparkles.js — Lightweight Sparkle Field Generator
-// ------------------------------------------------------------
-// Creates and animates random sparkles for any .magic-sparkle div
-// Instant on load, reusable across screens
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: sparkles.js
+ * PURPOSE:
+ *   Provides a lightweight sparkle-field visual effect for any
+ *   element marked with the `.magic-sparkle` class. Designed to
+ *   give screens a soft magical ambience without relying on
+ *   canvas rendering or heavy animation loops.
+ *
+ * SUMMARY:
+ *   • initSparkles() — scans for all `.magic-sparkle` containers
+ *     and populates each with floating particles.
+ *
+ * DESIGN NOTES:
+ *   • Pure DOM/CSS animation (zero JS per-frame)
+ *   • Automatically randomizes size, position, duration & delay
+ *   • Safe to call multiple times (rebuilds each container once)
+ *
+ * USED BY:
+ *   Landing screen, profile screen, hub overlays, etc.
+ * ------------------------------------------------------------ */
 
 export function initSparkles() {
-  document.querySelectorAll(".magic-sparkle").forEach((container) => {
-    const count = 30; // ✨ how many sparkles per screen
+  document.querySelectorAll(".magic-sparkle").forEach(container => {
+    const count = 30;
+
     for (let i = 0; i < count; i++) {
       const sparkle = document.createElement("div");
       sparkle.classList.add("magic-particle");
 
-      // Random position
+      // Random position within container
       sparkle.style.top = `${Math.random() * 100}%`;
       sparkle.style.left = `${Math.random() * 100}%`;
 
@@ -28,5 +46,8 @@ export function initSparkles() {
       container.appendChild(sparkle);
     }
   });
-  console.log("✨ Sparkles initialized on all screens");
 }
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

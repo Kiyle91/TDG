@@ -1,17 +1,40 @@
 // ============================================================
 // 🎵 soundtrack.js — Olivia’s World: Crystal Keep (Extended SFX)
-// ------------------------------------------------------------
-// ✦ Handles background music and sound effects volume
-// ✦ Waits for first click/tap to unlock audio context
-// ✦ Includes Fairy Sparkle, Chest Open, Cancel, and Combat SFX
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: soundtrack.js
+ * PURPOSE:
+ *   Central audio hub for Olivia’s World: Crystal Keep.
+ *   Manages background music, global SFX volume, and all
+ *   one-shot sound effects used across the game.
+ *
+ * SUMMARY:
+ *   • initMusic() — safe user-gesture unlock + BGM loop
+ *   • setMusicVolume(), setSfxVolume() — global volume control
+ *   • playSfx(path) — universal one-shot SFX
+ *   • Named helpers: Fairy, Chest, Combat, Goblin, Ogre, Pegasus
+ *
+ * AUDIO POLICY:
+ *   • Music must be unlocked by first user gesture (browser rule)
+ *   • All SFX respect global SFX volume
+ *   • Every SFX is a standalone Audio instance to avoid overlap issues
+ *
+ * NOTES:
+ *   • Uses power curve on SFX volume for smoother low-volume behaviour
+ *   • All assets live under ./assets/sounds/
+ * ------------------------------------------------------------ */
+
+
+// ------------------------------------------------------------
+// 🪂 MODULE-LEVEL VARIABLES
+// ------------------------------------------------------------
 
 let musicAudio = null;
 let sfxVolume = 0.8;
 let musicUnlocked = false;
 
 // ------------------------------------------------------------
-// 🌸 Initialize background music (safe, user-triggered)
+// 🌸 Initialize background music (gesture-unlocked)
 // ------------------------------------------------------------
 export function initMusic() {
   if (musicAudio) return;
@@ -44,16 +67,17 @@ export function setMusicVolume(value) {
 }
 
 export function setSfxVolume(value) {
+  // Clamp 0–1
   sfxVolume = Math.max(0, Math.min(1, value));
 }
 
 // ------------------------------------------------------------
-// 💥 Generic One-Shot SFX (safe play after unlock)
+// 💥 Universal one-shot SFX helper
 // ------------------------------------------------------------
 export function playSfx(path) {
-  if (!musicUnlocked) return;
+  if (!musicUnlocked) return;       // block until user unlocks
   const sfx = new Audio(path);
-  sfx.volume = Math.pow(sfxVolume, 0.7);
+  sfx.volume = Math.pow(sfxVolume, 0.7);  // smoother curve
   sfx.play().catch(() => {});
 }
 
@@ -66,7 +90,7 @@ export function playFairySprinkle() {
 }
 
 // ------------------------------------------------------------
-// 💰 Chest Opening SFX
+// 💰 Chest Opening
 // ------------------------------------------------------------
 const chestOpenPath = "./assets/sounds/chest-open.mp3";
 export function playChestOpen() {
@@ -74,7 +98,7 @@ export function playChestOpen() {
 }
 
 // ------------------------------------------------------------
-// 🚫 Cancel / No Button SFX
+// 🚫 Cancel Button
 // ------------------------------------------------------------
 const cancelButtonPath = "./assets/sounds/cancel-button.mp3";
 export function playCancelSound() {
@@ -93,60 +117,26 @@ export function playArrowSwish() { playSfx(arrowPath); }
 export function playSpellCast()  { playSfx(spellPath); }
 
 // ------------------------------------------------------------
-// 💥 Goblin Attack SFX
+// 👺 Goblin SFX
 // ------------------------------------------------------------
 const goblinAttackPath = "./assets/sounds/goblin_attack.mp3";
-export function playGoblinAttack() {
-  playSfx(goblinAttackPath);
-}
-
-// ------------------------------------------------------------
-// 💀 Goblin Death SFX
-// ------------------------------------------------------------
-const goblinDeathPath = "./assets/sounds/goblin_death.mp3";
-export function playGoblinDeath() {
-  playSfx(goblinDeathPath);
-}
-
-// ------------------------------------------------------------
-// ❤️ Player Damage SFX
-// ------------------------------------------------------------
-const playerDamagePath = "./assets/sounds/player_damage.mp3";
-export function playPlayerDamage() {
-  playSfx(playerDamagePath);
-}
-
-// ------------------------------------------------------------
-// 💢 Goblin Damage (when hit, not killed)
-// ------------------------------------------------------------
+const goblinDeathPath  = "./assets/sounds/goblin_death.mp3";
 const goblinDamagePath = "./assets/sounds/goblin_damage.mp3";
-export function playGoblinDamage() {
-  playSfx(goblinDamagePath);
-}
+
+export function playGoblinAttack() { playSfx(goblinAttackPath); }
+export function playGoblinDeath()  { playSfx(goblinDeathPath); }
+export function playGoblinDamage() { playSfx(goblinDamagePath); }
 
 // ------------------------------------------------------------
-// 👹 Ogre Enter (spawn roar)
+// 👹 Ogre SFX
 // ------------------------------------------------------------
-const ogreEnterPath = "./assets/sounds/ogre_enter.mp3";
-export function playOgreEnter() {
-  playSfx(ogreEnterPath);
-}
-
-// ------------------------------------------------------------
-// 👹 Ogre Attack (swing / smash)
-// ------------------------------------------------------------
+const ogreEnterPath  = "./assets/sounds/ogre_enter.mp3";
 const ogreAttackPath = "./assets/sounds/ogre_attack.mp3";
-export function playOgreAttack() {
-  playSfx(ogreAttackPath);
-}
+const ogreSlainPath  = "./assets/sounds/ogre_slain.mp3";
 
-// ------------------------------------------------------------
-// 💀 Ogre Slain (death roar)
-// ------------------------------------------------------------
-const ogreSlainPath = "./assets/sounds/ogre_slain.mp3";
-export function playOgreSlain() {
-  playSfx(ogreSlainPath);
-}
+export function playOgreEnter()  { playSfx(ogreEnterPath); }
+export function playOgreAttack() { playSfx(ogreAttackPath); }
+export function playOgreSlain()  { playSfx(ogreSlainPath); }
 
 // ------------------------------------------------------------
 // 🕊️ Pegasus Spawn (summon chime)
@@ -164,6 +154,14 @@ export function stopMusic() {
     musicAudio.pause();
     musicAudio.currentTime = 0;
   }
+}
+
+// ------------------------------------------------------------
+// ❤️ Player Damage SFX
+// ------------------------------------------------------------
+const playerDamagePath = "./assets/sounds/player_damage.mp3";
+export function playPlayerDamage() {
+  playSfx(playerDamagePath);
 }
 
 // ============================================================

@@ -1,9 +1,40 @@
 // ============================================================
 // 🌈 skins.js — Skin registry + portrait + unlock costs
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: skins.js
+ * PURPOSE:
+ *   Central registry and manager for all Glitter Guardian skins.
+ *   Each profile owns its unlocked skins, and every skin has a
+ *   name, folder, portrait, and diamond unlock cost.
+ *
+ * SUMMARY:
+ *   • SKINS — global skin metadata registry
+ *   • ensureSkin(player) — guarantees cosmetics block exists
+ *   • unlockSkin(player, key) — unlocks a skin permanently
+ *   • selectSkin(player, key) — equips a skin + persists it
+ *
+ * DATA MODEL:
+ *   gameState.profile.cosmetics = {
+ *     skin: "glitter",               // currently equipped
+ *     unlocked: ["glitter", ...]     // full unlocked list
+ *   }
+ *
+ * DESIGN NOTES:
+ *   • Player object mirrors the cosmetics for runtime use
+ *   • Profiles own cosmetic progress (persistent)
+ *   • Player inherits cosmetics at login/profile-select
+ * ------------------------------------------------------------ */
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import { gameState, saveProfiles } from "../utils/gameState.js";
 
+// ------------------------------------------------------------
+// 🎨 SKIN REGISTRY
+// ------------------------------------------------------------
 export const SKINS = {
   glitter: {
     name: "Glitter Guardian",
@@ -31,49 +62,62 @@ export const SKINS = {
   },
 };
 
+// ------------------------------------------------------------
+// 🛡️ ENSURE COSMETICS EXIST (profile → player sync)
+// ------------------------------------------------------------
 export function ensureSkin(player) {
 
-  // ⭐ Ensure the profile exists
+  // Make sure profile is valid
   if (!gameState.profile) {
     gameState.profile = {};
   }
 
-  // ⭐ Ensure the cosmetics block exists
+  // Ensure cosmetics block exists
   if (!gameState.profile.cosmetics) {
     gameState.profile.cosmetics = {
       skin: "glitter",
-      unlocked: ["glitter"]
+      unlocked: ["glitter"],
     };
   }
 
-  // ⭐ Ensure player object exists
   if (!player) return;
 
-  // Load profile cosmetics into player
+  // Copy cosmetic data → player
   player.skin = gameState.profile.cosmetics.skin;
   player.unlockedSkins = [...gameState.profile.cosmetics.unlocked];
 }
 
+// ------------------------------------------------------------
+// 🔓 UNLOCK A SKIN
+// ------------------------------------------------------------
 export function unlockSkin(player, key) {
   if (!player.unlockedSkins.includes(key)) {
     player.unlockedSkins.push(key);
   }
 
-  // persist to profile cosmetics
-  if (!gameState.profile.cosmetics.unlocked.includes(key)) {
-    gameState.profile.cosmetics.unlocked.push(key);
+  // Persist to profile cosmetics
+  const cos = gameState.profile.cosmetics;
+  if (!cos.unlocked.includes(key)) {
+    cos.unlocked.push(key);
   }
 
   saveProfiles();
 }
 
+// ------------------------------------------------------------
+// 👗 EQUIP A SKIN
+// ------------------------------------------------------------
 export function selectSkin(player, key) {
   if (!player.unlockedSkins.includes(key)) return;
 
   player.skin = key;
 
-  // persist selection
+  // Persist equipped skin
   gameState.profile.cosmetics.skin = key;
 
   saveProfiles();
 }
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

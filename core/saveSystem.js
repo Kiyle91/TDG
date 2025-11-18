@@ -1,11 +1,52 @@
 // ============================================================
 // 💾 saveSystem.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Takes a full snapshot of the *running* game
-// ✦ Restores player, spires, goblins, worgs, elites, ogres
-// ✦ Stores per-profile saves in localStorage (10 slots)
-// ✦ Designed for in-game Save / Load overlay
+// ✦ Full combat snapshot + restore system
+// ✦ Up to 10 per-profile save slots
+// ✦ Safe cosmetics handling + persistent diamonds
 // ============================================================
+/* ------------------------------------------------------------
+ * MODULE: saveSystem.js
+ * PURPOSE:
+ *   Provides full save/load infrastructure for campaign and
+ *   in-game save slots. Creates a snapshot of the *running*
+ *   game including player state, map progress, spires, and
+ *   all active enemies. Applies snapshots safely, preserving
+ *   cosmetic unlocks and persistent currencies such as diamonds.
+ *
+ * SUMMARY:
+ *   • snapshotGame() — captures a full combat snapshot
+ *   • applySnapshot() — restores player/world state after init
+ *   • saveToSlot() / loadFromSlot() / deleteSlot()
+ *   • getSlotSummaries() — for UI slot display
+ *
+ * FEATURES:
+ *   • Per-profile isolated save slots (10 per profile)
+ *   • Stores only mutable combat data — never overwrites
+ *     persistent cosmetics or diamond currency
+ *   • Safe deep-clone via JSON clone (OK for simple objects)
+ *   • Robust restore order:
+ *       1) progress     (map + wave metadata)
+ *       2) player       (stats, hp/mana, level)
+ *       3) cosmetics    (restored from current state)
+ *       4) HUD metadata (wave counts)
+ *       5) gold only    (never diamonds)
+ *       6) spires       (array rebuilt)
+ *       7) goblins      (array rebuilt)
+ *       8) worgs        (array rebuilt)
+ *       9) elites       (array rebuilt)
+ *      10) ogres        (array rebuilt)
+ *
+ * TECHNICAL NOTES:
+ *   • Save data stored in localStorage under a single root key
+ *   • Snapshot versioning allows forward compatibility
+ *   • Must call initGame() BEFORE applying snapshot
+ * ------------------------------------------------------------ */
+
+
+// ------------------------------------------------------------
+// ↪️ Imports
+// ------------------------------------------------------------
 
 import { gameState, getCurrencies } from "../utils/gameState.js";
 import { getGoblins } from "./goblin.js";
@@ -19,11 +60,10 @@ import { updateHUD } from "./ui.js";
 // 🔐 STORAGE HELPERS
 // ------------------------------------------------------------
 
-const SAVE_KEY = "owck_saves_v1";   // one big object, split by profile key
+const SAVE_KEY = "owck_saves_v1";
 
 function safeClone(obj) {
   if (!obj) return obj;
-  // All our runtime entities are plain objects -> JSON clone is fine
   return JSON.parse(JSON.stringify(obj));
 }
 
@@ -32,9 +72,8 @@ function loadAllSaves() {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
-    return typeof parsed === "object" && parsed !== null ? parsed : {};
-  } catch (err) {
-    console.warn("💾 SaveSystem: failed to parse saves:", err);
+    return typeof parsed === "object" ? parsed : {};
+  } catch {
     return {};
   }
 }
@@ -42,12 +81,9 @@ function loadAllSaves() {
 function persistAllSaves(all) {
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(all));
-  } catch (err) {
-    console.warn("💾 SaveSystem: failed to write saves:", err);
-  }
+  } catch {}
 }
 
-// Per-profile key (keeps slots separate between profiles)
 function getProfileKey() {
   const idx = gameState.activeProfileIndex ?? 0;
   return `profile_${idx}`;
@@ -56,25 +92,18 @@ function getProfileKey() {
 // ------------------------------------------------------------
 // 📸 SNAPSHOT CREATION
 // ------------------------------------------------------------
-
 export function snapshotGame() {
   if (!gameState.profile || !gameState.player) {
     throw new Error("No active profile/player to save.");
   }
 
   const { gold, diamonds } = getCurrencies();
-  const spires = safeClone(getSpires() || []);
-  const goblins = safeClone(getGoblins() || []);
-  const worgs = safeClone(getWorg() || []);
-  const elites = safeClone(getElites() || []);
-  const ogres = safeClone(getOgres() || []);
 
   const snapshot = {
     version: 1,
     savedAt: Date.now(),
     profileKey: getProfileKey(),
 
-    // Lightweight summary used for the slot list
     meta: {
       profileName: gameState.profile.name || "Princess",
       map: gameState.progress?.currentMap ?? 1,
@@ -87,153 +116,97 @@ export function snapshotGame() {
       maxHp: gameState.player.maxHp ?? 0,
     },
 
-    // Core state — enough to restore the combat situation
     progress: safeClone(gameState.progress),
     player: safeClone(gameState.player),
 
-
-    spires,
-    goblins,
-    worgs,
-    elites,
-    ogres,
+    spires: safeClone(getSpires() || []),
+    goblins: safeClone(getGoblins() || []),
+    worgs: safeClone(getWorg() || []),
+    elites: safeClone(getElites() || []),
+    ogres: safeClone(getOgres() || [])
   };
 
-  console.log("💾 snapshotGame ->", snapshot);
   return snapshot;
 }
 
 // ------------------------------------------------------------
-// ♻️ SNAPSHOT APPLICATION (in-game) — FINAL, SAFE VERSION
+// ♻️ SNAPSHOT APPLICATION — SAFE ORDER
 // ------------------------------------------------------------
 export function applySnapshot(snapshot) {
   if (!snapshot) return;
-  console.log("♻️ applySnapshot", snapshot);
 
-  // ⭐ 1) Preserve profile-wide cosmetic data BEFORE applying snapshot
+  // 1) Preserve cosmetics
   const currentSkin = gameState.player?.skin || "glitter";
-  const currentUnlocked =
-    gameState.player?.unlockedSkins || ["glitter"];
+  const currentUnlocked = gameState.player?.unlockedSkins || ["glitter"];
 
-  // ------------------------------------------------------------
-  // 2) Restore PROGRESS
-  // ------------------------------------------------------------
+  // 2) Restore progress
   if (snapshot.progress) {
     gameState.progress = safeClone(snapshot.progress);
   }
 
-  // ------------------------------------------------------------
-  // 3) Restore PLAYER (but NEVER touch skin data)
-  // ------------------------------------------------------------
+  // 3) Restore player (without cosmetics)
   if (snapshot.player) {
     const restored = safeClone(snapshot.player);
-
-    // Strip out cosmetics from snapshot
     delete restored.skin;
     delete restored.unlockedSkins;
-
     gameState.player = restored;
   }
 
-  // Restore cosmetics BACK onto player
+  // Restore cosmetics
   gameState.player.skin = currentSkin;
   gameState.player.unlockedSkins = currentUnlocked;
 
-  // ------------------------------------------------------------
-  // 4) Restore HUD meta (wave, totalWaves)
-  // ------------------------------------------------------------
+  // 4) HUD metadata
   if (snapshot.meta) {
-    gameState.wave =
-      snapshot.meta.wave ?? gameState.wave;
-    gameState.totalWaves =
-      snapshot.meta.totalWaves ?? gameState.totalWaves;
+    gameState.wave = snapshot.meta.wave ?? gameState.wave;
+    gameState.totalWaves = snapshot.meta.totalWaves ?? gameState.totalWaves;
   }
 
-  // ------------------------------------------------------------
-  // ⭐ 5) Restore ONLY GOLD (NOT diamonds)
-  // ------------------------------------------------------------
+  // 5) Restore only gold (never diamonds)
   if (snapshot.meta) {
     const prof = gameState.profile;
-    if (prof && prof.currencies) {
+    if (prof?.currencies) {
       prof.currencies.gold =
         snapshot.meta.gold ??
         prof.currencies.gold ??
         0;
-
-      // ⭐ DO NOT RESTORE DIAMONDS.
-      // Diamonds remain global & persistent.
     }
   }
 
-  // ------------------------------------------------------------
   // 6) Restore spires
-  // ------------------------------------------------------------
-  const spiresArr = getSpires();
-  spiresArr.length = 0;
-  if (Array.isArray(snapshot.spires)) {
-    snapshot.spires.forEach(t =>
-      spiresArr.push(safeClone(t))
-    );
-  }
+  const spArr = getSpires();
+  spArr.length = 0;
+  (snapshot.spires || []).forEach(t => spArr.push(safeClone(t)));
 
-  // ------------------------------------------------------------
   // 7) Restore goblins
-  // ------------------------------------------------------------
-  const gobArr = getGoblins();
-  gobArr.length = 0;
-  if (Array.isArray(snapshot.goblins)) {
-    snapshot.goblins.forEach(g =>
-      gobArr.push(safeClone(g))
-    );
-  }
+  const gArr = getGoblins();
+  gArr.length = 0;
+  (snapshot.goblins || []).forEach(g => gArr.push(safeClone(g)));
 
-  // ------------------------------------------------------------
   // 8) Restore worgs
-  // ------------------------------------------------------------
-  const worgArr = getWorg();
-  if (Array.isArray(worgArr)) {
-    worgArr.length = 0;
-    if (Array.isArray(snapshot.worgs)) {
-      snapshot.worgs.forEach(w =>
-        worgArr.push(safeClone(w))
-      );
-    }
+  const wArr = getWorg();
+  if (Array.isArray(wArr)) {
+    wArr.length = 0;
+    (snapshot.worgs || []).forEach(w => wArr.push(safeClone(w)));
   }
 
-  // ------------------------------------------------------------
   // 9) Restore elites
-  // ------------------------------------------------------------
   clearElites();
-  const eliteArr = getElites();
-  if (Array.isArray(snapshot.elites)) {
-    snapshot.elites.forEach(e =>
-      eliteArr.push(safeClone(e))
-    );
-  }
+  const eArr = getElites();
+  (snapshot.elites || []).forEach(e => eArr.push(safeClone(e)));
 
-  // ------------------------------------------------------------
-  // 🔟 Restore ogres
-  // ------------------------------------------------------------
+  // 10) Restore ogres
   clearOgres();
-  const ogreArr = getOgres();
-  if (Array.isArray(snapshot.ogres)) {
-    snapshot.ogres.forEach(o =>
-      ogreArr.push(safeClone(o))
-    );
-  }
+  const oArr = getOgres();
+  (snapshot.ogres || []).forEach(o => oArr.push(safeClone(o)));
 
-  // ------------------------------------------------------------
-  // 11) Refresh HUD immediately
-  // ------------------------------------------------------------
+  // 11) Refresh HUD
   updateHUD();
 }
 
-
-
 // ------------------------------------------------------------
-// 🧊 PUBLIC SLOT API
+// 🧊 PUBLIC SAVE/LOAD API
 // ------------------------------------------------------------
-
 export function saveToSlot(index) {
   const slot = Number(index);
   if (!Number.isInteger(slot) || slot < 0 || slot > 9) {
@@ -248,7 +221,6 @@ export function saveToSlot(index) {
   all[key][slot] = snap;
   persistAllSaves(all);
 
-  console.log(`💾 Saved to slot ${slot} for ${key}`);
   return snap;
 }
 
@@ -263,10 +235,7 @@ export function loadFromSlot(index) {
   const slots = all[key] || [];
   const snap = slots[slot] || null;
 
-  if (!snap) {
-    console.warn(`⚠️ No save data in slot ${slot} for ${key}`);
-    return null;
-  }
+  if (!snap) return null;
 
   applySnapshot(snap);
   return snap;
@@ -284,7 +253,6 @@ export function deleteSlot(index) {
 
   all[key][slot] = null;
   persistAllSaves(all);
-  console.log(`🗑️ Deleted save slot ${slot} for ${key}`);
 }
 
 export function getSlotSummaries() {
@@ -294,6 +262,7 @@ export function getSlotSummaries() {
 
   return slots.map((snap, index) => {
     if (!snap) return null;
+
     const meta = snap.meta || {};
     return {
       index,
@@ -307,3 +276,7 @@ export function getSlotSummaries() {
     };
   });
 }
+
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================
