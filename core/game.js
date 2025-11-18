@@ -4,7 +4,7 @@
 // ✦ Core game controller & system orchestration
 // ✦ Initializes and coordinates all core modules
 // ✦ Runs update + render loops (called by main.js)
-// ✦ Player + Enemies + Towers rendered between layers
+// ✦ Player + Enemies + Spires rendered between layers
 // ✦ Victory/Defeat system + resetCombatState()
 // ✦ Floating combat text support (damage/heal popups)
 // ✦ Pegasus ambient flight drawn above all layers
@@ -97,13 +97,13 @@ import {
 } from "./crossbow.js";
 
 // ------------------------------------------------------------
-// 🏹 TOWERS & PROJECTILES
+// 🏹 SPIRES & PROJECTILES
 // ------------------------------------------------------------
 import {
-  initTowers,
-  updateTowers,
-  drawTowers,
-} from "./towers.js";
+  initSpires,
+  updateSpires,
+  drawSpires,
+} from "./spires.js";
 
 import {
   initProjectiles,
@@ -632,7 +632,7 @@ export async function initGame(mode = "new") {
   await initElites();
   await initTrolls(pathPoints);
   await initCrossbows();
-  initTowers();
+  initSpires();
   initOgres();
   initProjectiles();
   
@@ -688,7 +688,7 @@ export function updateGame(delta) {
   updateCrossbows(delta);
   updateElites(delta);
   updateTrolls(delta);
-  updateTowers(delta);
+  updateSpires(delta);
   updateOgres(delta);
   updateProjectiles(delta);
   updatePlayer(delta);
@@ -745,7 +745,7 @@ export function renderGame() {
 
   updateCrystalEchoes(ctx, gameState.player);
 
-  drawTowers(ctx);
+  drawSpires(ctx);
   drawWorg(ctx);
   drawCrossbows(ctx);
   drawEnemies(ctx);
@@ -851,7 +851,7 @@ export function resetCombatState() {
   clearCrossbows();
 
   initEnemies();
-  initTowers();
+  initSpires();
   initProjectiles();
 
   updateHUD();

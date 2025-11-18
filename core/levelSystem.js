@@ -5,7 +5,7 @@
 // ✦ Handles XP gain, level-ups, and stat upgrades
 // ✦ HP & Mana now increase +10 automatically every level
 // ✦ Player can only allocate to Attack, Spell Power, or Ranged Attack
-// ✦ Full pause/resume + tower unlock integration preserved
+// ✦ Full pause/resume + spire unlock integration preserved
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
@@ -63,9 +63,9 @@ function checkLevelUp() {
 
     // 🔧 Pass a callback that runs once stat allocation is complete
     showLevelUpOverlay(p, async () => {
-      console.log("🎯 Stat allocation complete — checking tower unlocks...");
+      console.log("🎯 Stat allocation complete — checking spire unlocks...");
       resumeGame();
-      console.log("▶️ Gameplay resumed after tower unlock popup");
+      console.log("▶️ Gameplay resumed after spire unlock popup");
     });
   }
 }

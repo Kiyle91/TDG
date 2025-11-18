@@ -164,7 +164,7 @@
    🌸 OLIVIA’S WORLD: CRYSTAL KEEP — story.css (Unified Crystal Aesthetic)
    ------------------------------------------------------------
    ✦ One crystal-glass system for all cinematic overlays
-   ✦ Story, Tower Unlock, and Level-Up use the same look
+   ✦ Story, Spire Unlock, and Level-Up use the same look
    ✦ Matching controller popup visuals
 ============================================================ */
 
@@ -190,7 +190,7 @@
 }
 
 /* ============================================================
-   🌈 FIX — Make LEVEL-UP and TOWER-UNLOCK match controller popup
+   🌈 FIX — Make LEVEL-UP and SPIRE-UNLOCK match controller popup
 ============================================================ */
 .levelup-overlay {
   position: fixed;
@@ -216,7 +216,7 @@
 }
 
 /* ============================================================
-   💎 CRYSTAL BOX BASE — Story, Tower Unlock, Level-Up
+   💎 CRYSTAL BOX BASE — Story, Spire Unlock, Level-Up
    ✨ Updated to match controller tutorial box
 ============================================================ */
 .story-box,
@@ -265,10 +265,10 @@
 }
 
 /* ============================================================
-   👑 PORTRAITS (Story) + Tower Images
+   👑 PORTRAITS (Story) + Spire Images
 ============================================================ */
 .story-portrait,
-.tower-img {
+.spire-img {
   width: 180px;
   height: 220px;
   object-fit: contain;
@@ -288,7 +288,7 @@
    🩵 STORY CONTENT LAYOUT
 ============================================================ */
 .story-box .story-content,
-.tower-unlock-box .story-content {
+.spire-unlock-box .story-content {
   display: flex;
   flex-direction: row;
 
@@ -386,22 +386,22 @@
 }
 
 /* ============================================================
-   💎 TOWER UNLOCK VERSION
+   💎 SPIRE UNLOCK VERSION
 ============================================================ */
-.tower-unlock-box .story-content {
+.spire-unlock-box .story-content {
   justify-content: center;
   gap: 60px;
 }
 
-.tower-img {
-  animation: towerPulse 3s ease-in-out infinite;
+.spire-img {
+  animation: spirePulse 3s ease-in-out infinite;
 
   filter:
     drop-shadow(0 0 12px rgba(120,200,255,0.9))
     drop-shadow(0 0 20px rgba(200,170,255,0.7));
 }
 
-@keyframes towerPulse {
+@keyframes spirePulse {
   0%, 100% { transform: scale(1);     opacity: 1; }
   50%      { transform: scale(1.05); opacity: 0.95; }
 }
@@ -411,21 +411,21 @@
 ============================================================ */
 @media (max-width: 800px) {
   .story-box,
-  .tower-unlock-box,
+  .spire-unlock-box,
   .levelup-box {
     width: 90%;
     padding: 30px;
   }
 
   .story-box .story-content,
-  .tower-unlock-box .story-content {
+  .spire-unlock-box .story-content {
     flex-direction: column;
     gap: 20px;
     text-align: center;
   }
 
   .story-portrait,
-  .tower-img {
+  .spire-img {
     width: 140px;
     height: 180px;
   }
@@ -436,16 +436,16 @@
 ============================================================ */
 
 /* ============================================================
-   🏹 OLIVIA’S WORLD: CRYSTAL KEEP — turrets.css
+   🏹 OLIVIA’S WORLD: CRYSTAL KEEP — spires.css
    ------------------------------------------------------------
-   ✦ Turret selection overlay (images + descriptions)
+   ✦ Spire selection overlay (images + descriptions)
    ✦ Locked/unlocked states with pastel crystal visuals
 ============================================================ */
 
 /* ============================================================
    🌸 CONTAINER
 ============================================================ */
-.turret-grid-container {
+.spire-grid-container {
   width: 900px;
   max-width: 95vw;
 
@@ -455,7 +455,7 @@
   justify-content: center;
 }
 
-.turret-title {
+.spire-title {
   font-size: 1.8rem;
   margin-bottom: 30px;
 
@@ -467,7 +467,7 @@
 /* ============================================================
    💎 GRID LAYOUT
 ============================================================ */
-.turret-grid {
+.spire-grid {
   width: 100%;
 
   display: grid;
@@ -476,9 +476,9 @@
 }
 
 /* ============================================================
-   🏰 TURRET CARD BASE
+   🏰 SPIRE CARD BASE
 ============================================================ */
-.turret-card {
+.spire-card {
   position: relative;
 
   display: flex;
@@ -502,9 +502,9 @@
 }
 
 /* ============================================================
-   🖼️ TURRET IMAGE
+   🖼️ SPIRE IMAGE
 ============================================================ */
-.turret-image {
+.spire-image {
   width: 100px;
   height: 100px;
 
@@ -521,12 +521,12 @@
 /* ============================================================
    💬 INFO TEXT
 ============================================================ */
-.turret-info {
+.spire-info {
   flex: 1;
   color: #ffffff;
 }
 
-.turret-info h4 {
+.spire-info h4 {
   margin-bottom: 6px;
 
   font-size: 1.2rem;
@@ -535,7 +535,7 @@
   text-shadow: 0 0 8px rgba(224, 187, 255, 0.8);
 }
 
-.turret-info p {
+.spire-info p {
   font-size: 0.95rem;
   opacity: 0.85;
   line-height: 1.4;
@@ -544,7 +544,7 @@
 /* ============================================================
    🔒 LOCKED STATE
 ============================================================ */
-.turret-card.locked {
+.spire-card.locked {
   opacity: 0.6;
   cursor: not-allowed;
 
@@ -553,7 +553,7 @@
   transition: all 0.3s ease;
 }
 
-.turret-card.locked:hover {
+.spire-card.locked:hover {
   transform: none;
   box-shadow:
     0 0 20px rgba(181, 226, 255, 0.3),
@@ -563,7 +563,7 @@
 /* ============================================================
    ✅ UNLOCKED (Future State)
 ============================================================ */
-.turret-card.unlocked {
+.spire-card.unlocked {
   opacity: 1;
   filter: none;
   cursor: pointer;
@@ -575,7 +575,7 @@
     inset 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
-.turret-card.unlocked:hover {
+.spire-card.unlocked:hover {
   transform: scale(1.02);
 
   box-shadow:
@@ -686,7 +686,7 @@
 /* ============================================================
    🌟 END SCREEN — Crystal Glass Overlay (Unified Aesthetic)
    ------------------------------------------------------------
-   ✦ Matches Story / Level-Up / Tower-Unlock theme
+   ✦ Matches Story / Level-Up / Spire-Unlock theme
    ✦ Crystal-glass panels, soft glows, pastel gradients
 ============================================================ */
 
@@ -883,9 +883,9 @@
 }
 
 /* ============================================================
-   🏰 TURRET BAR HUD
+   🏰 SPIRE BAR HUD
 ============================================================ */
-.turret-bar {
+.spire-bar {
   position: absolute;
   top: 50%;
   right: 12px;
@@ -911,7 +911,7 @@
   z-index: 9999;
 }
 
-.turret-slot {
+.spire-slot {
   width: 64px;
   height: 64px;
 
@@ -930,7 +930,7 @@
   transition: all 0.3s ease;
 }
 
-.turret-slot img {
+.spire-slot img {
   width: 64px;
   height: 64px;
   object-fit: contain;
@@ -938,7 +938,7 @@
 }
 
 /* Quantity label bottom-right */
-.turret-slot span {
+.spire-slot span {
   position: absolute;
   bottom: 2px;
   right: 4px;
@@ -951,14 +951,14 @@
 }
 
 /* Unlocked slot glow */
-.turret-slot.unlocked {
+.spire-slot.unlocked {
   filter: none;
   opacity: 1;
 
   box-shadow: 0 0 10px rgba(255, 223, 95, 0.6);
 }
 
-.turret-slot.unlocked span {
+.spire-slot.unlocked span {
   color: #fff;
   text-shadow:
     0 0 6px #ffdf5f,
@@ -966,7 +966,7 @@
 }
 
 /* ============================================================
-   🔢 TURRET HOTKEY LABELS
+   🔢 SPIRE HOTKEY LABELS
 ============================================================ */
 .key-label {
   position: absolute;
@@ -1000,15 +1000,15 @@
   z-index: 2;
 }
 
-/* Gold key when turret unlocked */
-.turret-slot.unlocked .key-label {
+/* Gold key when spire unlocked */
+.spire-slot.unlocked .key-label {
   background: linear-gradient(135deg, #ffe37f, #ffd3a0);
   color: #fff;
   text-shadow: 0 0 6px rgba(255, 215, 90, 0.8);
 }
 
 
-#overlay-settings-game, #overlay-game-controls, #overlay-player-stats, #overlay-confirm, #tower-unlock-overlay {
+#overlay-settings-game, #overlay-game-controls, #overlay-player-stats, #overlay-confirm, #spire-unlock-overlay {
   background: rgba(0, 0, 0, 0.75);  /* darken background */
   backdrop-filter: blur(20px);      /* strong blur */
   -webkit-backdrop-filter: blur(30px);

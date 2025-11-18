@@ -1,80 +1,80 @@
 // ============================================================
-// 🏗️ towerPlacement.js — Olivia’s World: Crystal Keep 
-//    (Full Multi-Turret System + Overlap Check)
+// 🏗️ spirePlacement.js — Olivia’s World: Crystal Keep 
+//    (Full Multi-Spire System + Overlap Check)
 // ------------------------------------------------------------
-// ✦ Handles player-triggered tower placement (keys 1–6)
-// ✦ Unlocks different turret types based on player level
+// ✦ Handles player-triggered spire placement (keys 1–6)
+// ✦ Unlocks different spire types based on player level
 // ✦ Deducts gold using profile currencies via spendGold()
-// ✦ Uses addTower() to create turret instances
+// ✦ Uses addSpire() to create spire instances
 // ✦ Integrates sounds, floating text, and HUD updates
-// ✦ 🆕 Spawns tower at player location, prevents overlap
+// ✦ 🆕 Spawns spire at player location, prevents overlap
 // ✦ 🆕 Placement cooldown (anti-spam)
 // ============================================================
 
 import { gameState, spendGold } from "../utils/gameState.js";
-import { addTower, getTowers } from "./towers.js";
+import { addSpire, getSpires } from "./spires.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { playFairySprinkle, playCancelSound } from "./soundtrack.js";
 import { updateHUD } from "./ui.js";
 
 // ------------------------------------------------------------
-// 🕒 Tower Placement Cooldown (anti-spam safeguard)
+// 🕒 Spire Placement Cooldown (anti-spam safeguard)
 // ------------------------------------------------------------
-let towerPlaceCooldown = 0;   // ms remaining
-const TOWER_PLACE_DELAY = 300; // 300ms between placements
+let spirePlaceCooldown = 0;   // ms remaining
+const SPIRE_PLACE_DELAY = 300; // 300ms between placements
 
 // ------------------------------------------------------------
 // ⚙️ CONFIGURATION
 // ------------------------------------------------------------
 const TILE_SIZE = 64;
-const TOWER_COST = 50;
-const TOWER_RADIUS = 75; // 🛑 No other tower can be within this distance
+const SPIRE_COST = 50;
+const SPIRE_RADIUS = 75; // 🛑 No other spire can be within this distance
 
-// ✨ Unlock levels + metadata for each turret
-const TOWER_UNLOCKS = {
-  1: { name: "Crystal Defender", key: "basic_turret", unlock: 2, projectile: "crystal" },
-  2: { name: "Frost Sentinel", key: "frost_turret", unlock: 5, projectile: "frost" },
-  3: { name: "Flameheart", key: "flame_turret", unlock: 10, projectile: "flame" },
-  4: { name: "Arcane Spire", key: "arcane_turret", unlock: 15, projectile: "arcane" },
-  5: { name: "Beacon of Light", key: "light_turret", unlock: 20, projectile: "light" },
-  6: { name: "Moonlight Aegis", key: "moon_turret", unlock: 25, projectile: "moon" },
+// ✨ Unlock levels + metadata for each spire
+const SPIRE_UNLOCKS = {
+  1: { name: "Crystal Defender", key: "basic_spire", unlock: 2, projectile: "crystal" },
+  2: { name: "Frost Sentinel", key: "frost_spire", unlock: 5, projectile: "frost" },
+  3: { name: "Flameheart", key: "flame_spire", unlock: 10, projectile: "flame" },
+  4: { name: "Arcane Spire", key: "arcane_spire", unlock: 15, projectile: "arcane" },
+  5: { name: "Beacon of Light", key: "light_spire", unlock: 20, projectile: "light" },
+  6: { name: "Moonlight Aegis", key: "moon_spire", unlock: 25, projectile: "moon" },
 };
 
 // ------------------------------------------------------------
-// 🧭 handleTowerKey()
+// 🧭 handleSpireKey()
 // ------------------------------------------------------------
-export function handleTowerKey(keyCode) {
+export function handleSpireKey(keyCode) {
   // Cooldown check
-  if (towerPlaceCooldown > 0) return;
+  if (spirePlaceCooldown > 0) return;
 
   const num = parseInt(keyCode.replace("Digit", ""));
   if (num >= 1 && num <= 6) {
-    tryPlaceTower(num);
-    towerPlaceCooldown = TOWER_PLACE_DELAY; // Start cooldown
+    tryPlaceSpire(num);
+    spirePlaceCooldown = SPIRE_PLACE_DELAY; // Start cooldown
   }
 }
 
 // ------------------------------------------------------------
-// 🩵 tryPlaceTower()
+// 🩵 tryPlaceSpire()
 // ------------------------------------------------------------
-function tryPlaceTower(num) {
+function tryPlaceSpire(num) {
   const p = gameState.player;
   if (!p || !gameState.profile) return;
 
-  const towerData = TOWER_UNLOCKS[num];
-  if (!towerData) return;
+  const spireData = SPIRE_UNLOCKS[num];
+  if (!spireData) return;
 
   // 🔒 Check level unlock
-  if ((p.level || 1) < towerData.unlock) {
-    spawnFloatingText(p.pos.x, p.pos.y - 40, `Locked — Lvl ${towerData.unlock}`, "#ff7aa8");
+  if ((p.level || 1) < spireData.unlock) {
+    spawnFloatingText(p.pos.x, p.pos.y - 40, `Locked — Lvl ${spireData.unlock}`, "#ff7aa8");
     playCancelSound();
-    console.log(`🔒 ${towerData.name} locked until level ${towerData.unlock}.`);
+    console.log(`🔒 ${spireData.name} locked until level ${spireData.unlock}.`);
     return;
   }
 
   // 💰 Check gold
   const gold = gameState.profile?.currencies?.gold ?? 0;
-  if (gold < TOWER_COST) {
+  if (gold < SPIRE_COST) {
     spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough gold", "#ff7aa8");
     playCancelSound();
     return;
@@ -84,31 +84,31 @@ function tryPlaceTower(num) {
   const spawnX = p.pos.x;
   const spawnY = p.pos.y;
 
-  // 🧱 Prevent overlapping towers
-  const towers = getTowers();
-  const overlapping = towers.some(t => {
+  // 🧱 Prevent overlapping spires
+  const spires = getSpires();
+  const overlapping = spires.some(t => {
     const dx = t.x - spawnX;
     const dy = t.y - spawnY;
-    return Math.hypot(dx, dy) < TOWER_RADIUS;
+    return Math.hypot(dx, dy) < SPIRE_RADIUS;
   });
 
   if (overlapping) {
-    spawnFloatingText(spawnX, spawnY - 40, "❌ Too close to another tower", "#ff7aa8");
+    spawnFloatingText(spawnX, spawnY - 40, "❌ Too close to another spire", "#ff7aa8");
     playCancelSound();
     return;
   }
 
-  // 🏰 Create new tower
-  addTower({
-    name: towerData.name,
-    type: towerData.key,
-    projectileType: towerData.projectile,
+  // 🏰 Create new spire
+  addSpire({
+    name: spireData.name,
+    type: spireData.key,
+    projectileType: spireData.projectile,
     x: spawnX,
     y: spawnY,
   });
 
   // 💸 Deduct gold
-  const success = spendGold(TOWER_COST);
+  const success = spendGold(SPIRE_COST);
   if (success) {
     updateHUD();
     
@@ -121,15 +121,15 @@ function tryPlaceTower(num) {
 // ------------------------------------------------------------
 // 📤 Export cooldown
 // ------------------------------------------------------------
-export { towerPlaceCooldown, TOWER_PLACE_DELAY };
+export { spirePlaceCooldown, SPIRE_PLACE_DELAY };
 
 // ------------------------------------------------------------
 // ⏳ Auto-cooldown tick (60fps)
 // ------------------------------------------------------------
 setInterval(() => {
-  if (towerPlaceCooldown > 0) {
-    towerPlaceCooldown -= 16;
-    if (towerPlaceCooldown < 0) towerPlaceCooldown = 0;
+  if (spirePlaceCooldown > 0) {
+    spirePlaceCooldown -= 16;
+    if (spirePlaceCooldown < 0) spirePlaceCooldown = 0;
   }
 }, 16);
 

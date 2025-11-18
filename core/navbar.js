@@ -105,7 +105,7 @@ function handleNavAction(action) {
     // --------------------------------------------------------
     case "restart":
       showConfirmOverlay(
-        "Restart this map? You’ll keep your player stats, but towers and enemies will reset.",
+        "Restart this map? You’ll keep your player stats, but spires and enemies will reset.",
         () => {
           console.log("🔄 Confirmed: restarting map...");
           flashScreen();

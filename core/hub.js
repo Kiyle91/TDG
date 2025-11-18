@@ -3,7 +3,7 @@
 // ------------------------------------------------------------
 // ✦ Handles hub buttons, overlays, currencies, map loading
 // ✦ Skins system (corrected + persistent)
-// ✦ Save/load, maps, turrets, settings, stats
+// ✦ Save/load, maps, spires, settings, stats
 // ============================================================
 
 import { showScreen } from "./screens.js";
@@ -62,7 +62,7 @@ export function initHub() {
   const newStoryBtn   = document.getElementById("new-story-btn");
   const loadGameBtn   = document.getElementById("load-game-btn");
   const mapsBtn       = document.getElementById("maps-btn");
-  const turretsBtn    = document.getElementById("turrets-btn");
+  const spiresBtn    = document.getElementById("spires-btn");
   const skinsBtn      = document.getElementById("skins-btn");
   const statsBtn      = document.getElementById("stats-btn");
   const settingsBtn   = document.getElementById("settings-btn");
@@ -74,7 +74,7 @@ export function initHub() {
   initSettingsMenu();
   updateHubCurrencies();
   updateHubProfile();
-  updateTurretUnlocks();
+  updateSpireUnlocks();
 
   // ============================================================
   // NEW STORY
@@ -153,12 +153,12 @@ export function initHub() {
   });
 
   // ============================================================
-  // TURRETS
+  // SPIRES
   // ============================================================
-  turretsBtn.addEventListener("click", () => {
+  spiresBtn.addEventListener("click", () => {
     playFairySprinkle();
-    updateTurretUnlocks();
-    showOverlay("overlay-turrets");
+    updateSpireUnlocks();
+    showOverlay("overlay-spires");
   });
 
   // ============================================================
@@ -333,7 +333,7 @@ export function updateHubProfile() {
 // ============================================================
 // PLACEHOLDERS FOR UNCHANGED FUNCTIONS
 // ============================================================
-function updateTurretUnlocks() { /* unchanged */ }
+function updateSpireUnlocks() { /* unchanged */ }
 function fadeOut(element, callback) {
   if (!element) {
     console.warn("fadeOut: element missing");

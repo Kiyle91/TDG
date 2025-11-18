@@ -9,7 +9,7 @@
 import { gameState, saveProfiles, setCurrentMap, unlockMap } from "../utils/gameState.js";
 import { updateHUD, showOverlay } from "./ui.js";
 import { initEnemies } from "./enemies.js";
-import { initTowers } from "./towers.js";
+import { initSpires } from "./spires.js";
 import { initProjectiles } from "./projectiles.js";
 
 
@@ -31,7 +31,7 @@ export function startSession(mapId = 1, totalGoblins = 50) {
   gameState.player.hp = gameState.player.maxHp;
 
   initEnemies();
-  initTowers();
+  initSpires();
   initProjectiles();
   updateHUD();
 }

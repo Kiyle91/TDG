@@ -9,7 +9,7 @@
 
 import { gameState, getCurrencies, saveProfiles } from "../utils/gameState.js";
 import { playCancelSound } from "./soundtrack.js";
-import { initTurretBar, updateTurretBar } from "./turretBar.js";
+import { initSpireBar, updateSpireBar } from "./spireBar.js";
 import { SKINS, ensureSkin } from "./skins.js";
 
 // ============================================================
@@ -53,7 +53,7 @@ export function initUI() {
   livesDisplay = document.getElementById("lives-display");
 
   updateHUD();
-  initTurretBar();
+  initSpireBar();
 }
 
 // ------------------------------------------------------------
@@ -169,7 +169,7 @@ export function updateHUD() {
     }
   }
 
-  updateTurretBar();
+  updateSpireBar();
 }
 
 

@@ -6,7 +6,7 @@
 // ✦ Flame DOT ticks once per second (non-stacking)
 // ✦ Frost slow applies cleanly once
 // ✦ Pure canvas glow projectiles (no images)
-// ✦ ⭐ Crystal Echo Power → all tower damage doubled
+// ✦ ⭐ Crystal Echo Power → all spire damage doubled
 // ============================================================
 
 import { damageEnemy } from "./enemies.js";

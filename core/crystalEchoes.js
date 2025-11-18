@@ -278,7 +278,7 @@ export function renderSparkleBursts(ctx, delta) {
 function awardCrystalBonus(lastCrystal) {
   gameState.exploration.bonusGiven = true;
 
-  // ⭐ Enable tower double damage system
+  // ⭐ Enable spire double damage system
   gameState.echoPowerActive = true;
 
   // ⭐ Flash the crystal HUD circle
@@ -296,5 +296,5 @@ function awardCrystalBonus(lastCrystal) {
   );
 
   console.log("🏆 Exploration bonus awarded: +100 Diamonds");
-  console.log("💠 Crystal Echo Power Activated — Towers deal DOUBLE DAMAGE!");
+  console.log("💠 Crystal Echo Power Activated — Spires deal DOUBLE DAMAGE!");
 }

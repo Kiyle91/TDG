@@ -2,7 +2,7 @@
 // 🐺 worg.js — Olivia's World: Crystal Keep (Fully Independent Edition)
 // ------------------------------------------------------------
 // • Follows the enemy path only (no attacks)
-// • Damageable by player + towers/projectiles
+// • Damageable by player + spires/projectiles
 // • Small goblin-style HP bar
 // • High-quality rendering with cached sprites (zero lag)
 // • Hit flash + smooth death fade
@@ -136,7 +136,7 @@ export function spawnWorg() {
     flashTimer: 0,
     fade: 0,
     
-    // 🆕 Elemental effect support (same as goblins for tower compatibility)
+    // 🆕 Elemental effect support (same as goblins for spire compatibility)
     slowTimer: 0,
     burnTimer: 0,
     burnDamage: 0,
@@ -297,7 +297,7 @@ export function damageWorg(worg, amount) {
   }
 }
 
-// Legacy compatibility (towers/projectiles may call hitWorg)
+// Legacy compatibility (spires/projectiles may call hitWorg)
 export function hitWorg(worg, amount) {
   damageWorg(worg, amount);
 }

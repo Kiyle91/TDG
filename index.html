@@ -1,7 +1,7 @@
 <!-- ============================================================
 🌸 OLIVIA’S WORLD: CRYSTAL KEEP — index.html
 ------------------------------------------------------------
-✦ Main entry HTML for the Tower Defense game
+✦ Main entry HTML for the Spire Defense game
 ✦ Includes landing, profile, hub, and game screens
 ✦ Modular sparkle & overlay system (sparkles.js)
 ============================================================ -->
@@ -150,7 +150,7 @@
                     <button id="new-story-btn">New Story</button>
                     <button id="load-game-btn">Load Game</button>
                     <button id="maps-btn">Maps</button>
-                    <button id="turrets-btn">Turrets</button>
+                    <button id="spires-btn">Spires</button>
                     <button id="skins-btn">Skins</button>
                     <button id="stats-btn">Stats</button>
                     <button id="settings-btn">Settings</button>
@@ -163,14 +163,14 @@
             <div id="hub-news">
                 <h3 class="news-title">Crystal News 📰</h3>
                 <div class="news-feed">
-                    <p><strong>✨ Patch 1.2:</strong> New towers discovered in the Glimmering Gardens!</p>
+                    <p><strong>✨ Patch 1.2:</strong> New spires discovered in the Glimmering Gardens!</p>
                     <p><strong>🌙 Event:</strong> Moonflower Festival begins this weekend — double XP rewards!</p>
                     <p><strong>🧚 Story Update:</strong> The Princess ventures into the Whispering Hollows next week.</p>
-                    <p><strong>💖 Tip:</strong> Upgrading crystal turrets increases range by 15% per level!</p>
-                    <p><strong>✨ Patch 1.2:</strong> New towers discovered in the Glimmering Gardens!</p>
+                    <p><strong>💖 Tip:</strong> Upgrading crystal spires increases range by 15% per level!</p>
+                    <p><strong>✨ Patch 1.2:</strong> New spires discovered in the Glimmering Gardens!</p>
                     <p><strong>🌙 Event:</strong> Moonflower Festival begins this weekend — double XP rewards!</p>
                     <p><strong>🧚 Story Update:</strong> The Princess ventures into the Whispering Hollows next week.</p>
-                    <p><strong>💖 Tip:</strong> Upgrading crystal turrets increases range by 15% per level!</p>
+                    <p><strong>💖 Tip:</strong> Upgrading crystal spires increases range by 15% per level!</p>
                 </div>
             </div>
 
@@ -180,11 +180,11 @@
                 <div class="news-feed">
                     <p><strong>🌸 Coming Soon:</strong> Daily lore snippets and player achievements will appear here!</p>
                     <p><strong>💫 Tip:</strong> Stay tuned for story fragments found in the Crystal Archives.</p>
-                    <p><strong>✨ Patch 1.2:</strong> New towers discovered in the Glimmering Gardens!</p>
+                    <p><strong>✨ Patch 1.2:</strong> New spires discovered in the Glimmering Gardens!</p>
                     <p><strong>🌙 Event:</strong> Moonflower Festival begins this weekend — double XP rewards!</p>
                     <p><strong>🧚 Story Update:</strong> The Princess ventures into the Whispering Hollows next week.</p>
-                    <p><strong>💖 Tip:</strong> Upgrading crystal turrets increases range by 15% per level!</p>
-                    <p><strong>✨ Patch 1.2:</strong> New towers discovered in the Glimmering Gardens!</p>
+                    <p><strong>💖 Tip:</strong> Upgrading crystal spires increases range by 15% per level!</p>
+                    <p><strong>✨ Patch 1.2:</strong> New spires discovered in the Glimmering Gardens!</p>
                     <p><strong>🌙 Event:</strong> Moonflower Festival begins this weekend — double XP rewards!</p>
                 </div>
             </div>
@@ -293,62 +293,62 @@
                 </div>
             </div>
 
-            <!-- Turrets overlay -->
-            <div id="overlay-turrets" class="overlay hidden">
-                <div class="overlay-box turret-grid-container">
+            <!-- Spires overlay -->
+            <div id="overlay-spires" class="overlay hidden">
+                <div class="overlay-box spire-grid-container">
 
-                    <h3 class="turret-title">Turrets</h3>
+                    <h3 class="spire-title">Spires</h3>
 
-                    <div class="turret-grid">
+                    <div class="spire-grid">
 
-                        <div class="turret-card" data-turret="1" data-unlock="1">
-                            <img src="./assets/images/turrets/basic_turret.png" alt="Basic Turret" class="turret-image" />
-                            <div class="turret-info">
+                        <div class="spire-card" data-spire="1" data-unlock="1">
+                            <img src="./assets/images/spires/basic_spire.png" alt="Basic Spire" class="spire-image" />
+                            <div class="spire-info">
                                 <h4>Crystal Defender</h4>
                                 <p>Fires slow but powerful crystal bolts at enemies.</p>
                                 <p class="unlock-info">🔓 Unlocks at Level 2</p>
                             </div>
                         </div>
 
-                        <div class="turret-card" data-turret="2" data-unlock="5">
-                            <img src="./assets/images/turrets/frost_turret.png" alt="Frost Turret" class="turret-image" />
-                            <div class="turret-info">
+                        <div class="spire-card" data-spire="2" data-unlock="5">
+                            <img src="./assets/images/spires/frost_spire.png" alt="Frost Spire" class="spire-image" />
+                            <div class="spire-info">
                                 <h4>Frost Sentinel</h4>
                                 <p>Slows enemies with shards of enchanted ice.</p>
                                 <p class="unlock-info">🔒 Unlocks at Level 6</p>
                             </div>
                         </div>
 
-                        <div class="turret-card" data-turret="3" data-unlock="10">
-                            <img src="./assets/images/turrets/flame_turret.png" alt="Flame Turret" class="turret-image" />
-                            <div class="turret-info">
+                        <div class="spire-card" data-spire="3" data-unlock="10">
+                            <img src="./assets/images/spires/flame_spire.png" alt="Flame Spire" class="spire-image" />
+                            <div class="spire-info">
                                 <h4>Flameheart</h4>
                                 <p>Unleashes bursts of fire, dealing area damage.</p>
                                 <p class="unlock-info">🔒 Unlocks at Level 10</p>
                             </div>
                         </div>
 
-                        <div class="turret-card" data-turret="4" data-unlock="15">
-                            <img src="./assets/images/turrets/light_turret.png" alt="Light Turret" class="turret-image" />
-                            <div class="turret-info">
+                        <div class="spire-card" data-spire="4" data-unlock="15">
+                            <img src="./assets/images/spires/light_spire.png" alt="Light Spire" class="spire-image" />
+                            <div class="spire-info">
                                 <h4>Beacon of Light</h4>
                                 <p>Heals players who are nearby</p>
                                 <p class="unlock-info">🔒 Unlocks at Level 16</p>
                             </div>
                         </div>
 
-                        <div class="turret-card" data-turret="5" data-unlock="20">
-                            <img src="./assets/images/turrets/arcane_turret.png" alt="Arcane Turret" class="turret-image" />
-                            <div class="turret-info">
+                        <div class="spire-card" data-spire="5" data-unlock="20">
+                            <img src="./assets/images/spires/arcane_spire.png" alt="Arcane Spire" class="spire-image" />
+                            <div class="spire-info">
                                 <h4>Arcane Spire</h4>
                                 <p>Fires long distance bolts</p>
                                 <p class="unlock-info">🔒 Unlocks at Level 20</p>
                             </div>
                         </div>
 
-                        <div class="turret-card" data-turret="6" data-unlock="25">
-                            <img src="./assets/images/turrets/moon_turret.png" alt="Moonlight Turret" class="turret-image" />
-                            <div class="turret-info">
+                        <div class="spire-card" data-spire="6" data-unlock="25">
+                            <img src="./assets/images/spires/moon_spire.png" alt="Moonlight Spire" class="spire-image" />
+                            <div class="spire-info">
                                 <h4>Moonlight Aegis</h4>
                                 <p>Fire gravity bolts that knock enemies back!</p>
                                 <p class="unlock-info">🔒 Unlocks at Level 25</p>
@@ -567,36 +567,36 @@
 
         <canvas id="game-canvas" width="1920" height="1080"></canvas>
 
-        <!-- 🏰 TURRET BAR -->
-        <div id="turret-bar" class="turret-bar">
+        <!-- 🏰 SPIRE BAR -->
+        <div id="spire-bar" class="spire-bar">
 
-            <div class="turret-slot" data-id="1">
-                <img src="./assets/images/turrets/basic_turret.png" alt="Basic Turret" />
+            <div class="spire-slot" data-id="1">
+                <img src="./assets/images/spires/basic_spire.png" alt="Basic Spire" />
                 <span>Lv 2</span>
             </div>
 
-            <div class="turret-slot" data-id="2">
-                <img src="./assets/images/turrets/frost_turret.png" alt="Frost Turret" />
+            <div class="spire-slot" data-id="2">
+                <img src="./assets/images/spires/frost_spire.png" alt="Frost Spire" />
                 <span>Lv 6</span>
             </div>
 
-            <div class="turret-slot" data-id="3">
-                <img src="./assets/images/turrets/flame_turret.png" alt="Flame Turret" />
+            <div class="spire-slot" data-id="3">
+                <img src="./assets/images/spires/flame_spire.png" alt="Flame Spire" />
                 <span>Lv 10</span>
             </div>
 
-            <div class="turret-slot" data-id="4">
-                <img src="./assets/images/turrets/arcane_turret.png" alt="Arcane Turret" />
+            <div class="spire-slot" data-id="4">
+                <img src="./assets/images/spires/arcane_spire.png" alt="Arcane Spire" />
                 <span>Lv 15</span>
             </div>
 
-            <div class="turret-slot" data-id="5">
-                <img src="./assets/images/turrets/light_turret.png" alt="Light Turret" />
+            <div class="spire-slot" data-id="5">
+                <img src="./assets/images/spires/light_spire.png" alt="Light Spire" />
                 <span>Lv 20</span>
             </div>
 
-            <div class="turret-slot" data-id="6">
-                <img src="./assets/images/turrets/moon_turret.png" alt="Moonlight Turret" />
+            <div class="spire-slot" data-id="6">
+                <img src="./assets/images/spires/moon_spire.png" alt="Moonlight Spire" />
                 <span>Lv 25</span>
             </div>
 
@@ -686,7 +686,7 @@
                             <div class="c-key">W / A / S / D</div><div class="c-desc">Move</div>
                             <div class="c-key">Left Click</div><div class="c-desc">Basic Attack</div>
                             <div class="c-key">Right Click</div><div class="c-desc">Melee Attack</div>
-                            <div class="c-key">1 – 5</div><div class="c-desc">Turrets</div>
+                            <div class="c-key">1 – 5</div><div class="c-desc">Spires</div>
                             <div class="c-key">Space</div><div class="c-desc">Dodge</div>
                             <div class="c-key">Esc</div><div class="c-desc">Pause</div>
                         </div>

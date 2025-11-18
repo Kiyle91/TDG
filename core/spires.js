@@ -1,9 +1,9 @@
 // ============================================================
-// 💎 towers.js — Olivia's World: Crystal Keep (OPTIMIZED Edition)
+// 💎 spires.js — Olivia's World: Crystal Keep (OPTIMIZED Edition)
 //    (Elemental Projectiles + Smart Targeting + Performance Boost)
 // ------------------------------------------------------------
 // ✔ Frost / Flame now projectile-based (no AoE lag)
-// ✔ Heal turret sends a HEAL PROJECTILE at player.pos.x/y
+// ✔ Heal spire sends a HEAL PROJECTILE at player.pos.x/y
 // ✔ Frost slows ON HIT, Flame burns ON HIT, Moon knockback ON HIT
 // ✔ Arcane long-range
 // ✔ Smart targeting, durability fade, shadows intact
@@ -14,7 +14,7 @@
 //    - Reduced redundant sprite lookups
 // ============================================================
 
-import { TOWER_RANGE } from "../utils/constants.js";
+import { SPIRE_RANGE } from "../utils/constants.js";
 import { spawnProjectile } from "./projectiles.js";
 import { getEnemies } from "./enemies.js";
 import { getWorg } from "./worg.js";
@@ -23,13 +23,13 @@ import { gameState } from "../utils/gameState.js";
 import { getTrolls } from "./troll.js";
 import { getCrossbows } from "./crossbow.js";
 
-let turretSprites = {};
-let towers = [];
+let spireSprites = {};
+let spires = [];
 
 const MAX_ATTACKS = 150;
 const FIRE_RATE_MS = 800;
 const FADE_SPEED = 2;
-const TOWER_SIZE = 96;
+const SPIRE_SIZE = 96;
 
 // 🆕 Performance optimization: Throttle targeting updates
 const TARGET_UPDATE_INTERVAL = 200; // Update targets every 200ms instead of every frame
@@ -45,31 +45,31 @@ function loadImage(src) {
   });
 }
 
-async function loadTowerSprites() {
+async function loadSpireSprites() {
   const list = ["basic", "frost", "flame", "arcane", "light", "moon"];
   for (const t of list) {
-    turretSprites[t] = {
-      idle: await loadImage(`./assets/images/turrets/${t}_turret.png`),
-      active: await loadImage(`./assets/images/turrets/${t}_turret_active.png`),
+    spireSprites[t] = {
+      idle: await loadImage(`./assets/images/spires/${t}_spire.png`),
+      active: await loadImage(`./assets/images/spires/${t}_spire_active.png`),
     };
   }
-  console.log("🰰 Tower sprites loaded:", Object.keys(turretSprites).length);
+  console.log("🰰 Spire sprites loaded:", Object.keys(spireSprites).length);
 }
 
 // ------------------------------------------------------------
 // INIT
 // ------------------------------------------------------------
-export async function initTowers() {
-  towers = [];
-  await loadTowerSprites();
-  console.log("🹹 Tower system initialized (optimized).");
+export async function initSpires() {
+  spires = [];
+  await loadSpireSprites();
+  console.log("🹹 Spire system initialized (optimized).");
 }
 
 // ------------------------------------------------------------
-// ADD TOWER
+// ADD SPIRE
 // ------------------------------------------------------------
-export function addTower(data) {
-  towers.push({
+export function addSpire(data) {
+  spires.push({
     ...data,
     cooldown: 0,
     activeFrameTimer: 0,
@@ -83,15 +83,15 @@ export function addTower(data) {
 // ------------------------------------------------------------
 // 🆕 OPTIMIZED NEAREST ENEMY FINDER (uses squared distance)
 // ------------------------------------------------------------
-function findNearestEnemy(tower, enemies, range) {
+function findNearestEnemy(spire, enemies, range) {
   let closest = null;
   let minDistSq = range * range;
 
   for (const e of enemies) {
     if (!e.alive) continue;
 
-    const dx = tower.x - e.x;
-    const dy = tower.y - e.y;
+    const dx = spire.x - e.x;
+    const dy = spire.y - e.y;
     const distSq = dx * dx + dy * dy;
 
     if (distSq < minDistSq) {
@@ -104,104 +104,104 @@ function findNearestEnemy(tower, enemies, range) {
 }
 
 // ------------------------------------------------------------
-// UPDATE TOWERS
+// UPDATE SPIRES
 // ------------------------------------------------------------
-export function updateTowers(delta) {
+export function updateSpires(delta) {
   const dt = delta / 1000;
 
   const combinedEnemies = [...getEnemies(), ...getWorg(), ...getElites(), ...getTrolls(), ...getCrossbows()];
 
-  for (let i = towers.length - 1; i >= 0; i--) {
-    const tower = towers[i];
+  for (let i = spires.length - 1; i >= 0; i--) {
+    const spire = spires[i];
 
-    if (tower.fadeOut > 0) {
-      tower.fadeOut -= dt * FADE_SPEED;
-      if (tower.fadeOut <= 0) {
-        towers.splice(i, 1);
+    if (spire.fadeOut > 0) {
+      spire.fadeOut -= dt * FADE_SPEED;
+      if (spire.fadeOut <= 0) {
+        spires.splice(i, 1);
         continue;
       }
       continue;
     }
 
-    tower.cooldown -= dt;
-    if (tower.activeFrameTimer > 0) {
-      tower.activeFrameTimer -= delta;
+    spire.cooldown -= dt;
+    if (spire.activeFrameTimer > 0) {
+      spire.activeFrameTimer -= delta;
     }
 
-    if (tower.cooldown > 0) continue;
+    if (spire.cooldown > 0) continue;
 
-    tower.lastTargetUpdate = (tower.lastTargetUpdate || 0) + delta;
+    spire.lastTargetUpdate = (spire.lastTargetUpdate || 0) + delta;
 
-    if (tower.lastTargetUpdate >= TARGET_UPDATE_INTERVAL) {
-      tower.lastTargetUpdate = 0;
+    if (spire.lastTargetUpdate >= TARGET_UPDATE_INTERVAL) {
+      spire.lastTargetUpdate = 0;
 
-      switch (tower.type) {
-        case "basic_turret":
-          tower.cachedTarget = findNearestEnemy(tower, combinedEnemies, TOWER_RANGE);
+      switch (spire.type) {
+        case "basic_spire":
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE);
           break;
-        case "frost_turret":
-          tower.cachedTarget = findNearestEnemy(tower, combinedEnemies, TOWER_RANGE * 0.9);
+        case "frost_spire":
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE * 0.9);
           break;
-        case "flame_turret":
-          tower.cachedTarget = findNearestEnemy(tower, combinedEnemies, TOWER_RANGE * 0.9);
+        case "flame_spire":
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE * 0.9);
           break;
-        case "arcane_turret":
-          tower.cachedTarget = findNearestEnemy(tower, combinedEnemies, TOWER_RANGE * 1.5);
+        case "arcane_spire":
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE * 1.5);
           break;
-        case "light_turret":
+        case "light_spire":
           const player = gameState.player;
           if (player && player.pos) {
-            const dx = player.pos.x - tower.x;
-            const dy = player.pos.y - tower.y;
+            const dx = player.pos.x - spire.x;
+            const dy = player.pos.y - spire.y;
             const distSq = dx * dx + dy * dy;
-            const rangeSq = (TOWER_RANGE * 0.8) ** 2;
-            tower.cachedTarget = distSq < rangeSq ? player : null;
+            const rangeSq = (SPIRE_RANGE * 0.8) ** 2;
+            spire.cachedTarget = distSq < rangeSq ? player : null;
           }
           break;
-        case "moon_turret":
-          tower.cachedTarget = findNearestEnemy(tower, combinedEnemies, TOWER_RANGE);
+        case "moon_spire":
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE);
           break;
       }
     }
 
-    const target = tower.cachedTarget;
+    const target = spire.cachedTarget;
     if (!target) continue;
 
     if (target !== gameState.player && !target.alive) {
-      tower.cachedTarget = null;
+      spire.cachedTarget = null;
       continue;
     }
 
-    switch (tower.type) {
-      case "basic_turret":
-        spawnProjectile(tower.x, tower.y, target, "crystal");
-        trigger(tower);
+    switch (spire.type) {
+      case "basic_spire":
+        spawnProjectile(spire.x, spire.y, target, "crystal");
+        trigger(spire);
         break;
-      case "frost_turret":
-        spawnProjectile(tower.x, tower.y, target, "frost");
-        trigger(tower);
+      case "frost_spire":
+        spawnProjectile(spire.x, spire.y, target, "frost");
+        trigger(spire);
         break;
-      case "flame_turret":
-        spawnProjectile(tower.x, tower.y, target, "flame");
-        trigger(tower);
+      case "flame_spire":
+        spawnProjectile(spire.x, spire.y, target, "flame");
+        trigger(spire);
         break;
-      case "arcane_turret":
-        spawnProjectile(tower.x, tower.y, target, "arcane");
-        trigger(tower);
+      case "arcane_spire":
+        spawnProjectile(spire.x, spire.y, target, "arcane");
+        trigger(spire);
         break;
-      case "light_turret":
-        spawnProjectile(tower.x, tower.y, target, "heal");
-        trigger(tower);
+      case "light_spire":
+        spawnProjectile(spire.x, spire.y, target, "heal");
+        trigger(spire);
         break;
-      case "moon_turret":
-        spawnProjectile(tower.x, tower.y, target, "moon");
-        trigger(tower);
+      case "moon_spire":
+        spawnProjectile(spire.x, spire.y, target, "moon");
+        trigger(spire);
         break;
     }
 
-    if (tower.attacksDone >= MAX_ATTACKS && tower.fadeOut === 0) {
-      tower.fadeOut = 1;
-      spawnFloatingText(tower.x, tower.y - 30, "💥 Broken!", "#ff6fb1");
+    if (spire.attacksDone >= MAX_ATTACKS && spire.fadeOut === 0) {
+      spire.fadeOut = 1;
+      spawnFloatingText(spire.x, spire.y - 30, "💥 Broken!", "#ff6fb1");
     }
   }
 }
@@ -209,28 +209,28 @@ export function updateTowers(delta) {
 // ------------------------------------------------------------
 // TRIGGER ATTACK
 // ------------------------------------------------------------
-function trigger(tower) {
-  tower.cooldown = FIRE_RATE_MS / 1000;
-  tower.activeFrameTimer = 200;
-  tower.attacksDone++;
+function trigger(spire) {
+  spire.cooldown = FIRE_RATE_MS / 1000;
+  spire.activeFrameTimer = 200;
+  spire.attacksDone++;
 }
 
 // ------------------------------------------------------------
-// DRAW TOWERS (with optimized sprite selection)
+// DRAW SPIRES (with optimized sprite selection)
 // ------------------------------------------------------------
-export function drawTowers(ctx) {
+export function drawSpires(ctx) {
   if (!ctx) return;
 
-  for (const tower of towers) {
-    const base = tower.type.replace("_turret", "");
-    const sprites = turretSprites[base] || turretSprites.basic;
+  for (const spire of spires) {
+    const base = spire.type.replace("_spire", "");
+    const sprites = spireSprites[base] || spireSprites.basic;
 
     if (!sprites) continue;
 
-    const img = tower.activeFrameTimer > 0 ? sprites.active : sprites.idle;
+    const img = spire.activeFrameTimer > 0 ? sprites.active : sprites.idle;
 
     let scale = base === "frost" ? 0.85 : 1;
-    const baseSize = TOWER_SIZE * scale;
+    const baseSize = SPIRE_SIZE * scale;
 
     let size = baseSize;
     if (base === "flame") {
@@ -239,30 +239,30 @@ export function drawTowers(ctx) {
       size = baseSize * 1.1;
     }
 
-    const originalDrawY = tower.y - baseSize / 2 + baseSize * 0.1;
+    const originalDrawY = spire.y - baseSize / 2 + baseSize * 0.1;
     const originalBottom = originalDrawY + baseSize;
 
-    const drawX = tower.x - size / 2;
+    const drawX = spire.x - size / 2;
     const drawY =
       base === "flame" || base === "moon"
         ? originalBottom - size
         : originalDrawY;
 
     ctx.save();
-    ctx.globalAlpha = tower.fadeOut > 0 ? tower.fadeOut : 1;
+    ctx.globalAlpha = spire.fadeOut > 0 ? spire.fadeOut : 1;
 
     // Shadow
     const yoff =
       base === "basic" || base === "frost"
-        ? TOWER_SIZE * 0.38
-        : TOWER_SIZE * 0.46;
+        ? SPIRE_SIZE * 0.38
+        : SPIRE_SIZE * 0.46;
 
     ctx.beginPath();
     ctx.ellipse(
-      tower.x,
-      tower.y + yoff,
-      TOWER_SIZE * 0.35,
-      TOWER_SIZE * 0.15,
+      spire.x,
+      spire.y + yoff,
+      SPIRE_SIZE * 0.35,
+      SPIRE_SIZE * 0.15,
       0,
       0,
       Math.PI * 2
@@ -275,8 +275,8 @@ export function drawTowers(ctx) {
       const auraRadius = size * 0.55;
 
       const gradient = ctx.createRadialGradient(
-        tower.x, tower.y, 0,
-        tower.x, tower.y, auraRadius
+        spire.x, spire.y, 0,
+        spire.x, spire.y, auraRadius
       );
 
       gradient.addColorStop(0, "rgba(220, 180, 255, 0.55)");
@@ -285,7 +285,7 @@ export function drawTowers(ctx) {
 
       ctx.fillStyle = gradient;
       ctx.beginPath();
-      ctx.arc(tower.x, tower.y, auraRadius, 0, Math.PI * 2);
+      ctx.arc(spire.x, spire.y, auraRadius, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -299,8 +299,8 @@ export function drawTowers(ctx) {
 // ------------------------------------------------------------
 // ACCESSOR
 // ------------------------------------------------------------
-export function getTowers() {
-  return towers;
+export function getSpires() {
+  return spires;
 }
 
 // ============================================================

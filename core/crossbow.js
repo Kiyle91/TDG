@@ -5,7 +5,7 @@
 // • Follows the enemy path, then kites at range
 // • Ranged basic attack with cooldown (no projectile sprites yet)
 // • Small HP bar, death fade, XP + Gold rewards
-// • Fully compatible with tower targeting once integrated
+// • Fully compatible with spire targeting once integrated
 // ============================================================
 
 import { gameState, addGold } from "../utils/gameState.js";
@@ -506,7 +506,7 @@ export function drawCrossbows(ctx) {
 }
 
 // ------------------------------------------------------------
-// 💥 DAMAGE API (for towers / player attacks to call later)
+// 💥 DAMAGE API (for spires / player attacks to call later)
 // ------------------------------------------------------------
 export function damageCrossbow(crossbow, amount) {
   if (!crossbow || !crossbow.alive) return;

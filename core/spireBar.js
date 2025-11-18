@@ -1,8 +1,8 @@
 // ============================================================
-// 🏰 turretBar.js — Olivia’s World: Crystal Keep (Hotkey Labels)
+// 🏰 spireBar.js — Olivia’s World: Crystal Keep (Hotkey Labels)
 // ------------------------------------------------------------
-// ✦ Displays turret unlock progression
-// ✦ Adds visible hotkey indicators beside each turret slot
+// ✦ Displays spire unlock progression
+// ✦ Adds visible hotkey indicators beside each spire slot
 // ✦ Works seamlessly with existing unlock logic
 // ============================================================
 
@@ -11,7 +11,7 @@ import { gameState } from "../utils/gameState.js";
 // ------------------------------------------------------------
 // ⚙️ CONFIGURATION
 // ------------------------------------------------------------
-const turretData = {
+const spireData = {
   1: { name: "Crystal Defender", level: 2, cost: 50, key: "1" },
   2: { name: "Frost Sentinel", level: 5, cost: 100, key: "2" },
   3: { name: "Flameheart", level: 10, cost: 150, key: "3" },
@@ -23,11 +23,11 @@ const turretData = {
 // ------------------------------------------------------------
 // 🌸 INITIALIZE
 // ------------------------------------------------------------
-export function initTurretBar() {
+export function initSpireBar() {
   // Inject hotkey labels (if not already present)
-  document.querySelectorAll(".turret-slot").forEach((slot, i) => {
+  document.querySelectorAll(".spire-slot").forEach((slot, i) => {
     const id = i + 1;
-    const data = turretData[id];
+    const data = spireData[id];
     if (!slot.querySelector(".key-label")) {
       const key = document.createElement("div");
       key.className = "key-label";
@@ -36,19 +36,19 @@ export function initTurretBar() {
     }
   });
 
-  updateTurretBar();
-  console.log("🏰 Turret bar initialized with hotkey labels.");
+  updateSpireBar();
+  console.log("🏰 Spire bar initialized with hotkey labels.");
 }
 
 // ------------------------------------------------------------
 // 🔄 UPDATE VISUAL STATE
 // ------------------------------------------------------------
-export function updateTurretBar() {
+export function updateSpireBar() {
   const level = gameState.player?.level ?? 1;
 
-  document.querySelectorAll(".turret-slot").forEach((slot) => {
+  document.querySelectorAll(".spire-slot").forEach((slot) => {
     const id = Number(slot.dataset.id);
-    const data = turretData[id];
+    const data = spireData[id];
     const img = slot.querySelector("img");
     const label = slot.querySelector("span");
     const keyLabel = slot.querySelector(".key-label");

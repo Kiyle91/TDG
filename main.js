@@ -214,8 +214,8 @@ export function fullNewGameReset() {
     draining: false
   };
 
-  // Turret unlock progression
-  gameState.profile.turretsUnlocked = {
+  // Spire unlock progression
+  gameState.profile.spiresUnlocked = {
     crystal: true,
     frost: false,
     flame: false,
@@ -399,8 +399,8 @@ function showEndScreen(reason) {
       const nextMap = currentMap + 1;
 
       gameState.shardsCollected = 0;
-      gameState.towerBuff = 1;
-      window.towerDamageMultiplier = 1;
+      gameState.spireBuff = 1;
+      window.spireDamageMultiplier = 1;
 
       // Ensure currencies exist
       if (!gameState.profile.currencies)

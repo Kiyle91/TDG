@@ -22,7 +22,7 @@ import {
   playCancelSound,
 } from "./soundtrack.js";
 import { spawnFloatingText } from "./floatingText.js";
-import { handleTowerKey } from "./towerPlacement.js";
+import { handleSpireKey } from "./spirePlacement.js";
 import { getOgres, damageOgre, OGRE_HIT_RADIUS } from "./ogre.js";
 import { getWorg } from "./worg.js";
 import { getElites, damageElite } from "./elite.js";
@@ -33,10 +33,10 @@ import { activateBravery } from "./ui.js";
 import { getCrossbows } from "./crossbow.js";
 
 // ------------------------------------------------------------
-// 🔢 Tower hotkeys
+// 🔢 Spire hotkeys
 // ------------------------------------------------------------
 window.addEventListener("keydown", (e) => {
-  if (e.code.startsWith("Digit")) handleTowerKey(e.code);
+  if (e.code.startsWith("Digit")) handleSpireKey(e.code);
 });
 
 // ------------------------------------------------------------

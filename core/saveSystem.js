@@ -2,7 +2,7 @@
 // 💾 saveSystem.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ Takes a full snapshot of the *running* game
-// ✦ Restores player, towers, goblins, worgs, elites, ogres
+// ✦ Restores player, spires, goblins, worgs, elites, ogres
 // ✦ Stores per-profile saves in localStorage (10 slots)
 // ✦ Designed for in-game Save / Load overlay
 // ============================================================
@@ -12,7 +12,7 @@ import { getEnemies } from "./goblin.js";
 import { getWorg } from "./worg.js";
 import { getElites, clearElites } from "./elite.js";
 import { getOgres, clearOgres } from "./ogre.js";
-import { getTowers } from "./towers.js";
+import { getSpires } from "./spires.js";
 import { updateHUD } from "./ui.js";
 
 // ------------------------------------------------------------
@@ -63,7 +63,7 @@ export function snapshotGame() {
   }
 
   const { gold, diamonds } = getCurrencies();
-  const towers = safeClone(getTowers() || []);
+  const spires = safeClone(getSpires() || []);
   const goblins = safeClone(getEnemies() || []);
   const worgs = safeClone(getWorg() || []);
   const elites = safeClone(getElites() || []);
@@ -92,7 +92,7 @@ export function snapshotGame() {
     player: safeClone(gameState.player),
 
 
-    towers,
+    spires,
     goblins,
     worgs,
     elites,
@@ -166,13 +166,13 @@ export function applySnapshot(snapshot) {
   }
 
   // ------------------------------------------------------------
-  // 6) Restore towers
+  // 6) Restore spires
   // ------------------------------------------------------------
-  const towersArr = getTowers();
-  towersArr.length = 0;
-  if (Array.isArray(snapshot.towers)) {
-    snapshot.towers.forEach(t =>
-      towersArr.push(safeClone(t))
+  const spiresArr = getSpires();
+  spiresArr.length = 0;
+  if (Array.isArray(snapshot.spires)) {
+    snapshot.spires.forEach(t =>
+      spiresArr.push(safeClone(t))
     );
   }
 
