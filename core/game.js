@@ -809,6 +809,8 @@ export function resetCombatState() {
   goblinsDefeated = 0;
   gameState.victoryPending = false;
 
+  gameState.profile.currencies.gold = 0;
+
   for (let key in ogreMilestones) {
     ogreMilestones[key] = false;
   }
@@ -871,6 +873,8 @@ export function resetPlayerState() {
   p.dead = false;
   p.lives = 10;
   p.facing = "right";
+
+  gameState.profile.currencies.gold = 0;
 
   if (typeof window.__playerControllerReset === "function") {
     window.__playerControllerReset();
