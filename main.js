@@ -6,6 +6,7 @@
 // ✦ Clean retry cycle, victory flow, safe exit
 // ✦ Unified goblin reset logic
 // ✦ Fully stable story, HUD, navbar, overlays
+// ✦ All console logs removed for production
 // ============================================================
 
 import { 
@@ -38,12 +39,11 @@ import { startGoblinIntroStory } from "./core/story.js";
 import { initNavbar } from "./core/navbar.js";
 import { initCredits } from "./core/credits.js";
 
-// Goblin systems
 import { getOgres } from "./core/ogre.js";
 import { getElites } from "./core/elite.js";
 import { getWorg } from "./core/worg.js";
 import { getCrossbows } from "./core/crossbow.js";
-import { initGoblins } from "./core/goblin.js";   // ⭐ Correct import
+import { initGoblins } from "./core/goblin.js";
 
 // ============================================================
 // 🎮 GLOBAL GAME LOOP STATE
@@ -70,7 +70,6 @@ function gameLoop(timestamp) {
   if (delta > 100) delta = 100;
   accumulator += delta;
 
-  // 🔁 60Hz update
   while (accumulator >= FIXED_DT) {
     if (!gameState.paused) updateGame(FIXED_DT);
     accumulator -= FIXED_DT;
@@ -94,16 +93,12 @@ export function startGameplay() {
 
   window.__gameLoopID = requestAnimationFrame(gameLoop);
 
-  console.log("🎮 Gameplay loop started!");
-
-  // Story intro once
   if (!gameState.goblinIntroPlayed) {
     gameState.goblinIntroPlayed = true;
     gameState.paused = true;
 
     startGoblinIntroStory().then(() => {
       gameState.paused = false;
-      console.log("📖 Goblin intro finished.");
     });
   }
 }
@@ -118,30 +113,19 @@ export function stopGameplay(reason = "unknown") {
   gameActive = false;
   gameState.paused = true;
 
-  console.log(`🛑 Gameplay stopped: ${reason}`);
-
   clearEndScreens();
 
-  // ----------------------------------------------------------
-  // 🏠 EXIT TO HUB
-  // ----------------------------------------------------------
   if (reason === "exit") {
     showScreen("hub-screen");
     setTimeout(initHub, 50);
     return;
   }
 
-  // ----------------------------------------------------------
-  // 🏆 VICTORY
-  // ----------------------------------------------------------
   if (reason === "victory") {
     showEndScreen("victory");
     return;
   }
 
-  // ----------------------------------------------------------
-  // 💀 DEFEAT
-  // ----------------------------------------------------------
   showEndScreen(reason);
 }
 
@@ -157,9 +141,6 @@ function clearEndScreens() {
 // 🌟 FULL NEW GAME RESET
 // ============================================================
 export function fullNewGameReset() {
-  console.log("🔄 FULL NEW GAME RESET — fresh character");
-
-  // Map position only
   gameState.progress.currentMap = 1;
 
   if (!gameState.profile.progress) {
@@ -172,9 +153,6 @@ export function fullNewGameReset() {
     gameState.profile.progress.currentMap = 1;
   }
 
-  // ----------------------------------------------
-  // Player reset (keep skins)
-  // ----------------------------------------------
   const prevSkin = gameState.player?.skin || "glitter";
   const prevUnlocked = gameState.player?.unlockedSkins ?? ["glitter"];
 
@@ -196,17 +174,10 @@ export function fullNewGameReset() {
 
   gameState.profile.player = { ...gameState.player };
 
-  // ----------------------------------------------
-  // Currencies
-  // ----------------------------------------------
   if (!gameState.profile.currencies)
     gameState.profile.currencies = { gold: 0, diamonds: 0 };
-
   gameState.profile.currencies.gold = 0;
 
-  // ----------------------------------------------
-  // Bravery reset
-  // ----------------------------------------------
   gameState.bravery = {
     current: 0,
     max: 100,
@@ -214,7 +185,6 @@ export function fullNewGameReset() {
     draining: false
   };
 
-  // Spire unlock progression
   gameState.profile.spiresUnlocked = {
     crystal: true,
     frost: false,
@@ -226,15 +196,12 @@ export function fullNewGameReset() {
   gameState.goblinIntroPlayed = false;
 
   saveProfiles();
-  console.log("🌟 New character created.");
 }
 
 // ============================================================
 // 🌟 START NEW GAME STORY
 // ============================================================
 export async function startNewGameStory() {
-  console.log("🌟 Starting NEW GAME STORY…");
-
   fullNewGameReset();
   showScreen("game-container");
 
@@ -246,8 +213,6 @@ export async function startNewGameStory() {
 // 🔁 RESET GAMEPLAY (Try Again)
 // ============================================================
 export async function resetGameplay() {
-  console.log("🔄 Combat reset!");
-
   cancelAnimationFrame(window.__gameLoopID);
   gameActive = false;
   gameState.paused = false;
@@ -260,9 +225,6 @@ export async function resetGameplay() {
   p.dead = false;
   p.facing = "right";
 
-  // ==========================================================
-  // 🧹 Unified goblin clearing
-  // ==========================================================
   function clearList(getter) {
     const arr = getter();
     if (Array.isArray(arr)) arr.length = 0;
@@ -273,9 +235,8 @@ export async function resetGameplay() {
   clearList(getWorg);
   clearList(getCrossbows);
 
-  initGoblins(); // ⭐ Goblins reset cleanly
+  initGoblins();
 
-  // Bravery reset
   gameState.bravery.current = 0;
   gameState.bravery.charged = false;
   gameState.bravery.draining = false;
@@ -285,9 +246,6 @@ export async function resetGameplay() {
   clearEndScreens();
   resetCombatState();
 
-  // ==========================================================
-  // FULL GAME RE-INIT
-  // ==========================================================
   const gameMod = await import("./core/game.js");
   await gameMod.initGame("retry");
 
@@ -296,8 +254,6 @@ export async function resetGameplay() {
 
   gameActive = true;
   window.__gameLoopID = requestAnimationFrame(gameLoop);
-
-  console.log("🌸 Restart complete.");
 }
 
 // ============================================================
@@ -319,7 +275,6 @@ function tryContinueWithDiamonds() {
     startGameplay();
 
     showTempMsg("✨ The Crystal restores your strength!");
-
   } else {
     showTempMsg("💎 You need 25 diamonds to continue!");
   }
@@ -330,7 +285,8 @@ function showTempMsg(text) {
   msg.textContent = text;
   Object.assign(msg.style, {
     position: "fixed",
-    top: "40%", width: "100%",
+    top: "40%",
+    width: "100%",
     textAlign: "center",
     fontSize: "24px",
     color: "#fff",
@@ -360,9 +316,6 @@ function showEndScreen(reason) {
   const buttons = document.createElement("div");
   buttons.className = "end-buttons";
 
-  // ---------------------------
-  // TEXT
-  // ---------------------------
   if (reason === "victory") {
     title.textContent = "You have held back the goblin forces — for now…";
     subtitle.textContent = "You return to the Crystal Keep to regroup.";
@@ -373,9 +326,6 @@ function showEndScreen(reason) {
     title.textContent = "Game Ended";
   }
 
-  // ---------------------------
-  // IMAGE
-  // ---------------------------
   const skinKey = gameState?.profile?.cosmetics?.skin || "glitter";
   const img = document.createElement("img");
   img.src = (reason === "victory")
@@ -387,9 +337,9 @@ function showEndScreen(reason) {
   img.style.width = "180px";
   img.style.filter = "drop-shadow(0 0 12px #ffffffaa)";
 
-  // ============================================================
+  // ======================================================
   // ⭐ BUTTONS
-  // ============================================================
+  // ======================================================
   if (reason === "victory") {
     const nextBtn = document.createElement("button");
     nextBtn.textContent = "Continue";
@@ -402,11 +352,9 @@ function showEndScreen(reason) {
       gameState.spireBuff = 1;
       window.spireDamageMultiplier = 1;
 
-      // Ensure currencies exist
       if (!gameState.profile.currencies)
         gameState.profile.currencies = { gold: 0, diamonds: 0 };
 
-      // Diamonds reward
       gameState.profile.currencies.diamonds += 100;
       gameState.profile.currencies.gold = 0;
       saveProfiles();
@@ -414,6 +362,7 @@ function showEndScreen(reason) {
       showTempMsg("💎 +100 Diamonds");
 
       if (nextMap > 9) {
+        overlay.remove();      // 🔄 Hide overlay so credits are visible
         showScreen("credits-screen");
         return;
       }
@@ -421,10 +370,9 @@ function showEndScreen(reason) {
       unlockMap(nextMap);
       gameState.progress.currentMap = nextMap;
       gameState.profile.progress.currentMap = nextMap;
-
       saveProfiles();
 
-      document.getElementById("end-screen")?.remove();
+      overlay.remove();
       showScreen("game-container");
 
       await initGame();
@@ -434,26 +382,26 @@ function showEndScreen(reason) {
     buttons.append(nextBtn);
 
   } else {
-    const continueBtn = document.createElement("button");
-    continueBtn.textContent = "Continue (25 💎)";
-    continueBtn.onclick = tryContinueWithDiamonds;
+    const cont = document.createElement("button");
+    cont.textContent = "Continue (25 💎)";
+    cont.onclick = tryContinueWithDiamonds;
 
-    const retryBtn = document.createElement("button");
-    retryBtn.textContent = "Try Again";
-    retryBtn.onclick = () => {
+    const retry = document.createElement("button");
+    retry.textContent = "Try Again";
+    retry.onclick = () => {
       document.getElementById("end-screen")?.remove();
       resetGameplay();
     };
 
-    const hubBtn = document.createElement("button");
-    hubBtn.textContent = "Return to Hub";
-    hubBtn.onclick = () => {
+    const hub = document.createElement("button");
+    hub.textContent = "Return to Hub";
+    hub.onclick = () => {
       document.getElementById("end-screen")?.remove();
       showScreen("hub-screen");
       setTimeout(initHub, 50);
     };
 
-    buttons.append(continueBtn, retryBtn, hubBtn);
+    buttons.append(cont, retry, hub);
   }
 
   panel.append(title, subtitle, img, buttons);
@@ -475,7 +423,8 @@ window.addEventListener("DOMContentLoaded", () => {
   initNavbar();
   initTooltipSystem();
   initCredits();
-
-  console.log("🌸 Olivia’s World loaded — menu systems active");
 });
 
+// ============================================================
+// 🌟 END OF FILE
+// ============================================================

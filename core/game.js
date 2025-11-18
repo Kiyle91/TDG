@@ -20,12 +20,6 @@
 //    - Unified victory after final wave clear
 // ============================================================
 
-// ============================================================
-// 🌸 game.js — Olivia's World: Crystal Keep (OPTIMIZED + Multi-Map Spawns)
-// ------------------------------------------------------------
-// Core game controller — update loop, render loop, system orchestration
-// ============================================================
-
 // ------------------------------------------------------------
 // 🗺️ MAP & LAYERS
 // ------------------------------------------------------------
@@ -38,7 +32,7 @@ import {
 } from "./map.js";
 
 // ------------------------------------------------------------
-// 👹 GOBLINS (Goblin / Troll / Ogre / Worg / Elite / Crossbow)
+// 👹 ENEMIES (Goblin / Troll / Ogre / Worg / Elite / Crossbow)
 // ------------------------------------------------------------
 import {
   initGoblins,
@@ -49,7 +43,6 @@ import {
   setGoblinPath,
 } from "./goblin.js";
 
-
 import {
   initOgres,
   updateOgres,
@@ -58,7 +51,6 @@ import {
   getOgres,
   spawnOgre,
 } from "./ogre.js";
-
 
 import {
   initTrolls,
@@ -127,7 +119,6 @@ import {
   initPlayerController,
   updatePlayer,
   drawPlayer,
-  spawnDamageSparkles,
 } from "./playerController.js";
 
 // ------------------------------------------------------------
@@ -181,7 +172,6 @@ import {
   triggerEndOfWave1Story,
   triggerEndOfWave5Story,
 } from "./story.js";
-
 
 // ============================================================
 // 🌊 WAVE CONFIGS
@@ -297,7 +287,7 @@ const VICTORY_DELAY = 5000;
 
 let betweenWaveTimer = 0;
 
-// We now use gameState.victoryPending as the single source of truth
+// Single source of truth for victory pending
 if (typeof gameState.victoryPending !== "boolean") {
   gameState.victoryPending = false;
 }
@@ -323,12 +313,10 @@ export function resetWaveSystem() {
   spawnQueue.length = 0;
   spawnTimer = 0;
 
-  // Reset victory + start lock
   gameState.victoryPending = false;
   firstWaveStarted = false;
   window.firstWaveStarted = false;
 
-  // Delay before first wave
   betweenWaveTimer = FIRST_WAVE_DELAY;
 
   console.log("🔄 Wave system reset.");
@@ -347,8 +335,6 @@ function startNextWave() {
 
   const wave = waves[currentWaveIndex];
   if (!wave) return;
-
-  console.log(`🌊 Starting Wave ${currentWaveIndex + 1} of ${waves.length} (Map ${mapId})`);
 
   spawnQueue.length = 0;
 
@@ -395,9 +381,9 @@ function startNextWave() {
 }
 
 // ============================================================
-// 👁 CHECK ACTIVE GOBLINS
+// 👁 CHECK ACTIVE ENEMIES
 // ============================================================
-function noGoblinsAlive() {
+function noEnemiesAlive() {
   const g = getGoblins();
   const w = getWorg();
   const o = getOgres();
@@ -458,7 +444,7 @@ async function updateWaveSystem(delta) {
 
   // Active wave
   if (waveActive) {
-    if (!noGoblinsAlive()) return;
+    if (!noEnemiesAlive()) return;
 
     if (!waveCleared) {
       waveCleared = true;
@@ -474,8 +460,6 @@ async function updateWaveSystem(delta) {
       }
 
       betweenWaveTimer = BETWEEN_WAVES_DELAY;
-
-      console.log(`✨ Wave ${waveNumber} cleared (Map ${mapId})`);
       return;
     }
   }
@@ -498,8 +482,6 @@ async function updateWaveSystem(delta) {
   }
 
   // Final wave → schedule victory
-  console.log(`🏆 All waves complete on map ${mapId}. Scheduling victory…`);
-
   gameState.victoryPending = true;
 
   const nextMap = mapId + 1;
@@ -507,7 +489,6 @@ async function updateWaveSystem(delta) {
   if (nextMap <= 9) {
     unlockMap(nextMap);
     saveProfiles();
-    console.log(`🔓 Map ${nextMap} unlocked!`);
   }
 
   setTimeout(() => {
@@ -549,7 +530,6 @@ export function incrementGoblinDefeated() {
 
   if (ogreMilestones[goblinsDefeated] === false) {
     ogreMilestones[goblinsDefeated] = true;
-    console.log("👹 BONUS OGRE SPAWNED at", goblinsDefeated, "kills!");
     spawnOgre();
   }
 }
@@ -634,7 +614,6 @@ export async function initGame(mode = "new") {
   initSpires();
   initOgres();
   initProjectiles();
-  
 
   // Player
   if (!gameState.player) {
@@ -801,11 +780,9 @@ function checkVictoryDefeat() {
 }
 
 // ============================================================
-// ♻️ RESET COMBAT STATE — used by Try Again, Continue, New Map
+// ♻️ RESET COMBAT STATE — Try Again / Continue / New Map
 // ============================================================
 export function resetCombatState() {
-  console.log("♻️ Resetting combat state...");
-
   goblinsDefeated = 0;
   gameState.victoryPending = false;
 
@@ -845,19 +822,17 @@ export function resetCombatState() {
   const icon = document.getElementById("hud-crystals-circle");
   if (icon) icon.classList.remove("echo-power-flash");
 
-  if (window.__goblins) window.__goblins.length = 0;
   clearOgres();
   clearLoot();
   clearElites();
   clearCrossbows();
+  clearTrolls();
 
   initGoblins();
   initSpires();
   initProjectiles();
 
   updateHUD();
-
-  console.log("♻️ Combat state fully reset for new battle.");
 }
 
 // ============================================================
@@ -882,65 +857,30 @@ export function resetPlayerState() {
 
   updateHUD();
   hudUpdateTimer = 0;
-
-  console.log("🎮 Player revived — soft reset (multi-map).");
 }
 
-// Dev ogre preload
-import("./ogre.js").then(() => console.log("👹 Ogre dev commands ready."));
-
-// Resize → invalidate rect cache
+// Resize → invalidate rect cache (production-safe)
 window.addEventListener("resize", () => {
   cachedCanvasRect = null;
   rectCacheTimer = RECT_CACHE_DURATION;
 });
-
-// Dev hooks
-window.spawnWorg = spawnWorg;
-
-// ============================================================
-// 🛠️ DEV TOOL — Instant Victory Trigger
-// ============================================================
-window.forceMapVictory = function () {
-  console.log("⚡ DEV: Forcing Victory!");
-
-  try {
-    const currentMap = gameState.progress?.currentMap ?? 1;
-
-    gameState.victoryPending = true;
-
-    if (window.getOgres) {
-      const ogres = window.getOgres();
-      for (const o of ogres) {
-        o.alive = false;
-        o.hp = 0;
-      }
-    }
-
-    if (!gameState.stats) gameState.stats = {};
-    if (currentMap === 1) {
-      gameState.stats.goblinsDefeated = 50;
-    } else if (currentMap === 2) {
-      gameState.stats.goblinsDefeated = 100;
-    } else {
-      gameState.stats.goblinsDefeated = 9999;
-    }
-
-    setTimeout(() => {
-      const mapId = gameState.progress.currentMap ?? 1;
-
-      unlockMap(mapId + 1);
-      saveProfiles();
-
-      stopGameplay("victory");
-    }, VICTORY_DELAY);
-  } catch (err) {
-    console.warn("⚠️ DEV Victory failed:", err);
-  }
-};
 
 export { applyMapSpawn };
 
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================
+
+// ============================================================
+// 🛠️ DEBUG TOOL — Instant Victory (temporary, safe to remove)
+// ============================================================
+window.debugVictory = function () {
+  try {
+    console.log("⚡ DEBUG: Forcing immediate victory…");
+    stopGameplay("victory");
+  } catch (err) {
+    console.warn("⚠️ debugVictory failed:", err);
+  }
+};
+
+

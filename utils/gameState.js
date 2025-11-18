@@ -1,13 +1,38 @@
 // ============================================================
 // 🌸 gameState.js — Olivia’s World: Crystal Keep (Unified + Stable)
 // ------------------------------------------------------------
-// ✦ One stable source of truth for ALL runtime & profile data
-// ✦ Fully fixed persistence system (no more resets / wipes)
-// ✦ Safe loading & migration
-// ✦ Correct handling of mapsUnlocked, XP, currencies, skins
-// ✦ Bravery bar persistent
-// ✦ ACTIVE PROFILE INDEX now fully functional
+// ✦ Single authoritative state for ALL runtime + profile data
+// ✦ Silent production-ready persistence (no console logs)
+// ✦ Safe migrations for legacy profiles
+// ✦ Fully stable multi-profile system
+// ✦ Proper handling of currencies, XP, bravery, progression
+// ✦ Active profile index always accurate
 // ============================================================
+
+/* ------------------------------------------------------------
+ * MODULE: gameState.js
+ * PURPOSE:
+ *   Provides one global, persistent, and safe state container for
+ *   player profiles, currencies, progress, bravery, settings, XP,
+ *   runtime data, and map progression.
+ *
+ * SUMMARY:
+ *   • gameState — global container (runtime + persistent data)
+ *   • Profiles:
+ *       - addProfile()
+ *       - loadProfiles()
+ *       - saveProfiles()
+ *       - setProfile()
+ *   • Progress:
+ *       - unlockMap()
+ *       - setCurrentMap()
+ *   • Currencies:
+ *       - addGold / spendGold
+ *       - addDiamonds / spendDiamonds
+ *       - addXP
+ *   • Utility:
+ *       - resetEchoBuff()
+ * ------------------------------------------------------------ */
 
 import { createPlayer } from "../core/player.js";
 
@@ -19,25 +44,19 @@ export const gameState = {
   profile: null,
   paused: false,
 
-  // All saved profiles
   profiles: [],
-
-  // Which profile is currently active (IMPORTANT for save slots)
   activeProfileIndex: 0,
 
-  // Core progress
   progress: {
     mapsUnlocked: [true, false, false, false, false, false, false, false, false],
     currentMap: 1,
     storyCompleted: false,
   },
 
-  // Global XP
   resources: {
     xp: 0,
   },
 
-  // Player settings
   settings: {
     volume: 0.8,
     music: true,
@@ -45,7 +64,6 @@ export const gameState = {
     visualEffects: true,
   },
 
-  // ⭐ BRAVERY SYSTEM
   bravery: {
     current: 0,
     max: 100,
@@ -60,28 +78,22 @@ export const gameState = {
 export function setProfile(profile) {
   gameState.profile = profile;
 
-  // ⭐ Track active profile index
   const idx = gameState.profiles.indexOf(profile);
   if (idx !== -1) {
     gameState.activeProfileIndex = idx;
   }
 
-  // Migrate missing structures
   migrateProfile(profile);
 
-  // Sync progress
   gameState.progress = { ...profile.progress };
 
-  // Restore or create player
   gameState.player = profile.player || createPlayer();
   gameState.player.name = profile.name;
 
-  // Ensure currencies exist
   if (!profile.currencies) {
     profile.currencies = { gold: 0, diamonds: 0 };
   }
 
-  // Restore bravery
   gameState.bravery = profile.bravery || {
     current: 0,
     max: 100,
@@ -98,13 +110,10 @@ export function setProfile(profile) {
 // 🧬 SAFE PROFILE MIGRATION
 // ============================================================
 function migrateProfile(profile) {
-
-  // currencies
   if (!profile.currencies) {
     profile.currencies = { gold: 0, diamonds: 0 };
   }
 
-  // progress
   if (!profile.progress) {
     profile.progress = {
       mapsUnlocked: [...gameState.progress.mapsUnlocked],
@@ -113,7 +122,6 @@ function migrateProfile(profile) {
     };
   }
 
-  // fix mapsUnlocked
   if (!Array.isArray(profile.progress.mapsUnlocked)) {
     profile.progress.mapsUnlocked = [true, false, false, false, false, false, false, false, false];
   }
@@ -134,12 +142,10 @@ function migrateProfile(profile) {
     profile.progress.currentMap = 1;
   }
 
-  // exploration (map visited flags etc)
   if (!profile.exploration) {
     profile.exploration = {};
   }
 
-  // Bravery
   if (!profile.bravery) {
     profile.bravery = {
       current: 0,
@@ -194,10 +200,7 @@ export function addProfile(name) {
     },
   };
 
-  // Push profile
   gameState.profiles.push(newProfile);
-
-  // ⭐ NEW PROFILE BECOMES ACTIVE
   gameState.activeProfileIndex = gameState.profiles.length - 1;
 
   saveProfiles();
@@ -205,12 +208,11 @@ export function addProfile(name) {
 }
 
 // ============================================================
-// 💾 SAVE ALL PROFILES SAFELY
+// 💾 SAVE ALL PROFILES (Silent, production-safe)
 // ============================================================
 export function saveProfiles() {
   try {
     if (gameState.profile) {
-      // Sync runtime → profile data
       gameState.profile.progress = { ...gameState.progress };
       gameState.profile.player = { ...gameState.player };
       gameState.profile.bravery = { ...gameState.bravery };
@@ -218,8 +220,8 @@ export function saveProfiles() {
     }
 
     localStorage.setItem("td_profiles", JSON.stringify(gameState.profiles));
-  } catch (err) {
-    console.error("❌ Error saving profiles:", err);
+  } catch {
+    // Silent fail (intentionally clean — no logs)
   }
 }
 
@@ -231,12 +233,9 @@ export function loadProfiles() {
     const data = localStorage.getItem("td_profiles");
     if (data) {
       gameState.profiles = JSON.parse(data);
-
-      // migrate legacy profiles
       gameState.profiles.forEach(p => migrateProfile(p));
     }
-  } catch (err) {
-    console.error("❌ Error loading profiles:", err);
+  } catch {
     gameState.profiles = [];
   }
 }
@@ -307,17 +306,17 @@ export function getCurrencies() {
 }
 
 // ============================================================
-// 🚀 INITIAL LOAD
+// 💎 ECHO BUFF RESET
 // ============================================================
-loadProfiles();
-
 export function resetEchoBuff() {
   gameState.echoPowerActive = false;
 
-  // optional HUD cleanup
   const icon = document.getElementById("hud-crystals-circle");
   if (icon) icon.classList.remove("echo-power-flash");
 }
+
+// Load profiles immediately at startup
+loadProfiles();
 
 // ============================================================
 // 🌟 END OF FILE
