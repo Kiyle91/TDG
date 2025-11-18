@@ -28,6 +28,7 @@ import {
   extractPathFromMap,
   drawMapLayered,
   getMapPixelSize,
+  extractCrystalEchoes,
 } from "./map.js";
 
 // ------------------------------------------------------------
@@ -40,7 +41,15 @@ import {
   setEnemyPath,
 } from "./enemies.js";
 
-import { initOgres, updateOgres, drawOgres, clearOgres, getOgres, spawnOgre } from "./ogre.js";
+import {
+  initOgres,
+  updateOgres,
+  drawOgres,
+  clearOgres,
+  getOgres,
+  spawnOgre,
+} from "./ogre.js";
+
 import { getGoblins, spawnGoblin } from "./goblin.js";
 
 import {
@@ -75,7 +84,7 @@ import {
 // ------------------------------------------------------------
 // 🧩 UI / HUD
 // ------------------------------------------------------------
-import { initUI, updateHUD } from "./ui.js";
+import { initUI, updateHUD, updateBraveryBar } from "./ui.js";
 
 // ------------------------------------------------------------
 // 💬 FLOATING COMBAT TEXT
@@ -125,15 +134,14 @@ import {
   drawTrolls,
   spawnTroll,
   getTrolls,
-  clearTrolls
+  clearTrolls,
 } from "./troll.js";
-
-
 
 import {
   initGoblinDrops,
   updateGoblinDrops,
   drawGoblinDrops,
+  resetGoblinDrops,
 } from "./goblinDrop.js";
 
 import {
@@ -142,35 +150,30 @@ import {
   drawCrossbows,
   spawnCrossbow,
   getCrossbows,
-  clearCrossbows
+  clearCrossbows,
 } from "./crossbow.js";
 
 // ------------------------------------------------------------
 // ⚙️ GLOBAL STATE IMPORTS
 // ------------------------------------------------------------
-import { gameState, unlockMap, saveProfiles} from "../utils/gameState.js";
+import { gameState, unlockMap, saveProfiles } from "../utils/gameState.js";
 import { stopGameplay } from "../main.js";
 import {
   triggerEndOfWave1Story,
-  triggerEndOfWave5Story
+  triggerEndOfWave5Story,
 } from "./story.js";
 
-import { resetGoblinDrops } from "./goblinDrop.js";
+import {
+  updateCrystalEchoes,
+  initCrystalEchoes,
+  renderSparkleBursts,
+} from "./crystalEchoes.js";
 
-import { updateBraveryBar } from "./ui.js";
-import { showCredits } from "./credits.js";
-import { updateCrystalEchoes } from "./crystalEchoes.js";
-
-import { extractCrystalEchoes } from "./map.js";
-import { initCrystalEchoes } from "./crystalEchoes.js";
-
-import { renderSparkleBursts } from "./crystalEchoes.js";
-
+// ============================================================
+// 🌊 WAVE CONFIGS
+// ============================================================
 export const waveConfigs = {
-
-  // ============================================================
-  // 🌿 MAP 1 — Beginner Onboarding (Goblins only + light elites/trolls)
-  // ============================================================
+  // 🌿 MAP 1 — Beginner Onboarding
   1: [
     { goblins: 4,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 7,  worgs: 0, ogres: 0, elites: 1, trolls: 1, crossbows: 0 },
@@ -179,9 +182,7 @@ export const waveConfigs = {
     { goblins: 18, worgs: 0, ogres: 0, elites: 4, trolls: 4, crossbows: 1 },
   ],
 
-  // ============================================================
-  // 🌲 MAP 2 — Early Mixed Units (first worgs, small elites)
-  // ============================================================
+  // 🌲 MAP 2 — Early Mixed Units
   2: [
     { goblins: 10, worgs: 2,  ogres: 0, elites: 4, trolls: 4, crossbows: 4 },
     { goblins: 14, worgs: 4,  ogres: 0, elites: 5, trolls: 4, crossbows: 4 },
@@ -190,9 +191,7 @@ export const waveConfigs = {
     { goblins: 26, worgs: 10, ogres: 1, elites: 8, trolls: 6, crossbows: 6 },
   ],
 
-  // ============================================================
-  // 🏞 MAP 3 — Stable Early-Mid Mix (first ogre appears)
-  // ============================================================
+  // 🏞 MAP 3 — Early-Mid Mix
   3: [
     { goblins: 16, worgs: 6,  ogres: 0, elites: 10, trolls: 8, crossbows: 8 },
     { goblins: 20, worgs: 8,  ogres: 0, elites: 12, trolls: 8, crossbows: 8 },
@@ -201,9 +200,7 @@ export const waveConfigs = {
     { goblins: 32, worgs: 14, ogres: 2, elites: 18, trolls: 10, crossbows: 10 },
   ],
 
-  // ============================================================
-  // ❄ MAP 4 — Worg Pressure (fast units dominant)
-  // ============================================================
+  // ❄ MAP 4 — Worg Pressure
   4: [
     { goblins: 18, worgs: 12, ogres: 0, elites: 12, trolls: 12, crossbows: 8 },
     { goblins: 20, worgs: 14, ogres: 0, elites: 13, trolls: 12, crossbows: 8 },
@@ -212,9 +209,7 @@ export const waveConfigs = {
     { goblins: 26, worgs: 20, ogres: 2, elites: 16, trolls: 14, crossbows: 10 },
   ],
 
-  // ============================================================
-  // 🔥 MAP 5 — Mid Game Sustain (more ogres)
-  // ============================================================
+  // 🔥 MAP 5 — Mid Game Sustain
   5: [
     { goblins: 20, worgs: 10, ogres: 1, elites: 14, trolls: 14, crossbows: 10 },
     { goblins: 24, worgs: 12, ogres: 1, elites: 15, trolls: 14, crossbows: 10 },
@@ -223,9 +218,7 @@ export const waveConfigs = {
     { goblins: 34, worgs: 18, ogres: 3, elites: 18, trolls: 16, crossbows: 12 },
   ],
 
-  // ============================================================
-  // 🜂 MAP 6 — Chaotic Alternation (mixed highs & lows)
-  // ============================================================
+  // 🜂 MAP 6 — Chaotic Alternation
   6: [
     { goblins: 28, worgs: 12, ogres: 1, elites: 18, trolls: 18, crossbows: 14 },
     { goblins: 18, worgs: 20, ogres: 1, elites: 18, trolls: 18, crossbows: 14 },
@@ -234,9 +227,7 @@ export const waveConfigs = {
     { goblins: 30, worgs: 20, ogres: 3, elites: 22, trolls: 18, crossbows: 16 },
   ],
 
-  // ============================================================
-  // ⚔ MAP 7 — Elite-Heavy (mid-late game spike)
-  // ============================================================
+  // ⚔ MAP 7 — Elite-Heavy Spike
   7: [
     { goblins: 28, worgs: 14, ogres: 1, elites: 22, trolls: 18, crossbows: 16 },
     { goblins: 22, worgs: 18, ogres: 2, elites: 24, trolls: 18, crossbows: 16 },
@@ -245,9 +236,7 @@ export const waveConfigs = {
     { goblins: 32, worgs: 24, ogres: 3, elites: 30, trolls: 18, crossbows: 18 },
   ],
 
-  // ============================================================
-  // ⚡ MAP 8 — Very Late Scaling (high density waves)
-  // ============================================================
+  // ⚡ MAP 8 — Very Late Scaling
   8: [
     { goblins: 34, worgs: 18, ogres: 1, elites: 26, trolls: 18, crossbows: 18 },
     { goblins: 38, worgs: 22, ogres: 1, elites: 28, trolls: 18, crossbows: 18 },
@@ -256,9 +245,7 @@ export const waveConfigs = {
     { goblins: 48, worgs: 26, ogres: 3, elites: 34, trolls: 18, crossbows: 20 },
   ],
 
-  // ============================================================
   // 👑 MAP 9 — Final Showdown
-  // ============================================================
   9: [
     { goblins: 40, worgs: 24, ogres: 2, elites: 30, trolls: 18, crossbows: 20 },
     { goblins: 46, worgs: 28, ogres: 3, elites: 32, trolls: 18, crossbows: 20 },
@@ -276,7 +263,7 @@ let waveActive = false;
 let waveCleared = false;
 let justStartedWave = false;
 
-// ⭐ NEW — prevents wave skipping before first wave spawns
+// Prevent wave skipping before first wave spawns
 let firstWaveStarted = false;
 window.firstWaveStarted = false;
 
@@ -290,12 +277,16 @@ for (let i = 1; i <= 20; i++) {
   ogreMilestones[i * 100] = false;
 }
 
-const FIRST_WAVE_DELAY = 5000;     // ⭐ 5s before wave 1
-const BETWEEN_WAVES_DELAY = 5000;  // ⭐ 5s between waves
+const FIRST_WAVE_DELAY = 5000;
+const BETWEEN_WAVES_DELAY = 5000;
 const VICTORY_DELAY = 5000;
 
 let betweenWaveTimer = 0;
-let victoryPending = false;
+
+// We now use gameState.victoryPending as the single source of truth
+if (typeof gameState.victoryPending !== "boolean") {
+  gameState.victoryPending = false;
+}
 
 // ============================================================
 // 🐣 SPAWN QUEUE (4-second spacing)
@@ -312,19 +303,18 @@ export function resetWaveSystem() {
   waveActive = false;
   waveCleared = false;
   justStartedWave = true;
+
   window.betweenWaveTimerActive = true;
 
-
   spawnQueue.length = 0;
-  victoryPending = false;
-
   spawnTimer = 0;
 
-  // ⭐ Reset wave start lock
+  // Reset victory + start lock
+  gameState.victoryPending = false;
   firstWaveStarted = false;
   window.firstWaveStarted = false;
 
-  // ⭐ Wait 5 seconds before first wave
+  // Delay before first wave
   betweenWaveTimer = FIRST_WAVE_DELAY;
 
   console.log("🔄 Wave system reset.");
@@ -334,7 +324,6 @@ export function resetWaveSystem() {
 // 🚀 START NEXT WAVE
 // ============================================================
 function startNextWave() {
-
   firstWaveStarted = true;
   window.firstWaveStarted = true;
 
@@ -347,7 +336,6 @@ function startNextWave() {
 
   console.log(`🌊 Starting Wave ${currentWaveIndex + 1} of ${waves.length} (Map ${mapId})`);
 
-  // Clear old queue
   spawnQueue.length = 0;
 
   waveActive = true;
@@ -358,65 +346,35 @@ function startNextWave() {
   gameState.totalWaves = waves.length;
   updateHUD();
 
-  // ----------------------------------------------------------
-  // BASELINE LOOP (drives pacing)
-  // ----------------------------------------------------------
+  // Baseline goblin-driven loop
   for (let i = 0; i < wave.goblins; i++) {
     spawnQueue.push(() => {
-
       spawnGoblin();
 
-      // Worgs
-      if (i < wave.worgs) {
-        spawnWorg();
-      }
-
-      // Elites
-      if (i < wave.elites) {
-        spawnElite();
-      }
-
-      // Trolls
-      if (i < wave.trolls) {
-        spawnTroll();
-      }
-
-      // Ogres
-      if (i < wave.ogres) {
-        spawnOgre();
-      }
-
-      // ⭐ Crossbows added
-      if (i < wave.crossbows) {
-        spawnCrossbow();
-      }
+      if (i < wave.worgs)      spawnWorg();
+      if (i < wave.elites)     spawnElite();
+      if (i < wave.trolls)     spawnTroll();
+      if (i < wave.ogres)      spawnOgre();
+      if (i < wave.crossbows)  spawnCrossbow();
     });
   }
 
-  // ----------------------------------------------------------
   // Overflow Worgs
-  // ----------------------------------------------------------
   for (let i = wave.goblins; i < wave.worgs; i++) {
     spawnQueue.push(() => spawnWorg());
   }
 
-  // ----------------------------------------------------------
   // Overflow Elites
-  // ----------------------------------------------------------
   for (let i = wave.goblins; i < wave.elites; i++) {
     spawnQueue.push(() => spawnElite());
   }
 
-  // ----------------------------------------------------------
   // Overflow Trolls
-  // ----------------------------------------------------------
   for (let i = wave.goblins; i < wave.trolls; i++) {
     spawnQueue.push(() => spawnTroll());
   }
 
-  // ----------------------------------------------------------
-  // ⭐ Overflow Crossbows
-  // ----------------------------------------------------------
+  // Overflow Crossbows
   for (let i = wave.goblins; i < wave.crossbows; i++) {
     spawnQueue.push(() => spawnCrossbow());
   }
@@ -431,19 +389,17 @@ function noEnemiesAlive() {
   const o = getOgres();
   const e = getElites();
   const t = getTrolls();
-  const x = getCrossbows(); // ⭐ NEW
+  const x = getCrossbows();
 
-  const aliveG = g.filter(x => x.alive).length;
-  const aliveW = w.filter(x => x.alive).length;
-  const aliveO = o.filter(x => x.alive).length;
-  const aliveE = e.filter(x => x.alive).length;
-  const aliveT = t.filter(x => x.alive).length;
-  const aliveX = x.filter(x => x.alive).length; // ⭐ NEW
+  const aliveG = g.filter(e => e.alive).length;
+  const aliveW = w.filter(e => e.alive).length;
+  const aliveO = o.filter(e => e.alive).length;
+  const aliveE = e.filter(e => e.alive).length;
+  const aliveT = t.filter(e => e.alive).length;
+  const aliveX = x.filter(e => e.alive).length;
 
   const totalAlive = aliveG + aliveW + aliveO + aliveE + aliveT + aliveX;
-
-  const totalSpawnedSoFar =
-    g.length + w.length + o.length + e.length + t.length + x.length;
+  const totalSpawnedSoFar = g.length + w.length + o.length + e.length + t.length + x.length;
 
   if (spawnQueue.length > 0) return false;
   if (totalSpawnedSoFar === 0) return false;
@@ -455,9 +411,7 @@ function noEnemiesAlive() {
 // 🔁 UPDATE WAVE PROGRESSION
 // ============================================================
 async function updateWaveSystem(delta) {
-
-  // ⭐⭐⭐ FIXED FIRST WAVE LOGIC ⭐⭐⭐
-  // Prevent wave skipping during initial delay
+  // Initial delay before first wave
   if (!firstWaveStarted) {
     betweenWaveTimer -= delta;
 
@@ -466,12 +420,12 @@ async function updateWaveSystem(delta) {
       startNextWave();
     }
 
-    return; // DO NOT run any other wave logic yet
+    return;
   }
 
   if (justStartedWave) {
     justStartedWave = false;
-    return; // skip clear checks for 1 frame
+    return;
   }
 
   // Handle spawn queue
@@ -482,15 +436,13 @@ async function updateWaveSystem(delta) {
     spawnTimer = SPAWN_INTERVAL;
   }
 
-  if (victoryPending) return;
+  if (gameState.victoryPending) return;
 
   const mapId = gameState.progress?.currentMap ?? 1;
   const waves = waveConfigs[mapId];
   if (!waves) return;
 
-  // ----------------------------------------------------------
-  // ACTIVE WAVE
-  // ----------------------------------------------------------
+  // Active wave
   if (waveActive) {
     if (!noEnemiesAlive()) return;
 
@@ -500,11 +452,9 @@ async function updateWaveSystem(delta) {
 
       const waveNumber = currentWaveIndex + 1;
 
-      // End-of-wave stories
       if (waveNumber === 1) {
         await triggerEndOfWave1Story(mapId);
       }
-
       if (waveNumber === 5) {
         await triggerEndOfWave5Story(mapId);
       }
@@ -516,33 +466,27 @@ async function updateWaveSystem(delta) {
     }
   }
 
-  // ----------------------------------------------------------
-  // BETWEEN WAVES
-  // ----------------------------------------------------------
+  // Between waves
   if (betweenWaveTimer > 0) {
-      window.betweenWaveTimerActive = true;
-      betweenWaveTimer -= delta;
-      return;
+    window.betweenWaveTimerActive = true;
+    betweenWaveTimer -= delta;
+    return;
   }
 
-// Timer finished → clear flag
-window.betweenWaveTimerActive = false;
+  // Timer finished → clear flag
+  window.betweenWaveTimerActive = false;
 
-  // ----------------------------------------------------------
-  // MORE WAVES?
-  // ----------------------------------------------------------
+  // More waves?
   if (currentWaveIndex + 1 < waves.length) {
     currentWaveIndex++;
     startNextWave();
     return;
   }
 
-  // ----------------------------------------------------------
-  // FINAL WAVE → VICTORY
-  // ----------------------------------------------------------
+  // Final wave → schedule victory
   console.log(`🏆 All waves complete on map ${mapId}. Scheduling victory…`);
 
-  victoryPending = true;
+  gameState.victoryPending = true;
 
   const nextMap = mapId + 1;
 
@@ -563,8 +507,6 @@ window.betweenWaveTimerActive = false;
   }, VICTORY_DELAY);
 }
 
-
-
 // ------------------------------------------------------------
 // 🎥 LOCAL CAMERA STATE
 // ------------------------------------------------------------
@@ -574,14 +516,14 @@ let ctx = null;
 let cameraX = 0;
 let cameraY = 0;
 
-// 🆕 Performance: Cache expensive DOM queries
+// Cache expensive DOM queries
 let cachedCanvasRect = null;
 let rectCacheTimer = 0;
-const RECT_CACHE_DURATION = 1000; // Refresh every 1 second
+const RECT_CACHE_DURATION = 1000;
 
-// 🆕 Performance: Throttle HUD updates
+// Throttled HUD updates
 let hudUpdateTimer = 0;
-const HUD_UPDATE_INTERVAL = 100; // Update HUD every 100ms
+const HUD_UPDATE_INTERVAL = 100;
 
 // ------------------------------------------------------------
 // 🏆 VICTORY COUNTER
@@ -591,18 +533,13 @@ export let goblinsDefeated = 0;
 export function incrementGoblinDefeated() {
   goblinsDefeated++;
 
-  // 💥 BONUS OGRE SPAWN: 1 Ogre every 100 kills
   if (ogreMilestones[goblinsDefeated] === false) {
     ogreMilestones[goblinsDefeated] = true;
-
     console.log("👹 BONUS OGRE SPAWNED at", goblinsDefeated, "kills!");
     spawnOgre();
   }
 }
 
-// ------------------------------------------------------------
-// 🧭 MAP-AWARE PLAYER SPAWN
-// ------------------------------------------------------------
 // ------------------------------------------------------------
 // 🧭 MAP-AWARE PLAYER SPAWN (Maps 1–9)
 // ------------------------------------------------------------
@@ -613,54 +550,31 @@ function applyMapSpawn() {
   const mapId = gameState.progress?.currentMap || 1;
 
   switch (mapId) {
-    case 1: 
-      p.pos = { x: 1000, y: 500 }; 
+    case 1:
+      p.pos = { x: 1000, y: 500 };
       break;
-
-    case 2: 
-      p.pos = { x: 250, y: 1650 }; 
+    case 2:
+      p.pos = { x: 250, y: 1650 };
       break;
-
     case 3:
-      p.pos = { x: 300, y: 300 };   // Safe zone for small map
-      break;
-
     case 4:
-      p.pos = { x: 300, y: 300 };
-      break;
-
     case 5:
-      p.pos = { x: 300, y: 300 };
-      break;
-
     case 6:
-      p.pos = { x: 300, y: 300 };
-      break;
-
     case 7:
-      p.pos = { x: 300, y: 300 };
-      break;
-
     case 8:
-      p.pos = { x: 300, y: 300 };
-      break;
-
     case 9:
       p.pos = { x: 300, y: 300 };
       break;
-
     default:
-      p.pos = { x: 1000, y: 500 }; 
+      p.pos = { x: 1000, y: 500 };
       break;
   }
 }
-
 
 // ============================================================
 // 🌷 INIT — called once when entering the Game screen
 // ============================================================
 export async function initGame(mode = "new") {
-
   gameState.echoPowerActive = false;
 
   if (!gameState.exploration) {
@@ -673,21 +587,19 @@ export async function initGame(mode = "new") {
 
   const icon = document.getElementById("hud-crystals-circle");
   if (icon) icon.classList.remove("echo-power-flash");
-  
-  // 1️⃣ Canvas & Context
+
+  // Canvas & context
   canvas = document.getElementById("game-canvas");
   if (!canvas) throw new Error("game.js: #game-canvas not found in DOM");
   ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("game.js: 2D context not available");
 
-  // Cache canvas rect on init
   cachedCanvasRect = canvas.getBoundingClientRect();
   rectCacheTimer = 0;
 
-  // 2️⃣ Load Map
+  // Map & path
   await loadMap();
 
-  // 3️⃣ Extract enemy path + apply
   const pathPoints = extractPathFromMap();
   setEnemyPath(pathPoints);
 
@@ -697,7 +609,7 @@ export async function initGame(mode = "new") {
 
   initCrystalEchoes({ crystalEchoes: echoPoints });
 
-  // 4️⃣ Initialize subsystems
+  // Subsystems
   clearLoot();
   resetGoblinDrops();
   initEnemies();
@@ -710,7 +622,7 @@ export async function initGame(mode = "new") {
   initProjectiles();
   await loadLootImages();
 
-  // 5️⃣ Player setup
+  // Player
   if (!gameState.player) {
     gameState.player = {
       name: "Glitter Guardian",
@@ -728,37 +640,33 @@ export async function initGame(mode = "new") {
   initPlayerController(canvas);
   initUI();
 
-  // 6️⃣ Pegasus + healing + goblin drops
+  // Pegasus + healing + drops
   await loadPegasus();
   initPegasus(ctx);
   await loadHealingGem();
   initHealingDrops(ctx);
   initGoblinDrops(ctx);
 
-  // ============================================================
-  // 🌊 WAVE STATE — ONLY RESET FOR NEW/RETRY (NOT LOAD)
-  // ============================================================
+  // Wave state (only on new/retry)
   if (mode !== "load") {
     currentWaveIndex = 0;
     waveActive = false;
     waveCleared = false;
-    victoryPending = false;
+    gameState.victoryPending = false;
     spawnQueue = [];
     spawnTimer = 0;
-
-    // ⭐ NEW — Delay first wave by 5 seconds
     betweenWaveTimer = FIRST_WAVE_DELAY;
+    firstWaveStarted = false;
+    window.firstWaveStarted = false;
   }
 
-  console.log(`🌸 game.js — Initialization complete (optimized, multi-map, mode: ${mode}).`);
+  console.log(`🌸 game.js — Initialization complete (mode: ${mode}).`);
 }
-
 
 // ============================================================
 // 🔁 UPDATE — synchronized world logic (OPTIMIZED)
 // ============================================================
 export function updateGame(delta) {
-  // Early exit if paused
   if (gameState.paused) return;
 
   delta = Math.min(delta, 100);
@@ -779,7 +687,7 @@ export function updateGame(delta) {
   updateLoot(delta);
   updateWaveSystem(delta);
 
-  // Throttled HUD update
+  // Throttled HUD
   hudUpdateTimer += delta;
   if (hudUpdateTimer >= HUD_UPDATE_INTERVAL) {
     hudUpdateTimer = 0;
@@ -793,25 +701,22 @@ export function updateGame(delta) {
   cameraX = Math.floor(px - canvas.width / 2);
   cameraY = Math.floor(py - canvas.height / 2);
 
-  // Clamp camera within map bounds
   const { width: mapW, height: mapH } = getMapPixelSize();
   cameraX = Math.max(0, Math.min(mapW - canvas.width, cameraX));
   cameraY = Math.max(0, Math.min(mapH - canvas.height, cameraY));
 
-  // Cache canvas rect occasionally (expensive DOM op)
+  // Cache rect occasionally
   rectCacheTimer += delta;
   if (rectCacheTimer >= RECT_CACHE_DURATION || !cachedCanvasRect) {
     rectCacheTimer = 0;
     cachedCanvasRect = canvas.getBoundingClientRect();
   }
 
-  // Keep globals in sync
   window.cameraX = cameraX;
   window.cameraY = cameraY;
-  window.canvasScaleX = canvas.width  / cachedCanvasRect.width;
+  window.canvasScaleX = canvas.width / cachedCanvasRect.width;
   window.canvasScaleY = canvas.height / cachedCanvasRect.height;
 
-  // Check defeat (victory handled by wave engine)
   checkVictoryDefeat();
 }
 
@@ -821,17 +726,15 @@ export function updateGame(delta) {
 export function renderGame() {
   if (!ctx || !canvas) return;
 
-  // 1️⃣ Background ground layer
+  // Ground
   drawMapLayered(ctx, "ground", cameraX, cameraY, canvas.width, canvas.height);
 
-  // 2️⃣ Entities
+  // Entities
   ctx.save();
   ctx.translate(-cameraX, -cameraY);
 
-  // 🌸 Crystal Echoes (draw before player)
   updateCrystalEchoes(ctx, gameState.player);
 
-  // Entities
   drawTowers(ctx);
   drawWorg(ctx);
   drawCrossbows(ctx);
@@ -841,31 +744,30 @@ export function renderGame() {
   drawOgres(ctx);
   drawPlayer(ctx);
 
-  // Effects + drops
   drawProjectiles(ctx);
   drawFloatingText(ctx);
   drawHealingDrops(ctx);
   drawGoblinDrops(ctx);
   drawLoot(ctx);
   renderSparkleBursts(ctx, 16);
+
   ctx.restore();
 
-  // 3️⃣ Foreground trees
+  // Foreground
   drawMapLayered(ctx, "trees", cameraX, cameraY, canvas.width, canvas.height);
 
-  // 4️⃣ Pegasus
+  // Pegasus
   try {
     if (typeof drawPegasusFrame === "function") {
       drawPegasusFrame(ctx);
     }
-  } catch (e) {
-    // Non-fatal
+  } catch {
+    // non-fatal
   }
 }
 
 // ============================================================
 // 🧠 VICTORY / DEFEAT CHECK
-// (Victory now handled exclusively by wave system)
 // ============================================================
 function checkVictoryDefeat() {
   const p = gameState.player;
@@ -874,9 +776,6 @@ function checkVictoryDefeat() {
   const hp = p.hp ?? 100;
   const lives = p.lives ?? 3;
 
-  // -------------------------------------------
-  // ❌ DEFEAT: HP zero
-  // -------------------------------------------
   if (hp <= 0) {
     p.dead = true;
     gameState.paused = true;
@@ -884,9 +783,6 @@ function checkVictoryDefeat() {
     return;
   }
 
-  // -------------------------------------------
-  // ❌ DEFEAT: Lives zero (escaped goblins)
-  // -------------------------------------------
   if (lives <= 0) {
     p.dead = true;
     gameState.paused = true;
@@ -894,13 +790,8 @@ function checkVictoryDefeat() {
     return;
   }
 
-  // -------------------------------------------
-  // 🏆 VICTORY:
-  // NOW HANDLED 100% BY THE WAVE ENGINE
-  // (no map-specific victory here anymore)
-  // -------------------------------------------
+  // Victory is handled entirely in the wave system now
 }
-
 
 // ============================================================
 // ♻️ RESET COMBAT STATE — used by Try Again, Continue, New Map
@@ -908,7 +799,6 @@ function checkVictoryDefeat() {
 export function resetCombatState() {
   console.log("♻️ Resetting combat state...");
 
-  // Global counters
   goblinsDefeated = 0;
   gameState.victoryPending = false;
 
@@ -917,7 +807,6 @@ export function resetCombatState() {
   }
   gameState.ogreSpawned = false;
 
-  // Map-specific triggers (legacy map 2 flags reset anyway)
   gameState.worgSpawns = 0;
   gameState.ogreTriggers = {
     25: false,
@@ -926,7 +815,6 @@ export function resetCombatState() {
     100: false,
   };
 
-  // Player reset
   const p = gameState.player;
   if (p) {
     p.hp = p.maxHp ?? 100;
@@ -936,7 +824,6 @@ export function resetCombatState() {
     p.facing = "right";
   }
 
-
   if (gameState.bravery) {
     gameState.bravery.current = 0;
     gameState.bravery.charged = false;
@@ -944,24 +831,17 @@ export function resetCombatState() {
   }
   updateBraveryBar?.();
 
-  // Reset exploration echo buff (tower double damage)
   gameState.echoPowerActive = false;
-  
 
-  // Cleanup HUD flash if present
   const icon = document.getElementById("hud-crystals-circle");
   if (icon) icon.classList.remove("echo-power-flash");
 
-
-
-  // Clear runtime entities
   if (window.__enemies) window.__enemies.length = 0;
   clearOgres();
   clearLoot();
   clearElites();
-  clearCrossbows()
+  clearCrossbows();
 
-  // Re-init combat systems
   initEnemies();
   initTowers();
   initProjectiles();
@@ -992,17 +872,19 @@ export function resetPlayerState() {
   updateHUD();
   hudUpdateTimer = 0;
 
-  console.log("🎮 Player revived — soft reset (optimized, multi-map).");
+  console.log("🎮 Player revived — soft reset (multi-map).");
 }
 
+// Dev ogre preload
 import("./ogre.js").then(() => console.log("👹 Ogre dev commands ready."));
 
-// Window resize handler to invalidate rect cache
+// Resize → invalidate rect cache
 window.addEventListener("resize", () => {
   cachedCanvasRect = null;
   rectCacheTimer = RECT_CACHE_DURATION;
 });
 
+// Dev hooks
 window.spawnWorg = spawnWorg;
 
 // ============================================================
@@ -1014,10 +896,8 @@ window.forceMapVictory = function () {
   try {
     const currentMap = gameState.progress?.currentMap ?? 1;
 
-    // Mark victory pending to prevent double triggers
     gameState.victoryPending = true;
 
-    // Force all ogres dead (compat)
     if (window.getOgres) {
       const ogres = window.getOgres();
       for (const o of ogres) {
@@ -1026,7 +906,6 @@ window.forceMapVictory = function () {
       }
     }
 
-    // Force goblins defeated to max based on map (for stats only)
     if (!gameState.stats) gameState.stats = {};
     if (currentMap === 1) {
       gameState.stats.goblinsDefeated = 50;
@@ -1036,16 +915,14 @@ window.forceMapVictory = function () {
       gameState.stats.goblinsDefeated = 9999;
     }
 
-  setTimeout(() => {
-    const mapId = gameState.progress.currentMap ?? 1;
+    setTimeout(() => {
+      const mapId = gameState.progress.currentMap ?? 1;
 
-    // ⭐ Unlock next map
-    unlockMap(mapId + 1);
-    saveProfiles();   
+      unlockMap(mapId + 1);
+      saveProfiles();
 
-    stopGameplay("victory");
-  }, VICTORY_DELAY);
-
+      stopGameplay("victory");
+    }, VICTORY_DELAY);
   } catch (err) {
     console.warn("⚠️ DEV Victory failed:", err);
   }
