@@ -20,7 +20,7 @@ const XP_SCALING = 1.25;        // XP requirement growth per level
 const POINTS_PER_LEVEL = 1;     // stat points awarded per level
 
 // ------------------------------------------------------------
-// 🧠 XP GAIN ON ENEMY DEATH
+// 🧠 XP GAIN ON GOBLIN DEATH
 // ------------------------------------------------------------
 export function awardXP(amount = 25) {
   const p = gameState.player;

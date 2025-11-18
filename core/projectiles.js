@@ -9,7 +9,7 @@
 // ✦ ⭐ Crystal Echo Power → all spire damage doubled
 // ============================================================
 
-import { damageEnemy } from "./enemies.js";
+import { damageGoblin } from "./goblin.js";
 import { gameState } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { damageCrossbow } from "./crossbow.js";
@@ -51,7 +51,7 @@ export function spawnProjectile(x, y, target, type = "crystal") {
     };
   }
 
-  // Enemy check
+  // Goblin check
   if (!target.isPlayer && !target.alive) return;
 
   projectiles.push({
@@ -77,7 +77,7 @@ export function updateProjectiles(delta) {
     const tx = t.isPlayer ? gameState.player.pos.x : t.x;
     const ty = t.isPlayer ? gameState.player.pos.y : t.y;
 
-    // If enemy died
+    // If goblin died
     if (!t.isPlayer && !t.alive) {
       projectiles.splice(i, 1);
       continue;
@@ -123,7 +123,7 @@ export function updateProjectiles(delta) {
         // ⭐ DOUBLE DAMAGE: Crystal Echo Power
         if (gameState.echoPowerActive) dmg *= 2;
 
-        damageEnemy(t, dmg);
+        damageGoblin(t, dmg);
 
       }
 
@@ -147,7 +147,7 @@ export function updateProjectiles(delta) {
         // ⭐ DOUBLE DAMAGE: Crystal Echo Power
         if (gameState.echoPowerActive) dmg *= 2;
 
-        damageEnemy(t, dmg);
+        damageGoblin(t, dmg);
       }
 
       // --------------------------------------------------------
@@ -162,7 +162,7 @@ export function updateProjectiles(delta) {
         // ⭐ DOUBLE DAMAGE
         if (gameState.echoPowerActive) dmg *= 2;
 
-        damageEnemy(t, dmg);
+        damageGoblin(t, dmg);
       }
 
       // --------------------------------------------------------
@@ -174,7 +174,7 @@ export function updateProjectiles(delta) {
         // ⭐ DOUBLE DAMAGE
         if (gameState.echoPowerActive) dmg *= 2;
 
-        damageEnemy(t, dmg);
+        damageGoblin(t, dmg);
       }
 
       projectiles.splice(i, 1);

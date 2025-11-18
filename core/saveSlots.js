@@ -122,7 +122,7 @@ export function renderSlots(container, allowSave = true) {
           const gameMod = await import("./game.js");
           await gameMod.initGame();
 
-          // 5️⃣ Apply snapshot (player, spires, enemies, etc)
+          // 5️⃣ Apply snapshot (player, spires, goblins, etc)
           applySnapshot(snap);
 
           ensureSkin(gameState.player);     // guarantee unlocked array

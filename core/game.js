@@ -4,7 +4,7 @@
 // ✦ Core game controller & system orchestration
 // ✦ Initializes and coordinates all core modules
 // ✦ Runs update + render loops (called by main.js)
-// ✦ Player + Enemies + Spires rendered between layers
+// ✦ Player + Goblins + Spires rendered between layers
 // ✦ Victory/Defeat system + resetCombatState()
 // ✦ Floating combat text support (damage/heal popups)
 // ✦ Pegasus ambient flight drawn above all layers
@@ -16,7 +16,7 @@
 //    - Spawns player differently per map (map_one / map_two / others)
 // ✦ 🆕 WAVE SYSTEM (Maps 1–9):
 //    - Wave configs per map
-//    - Global spawn queue with 4s spacing per enemy
+//    - Global spawn queue with 4s spacing per goblin
 //    - Unified victory after final wave clear
 // ============================================================
 
@@ -38,14 +38,17 @@ import {
 } from "./map.js";
 
 // ------------------------------------------------------------
-// 👹 ENEMIES (Goblin / Troll / Ogre / Worg / Elite / Crossbow)
+// 👹 GOBLINS (Goblin / Troll / Ogre / Worg / Elite / Crossbow)
 // ------------------------------------------------------------
 import {
-  initEnemies,
-  updateEnemies,
-  drawEnemies,
-  setEnemyPath,
-} from "./enemies.js";
+  initGoblins,
+  updateGoblins,
+  drawGoblins,
+  spawnGoblin,
+  getGoblins,
+  setGoblinPath,
+} from "./goblin.js";
+
 
 import {
   initOgres,
@@ -56,10 +59,6 @@ import {
   spawnOgre,
 } from "./ogre.js";
 
-import {
-  getGoblins,
-  spawnGoblin,
-} from "./goblin.js";
 
 import {
   initTrolls,
@@ -190,7 +189,7 @@ import {
 export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding
   1: [
-    { goblins: 4,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 4,  worgs: 5, ogres: 1, elites: 5, trolls: 6, crossbows: 6 },
     { goblins: 7,  worgs: 0, ogres: 0, elites: 1, trolls: 1, crossbows: 0 },
     { goblins: 10, worgs: 0, ogres: 0, elites: 2, trolls: 2, crossbows: 0 },
     { goblins: 14, worgs: 0, ogres: 0, elites: 3, trolls: 3, crossbows: 1 },
@@ -396,9 +395,9 @@ function startNextWave() {
 }
 
 // ============================================================
-// 👁 CHECK ACTIVE ENEMIES
+// 👁 CHECK ACTIVE GOBLINS
 // ============================================================
-function noEnemiesAlive() {
+function noGoblinsAlive() {
   const g = getGoblins();
   const w = getWorg();
   const o = getOgres();
@@ -459,7 +458,7 @@ async function updateWaveSystem(delta) {
 
   // Active wave
   if (waveActive) {
-    if (!noEnemiesAlive()) return;
+    if (!noGoblinsAlive()) return;
 
     if (!waveCleared) {
       waveCleared = true;
@@ -616,7 +615,7 @@ export async function initGame(mode = "new") {
   await loadMap();
 
   const pathPoints = extractPathFromMap();
-  setEnemyPath(pathPoints);
+  setGoblinPath(pathPoints);
 
   const echoPoints = extractCrystalEchoes();
   gameState.exploration.total = echoPoints.length;
@@ -627,7 +626,7 @@ export async function initGame(mode = "new") {
   // Subsystems
   clearLoot();
   await loadLootImages();
-  initEnemies();
+  initGoblins();
   await initWorg(pathPoints);
   await initElites();
   await initTrolls(pathPoints);
@@ -683,7 +682,7 @@ export function updateGame(delta) {
 
   delta = Math.min(delta, 100);
 
-  updateEnemies(delta);
+  updateGoblins(delta);
   updateWorg(delta);
   updateCrossbows(delta);
   updateElites(delta);
@@ -748,7 +747,7 @@ export function renderGame() {
   drawSpires(ctx);
   drawWorg(ctx);
   drawCrossbows(ctx);
-  drawEnemies(ctx);
+  drawGoblins(ctx);
   drawElites(ctx);
   drawTrolls(ctx);
   drawOgres(ctx);
@@ -844,13 +843,13 @@ export function resetCombatState() {
   const icon = document.getElementById("hud-crystals-circle");
   if (icon) icon.classList.remove("echo-power-flash");
 
-  if (window.__enemies) window.__enemies.length = 0;
+  if (window.__goblins) window.__goblins.length = 0;
   clearOgres();
   clearLoot();
   clearElites();
   clearCrossbows();
 
-  initEnemies();
+  initGoblins();
   initSpires();
   initProjectiles();
 

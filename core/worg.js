@@ -1,12 +1,12 @@
 // ============================================================
 // 🐺 worg.js — Olivia's World: Crystal Keep (Fully Independent Edition)
 // ------------------------------------------------------------
-// • Follows the enemy path only (no attacks)
+// • Follows the goblin path only (no attacks)
 // • Damageable by player + spires/projectiles
 // • Small goblin-style HP bar
 // • High-quality rendering with cached sprites (zero lag)
 // • Hit flash + smooth death fade
-// • 🆕 Independent damage system (no dependency on enemies.js)
+// • 🆕 Independent damage system 
 // • 🆕 Own XP/gold rewards
 // ============================================================
 
@@ -308,23 +308,31 @@ export function hitWorg(worg, amount) {
 function drawWorgHpBar(ctx, w) {
   if (!w.alive) return;
 
-  const barWidth = 36;
-  const barHeight = 4;
-  const offsetY = WORG_SIZE * 0.5 + 8;
-  const pct = Math.max(0, Math.min(1, w.hp / w.maxHp));
+  const barWidth = 40;
+  const barHeight = 5;
+  const offsetY = WORG_SIZE * 0.52; // unified vertical alignment
 
-  ctx.fillStyle = "rgba(0,0,0,0.35)";
-  ctx.fillRect(w.x - barWidth / 2, w.y + offsetY, barWidth, barHeight);
+  const hpPct = Math.max(0, Math.min(1, w.hp / w.maxHp));
 
-  const grad = ctx.createLinearGradient(w.x - barWidth / 2, 0, w.x + barWidth / 2, 0);
-  grad.addColorStop(0, "#ff6688");
-  grad.addColorStop(1, "#ff99bb");
-  ctx.fillStyle = grad;
-  ctx.fillRect(w.x - barWidth / 2, w.y + offsetY, barWidth * pct, barHeight);
+  // Background
+  ctx.fillStyle = "rgba(0,0,0,0.4)";
+  ctx.fillRect(
+    w.x - barWidth / 2,
+    w.y + offsetY,
+    barWidth,
+    barHeight
+  );
 
-  ctx.strokeStyle = "rgba(255,182,193,0.7)";
-  ctx.strokeRect(w.x - barWidth / 2, w.y + offsetY, barWidth, barHeight);
+  // Fill (Goblin-style HSL)
+  ctx.fillStyle = `hsl(${hpPct * 120},100%,50%)`;
+  ctx.fillRect(
+    w.x - barWidth / 2,
+    w.y + offsetY,
+    barWidth * hpPct,
+    barHeight
+  );
 }
+
 
 // ------------------------------------------------------------
 // 🖌️ DRAW (lag-free cached version with elemental effects)

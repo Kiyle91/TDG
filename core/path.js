@@ -1,8 +1,8 @@
 // ============================================================
 // 🌸 path.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Defines and draws the enemy movement path
-// ✦ Used by enemies.js for navigation along tiles
+// ✦ Defines and draws the goblin movement path
+// ✦ Used by all goblin js files for navigation along tiles
 // ✦ Path points are defined in grid coordinates
 // ============================================================
 

@@ -13,7 +13,7 @@
 import { gameState } from "../utils/gameState.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { playOgreEnter, playOgreAttack, playOgreSlain, playGoblinDamage } from "./soundtrack.js";
-import { damageEnemy } from "./enemies.js";
+import { damageGoblin } from "./goblin.js";
 import { spawnDamageSparkles } from "./playerController.js";
 import { awardXP } from "./levelSystem.js";
 import { updateHUD } from "./ui.js";
@@ -344,18 +344,27 @@ export function drawOgres(ctx) {
     ctx.filter = "none";
     ctx.globalAlpha = 1;
 
-    // HP bar (unchanged)
     if (o.alive) {
       const hpPct = Math.max(0, Math.min(1, o.hp / o.maxHp));
-      const barWidth = 80;
+      const barWidth = 50;
       const barHeight = 6;
-      const barY = drawY - 14;
+      const offsetY = OGRE_SIZE * 0.55; // bottom of sprite, consistent with others
 
-      ctx.fillStyle = "rgba(0,0,0,0.4)";
-      ctx.fillRect(o.x - barWidth / 2, barY, barWidth, barHeight);
+      ctx.fillStyle = "rgba(0,0,0,0.45)";
+      ctx.fillRect(
+        o.x - barWidth / 2,
+        o.y + offsetY,
+        barWidth,
+        barHeight
+      );
 
-      ctx.fillStyle = `hsl(${hpPct * 120}, 100%, 50%)`;
-      ctx.fillRect(o.x - barWidth / 2, barY, barWidth * hpPct, barHeight);
+      ctx.fillStyle = `hsl(${hpPct * 120},100%,50%)`;
+      ctx.fillRect(
+        o.x - barWidth / 2,
+        o.y + offsetY,
+        barWidth * hpPct,
+        barHeight
+      );
     }
 
     ctx.restore();

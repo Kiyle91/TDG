@@ -3,7 +3,7 @@
 // ------------------------------------------------------------
 // ✦ Automatically loads map_1.json → map_9.json
 // ✦ Supports TSX tilesets + JSON tilesets
-// ✦ Extracts "path" polyline for enemy movement
+// ✦ Extracts "path" polyline for goblin movement
 // ✦ Handles collision layer + layered draw
 // ✦ Fully compatible with all engine systems
 // ============================================================

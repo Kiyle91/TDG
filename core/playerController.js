@@ -5,13 +5,13 @@
 // ✦ Melee / Ranged / Heal / Spell abilities
 // ✦ Knockback + drawn silver arrows + sparkle FX (canvas-based)
 // ✦ Stat-scaled damage & mana costs
-// ✦ Uses shared enemy array via window.__enemies (kills goblins properly)
+// ✦ Uses shared goblin array via window.__goblins (kills goblins properly)
 // ✦ 🌈 Sparkle system heavily optimized (no blur, capped particles)
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
-import { damageEnemy } from "./enemies.js"; // shared goblin array
+import { damageGoblin } from "./goblin.js"; // shared goblin array
 import { updateHUD, getArrowCount } from "./ui.js";
 import {
   playFairySprinkle,
@@ -40,13 +40,13 @@ window.addEventListener("keydown", (e) => {
 });
 
 // ------------------------------------------------------------
-// 🧩 Shared enemy helpers
+// 🧩 Shared goblin helpers
 // ------------------------------------------------------------
-const getEnemies = () => window.__enemies || [];
+const getGoblins = () => window.__goblins || [];
 
 function getAllTargets() {
   return [
-    ...getEnemies(),
+    ...getGoblins(),
     ...getOgres(),
     ...getWorg(),
     ...getElites(),
@@ -287,13 +287,13 @@ export function destroyPlayerController() {
 }
 
 // ------------------------------------------------------------
-// 🎯 Nearest enemy within radius
+// 🎯 Nearest goblin within radius
 // ------------------------------------------------------------
-function findNearestEnemyInRange(px, py, maxDist = 320) {
+function findNearestGoblinInRange(px, py, maxDist = 320) {
   let target = null;
   let best = maxDist;
 
-  for (const g of getEnemies()) {
+  for (const g of getGoblins()) {
     if (!g?.alive) continue;
     const dx = g.x - px;
     const dy = g.y - py;
@@ -325,11 +325,11 @@ function performMeleeAttack() {
   const dmg = p.attack * DMG_MELEE;
 
   const prevDir = currentDir;
-  const { target } = findNearestEnemyInRange(p.pos.x, p.pos.y, 320);
+  const { target } = findNearestGoblinInRange(p.pos.x, p.pos.y, 320);
 
   if (target) {
-    const dxToEnemy = target.x - p.pos.x;
-    currentDir = dxToEnemy < 0 ? "left" : "right";
+    const dxToGoblin = target.x - p.pos.x;
+    currentDir = dxToGoblin < 0 ? "left" : "right";
   }
 
   isAttacking = true;
@@ -367,7 +367,7 @@ function performMeleeAttack() {
     } else if (t.type === "ogre" || t.maxHp >= 400) {
       damageOgre(t, dmg, "player");
     } else {
-      damageEnemy(t, dmg);
+      damageGoblin(t, dmg);
     }
 
     hit = true;
@@ -484,7 +484,7 @@ function performRangedAttack(e) {
       if (dist < hitRadius) {
         if (t.type === "elite") damageElite(t, dmg);
         else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "player");
-        else damageEnemy(t, dmg);
+        else damageGoblin(t, dmg);
 
         projectile.alive = false;
         break;
@@ -590,7 +590,7 @@ function performSpell() {
       if (dist < radius) {
         if (t.type === "elite") damageElite(t, dmg, "spell");
         else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "spell");
-        else damageEnemy(t, dmg);
+        else damageGoblin(t, dmg);
         hits++;
       }
     }
@@ -712,11 +712,11 @@ function updateProjectiles(delta) {
       continue;
     }
 
-    for (const g of getEnemies()) {
+    for (const g of getGoblins()) {
       if (!g.alive) continue;
       const dist = Math.hypot(g.x - a.x, g.y - a.y);
       if (dist < 45) {
-        damageEnemy(g, a.dmg);
+        damageGoblin(g, a.dmg);
         a.alive = false;
         console.log("🏹 Arrow hit goblin!");
         break;
@@ -789,7 +789,7 @@ export function updatePlayer(delta) {
     const feetY = nextY + oy;
 
     if (!isRectBlocked(feetX, feetY, bw, bh)) {
-      for (const g of getEnemies()) {
+      for (const g of getGoblins()) {
         if (!g.alive) continue;
         const dxp = nextX - g.x;
         const dyp = nextY - g.y;
@@ -828,7 +828,7 @@ export function updatePlayer(delta) {
     if (p.invulnTimer > 0) {
       p.invulnTimer -= delta;
     } else {
-      for (const g of getEnemies()) {
+      for (const g of getGoblins()) {
         if (!g.alive) continue;
 
         const dxg = g.x - p.pos.x;

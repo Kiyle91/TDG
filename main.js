@@ -4,7 +4,7 @@
 // ✦ Fixed timestep 60Hz game loop
 // ✦ Full multi-map system (1 → 9 + Credits)
 // ✦ Clean retry cycle, victory flow, safe exit
-// ✦ Unified enemy reset logic
+// ✦ Unified goblin reset logic
 // ✦ Fully stable story, HUD, navbar, overlays
 // ============================================================
 
@@ -38,12 +38,12 @@ import { startGoblinIntroStory } from "./core/story.js";
 import { initNavbar } from "./core/navbar.js";
 import { initCredits } from "./core/credits.js";
 
-// Enemy systems
+// Goblin systems
 import { getOgres } from "./core/ogre.js";
 import { getElites } from "./core/elite.js";
 import { getWorg } from "./core/worg.js";
 import { getCrossbows } from "./core/crossbow.js";
-import { initEnemies } from "./core/enemies.js";   // ⭐ Correct import
+import { initGoblins } from "./core/goblin.js";   // ⭐ Correct import
 
 // ============================================================
 // 🎮 GLOBAL GAME LOOP STATE
@@ -261,7 +261,7 @@ export async function resetGameplay() {
   p.facing = "right";
 
   // ==========================================================
-  // 🧹 Unified enemy clearing
+  // 🧹 Unified goblin clearing
   // ==========================================================
   function clearList(getter) {
     const arr = getter();
@@ -273,7 +273,7 @@ export async function resetGameplay() {
   clearList(getWorg);
   clearList(getCrossbows);
 
-  initEnemies(); // ⭐ Goblins reset cleanly
+  initGoblins(); // ⭐ Goblins reset cleanly
 
   // Bravery reset
   gameState.bravery.current = 0;

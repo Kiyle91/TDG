@@ -1,5 +1,5 @@
 // ============================================================
-// 👹 enemies.js — Olivia's World: Crystal Keep (OPTIMIZED - No Stutter Edition)
+// 👹 goblin.js — Olivia's World: Crystal Keep (OPTIMIZED - No Stutter Edition)
 // ------------------------------------------------------------
 // ✦ Adds Frost slow, Flame burn DoT, Moon knockback
 // ✦ Goblin ↔ Goblin + Goblin ↔ Player physical collision
@@ -27,22 +27,22 @@ import { awardXP } from "./levelSystem.js";
 import { spawnLoot} from "./loot.js";
 import { addBravery } from "./ui.js";
 
-let enemies = [];
+let goblins = [];
 let ctx = null;
 let pathPoints = [];
 let goblinSprites = null;
 let crowdCollisionTimer = 0;
-let enemiesSpawned = 0;
+let goblinsSpawned = 0;
 let storyTriggered = false;
 
 // Keep both aliases for compatibility
-window.__goblins = enemies;
-window.__enemies  = enemies;
+window.__goblins = goblins;
+window.__goblins  = goblins;
 
 // ============================================================
 // ⚙️ CONFIG
 // ============================================================
-const ENEMY_SIZE = 80;
+const GOBLIN_SIZE = 80;
 const BASE_SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;
@@ -62,7 +62,7 @@ const SPATIAL_GRID_SIZE = 128;       // Grid cell size for spatial partitioning
 function getChaseSpread() {
   // Count goblins currently in chase
   let chasing = 0;
-  for (const g of enemies) {
+  for (const g of goblins) {
     if (g.state === "chase" && g.alive) chasing++;
   }
 
@@ -123,15 +123,15 @@ async function loadGoblinSprites() {
 // ============================================================
 // 🌍 PATH + INIT
 // ============================================================
-export function setEnemyPath(points) {
+export function setGoblinPath(points) {
   pathPoints = points || [];
 }
 
-export async function initEnemies() {
-  enemies = [];
-  window.__enemies = enemies;
-  window.__goblins = enemies;
-  enemiesSpawned = 0;
+export async function initGoblins() {
+  goblins = [];
+  window.__goblins = goblins;
+  window.__goblins = goblins;
+  goblinsSpawned = 0;
   storyTriggered = false;
   await loadGoblinSprites();
 }
@@ -144,16 +144,16 @@ export async function initEnemies() {
 // ============================================================
 // 💀 SPAWN
 // ============================================================
-function spawnEnemy() {
+export function spawnGoblin() {
   if (!pathPoints.length) {
-    console.warn("⚠️ No path points — cannot spawn enemies.");
+    console.warn("⚠️ No path points — cannot spawn goblins.");
     return;
   }
 
   const start = pathPoints[0];
   const spread = 40; // ±20px around path start
 
-  enemies.push({
+  goblins.push({
     x: start.x + (Math.random() - 0.5) * spread,
     y: start.y + (Math.random() - 0.5) * spread,
     width: 42,
@@ -181,11 +181,11 @@ function spawnEnemy() {
     laneOffset: 0,
   });
 
-  enemiesSpawned++;
+  goblinsSpawned++;
 
 
-  window.__enemies = enemies;
-  window.__goblins = enemies;
+  window.__goblins = goblins;
+  window.__goblins = goblins;
 }
 
 // ============================================================
@@ -229,9 +229,9 @@ function getNearbyFromGrid(grid, x, y) {
 }
 
 // ============================================================
-// 🧠 UPDATE ENEMIES — Clean, Simple, No Lag + RETURN-TO-PATH RESTORE
+// 🧠 UPDATE GOBLINS — Clean, Simple, No Lag + RETURN-TO-PATH RESTORE
 // ============================================================
-export function updateEnemies(delta) {
+export function updateGoblins(delta) {
   delta = Math.min(delta, 100);
   const dt = delta / 1000;
   const player = gameState.player;
@@ -241,7 +241,7 @@ export function updateEnemies(delta) {
   const py = player.pos?.y ?? player.y ?? 0;
 
   // MAIN LOOP
-  for (const e of enemies) {
+  for (const e of goblins) {
 
     // ============================================
     // 💤 DEATH / STUN HANDLING
@@ -317,10 +317,10 @@ export function updateEnemies(delta) {
         e.attacking = false;
 
         // ------------------------------------------------------------
-        // 🤜 ENEMY ↔ ENEMY COLLISION (large, looks great)
+        // 🤜 GOBLIN ↔ GOBLIN COLLISION (large, looks great)
         // ------------------------------------------------------------
-        for (let j = 0; j < enemies.length; j++) {
-          const o = enemies[j];
+        for (let j = 0; j < goblins.length; j++) {
+          const o = goblins[j];
           if (o === e || !o.alive) continue;
 
           const dx = e.x - o.x;
@@ -451,10 +451,10 @@ export function updateEnemies(delta) {
   // ============================================
   // CLEANUP DEAD
   // ============================================
-  for (let i = enemies.length - 1; i >= 0; i--) {
-    const e = enemies[i];
+  for (let i = goblins.length - 1; i >= 0; i--) {
+    const e = goblins[i];
     if (!e.alive && e.fading && e.fadeTimer >= FADE_OUT_TIME) {
-      enemies.splice(i, 1);
+      goblins.splice(i, 1);
     }
   }
 }
@@ -480,7 +480,7 @@ function handleElementalEffects(e, dt) {
 
     if (e.burnTick <= 0) {
       e.burnTick = 1000;
-      damageEnemy(e, e.burnDamage);
+      damageGoblin(e, e.burnDamage);
     }
 
     // Burn expired
@@ -494,10 +494,10 @@ function handleElementalEffects(e, dt) {
 // ============================================================
 // 💢 ATTACK PLAYER
 // ============================================================
-function attackPlayer(enemy, player) {
+function attackPlayer(goblin, player) {
   if (!player || player.dead) {
     // Safety: clear attack state if player is gone
-    enemy.attacking = false;
+    goblin.attacking = false;
     return;
   }
 
@@ -538,15 +538,15 @@ function attackPlayer(enemy, player) {
   // ============================================================
   // 🗡️ ATTACK ANIMATION (ALWAYS RUNS)
   // ============================================================
-  enemy.attackFrame = 0;
-  enemy.attackDir = enemy.dir === "left" ? "left" : "right";
+  goblin.attackFrame = 0;
+  goblin.attackDir = goblin.dir === "left" ? "left" : "right";
 
   setTimeout(() => {
-    if (enemy.alive) enemy.attackFrame = 1;
+    if (goblin.alive) goblin.attackFrame = 1;
   }, 150);
 
   setTimeout(() => {
-    if (enemy.alive) enemy.attacking = false;
+    if (goblin.alive) goblin.attacking = false;
   }, 400);
 }
 
@@ -554,59 +554,59 @@ function attackPlayer(enemy, player) {
 // ============================================================
 // 🎯 DAMAGE
 // ============================================================
-export function damageEnemy(enemy, amount) {
-  if (!enemy || !enemy.alive) return;
+export function damageGoblin(goblin, amount) {
+  if (!goblin || !goblin.alive) return;
   const dmg = Number(amount);
   if (isNaN(dmg) || dmg <= 0) return;
 
-  spawnFloatingText(enemy.x, enemy.y - 30, -Math.abs(Math.round(dmg)), "#ff5c8a", 18);
-  enemy.hp -= dmg;
-  enemy.flashTimer = 150;
+  spawnFloatingText(goblin.x, goblin.y - 30, -Math.abs(Math.round(dmg)), "#ff5c8a", 18);
+  goblin.hp -= dmg;
+  goblin.flashTimer = 150;
   playGoblinDamage();
 
-  if (enemy.hp <= 0) {
-    enemy.hp = 0;
-    enemy.alive = false;
-    enemy.deathTimer = 0;
-    enemy.fading = false;
-    enemy.fadeTimer = 0;
+  if (goblin.hp <= 0) {
+    goblin.hp = 0;
+    goblin.alive = false;
+    goblin.deathTimer = 0;
+    goblin.fading = false;
+    goblin.fadeTimer = 0;
     playGoblinDeath();
     incrementGoblinDefeated();
     awardXP(50);
     addGold(50);
     addBravery (1);
     updateHUD();
-    spawnLoot("goblin", enemy.x, enemy.y)
+    spawnLoot("goblin", goblin.x, goblin.y)
   }
 }
 
 // ============================================================
 // 💔 ESCAPE
 // ============================================================
-function handleGoblinEscape(enemy) {
+function handleGoblinEscape(goblin) {
   if (gameState.player) {
     if (gameState.player.lives === undefined) gameState.player.lives = 10;
     gameState.player.lives = Math.max(0, gameState.player.lives - 1);
     updateHUD();
   }
-  enemy.alive = false;
-  enemy.hp = 0;
-  enemy.fadeTimer = FADE_OUT_TIME;
+  goblin.alive = false;
+  goblin.hp = 0;
+  goblin.fadeTimer = FADE_OUT_TIME;
 }
 
 // ============================================================
-// 🎨 DRAW ENEMIES (Fire + Frost Overlay Effects)
+// 🎨 DRAW GOBLINS (Fire + Frost Overlay Effects)
 // ============================================================
-export function drawEnemies(context) {
+export function drawGoblins(context) {
   if (!goblinSprites) return;
   ctx = context;
 
-  for (const e of enemies) {
-    const img = getEnemySprite(e);
+  for (const e of goblins) {
+    const img = getGoblinSprite(e);
     if (!img) continue;
 
-    const drawX = e.x - ENEMY_SIZE / 2;
-    const drawY = e.y - ENEMY_SIZE / 2;
+    const drawX = e.x - GOBLIN_SIZE / 2;
+    const drawY = e.y - GOBLIN_SIZE / 2;
 
     ctx.save();
 
@@ -614,9 +614,9 @@ export function drawEnemies(context) {
     ctx.beginPath();
     ctx.ellipse(
       e.x,
-      e.y + ENEMY_SIZE / 2.3,
-      ENEMY_SIZE * 0.35,
-      ENEMY_SIZE * 0.15,
+      e.y + GOBLIN_SIZE / 2.3,
+      GOBLIN_SIZE * 0.35,
+      GOBLIN_SIZE * 0.15,
       0, 0, Math.PI * 2
     );
     ctx.fillStyle = "rgba(0,0,0,0.25)";
@@ -639,7 +639,7 @@ export function drawEnemies(context) {
     }
 
     // Base goblin sprite
-    ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, ENEMY_SIZE, ENEMY_SIZE);
+    ctx.drawImage(img, 0, 0, 1024, 1024, drawX, drawY, GOBLIN_SIZE, GOBLIN_SIZE);
 
     // FIRE EFFECT
     if (e.isBurning && e.alive) {
@@ -651,25 +651,25 @@ export function drawEnemies(context) {
       ctx.globalAlpha = 0.25 * flicker;
       ctx.fillStyle = "rgba(255,150,80,0.5)";
       ctx.beginPath();
-      ctx.ellipse(e.x, e.y, ENEMY_SIZE * 0.35, ENEMY_SIZE * 0.45, 0, 0, Math.PI * 2);
+      ctx.ellipse(e.x, e.y, GOBLIN_SIZE * 0.35, GOBLIN_SIZE * 0.45, 0, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.globalCompositeOperation = "lighter";
       ctx.globalAlpha = 0.22 * flicker;
       ctx.fillStyle = "rgba(255,120,60,0.5)";
       ctx.beginPath();
-      ctx.ellipse(e.x, e.y - ENEMY_SIZE * 0.1, ENEMY_SIZE * 0.55, ENEMY_SIZE * 0.7, 0, 0, Math.PI * 2);
+      ctx.ellipse(e.x, e.y - GOBLIN_SIZE * 0.1, GOBLIN_SIZE * 0.55, GOBLIN_SIZE * 0.7, 0, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.globalAlpha = 0.15 * flicker;
       ctx.fillStyle = "rgba(255,200,80,0.5)";
       ctx.beginPath();
-      ctx.ellipse(e.x, e.y - ENEMY_SIZE * 0.25, ENEMY_SIZE * 0.25, ENEMY_SIZE * 0.35, 0, 0, Math.PI * 2);
+      ctx.ellipse(e.x, e.y - GOBLIN_SIZE * 0.25, GOBLIN_SIZE * 0.25, GOBLIN_SIZE * 0.35, 0, 0, Math.PI * 2);
       ctx.fill();
 
       for (let i = 0; i < 2; i++) {
-        const ox = (Math.random() - 0.5) * ENEMY_SIZE * 0.2;
-        const oy = -Math.random() * ENEMY_SIZE * 0.3;
+        const ox = (Math.random() - 0.5) * GOBLIN_SIZE * 0.2;
+        const oy = -Math.random() * GOBLIN_SIZE * 0.3;
 
         ctx.globalAlpha = 0.15 * Math.random();
         ctx.beginPath();
@@ -690,7 +690,7 @@ export function drawEnemies(context) {
       ctx.globalAlpha = 0.25 * frostPulse;
       ctx.fillStyle = "rgba(160,200,255,0.5)";
       ctx.beginPath();
-      ctx.ellipse(e.x, e.y, ENEMY_SIZE * 0.38, ENEMY_SIZE * 0.48, 0, 0, Math.PI * 2);
+      ctx.ellipse(e.x, e.y, GOBLIN_SIZE * 0.38, GOBLIN_SIZE * 0.48, 0, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.globalCompositeOperation = "lighter";
@@ -699,16 +699,16 @@ export function drawEnemies(context) {
       ctx.beginPath();
       ctx.ellipse(
         e.x,
-        e.y - ENEMY_SIZE * 0.1,
-        ENEMY_SIZE * 0.6,
-        ENEMY_SIZE * 0.75,
+        e.y - GOBLIN_SIZE * 0.1,
+        GOBLIN_SIZE * 0.6,
+        GOBLIN_SIZE * 0.75,
         0, 0, Math.PI * 2
       );
       ctx.fill();
 
       for (let i = 0; i < 2; i++) {
-        const ox = (Math.random() - 0.5) * ENEMY_SIZE * 0.3;
-        const oy = -Math.random() * ENEMY_SIZE * 0.3;
+        const ox = (Math.random() - 0.5) * GOBLIN_SIZE * 0.3;
+        const oy = -Math.random() * GOBLIN_SIZE * 0.3;
 
         ctx.globalAlpha = 0.12 * Math.random();
         ctx.fillStyle = "rgba(210,240,255,0.8)";
@@ -734,16 +734,21 @@ export function drawEnemies(context) {
 // ❤️ HEALTH BAR
 // ============================================================
 function drawHealthBar(ctx, x, y, hp, maxHp) {
-  const barWidth = 40, barHeight = 5, offsetY = 20;
+  const barWidth = 40;
+  const barHeight = 5;
+  const offsetY = GOBLIN_SIZE * 0.52; // bottom of sprite, same as elites/trolls/worgs
+
   const hpPct = Math.max(0, Math.min(1, hp / maxHp));
 
+  // background
   ctx.fillStyle = "rgba(0,0,0,0.4)";
-  ctx.fillRect(x - barWidth / 2, y - ENEMY_SIZE / 2 - offsetY, barWidth, barHeight);
+  ctx.fillRect(x - barWidth / 2, y + offsetY, barWidth, barHeight);
 
+  // fill (green → red)
   ctx.fillStyle = `hsl(${hpPct * 120},100%,50%)`;
   ctx.fillRect(
     x - barWidth / 2,
-    y - ENEMY_SIZE / 2 - offsetY,
+    y + offsetY,
     barWidth * hpPct,
     barHeight
   );
@@ -752,7 +757,7 @@ function drawHealthBar(ctx, x, y, hp, maxHp) {
 // ============================================================
 // 🧩 SPRITE SELECTOR
 // ============================================================
-function getEnemySprite(e) {
+function getGoblinSprite(e) {
   if (!goblinSprites) return null;
   if (!e.alive) return goblinSprites.slain;
   if (e.attacking) {
@@ -771,19 +776,10 @@ function getEnemySprite(e) {
 // ============================================================
 // 🔍 ACCESSOR
 // ============================================================
-export function getEnemies() {
-  return enemies;
-}
-
-// ✅ New explicit goblin spawner for waves & dev tools
-export function spawnGoblin() {
-  spawnEnemy();   // uses internal spawn logic + spread
-}
-
-// Optional alias if you want goblin-specific getter
 export function getGoblins() {
-  return enemies;
+  return goblins;
 }
+
 
 // ============================================================
 // 🌟 END OF FILE

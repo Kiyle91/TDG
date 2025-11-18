@@ -10,13 +10,13 @@
 // ✔ 🆕 PERFORMANCE OPTIMIZATIONS:
 //    - Cached distance calculations (squared distance)
 //    - Throttled targeting updates (every 200ms instead of 16ms)
-//    - Optimized nearest-enemy algorithm
+//    - Optimized nearest-goblin algorithm
 //    - Reduced redundant sprite lookups
 // ============================================================
 
 import { SPIRE_RANGE } from "../utils/constants.js";
 import { spawnProjectile } from "./projectiles.js";
-import { getEnemies } from "./enemies.js";
+import { getGoblins } from "./goblin.js";
 import { getWorg } from "./worg.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { gameState } from "../utils/gameState.js";
@@ -81,13 +81,13 @@ export function addSpire(data) {
 }
 
 // ------------------------------------------------------------
-// 🆕 OPTIMIZED NEAREST ENEMY FINDER (uses squared distance)
+// 🆕 OPTIMIZED NEAREST GOBLIN FINDER (uses squared distance)
 // ------------------------------------------------------------
-function findNearestEnemy(spire, enemies, range) {
+function findNearestGoblin(spire, goblins, range) {
   let closest = null;
   let minDistSq = range * range;
 
-  for (const e of enemies) {
+  for (const e of goblins) {
     if (!e.alive) continue;
 
     const dx = spire.x - e.x;
@@ -109,7 +109,7 @@ function findNearestEnemy(spire, enemies, range) {
 export function updateSpires(delta) {
   const dt = delta / 1000;
 
-  const combinedEnemies = [...getEnemies(), ...getWorg(), ...getElites(), ...getTrolls(), ...getCrossbows()];
+  const combinedGoblins = [...getGoblins(), ...getWorg(), ...getElites(), ...getTrolls(), ...getCrossbows()];
 
   for (let i = spires.length - 1; i >= 0; i--) {
     const spire = spires[i];
@@ -137,16 +137,16 @@ export function updateSpires(delta) {
 
       switch (spire.type) {
         case "basic_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE);
+          spire.cachedTarget = findNearestGoblin(spire, combinedGoblins, SPIRE_RANGE);
           break;
         case "frost_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE * 0.9);
+          spire.cachedTarget = findNearestGoblin(spire, combinedGoblins, SPIRE_RANGE * 0.9);
           break;
         case "flame_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE * 0.9);
+          spire.cachedTarget = findNearestGoblin(spire, combinedGoblins, SPIRE_RANGE * 0.9);
           break;
         case "arcane_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE * 1.5);
+          spire.cachedTarget = findNearestGoblin(spire, combinedGoblins, SPIRE_RANGE * 1.5);
           break;
         case "light_spire":
           const player = gameState.player;
@@ -159,7 +159,7 @@ export function updateSpires(delta) {
           }
           break;
         case "moon_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE);
+          spire.cachedTarget = findNearestGoblin(spire, combinedGoblins, SPIRE_RANGE);
           break;
       }
     }

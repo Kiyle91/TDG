@@ -8,7 +8,7 @@
 // ============================================================
 
 import { gameState, getCurrencies } from "../utils/gameState.js";
-import { getEnemies } from "./goblin.js";
+import { getGoblins } from "./goblin.js";
 import { getWorg } from "./worg.js";
 import { getElites, clearElites } from "./elite.js";
 import { getOgres, clearOgres } from "./ogre.js";
@@ -64,7 +64,7 @@ export function snapshotGame() {
 
   const { gold, diamonds } = getCurrencies();
   const spires = safeClone(getSpires() || []);
-  const goblins = safeClone(getEnemies() || []);
+  const goblins = safeClone(getGoblins() || []);
   const worgs = safeClone(getWorg() || []);
   const elites = safeClone(getElites() || []);
   const ogres = safeClone(getOgres() || []);
@@ -179,7 +179,7 @@ export function applySnapshot(snapshot) {
   // ------------------------------------------------------------
   // 7) Restore goblins
   // ------------------------------------------------------------
-  const gobArr = getEnemies();
+  const gobArr = getGoblins();
   gobArr.length = 0;
   if (Array.isArray(snapshot.goblins)) {
     snapshot.goblins.forEach(g =>

@@ -2,7 +2,7 @@
 // 🌸 constants.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ Global configuration values
-// ✦ Shared across all core systems (grid, enemies, spires, etc.)
+// ✦ Shared across all core systems (grid, goblins, spires, etc.)
 // ✦ Defines tile size, grid layout, and gameplay tuning constants
 // ============================================================
 
@@ -16,7 +16,7 @@ export const GRID_ROWS = 35;
 // ------------------------------------------------------------
 // ⚔️ GAMEPLAY CONSTANTS
 // ------------------------------------------------------------
-export const ENEMY_SPEED = 60;       // pixels per second
+export const GOBLIN_SPEED = 60;       // pixels per second
 export const SPIRE_RANGE = 250;      // spire attack range (px)
 export const PROJECTILE_SPEED = 300; // projectile travel speed (px/s)
 

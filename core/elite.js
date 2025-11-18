@@ -1,7 +1,7 @@
 // ============================================================
 // 🟥 elite.js — Olivia’s World: Crystal Keep (Brute Elite Hunter)
 // ------------------------------------------------------------
-// • Hunter enemy (tracks player instead of following path)
+// • Hunter goblin (tracks player instead of following path)
 // • Full 2-frame RUN + full 2-frame ATTACK + idle + slain
 // • Takes damage from melee, spells, arrows
 // • Frost slow, Flame burn, Moon stun
@@ -15,7 +15,7 @@ import { spawnFloatingText } from "./floatingText.js";
 import { awardXP } from "./levelSystem.js";
 import { updateHUD } from "./ui.js";
 import { playGoblinDamage, playGoblinDeath } from "./soundtrack.js";
-import { getEnemies } from "./goblin.js";
+import { getGoblins } from "./goblin.js";
 
 // ------------------------------------------------------------
 // 🧩 INTERNAL STATE
@@ -286,7 +286,7 @@ export function updateElites(delta = 16) {
       // ------------------------------------------------------------
       // 🤜 ELITE ↔ GOBLIN COLLISION (uses goblin list)
       // ------------------------------------------------------------
-      const goblins = getEnemies();
+      const goblins = getGoblins();
 
       for (let j = 0; j < goblins.length; j++) {
           const o = goblins[j];
@@ -380,27 +380,29 @@ export function damageElite(e, amount) {
 // ❤️ HP BAR
 // ------------------------------------------------------------
 function drawEliteHpBar(ctx, e) {
-  const barWidth = 46;
+  const barWidth = 40;
   const barHeight = 5;
-  const offsetY = ELITE_SIZE * 0.52;
+  const offsetY = ELITE_SIZE * 0.52; // same positioning you had
 
-  const pct = Math.max(0, Math.min(1, e.hp / e.maxHp));
+  const hpPct = Math.max(0, Math.min(1, e.hp / e.maxHp));
 
-  ctx.fillStyle = "rgba(0,0,0,0.35)";
-  ctx.fillRect(e.x - barWidth / 2, e.y + offsetY, barWidth, barHeight);
-
-  const grad = ctx.createLinearGradient(
-    e.x - barWidth / 2, 0,
-    e.x + barWidth / 2, 0
+  // Background
+  ctx.fillStyle = "rgba(0,0,0,0.4)";
+  ctx.fillRect(
+    e.x - barWidth / 2,
+    e.y + offsetY,
+    barWidth,
+    barHeight
   );
-  grad.addColorStop(0, "#ff3355");
-  grad.addColorStop(1, "#ff7788");
 
-  ctx.fillStyle = grad;
-  ctx.fillRect(e.x - barWidth / 2, e.y + offsetY, barWidth * pct, barHeight);
-
-  ctx.strokeStyle = "rgba(255,182,193,0.7)";
-  ctx.strokeRect(e.x - barWidth / 2, e.y + offsetY, barWidth,barHeight);
+  // Fill (pure goblin style HSL)
+  ctx.fillStyle = `hsl(${hpPct * 120},100%,50%)`;
+  ctx.fillRect(
+    e.x - barWidth / 2,
+    e.y + offsetY,
+    barWidth * hpPct,
+    barHeight
+  );
 }
 
 // ------------------------------------------------------------

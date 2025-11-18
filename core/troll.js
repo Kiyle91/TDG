@@ -474,15 +474,31 @@ export function drawTrolls(ctx) {
     // HP BAR
     // ---------------------------------------
     if (t.alive) {
-      const barW = 60, barH = 5;
-      const pct = Math.max(0, Math.min(1, t.hp / t.maxHp));
-      const barY = drawY - 8;
+      const barWidth = 40;
+      const barHeight = 5;
 
+      // Troll uses SIZE = 96
+      const offsetY = SIZE * 0.52;
+
+      const hpPct = Math.max(0, Math.min(1, t.hp / t.maxHp));
+
+      // Background
       ctx.fillStyle = "rgba(0,0,0,0.4)";
-      ctx.fillRect(t.x - barW / 2, barY, barW, barH);
+      ctx.fillRect(
+        t.x - barWidth / 2,
+        t.y + offsetY,
+        barWidth,
+        barHeight
+      );
 
-      ctx.fillStyle = `hsl(${pct * 120},100%,50%)`;
-      ctx.fillRect(t.x - barW / 2, barY, barW * pct, barH);
+      // Fill (HSL green → red)
+      ctx.fillStyle = `hsl(${hpPct * 120},100%,50%)`;
+      ctx.fillRect(
+        t.x - barWidth / 2,
+        t.y + offsetY,
+        barWidth * hpPct,
+        barHeight
+      );
     }
 
     ctx.restore();

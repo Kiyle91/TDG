@@ -45,7 +45,7 @@ const LOOT_ITEMS = [
 ];
 
 // ------------------------------------------------------------
-// 🎲 PER-ENEMY DROP CHANCES
+// 🎲 PER-GOBLIN DROP CHANCES
 // ------------------------------------------------------------
 const LOOT_TABLE = {
   goblin:  { chance: 1.0, rolls: 1 }, // 5%

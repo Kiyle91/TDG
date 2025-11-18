@@ -1,8 +1,8 @@
 // ============================================================
 // 🏹 crossbow.js — Olivia's World: Crystal Keep (Ranged Elite)
 // ------------------------------------------------------------
-// • Independent enemy type: Crossbow Goblins
-// • Follows the enemy path, then kites at range
+// • Independent goblin type: Crossbow Goblins
+// • Follows the goblin path, then kites at range
 // • Ranged basic attack with cooldown (no projectile sprites yet)
 // • Small HP bar, death fade, XP + Gold rewards
 // • Fully compatible with spire targeting once integrated
@@ -119,7 +119,7 @@ async function loadCrossbowSprites() {
   console.log("🏹 Crossbow sprites loaded (CORRECTED).");
 }
 // ------------------------------------------------------------
-// 🔄 PATH MOVEMENT HELPER (same style as other path enemies)
+// 🔄 PATH MOVEMENT HELPER (same style as other path goblins)
 // ------------------------------------------------------------
 function moveAlongPath(entity, dt, speed) {
   if (!pathPoints || pathPoints.length < 2) return;
@@ -484,19 +484,32 @@ export function drawCrossbows(ctx) {
     ctx.drawImage(img, drawX, drawY, baseSize, baseSize);
     }
 
-    // HP bar
     if (c.alive) {
-      const barW = 46;
-      const barH = 6;
-      const bx = c.x - barW / 2;
-      const by = drawY - 10;
+      const barWidth = 40;
+      const barHeight = 5;
 
-      ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-      ctx.fillRect(bx - 1, by - 1, barW + 2, barH + 2);
+      // Elite sprites draw downward — keeping your offset but cleaner
+      const offsetY = CROSSBOW_SIZE * 0.52;
 
-      const ratio = Math.max(0, c.hp / c.maxHp);
-      ctx.fillStyle = "#ff7575";
-      ctx.fillRect(bx, by, barW * ratio, barH);
+      const hpPct = Math.max(0, Math.min(1, c.hp / c.maxHp));
+
+      // Background
+      ctx.fillStyle = "rgba(0,0,0,0.4)";
+      ctx.fillRect(
+        c.x - barWidth / 2,
+        c.y + offsetY,
+        barWidth,
+        barHeight
+      );
+
+      // Fill (green → yellow → red)
+      ctx.fillStyle = `hsl(${hpPct * 120},100%,50%)`;
+      ctx.fillRect(
+        c.x - barWidth / 2,
+        c.y + offsetY,
+        barWidth * hpPct,
+        barHeight
+      );
     }
 
     drawCrossbowBolts(ctx);
@@ -531,7 +544,7 @@ function killCrossbow(c) {
   addGold(8);
   updateHUD();
   playGoblinDeath();
-  spawnLoot("crossbow", enemy.x, enemy.y);
+  spawnLoot("crossbow", goblin.x, goblin.y);
 
   spawnFloatingText("✝", c.x, c.y - 50, "#ffffff");
 }
