@@ -42,7 +42,11 @@
 
 import { playFairySprinkle } from "./soundtrack.js";
 import { stopGameplay, resetGameplay } from "../main.js";
-import { pauseGame, resumeGame } from "./ui.js";
+import { pauseGame, resumeGame, showOverlay, closeOverlay } from "./ui.js";
+import { renderSlots } from "./saveSlots.js";
+import { loadFromSlot, applySnapshot } from "./saveSystem.js";
+import { ensureSkin } from "./skins.js";
+import { gameState, saveProfiles } from "../utils/gameState.js";
 
 // ------------------------------------------------------------
 // 🌸 INIT NAVBAR
@@ -141,15 +145,15 @@ function handleNavAction(action) {
 
     case "save": {
       playFairySprinkle();
-      const container = document.getElementById("save-slots-ingame");
 
-      import("./saveSlots.js").then((mod) => {
-        mod.renderSlots(container, true);
-      });
+      const containerEl = document.getElementById("save-slots-ingame");
+      const rendered = renderSlots(containerEl, true);
+      const target =
+        rendered || document.getElementById("save-slots-ingame");
 
-      import("./ui.js").then((mod) =>
-        mod.showOverlay?.("overlay-save-game")
-      );
+      target.addEventListener("click", handleInGameSlotClick);
+
+      showOverlay("overlay-save-game");
       break;
     }
 
@@ -190,6 +194,30 @@ function handleNavAction(action) {
 
     default:
       break;
+  }
+}
+
+function handleInGameSlotClick(evt) {
+  const loadBtn = evt.target.closest(".load-btn");
+  if (!loadBtn) return;
+
+  const slotIndex = Number(loadBtn.dataset.index);
+  if (!Number.isInteger(slotIndex) || slotIndex < 0) return;
+
+  playFairySprinkle();
+
+  const snap = loadFromSlot(slotIndex);
+  if (!snap) return;
+
+  applySnapshot(snap);
+  ensureSkin(gameState.player);
+  saveProfiles();
+
+  const overlay = document.getElementById("overlay-save-game");
+  if (overlay) {
+    closeOverlay(overlay);
+  } else {
+    resumeGame();
   }
 }
 
