@@ -66,7 +66,6 @@ export function initSettings() {
   applySettingsToGame();
   setupListeners();
 
-  console.log("⚙️ Settings initialized:", settings);
 }
 
 // ------------------------------------------------------------
@@ -152,7 +151,6 @@ function setupListeners() {
 
 function saveSettings() {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-  console.log("💾 Settings saved:", settings);
 }
 
 // ------------------------------------------------------------

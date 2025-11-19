@@ -47,11 +47,13 @@ import { initGoblins } from "./core/goblin.js";
 // ============================================================
 // 🎮 GLOBAL GAME LOOP STATE
 // ============================================================
+
 export let gameActive = false;
 
 // ============================================================
 // ⏱ FIXED TIMESTEP VARIABLES
 // ============================================================
+
 let lastTimestamp = 0;
 let accumulator = 0;
 const FIXED_DT = 1000 / 60;
@@ -59,6 +61,7 @@ const FIXED_DT = 1000 / 60;
 // ============================================================
 // 🎯 MAIN GAME LOOP
 // ============================================================
+
 function gameLoop(timestamp) {
   if (!gameActive) return;
 
@@ -81,6 +84,7 @@ function gameLoop(timestamp) {
 // ============================================================
 // ▶️ START GAMEPLAY
 // ============================================================
+
 export function startGameplay() {
   cancelAnimationFrame(window.__gameLoopID);
 
@@ -105,6 +109,7 @@ export function startGameplay() {
 // ============================================================
 // ⛔ STOP GAMEPLAY (Victory / Defeat / Exit)
 // ============================================================
+
 export function stopGameplay(reason = "unknown") {
   if (!gameActive) return;
 
@@ -131,32 +136,54 @@ export function stopGameplay(reason = "unknown") {
 // ============================================================
 // 🧹 Clear all end-screen overlays
 // ============================================================
+
 function clearEndScreens() {
   document.querySelectorAll(".end-overlay, #end-screen")
     .forEach(el => el.remove?.());
 }
 
 // ============================================================
-// 🌟 FULL NEW GAME RESET
+// 🌟 FULL NEW GAME RESET (Reset progress, keep diamonds)
 // ============================================================
+
 export function fullNewGameReset() {
-  gameState.progress.currentMap = 1;
+  if (!gameState.profile) return;
 
-  if (!gameState.profile.progress) {
-    gameState.profile.progress = {
-      currentMap: 1,
-      mapsUnlocked: gameState.progress.mapsUnlocked ??
-        [true, false, false, false, false, false, false, false, false]
-    };
-  } else {
-    gameState.profile.progress.currentMap = 1;
-  }
+  const profile = gameState.profile;
 
+  // 🌸 Preserve premium currency (diamonds)
+  const diamonds = profile.currencies?.diamonds ?? 0;
+
+  // 🌸 Preserve cosmetics
   const prevSkin = gameState.player?.skin || "glitter";
   const prevUnlocked = gameState.player?.unlockedSkins ?? ["glitter"];
 
+  // ------------------------------------------------------------
+  // 🗺️ Reset Campaign Progress
+  // ------------------------------------------------------------
+  const freshMaps = [true, false, false, false, false, false, false, false, false];
+
+  gameState.progress.currentMap = 1;
+  gameState.progress.mapsUnlocked = [...freshMaps];
+
+  profile.progress = {
+    currentMap: 1,
+    mapsUnlocked: [...freshMaps],
+    // Optional: exploration reset (safe to include)
+    exploration: {
+      echoes: [],
+      crystalsFound: 0,
+      secretsFound: 0,
+      visitedTiles: []
+    }
+  };
+
+  // ------------------------------------------------------------
+  // 🧍 Reset Player Gameplay Stats (cosmetics restored after)
+  // ------------------------------------------------------------
+
   gameState.player = {
-    name: gameState.profile.name || "Olivia",
+    name: profile.name || "Olivia",
     level: 1,
     xp: 0,
     maxHp: 100,
@@ -171,11 +198,20 @@ export function fullNewGameReset() {
     unlockedSkins: prevUnlocked,
   };
 
-  gameState.profile.player = { ...gameState.player };
+  profile.player = { ...gameState.player };
 
-  if (!gameState.profile.currencies)
-    gameState.profile.currencies = { gold: 0, diamonds: 0 };
-  gameState.profile.currencies.gold = 0;
+  // ------------------------------------------------------------
+  // 💰 Reset Gold Only — Diamonds Persist
+  // ------------------------------------------------------------
+
+  profile.currencies = {
+    gold: 0,
+    diamonds: diamonds
+  };
+
+  // ------------------------------------------------------------
+  // ⚔️ Reset Bravery
+  // ------------------------------------------------------------
 
   gameState.bravery = {
     current: 0,
@@ -184,22 +220,34 @@ export function fullNewGameReset() {
     draining: false
   };
 
-  gameState.profile.spiresUnlocked = {
+  // ------------------------------------------------------------
+  // 🏰 Reset Spire Unlocks (tower progression)
+  // ------------------------------------------------------------
+
+  profile.spiresUnlocked = {
     crystal: true,
     frost: false,
     flame: false,
     arcane: false,
+    light: false,   // Beacon of Light (matches future unlock)
     moon: false,
   };
 
+  // ------------------------------------------------------------
+  // 🎬 Story Flags
+  // ------------------------------------------------------------
+
   gameState.goblinIntroPlayed = false;
 
+  // Save
   saveProfiles();
 }
+
 
 // ============================================================
 // 🌟 START NEW GAME STORY
 // ============================================================
+
 export async function startNewGameStory() {
   fullNewGameReset();
   showScreen("game-container");
@@ -211,6 +259,7 @@ export async function startNewGameStory() {
 // ============================================================
 // 🔁 RESET GAMEPLAY (Try Again)
 // ============================================================
+
 export async function resetGameplay() {
   cancelAnimationFrame(window.__gameLoopID);
   gameActive = false;
@@ -258,6 +307,7 @@ export async function resetGameplay() {
 // ============================================================
 // 💎 CONTINUE WITH DIAMONDS
 // ============================================================
+
 function tryContinueWithDiamonds() {
   const p = gameState.player;
   const c = getCurrencies();
@@ -298,6 +348,7 @@ function showTempMsg(text) {
 // ============================================================
 // 🕯 END SCREEN (Victory / Defeat)
 // ============================================================
+
 function showEndScreen(reason) {
   clearEndScreens();
 
@@ -339,6 +390,7 @@ function showEndScreen(reason) {
   // ======================================================
   // ⭐ BUTTONS
   // ======================================================
+
   if (reason === "victory") {
     const nextBtn = document.createElement("button");
     nextBtn.textContent = "Continue";
@@ -411,6 +463,7 @@ function showEndScreen(reason) {
 // ============================================================
 // 🌼 INITIALISATION — page load
 // ============================================================
+
 window.addEventListener("DOMContentLoaded", () => {
   initMusic();
   initLanding();
@@ -422,6 +475,13 @@ window.addEventListener("DOMContentLoaded", () => {
   initNavbar();
   initCredits();
 });
+
+
+// ============================================================
+// CONSOLE LOG
+// ============================================================
+
+console.log("🌸 Olivia’s World: Crystal Keep (Polished Edition) Loaded.");
 
 // ============================================================
 // 🌟 END OF FILE

@@ -123,7 +123,9 @@ export function snapshotGame() {
     goblins: safeClone(getGoblins() || []),
     worgs: safeClone(getWorg() || []),
     elites: safeClone(getElites() || []),
-    ogres: safeClone(getOgres() || [])
+    ogres: safeClone(getOgres() || []),
+    trolls: safeClone(getTrolls?.() || []),
+    crossbows: safeClone(getCrossbows?.() || []),
   };
 
   return snapshot;
@@ -200,9 +202,24 @@ export function applySnapshot(snapshot) {
   const oArr = getOgres();
   (snapshot.ogres || []).forEach(o => oArr.push(safeClone(o)));
 
-  // 11) Refresh HUD
+  //  11) Restore trolls 
+  const tArr = getTrolls();
+  if (Array.isArray(tArr)) {
+    tArr.length = 0;
+    (snapshot.trolls || []).forEach(t => tArr.push(safeClone(t)));
+  }
+
+  //  12) Restore crossbows 
+  const cArr = getCrossbows();
+  if (Array.isArray(cArr)) {
+    cArr.length = 0;
+    (snapshot.crossbows || []).forEach(c => cArr.push(safeClone(c)));
+  }
+
+  // 13) Refresh HUD
   updateHUD();
 }
+
 
 // ------------------------------------------------------------
 // 🧊 PUBLIC SAVE/LOAD API
@@ -237,7 +254,6 @@ export function loadFromSlot(index) {
 
   if (!snap) return null;
 
-  applySnapshot(snap);
   return snap;
 }
 

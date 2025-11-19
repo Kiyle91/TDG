@@ -223,15 +223,26 @@ export function addProfile(name) {
 export function saveProfiles() {
   try {
     if (gameState.profile) {
+
+      // Store progress, player, bravery exactly as before
       gameState.profile.progress = { ...gameState.progress };
       gameState.profile.player = { ...gameState.player };
       gameState.profile.bravery = { ...gameState.bravery };
-      gameState.profile.exploration = { ...gameState.profile.exploration };
+
+      // 🔥 FIXED: exploration may not exist for new profiles
+      const explorationSafe = gameState.profile.exploration || {
+        echoes: [],
+        crystalsFound: 0,
+        secretsFound: 0,
+        visitedTiles: []
+      };
+
+      gameState.profile.exploration = { ...explorationSafe };
     }
 
     localStorage.setItem("td_profiles", JSON.stringify(gameState.profiles));
-  } catch {
-    
+  } catch (err) {
+    console.warn("saveProfiles failed:", err);
   }
 }
 

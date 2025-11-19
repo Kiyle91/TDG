@@ -346,7 +346,7 @@ export function resetWaveSystem() {
 
   betweenWaveTimer = FIRST_WAVE_DELAY;
 
-  console.log("🔄 Wave system reset.");
+
 }
 
 // ============================================================
@@ -674,7 +674,6 @@ export async function initGame(mode = "new") {
   const { width: mapW, height: mapH } = getMapPixelSize();
   gameState.mapWidth = mapW;
   gameState.mapHeight = mapH;
-  console.log("📏 Map size set:", mapW, mapH);
 
   const pathPoints = extractPathFromMap();
   setGoblinPath(pathPoints);
@@ -732,7 +731,6 @@ export async function initGame(mode = "new") {
     window.firstWaveStarted = false;
   }
 
-  console.log(`🌸 game.js — Initialization complete (mode: ${mode}).`);
 }
 
 // ============================================================

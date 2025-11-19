@@ -148,15 +148,17 @@ export function renderSlots(container, allowSave = true) {
           // 4️⃣ Full map + combat reinitialisation
           const gameMod = await import("./game.js");
           await gameMod.initGame();
-
-          // 5️⃣ Restore player + structures + enemies
           applySnapshot(snap);
-
           ensureSkin(gameState.player);
           saveProfiles();
 
-          // 6️⃣ Resume gameplay
-          resumeGame();
+          // ⭐ Ensure game loop actually runs
+          if (!window.gameActive) {
+              const { startGameplay } = await import("./game.js");
+              startGameplay();
+          } else {
+              resumeGame();
+          }
 
         } catch (err) {}
 

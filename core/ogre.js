@@ -227,11 +227,7 @@ export function updateOgres(delta = 16) {
   for (let i = ogres.length - 1; i >= 0; i--) {
       const o = ogres[i];
 
-      // 🔍 Debug: confirm we're not flinging into NaN-space
-      if (!o.alive) continue;
-      if (isNaN(o.x) || isNaN(o.y)) {
-          console.log("OGRE INVALID POSITION", o);
-      }
+      
 
     // --- Death fade ---
     if (!o.alive) {

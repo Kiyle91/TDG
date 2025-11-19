@@ -156,7 +156,6 @@ export async function triggerEndOfWave1Story(mapId) {
   });
 
   gameState.paused = false;
-  console.log(`🎬 End-of-Wave-1 story finished for map ${mapId}`);
 }
 
 // ------------------------------------------------------------
@@ -175,7 +174,6 @@ export async function triggerEndOfWave5Story(mapId) {
   });
 
   gameState.paused = false;
-  console.log(`🎬 End-of-Wave-5 story finished for map ${mapId}`);
 }
 
 // ------------------------------------------------------------
@@ -183,7 +181,6 @@ export async function triggerEndOfWave5Story(mapId) {
 // ------------------------------------------------------------
 
 export async function startGoblinIntroStory() {
-  console.log("🎬 Goblin scout intro story triggered!");
   gameState.paused = true;
 
   const goblinText = `
@@ -200,7 +197,6 @@ Press E to fire a silver arrow.
   });
 
   gameState.paused = false;
-  console.log("🏹 Goblin intro story finished.");
 }
 
 // ------------------------------------------------------------
@@ -216,7 +212,6 @@ The crystals glow once again under your protection.
     useAriana: false,
   });
 
-  console.log("🏰 Victory story finished.");
 }
 
 // ============================================================

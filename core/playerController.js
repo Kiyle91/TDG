@@ -207,7 +207,6 @@ async function loadPlayerSprites() {
   // Dead
   sprites.dead = await L("_slain.png");
 
-  console.log(`🦄 Loaded sprites for ${skinKey}`);
 }
 
 // ------------------------------------------------------------
@@ -312,14 +311,12 @@ export async function initPlayerController(canvas) {
   window.addEventListener("mousedown", onMouseDown);
 
   await loadPlayerSprites();
-  console.log("🧭 PlayerController initialized (Combat + FX Optimized).");
 }
 
 export function destroyPlayerController() {
   window.removeEventListener("keydown", onKeyDown);
   window.removeEventListener("keyup", onKeyUp);
   window.removeEventListener("mousedown", onMouseDown);
-  console.log("🧭 PlayerController destroyed.");
 }
 
 // ------------------------------------------------------------
@@ -428,7 +425,7 @@ function performMeleeAttack() {
   );
 
   playMeleeSwing();
-  console.log(`🗡️ Melee attack executed | ${hit ? "Hit" : "Miss"}`);
+
 }
 
 // ------------------------------------------------------------
@@ -587,7 +584,7 @@ function performHeal() {
   );
 
   updateHUD();
-  console.log(`💖 Heal +${actual} HP (SP=${sp}, MaxHP=${mh}, Cost=${cost})`);
+
 }
 
 // ------------------------------------------------------------
@@ -648,7 +645,6 @@ function performSpell() {
 
     updateHUD();
     playSpellCast();
-    console.log(`🔮 Spell hit ${hits} targets for ${dmg.toFixed(1)} each.`);
   }, 400);
 }
 
@@ -765,7 +761,6 @@ function updateProjectiles(delta) {
       if (dist < 45) {
         damageGoblin(g, a.dmg);
         a.alive = false;
-        console.log("🏹 Arrow hit goblin!");
         break;
       }
     }
@@ -787,7 +782,6 @@ export function updatePlayer(delta) {
     p.dead = true;
     isAttacking = false;
     isMoving = false;
-    console.log("💀 Player has fallen!");
   }
 
   if (p.dead) return;
@@ -893,7 +887,6 @@ export function updatePlayer(delta) {
           playPlayerDamage();
           spawnDamageSparkles(p.pos.x, p.pos.y);
 
-          console.log(`💥 Player hit by goblin for ${damage} damage!`);
           break;
         }
       }
@@ -1139,7 +1132,6 @@ export function resetPlayerControllerState() {
   currentFrame = 0;
   isMoving = false;
   attackCooldown = 0;
-  console.log("🎮 Player controller reset (Try Again).");
 }
 
 window.__playerControllerReset = resetPlayerControllerState;
