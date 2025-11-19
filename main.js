@@ -162,6 +162,7 @@ export function fullNewGameReset() {
   // 🗺️ Reset Campaign Progress
   // ------------------------------------------------------------
   const freshMaps = [true, false, false, false, false, false, false, false, false];
+  gameState.profile.progress.mapsUnlocked = [...gameState.progress.mapsUnlocked];
 
   gameState.progress.currentMap = 1;
   gameState.progress.mapsUnlocked = [...freshMaps];
@@ -464,12 +465,12 @@ function showEndScreen(reason) {
 // 🌼 INITIALISATION — page load
 // ============================================================
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
   initMusic();
   initLanding();
   initProfiles();
   initHub();
-  initGame();
+  await initGame();
   initSparkles();
   initSettings();
   initNavbar();

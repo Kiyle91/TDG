@@ -5,6 +5,7 @@
 // ✦ Reloads proper map + resets combat
 // ✦ Starts gameplay with correct spawn point
 // ============================================================
+
 /* ------------------------------------------------------------
  * MODULE: maps.js
  * PURPOSE:
@@ -12,30 +13,7 @@
  *   lock states, handles map switching, reinitializes combat
  *   systems, saves progress, and starts gameplay for the
  *   selected map.
- *
- * SUMMARY:
- *   The Hub uses this module to allow the player to choose
- *   any unlocked campaign map. This module ensures correct
- *   progression logic, fresh map loading, proper spawn point
- *   application, and clean reset of the previous map state.
- *
- * FEATURES:
- *   • updateMapTiles() — visual lock/unlock map tiles
- *   • initMapSelect() — click listeners for each map tile
- *   • Ensures correct currentMap → saved before gameplay
- *   • Fully resets combat + reinitializes game engine
- *   • Calls initGame() + startGameplay()
- *
- * TECHNICAL NOTES:
- *   • Must be consistent with gameState.progress.mapsUnlocked[]
- *   • Fresh economy per map (gold = 0 on load)
- *   • Applies correct player spawn via applyMapSpawn()
  * ------------------------------------------------------------ */
-
-
-// ------------------------------------------------------------
-// ↪️ Imports
-// ------------------------------------------------------------ 
 
 import { gameState, setCurrentMap, saveProfiles } from "../utils/gameState.js";
 import { showScreen } from "./screens.js";
@@ -47,7 +25,6 @@ import { resetCombatState } from "./game.js";
 // ------------------------------------------------------------
 // 🔐 UPDATE TILE VISUAL STATES
 // ------------------------------------------------------------
-
 export function updateMapTiles() {
   document.querySelectorAll(".map-tile").forEach((tile) => {
     const level = parseInt(tile.dataset.level);
@@ -68,15 +45,22 @@ export function updateMapTiles() {
 }
 
 // ------------------------------------------------------------
-// 🎮 MAP SELECT INITIALISATION
+// 🎮 MAP SELECT INITIALISATION (SAFE — NO STACKED LISTENERS)
 // ------------------------------------------------------------
-
 export function initMapSelect() {
   updateMapTiles();
 
   document.querySelectorAll(".map-tile").forEach((tile) => {
-    tile.addEventListener("click", async () => {
-      const level = parseInt(tile.dataset.level);
+
+    // ⭐ Replace tile with a clean clone to remove ALL old listeners
+    const fresh = tile.cloneNode(true);
+    tile.replaceWith(fresh);
+
+    // ⭐ NEW tile reference
+    const level = parseInt(fresh.dataset.level);
+
+    // ⭐ Bind ONE clean click listener per tile
+    fresh.addEventListener("click", async () => {
 
       // Block locked maps
       if (!gameState.progress.mapsUnlocked[level - 1]) {
@@ -86,7 +70,7 @@ export function initMapSelect() {
       // 1️⃣ Update global map state
       setCurrentMap(level);
 
-      // Reset gold economy for new map
+      // Reset gold for the new map (gameplay reset)
       if (gameState.profile?.currencies) {
         gameState.profile.currencies.gold = 0;
       }
@@ -96,23 +80,23 @@ export function initMapSelect() {
       // 2️⃣ Clean previous map state
       resetCombatState();
 
-      // 3️⃣ Apply spawn position for new map
+      // 3️⃣ Apply spawn for the new map
       applyMapSpawn();
 
-      // 4️⃣ Save map selection + spawn
+      // 4️⃣ Save again
       saveProfiles();
 
       // 5️⃣ Close overlay
       const ov = document.getElementById("overlay-maps");
       if (ov) ov.classList.remove("active");
 
-      // 6️⃣ Display game container
+      // 6️⃣ Show game
       showScreen("game-container");
 
-      // 7️⃣ Reload all combat + map systems
+      // 7️⃣ Full init of combat/map systems
       await initGame();
 
-      // 8️⃣ Start main gameplay loop
+      // 8️⃣ Start gameplay
       startGameplay();
     });
   });

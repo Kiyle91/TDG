@@ -55,12 +55,18 @@ import { ensureSkin } from "./skins.js";
 // ------------------------------------------------------------
 // 🧱 RENDER SAVE SLOTS
 // ------------------------------------------------------------
+export function renderSlots(containerEl, allowSave = true) {
+  if (!containerEl) return;
 
-export function renderSlots(container, allowSave = true) {
-  if (!container) return;
+  // ⭐ Prevent stacked event handlers (no parameter reassignment)
+  const clean = containerEl.cloneNode(false);
+  containerEl.replaceWith(clean);
+  const container = clean;
 
   container.innerHTML = "";
   const summaries = getSlotSummaries() || [];
+
+
 
   for (let i = 0; i < 10; i++) {
     const summary = summaries[i];
