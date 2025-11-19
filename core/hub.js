@@ -135,37 +135,53 @@ export function initHub() {
   loadGameBtn.addEventListener("click", () => {
     playFairySprinkle();
 
+    // 1️⃣ Render slots (this replaces the DOM node)
+    const stale = document.getElementById("save-slots-container");
+    renderSlots(stale, false);
+
+    // 2️⃣ Query the NEW live node
     const container = document.getElementById("save-slots-container");
-    renderSlots(container, false);
+
+    // 3️⃣ Open the overlay
     showOverlay("overlay-load");
 
+    // 4️⃣ Attach ONE clean click listener to the new node
     container.addEventListener("click", async (evt) => {
+
       const btn = evt.target.closest(".load-btn");
       if (!btn) return;
+
+      playFairySprinkle();
 
       const slotIndex = Number(btn.dataset.index);
       const snap = loadFromSlot(slotIndex);
       if (!snap) return;
 
+      // Set map BEFORE initGame()
       if (snap.progress?.currentMap) {
         gameState.progress.currentMap = snap.progress.currentMap;
       }
 
+      // Close overlay cleanly
       const ov = document.getElementById("overlay-load");
       ov.classList.remove("active");
       ov.style.display = "none";
 
+      // Swap to game screen
       showScreen("game-container");
 
-      // initGame in LOAD MODE
+      // 5️⃣ Load game modules + init LOAD mode
       const gameMod = await import("./game.js");
       await gameMod.initGame("load");
 
+      // Restore saved state
       applySnapshot(snap);
       ensureSkin(gameState.player);
       saveProfiles();
 
-      startGameplay();
+      // Start / resume loop
+      if (typeof startGameplay === "function") startGameplay();
+
     }, { once: true });
   });
 

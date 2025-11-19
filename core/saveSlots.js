@@ -30,7 +30,7 @@
  * TECHNICAL NOTES:
  *   • Snapshot structure stored in localStorage via saveSystem.js
  *   • showScreen("game-container") must be called BEFORE initGame()
- *   • ResumeGame() returns the loop to active state after load
+ *   • Gameplay loop is explicitly (re)started after load
  * ------------------------------------------------------------ */
 
 
@@ -65,8 +65,6 @@ export function renderSlots(containerEl, allowSave = true) {
 
   container.innerHTML = "";
   const summaries = getSlotSummaries() || [];
-
-
 
   for (let i = 0; i < 10; i++) {
     const summary = summaries[i];
@@ -119,7 +117,9 @@ export function renderSlots(containerEl, allowSave = true) {
         try {
           saveToSlot(i);
           renderSlots(container, allowSave);
-        } catch (err) {}
+        } catch (err) {
+          console.error("Error saving slot", err);
+        }
       });
 
       btnRow.appendChild(saveBtn);
@@ -143,9 +143,14 @@ export function renderSlots(containerEl, allowSave = true) {
           const snap = loadFromSlot(i);
           if (!snap) return;
 
-          // 2️⃣ Set correct map BEFORE game init
+          // 2️⃣ Ensure progress exists & set correct map BEFORE init
+          if (!gameState.progress) gameState.progress = {};
           if (snap.progress?.currentMap) {
             gameState.progress.currentMap = snap.progress.currentMap;
+          } else if (snap.meta?.map) {
+            gameState.progress.currentMap = snap.meta.map;
+          } else {
+            gameState.progress.currentMap = 1;
           }
 
           // 3️⃣ Move to game container screen
@@ -153,27 +158,41 @@ export function renderSlots(containerEl, allowSave = true) {
 
           // 4️⃣ Full map + combat reinitialisation
           const gameMod = await import("./game.js");
-          await gameMod.initGame();
+
+          // Optional: if game has a reset function, call it first
+          if (typeof gameMod.resetCombatState === "function") {
+            gameMod.resetCombatState();
+          }
+
+          await gameMod.initGame("load");
+          applySnapshot(snap);
+
+          // 5️⃣ Apply snapshot AFTER init
           applySnapshot(snap);
           ensureSkin(gameState.player);
           saveProfiles();
 
-          // ⭐ Ensure game loop actually runs
-          if (!window.gameActive) {
-              const { startGameplay } = await import("./game.js");
-              startGameplay();
+          // 6️⃣ Force gameplay loop to be running
+          if (typeof gameMod.startGameplay === "function") {
+            gameMod.startGameplay();
           } else {
-              resumeGame();
+            // Fallback to UI-level resume if loop already exists
+            resumeGame();
           }
 
-        } catch (err) {}
-
-        // 7️⃣ Hide save overlay if shown in-game
-        const overlay = document.getElementById("overlay-save-game");
-        if (overlay) {
-          overlay.classList.remove("active");
-          overlay.style.display = "none";
+        } catch (err) {
+          console.error("Error loading save slot", err);
         }
+
+        // 7️⃣ Hide any save overlays (hub or in-game)
+        const overlayIds = ["overlay-save-game", "overlay-load"];
+        overlayIds.forEach((id) => {
+          const overlay = document.getElementById(id);
+          if (overlay) {
+            overlay.classList.remove("active");
+            overlay.style.display = "none";
+          }
+        });
       });
 
       btnRow.appendChild(loadBtn);
@@ -201,13 +220,14 @@ export function renderSlots(containerEl, allowSave = true) {
     // --------------------------------------------------------
     // Final assembly
     // --------------------------------------------------------
-    
     slotEl.appendChild(titleEl);
     slotEl.appendChild(btnRow);
     container.appendChild(slotEl);
   }
+
+  return container;
 }
- 
+
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================

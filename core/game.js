@@ -349,6 +349,32 @@ export function resetWaveSystem() {
 
 }
 
+export function restoreWaveFromSnapshot(meta) {
+  if (!meta) return;
+
+  // Wave index from snapshot (wave is 1-based)
+  if (typeof meta.wave === "number") {
+    currentWaveIndex = Math.max(0, meta.wave - 1);
+    gameState.wave = meta.wave;
+  }
+
+  // Resume wave system in an active state
+  firstWaveStarted = true;
+  window.firstWaveStarted = true;
+
+  waveActive = true;
+  waveCleared = false;
+  justStartedWave = false;
+
+  // Keep timers / queue sane (snapshot stores entities, not spawn queue)
+  spawnQueue.length = 0;
+  spawnTimer = 0;
+  betweenWaveTimer = 0;
+  window.betweenWaveTimerActive = false;
+
+  gameState.victoryPending = false;
+}
+
 // ============================================================
 // 🚀 START NEXT WAVE
 // ============================================================
@@ -645,6 +671,9 @@ function applyMapSpawn() {
 // ============================================================
 
 export async function initGame(mode = "new") {
+  gameState.paused = false;
+  gameState.isPaused = false;
+  gameState.echoPowerActive = false;
   gameState.echoPowerActive = false;
 
   if (!gameState.exploration) {
@@ -710,7 +739,9 @@ export async function initGame(mode = "new") {
     };
   }
 
-  applyMapSpawn();
+  if (mode === "new") {
+    applyMapSpawn();
+  }
   initPlayerController(canvas);
   initUI();
 
@@ -720,17 +751,8 @@ export async function initGame(mode = "new") {
 
   // Wave state (only on new/retry)
   if (mode !== "load") {
-    currentWaveIndex = 0;
-    waveActive = false;
-    waveCleared = false;
-    gameState.victoryPending = false;
-    spawnQueue = [];
-    spawnTimer = 0;
-    betweenWaveTimer = FIRST_WAVE_DELAY;
-    firstWaveStarted = false;
-    window.firstWaveStarted = false;
+    resetWaveSystem();
   }
-
 }
 
 // ============================================================

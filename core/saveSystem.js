@@ -55,6 +55,10 @@ import { getElites, clearElites } from "./elite.js";
 import { getOgres, clearOgres } from "./ogre.js";
 import { getSpires } from "./spires.js";
 import { updateHUD } from "./ui.js";
+import { getTrolls } from "./troll.js";
+import { getCrossbows } from "./crossbow.js";
+import { restoreWaveFromSnapshot } from "./game.js";
+
 
 // ------------------------------------------------------------
 // 🔐 STORAGE HELPERS
@@ -81,7 +85,9 @@ function loadAllSaves() {
 function persistAllSaves(all) {
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(all));
-  } catch {}
+  } catch {
+    // ignore quota / private mode errors
+  }
 }
 
 function getProfileKey() {
@@ -137,6 +143,26 @@ export function snapshotGame() {
 export function applySnapshot(snapshot) {
   if (!snapshot) return;
 
+  
+  restoreWaveFromSnapshot(snapshot.meta);
+
+  
+
+
+  // 0) Make sure core structures exist
+  if (!gameState.progress) gameState.progress = {};
+  if (!gameState.player) gameState.player = {};
+  if (!gameState.profile) gameState.profile = {};
+
+  // 🔓 Always unpause when loading a save
+  gameState.paused = false;
+  gameState.isPaused = false; // keep both in sync, just in case
+
+  if (typeof window !== "undefined") {
+    window.betweenWaveTimerActive = false;
+    window.gameOver = false;
+  }
+
   // 1) Preserve cosmetics
   const currentSkin = gameState.player?.skin || "glitter";
   const currentUnlocked = gameState.player?.unlockedSkins || ["glitter"];
@@ -172,18 +198,23 @@ export function applySnapshot(snapshot) {
         snapshot.meta.gold ??
         prof.currencies.gold ??
         0;
+      // diamonds intentionally left as-is (persistent)
     }
   }
 
   // 6) Restore spires
   const spArr = getSpires();
-  spArr.length = 0;
-  (snapshot.spires || []).forEach(t => spArr.push(safeClone(t)));
+  if (Array.isArray(spArr)) {
+    spArr.length = 0;
+    (snapshot.spires || []).forEach(t => spArr.push(safeClone(t)));
+  }
 
   // 7) Restore goblins
   const gArr = getGoblins();
-  gArr.length = 0;
-  (snapshot.goblins || []).forEach(g => gArr.push(safeClone(g)));
+  if (Array.isArray(gArr)) {
+    gArr.length = 0;
+    (snapshot.goblins || []).forEach(g => gArr.push(safeClone(g)));
+  }
 
   // 8) Restore worgs
   const wArr = getWorg();
@@ -195,28 +226,32 @@ export function applySnapshot(snapshot) {
   // 9) Restore elites
   clearElites();
   const eArr = getElites();
-  (snapshot.elites || []).forEach(e => eArr.push(safeClone(e)));
+  if (Array.isArray(eArr)) {
+    (snapshot.elites || []).forEach(e => eArr.push(safeClone(e)));
+  }
 
   // 10) Restore ogres
   clearOgres();
   const oArr = getOgres();
-  (snapshot.ogres || []).forEach(o => oArr.push(safeClone(o)));
+  if (Array.isArray(oArr)) {
+    (snapshot.ogres || []).forEach(o => oArr.push(safeClone(o)));
+  }
 
-  //  11) Restore trolls 
-  const tArr = getTrolls();
+  // 11) Restore trolls
+  const tArr = getTrolls?.();
   if (Array.isArray(tArr)) {
     tArr.length = 0;
     (snapshot.trolls || []).forEach(t => tArr.push(safeClone(t)));
   }
 
-  //  12) Restore crossbows 
-  const cArr = getCrossbows();
+  // 12) Restore crossbows
+  const cArr = getCrossbows?.();
   if (Array.isArray(cArr)) {
     cArr.length = 0;
     (snapshot.crossbows || []).forEach(c => cArr.push(safeClone(c)));
   }
 
-  // 13) Refresh HUD
+  // 13) Refresh HUD after everything is back in place
   updateHUD();
 }
 
