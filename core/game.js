@@ -352,13 +352,16 @@ export function resetWaveSystem() {
 export function restoreWaveFromSnapshot(meta) {
   if (!meta) return;
 
-  // Wave index from snapshot (wave is 1-based)
+  // Restore correct wave index (1-based → 0-based)
   if (typeof meta.wave === "number") {
     currentWaveIndex = Math.max(0, meta.wave - 1);
     gameState.wave = meta.wave;
   }
 
-  // Resume wave system in an active state
+  // Ensure legacy window-access sees correct index
+  window.currentWaveIndex = currentWaveIndex;
+
+  // Resume wave engine
   firstWaveStarted = true;
   window.firstWaveStarted = true;
 
@@ -366,12 +369,15 @@ export function restoreWaveFromSnapshot(meta) {
   waveCleared = false;
   justStartedWave = false;
 
-  // Keep timers / queue sane (snapshot stores entities, not spawn queue)
+  // Clear active spawn sequence (snapshot stores enemies, not timers)
   spawnQueue.length = 0;
   spawnTimer = 0;
+
+  // Allow immediate wave continuation
   betweenWaveTimer = 0;
   window.betweenWaveTimerActive = false;
 
+  // No victory pending after restore
   gameState.victoryPending = false;
 }
 
@@ -671,17 +677,20 @@ function applyMapSpawn() {
 // ============================================================
 
 export async function initGame(mode = "new") {
+  // Always unpause on load or new
   gameState.paused = false;
   gameState.isPaused = false;
   gameState.echoPowerActive = false;
-  gameState.echoPowerActive = false;
 
-  if (!gameState.exploration) {
-    gameState.exploration = { found: 0, total: 0, bonusGiven: false };
-  } else {
-    gameState.exploration.found = 0;
-    gameState.exploration.total = 0;
-    gameState.exploration.bonusGiven = false;
+  // Exploration reset ONLY for "new"
+  if (mode === "new") {
+    if (!gameState.exploration) {
+      gameState.exploration = { found: 0, total: 0, bonusGiven: false };
+    } else {
+      gameState.exploration.found = 0;
+      gameState.exploration.total = 0;
+      gameState.exploration.bonusGiven = false;
+    }
   }
 
   const icon = document.getElementById("hud-crystals-circle");
@@ -699,7 +708,6 @@ export async function initGame(mode = "new") {
   // Map & path
   await loadMap();
 
-  // 🌍 Store real pixel size so enemies spawn properly
   const { width: mapW, height: mapH } = getMapPixelSize();
   gameState.mapWidth = mapW;
   gameState.mapHeight = mapH;
@@ -708,8 +716,12 @@ export async function initGame(mode = "new") {
   setGoblinPath(pathPoints);
 
   const echoPoints = extractCrystalEchoes();
-  gameState.exploration.total = echoPoints.length;
-  gameState.exploration.found = 0;
+
+  // Only reset exploration count on NEW
+  if (mode === "new") {
+    gameState.exploration.total = echoPoints.length;
+    gameState.exploration.found = 0;
+  }
 
   initCrystalEchoes({ crystalEchoes: echoPoints });
 
@@ -739,9 +751,11 @@ export async function initGame(mode = "new") {
     };
   }
 
+  // NEW: Only apply map spawn on NEW game
   if (mode === "new") {
     applyMapSpawn();
   }
+
   initPlayerController(canvas);
   initUI();
 
@@ -749,11 +763,12 @@ export async function initGame(mode = "new") {
   await loadPegasus();
   initPegasus(ctx);
 
-  // Wave state (only on new/retry)
+  // Wave state (only NEW/RETRY)
   if (mode !== "load") {
     resetWaveSystem();
   }
 }
+
 
 // ============================================================
 // 🔁 UPDATE — synchronized world logic (OPTIMIZED)

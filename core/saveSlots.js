@@ -52,8 +52,9 @@ import { showScreen } from "./screens.js";
 import { gameState, saveProfiles } from "../utils/gameState.js";
 import { ensureSkin } from "./skins.js";
 
+
 // ------------------------------------------------------------
-// 🧱 RENDER SAVE SLOTS
+// 🧱 RENDER SAVE SLOTS (PATCHED)
 // ------------------------------------------------------------
 export function renderSlots(containerEl, allowSave = true) {
   if (!containerEl) return;
@@ -135,65 +136,8 @@ export function renderSlots(containerEl, allowSave = true) {
       loadBtn.textContent = "Load";
       loadBtn.dataset.index = i;
 
-      loadBtn.addEventListener("click", async () => {
-        playFairySprinkle();
-
-        try {
-          // 1️⃣ Load snapshot from slot
-          const snap = loadFromSlot(i);
-          if (!snap) return;
-
-          // 2️⃣ Ensure progress exists & set correct map BEFORE init
-          if (!gameState.progress) gameState.progress = {};
-          if (snap.progress?.currentMap) {
-            gameState.progress.currentMap = snap.progress.currentMap;
-          } else if (snap.meta?.map) {
-            gameState.progress.currentMap = snap.meta.map;
-          } else {
-            gameState.progress.currentMap = 1;
-          }
-
-          // 3️⃣ Move to game container screen
-          showScreen("game-container");
-
-          // 4️⃣ Full map + combat reinitialisation
-          const gameMod = await import("./game.js");
-
-          // Optional: if game has a reset function, call it first
-          if (typeof gameMod.resetCombatState === "function") {
-            gameMod.resetCombatState();
-          }
-
-          await gameMod.initGame("load");
-          applySnapshot(snap);
-
-          // 5️⃣ Apply snapshot AFTER init
-          applySnapshot(snap);
-          ensureSkin(gameState.player);
-          saveProfiles();
-
-          // 6️⃣ Force gameplay loop to be running
-          if (typeof gameMod.startGameplay === "function") {
-            gameMod.startGameplay();
-          } else {
-            // Fallback to UI-level resume if loop already exists
-            resumeGame();
-          }
-
-        } catch (err) {
-          console.error("Error loading save slot", err);
-        }
-
-        // 7️⃣ Hide any save overlays (hub or in-game)
-        const overlayIds = ["overlay-save-game", "overlay-load"];
-        overlayIds.forEach((id) => {
-          const overlay = document.getElementById(id);
-          if (overlay) {
-            overlay.classList.remove("active");
-            overlay.style.display = "none";
-          }
-        });
-      });
+      // ⭐ DO NOT load here — the Hub attaches a listener to the container.
+      // This button simply exists and is detected by event delegation.
 
       btnRow.appendChild(loadBtn);
     }
@@ -225,8 +169,10 @@ export function renderSlots(containerEl, allowSave = true) {
     container.appendChild(slotEl);
   }
 
+  // ⭐ Critical fix for hub load: return the new <div>
   return container;
 }
+
 
 // ============================================================
 // 🌟 END OF FILE
