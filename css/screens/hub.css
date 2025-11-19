@@ -576,7 +576,57 @@
 }
 
 
+/* ============================================================
+   🌟 CONTINUE BUTTON (Bottom-Center Floating)
+============================================================ */
+#continue-btn {
+  position: absolute;
+  bottom: 190px;
+  left: 50%;
+  transform: translateX(-50%);
 
+  padding: 12px 38px;
+  font-size: 1.15rem;
+
+  font-family: "Comic Sans MS", cursive;
+  font-weight: bold;
+
+  color: #ffffff;
+  cursor: pointer;
+
+  background: linear-gradient(145deg, #8cd5ff, #d4b5ff, #ffbde3);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 14px;
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  box-shadow:
+    0 0 18px rgba(181, 226, 255, 0.7),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+
+  transition: all 0.25s ease;
+
+  z-index: 25;
+}
+
+#continue-btn:hover {
+  transform: translateX(-50%) scale(1.06);
+  box-shadow:
+    0 0 26px rgba(224, 187, 255, 1),
+    inset 0 0 14px rgba(255, 255, 255, 0.5);
+}
+
+#continue-btn:active {
+  transform: translateX(-50%) scale(0.97);
+  box-shadow:
+    0 0 16px rgba(120, 200, 255, 0.8),
+    inset 0 0 8px rgba(255, 255, 255, 0.35);
+}
+
+#continue-btn {
+  display: none; /* Hidden until JS decides to show it */
+}
 /* ============================================================
    🌟 END OF FILE
 ============================================================ */
