@@ -61,6 +61,8 @@
     inset 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
+
+
 /* ============================================================
    ✒️ STORY TEXT BLOCK
 ============================================================ */
@@ -79,8 +81,13 @@
   line-height: 1.6;
 
   font-family: "Comic Sans MS", cursive;
+  font-size: 1.1rem;
+  color: #ffffff;
+
   text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
 }
+
+
 
 /* ============================================================
    ▶️ CONTINUE BUTTON
@@ -89,100 +96,6 @@
   display: inline-block;
   padding: 12px 36px;
 
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #ffffff;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-
-  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
-  border: 2px solid rgba(91, 139, 230, 0.6);
-  border-radius: 16px;
-
-  transition: all 0.3s ease;
-
-  box-shadow:
-    0 0 20px rgba(181, 226, 255, 0.6),
-    inset 0 0 12px rgba(255, 255, 255, 0.4);
-}
-
-.story-next-btn:hover {
-  transform: scale(1.05);
-}
-
-/* ============================================================
-   🖼️ TEXT + PORTRAIT ROW
-============================================================ */
-.story-content {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-  height: 260px;
-}
-
-/* Portrait image */
-.story-portrait {
-  width: 180px;
-  height: 220px;
-
-  border-radius: 12px;
-  object-fit: cover;
-
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(181, 226, 255, 0.6);
-
-  box-shadow:
-    0 0 15px rgba(181, 226, 255, 0.6),
-    inset 0 0 8px rgba(255, 255, 255, 0.4);
-}
-
-/* ============================================================
-   🌟 TEXT DETAILS
-============================================================ */
-.story-text {
-  color: #ffffff;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
-}
-
-.story-text h2 {
-  margin-bottom: 10px;
-  font-size: 26px;
-  font-family: "Princess Sofia", cursive;
-
-  color: #ffffff;
-  text-shadow:
-    0 0 8px #fff,
-    0 0 16px #c8b3ff;
-}
-
-/* ============================================================
-   🌫️ BLURRED BACKDROP
-============================================================ */
-.story-overlay {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-
-  z-index: 99999;
-  animation: fadeIn 0.4s ease;
-}
-
-/* ============================================================
-   🎨 BUTTON — REPEATED STYLE (Kept intentionally)
-============================================================ */
-.story-next-btn {
   font-size: 1.1rem;
   font-weight: bold;
   letter-spacing: 0.5px;
@@ -217,6 +130,59 @@
     inset 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
+
+
+/* ============================================================
+   🖼️ TEXT + PORTRAIT ROW
+============================================================ */
+.story-content {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  height: 260px;
+}
+
+/* Portrait image */
+.story-portrait {
+  width: 180px;
+  height: 220px;
+
+  border-radius: 12px;
+  object-fit: cover;
+
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(181, 226, 255, 0.6);
+
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.6),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+
+
+/* ============================================================
+   🌫️ BLURRED BACKDROP
+============================================================ */
+.story-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  z-index: 99999;
+  animation: fadeIn 0.4s ease;
+}
+
+
+
 /* ============================================================
    👑 PORTRAIT SHARED STYLE (Used also by Spire Unlocked)
 ============================================================ */
@@ -236,6 +202,8 @@
 
   pointer-events: none;
 }
+
+
 
 /* ============================================================
    🌟 END OF FILE

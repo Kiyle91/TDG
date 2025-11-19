@@ -1,67 +1,134 @@
 /* ============================================================
-   🎮 css/overlays/controls.css — Olivia’s World: Crystal Keep
+   🌸 css/overlays/overlays.css — Olivia’s World: Crystal Keep
    ------------------------------------------------------------
-   ✦ Keybind Display Overlay (Standalone Module)
-   ✦ Used inside the Skins Panel and future Controls Overlay
-   ✦ Simple grid layout for "key → description" mappings
+   ✦ Universal overlay system for modals, confirmations,
+     settings, controls, and spire unlock panels
+   ✦ Provides glassy crystal overlay box + fade transitions
+   ✦ Includes darkened variants for specific overlays
 ============================================================ */
 /* ------------------------------------------------------------
- * MODULE: controls.css
+ * MODULE: overlays.css
  * PURPOSE:
- *   Provides a clean, readable layout for showing keyboard
- *   controls and gameplay button mappings. Originally used
- *   inside the Skins panel, now extracted for standalone use.
+ *   Defines the visual system behind every overlay-style popup
+ *   in the game. This includes the shared blurred background,
+ *   pop-in animation, close button visuals, and special overlay
+ *   variants for settings, player stats, confirm prompts, etc.
  *
  * SUMMARY:
- *   • .controls-grid — 2-column control layout
- *   • .c-key — bold button label
- *   • .c-desc — descriptive text
+ *   • .overlay — universal backdrop layer
+ *   • .overlay-box — glass crystal popup panel
+ *   • Close button styling
+ *   • Pop-in animation on open
+ *   • Dark overlay variants for game settings & stats
  *
- * NOTES:
- *   • This file will be expanded later for a full Controls menu
- *   • Matches the pastel / crystal UI styling of the project
+ * VISUAL FEATURES:
+ *   • High-blur frosted glass background
+ *   • Soft pastel glow borders
+ *   • Smooth opacity transition
+ *   • Pop-in scale animation
+ *
+ * TECHNICAL NOTES:
+ *   • JS toggles .active on overlays
+ *   • Z-index layered above all HUD/UI at 999
+ *   • Some overlays intentionally darkened for readability
  * ------------------------------------------------------------ */
 
 
 
 /* ============================================================
-   🎮 KEYBIND GRID
-   ------------------------------------------------------------
-   Two-column layout:
-   | KEY | Description |
+   🌸 UNIVERSAL OVERLAY LAYER
 ============================================================ */
-.controls-grid {
-  display: grid;
-  grid-template-columns: 150px auto;
+.overlay {
+  position: fixed;
+  inset: 0;
 
-  gap: 10px 20px;
-  padding: 10px 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(14px);
+
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 999;
+}
+
+.overlay.active {
+  display: flex;
+  opacity: 1;
+}
+
+
+
+/* ============================================================
+   📦 OVERLAY BOX (Glass Crystal Panel)
+============================================================ */
+.overlay-box {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+  padding: 40px 80px;
+  text-align: center;
+  color: #fff;
+
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+
+  animation: overlayPop 0.4s ease;
+}
+
+@keyframes overlayPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+
+
+/* ============================================================
+   ❌ CLOSE BUTTON
+============================================================ */
+.overlay-close {
+  margin-top: 50px;
+  padding: 10px 30px;
 
   font-size: 1.2rem;
+  color: #fff;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 12px;
+
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.6),
+    inset 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.overlay-close:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 25px rgba(224, 187, 255, 0.9),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
 
 
 /* ============================================================
-   🎛️ KEY LABEL
-   ------------------------------------------------------------
-   Usually displays:
-   - WASD
-   - Arrow Keys
-   - Space
-   - Shift
+   🌑 DARK VARIANTS — Settings / Controls / Stats
 ============================================================ */
-.c-key {
-  font-weight: 700;
-}
-
-
-
-/* ============================================================
-   📝 DESCRIPTION TEXT
-============================================================ */
-.c-desc {
-  opacity: 0.9;
+#overlay-settings-game,
+#overlay-controls,
+#overlay-game-controls,
+#overlay-player-stats,
+#overlay-confirm,
+#spire-unlock-overlay {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(30px);
 }
 
 
