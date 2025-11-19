@@ -87,7 +87,6 @@ function loadImage(src) {
     img.src = src;
     img.decoding = "sync";
     img.loading = "eager";
-    img.style.imageRendering = "pixelated";
 
     img.onload = () => resolve(img);
     img.onerror = () => resolve(null);
@@ -322,7 +321,7 @@ export function updateCrossbows(delta) {
     
         }
       }
-      
+
       // Collision with other crossbows
       for (let j = 0; j < crossbowList.length; j++) {
         const o = crossbowList[j];

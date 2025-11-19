@@ -24,7 +24,7 @@
 
 export function initSparkles() {
   document.querySelectorAll(".magic-sparkle").forEach(container => {
-    const count = 30;
+    const count = 20;
 
     for (let i = 0; i < count; i++) {
       const sparkle = document.createElement("div");
@@ -35,7 +35,7 @@ export function initSparkles() {
       sparkle.style.left = `${Math.random() * 100}%`;
 
       // Random size
-      const size = 6 + Math.random() * 8;
+      const size = 12 + Math.random() * 8;
       sparkle.style.width = `${size}px`;
       sparkle.style.height = `${size}px`;
 

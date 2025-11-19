@@ -17,7 +17,8 @@
 //   • clearTrolls()   — Reset list
 //
 // NOTES:
-//   • No invulnerability — matches goblin/elite/ogre systems
+//   • Bravery: player.invincible blocks damage
+//   • Bravery: trolls are knocked back by aura (130 radius)
 //   • Uses same attack logic as goblins
 //   • Fully standalone enemy system
 // ============================================================
@@ -66,6 +67,8 @@ const RETURN_RANGE = 260;
 const ATTACK_COOLDOWN = 1000;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT = 900;
+
+const BRAVERY_AURA_RADIUS = 130;
 
 
 // ------------------------------------------------------------
@@ -159,7 +162,9 @@ export function spawnTroll() {
     attackFrame: 0,
     attackDir: "right",
 
-    flashTimer: 0
+    flashTimer: 0,
+    attacking: false,
+    chasing: false,
   });
 
   return trolls[trolls.length - 1];
@@ -167,11 +172,17 @@ export function spawnTroll() {
 
 
 // ------------------------------------------------------------
-// 🗡️ ATTACK PLAYER (Goblin-style — no invulnerability)
+// 🗡️ ATTACK PLAYER (Goblin-style + bravery invuln)
 // ------------------------------------------------------------
 
 function attackPlayer(t, player) {
   if (!player || player.dead) {
+    t.attacking = false;
+    return;
+  }
+
+  // Bravery: ignore all damage while invincible
+  if (player.invincible === true) {
     t.attacking = false;
     return;
   }
@@ -184,7 +195,7 @@ function attackPlayer(t, player) {
   damage *= (1 - reduction);
 
   player.hp = Math.max(0, player.hp - damage);
-  player.flashTimer = 200; 
+  player.flashTimer = 200;
 
   updateHUD();
 
@@ -246,19 +257,39 @@ export function updateTrolls(delta = 16) {
     // ------------------------------
     if (t.chasing) {
 
+      // Attack window
       if (distP < ATTACK_RANGE) {
         if (t.attackCooldown === 0) {
           t.attacking = true;
           attackPlayer(t, player);
           t.attackCooldown = ATTACK_COOLDOWN;
         }
+        // we still skip movement this frame
         continue;
       }
 
+      // Move toward player
       const dist = distP || 1;
       t.x += (dxp / dist) * SPEED * dt;
       t.y += (dyp / dist) * SPEED * dt;
 
+      // Bravery aura knockback (push troll away from player)
+      if (player.invincible === true) {
+        const ax = t.x - px;  // vector from player to troll
+        const ay = t.y - py;
+        const distA = Math.hypot(ax, ay);
+
+        if (distA < BRAVERY_AURA_RADIUS && distA > 0) {
+          const push = (BRAVERY_AURA_RADIUS - distA) * 0.35;
+          const nx = ax / distA;
+          const ny = ay / distA;
+
+          t.x += nx * push;
+          t.y += ny * push;
+        }
+      }
+
+      // Direction & walk animation
       t.dir =
         Math.abs(dxp) > Math.abs(dyp)
           ? (dxp > 0 ? "right" : "left")
@@ -270,12 +301,10 @@ export function updateTrolls(delta = 16) {
         t.frame = (t.frame + 1) % 2;
       }
 
-    }
-
-    // ------------------------------
-    // 🛣 PATH FOLLOW
-    // ------------------------------
-    else {
+    } else {
+      // ------------------------------
+      // 🛣 PATH FOLLOW
+      // ------------------------------
       const target = pathPoints[t.pathIndex];
       if (!target) {
         handleEscape(t);
@@ -288,7 +317,9 @@ export function updateTrolls(delta = 16) {
 
       if (dist < 6) {
         t.pathIndex++;
-        if (t.pathIndex >= pathPoints.length) handleEscape(t);
+        if (t.pathIndex >= pathPoints.length) {
+          handleEscape(t);
+        }
       } else {
         t.x += (dx / dist) * SPEED * dt;
         t.y += (dy / dist) * SPEED * dt;
@@ -316,8 +347,9 @@ export function updateTrolls(delta = 16) {
 
     // ------------------------------
     // Player ↔ Troll pushback
-    // ------------------------------
-    if (distP < 50 && distP > 0) {
+    // (only when not invincible — bravery handles aura instead)
+// ------------------------------
+    if (!player.invincible && distP < 50 && distP > 0) {
       const overlap = (50 - distP) / 3;
       const nx = dxp / distP;
       const ny = dyp / distP;
@@ -327,10 +359,11 @@ export function updateTrolls(delta = 16) {
     }
   }
 
-  // ------------------------------
-  // Troll ↔ Troll collision
-  // ------------------------------
+  // ----------------------------------------------------
+  // 🧌 Troll ↔ Troll collision
+  // ----------------------------------------------------
   const MIN_DIST = 72;
+
   for (let i = 0; i < trolls.length; i++) {
     const a = trolls[i];
     if (!a.alive) continue;
@@ -432,6 +465,11 @@ export function drawTrolls(ctx) {
     let drawY = t.y - SIZE / 2 - FEET_OFFSET;
 
     ctx.save();
+    
+    // High-quality rendering
+    ctx.imageSmoothingEnabled  = true;
+    ctx.imageSmoothingQuality  = "high";
+
 
     // Shadow
     ctx.beginPath();
