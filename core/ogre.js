@@ -138,36 +138,39 @@ export async function initOgres() {
 }
 
 
-// ------------------------------------------------------------
-// 👹 SPAWN — Off-screen brute with difficulty scaling
-// ------------------------------------------------------------
-
 export function spawnOgre() {
   const p = gameState.player;
   if (!p) return;
 
-  const mapW = gameState.mapWidth ?? 3000;
-  const mapH = gameState.mapHeight ?? 3000;
+  // Use REAL map dimensions — never fall back to 3000x3000
+  const mapW = gameState.mapWidth;
+  const mapH = gameState.mapHeight;
 
-  // Much closer to map edges, like elites + crossbows
+  if (!mapW || !mapH) {
+    console.warn("⚠️ spawnOgre() called before map size was set");
+    return;
+  }
+
+  // Spawn just outside the visible play area
+  const spawnOffset = 40;
+
   const side = Math.floor(Math.random() * 4);
-
   let x, y;
 
-  if (side === 0) {          // Top
+  if (side === 0) {                   // Spawn above map
     x = Math.random() * mapW;
-    y = -120;
+    y = -spawnOffset;
   }
-  else if (side === 1) {     // Bottom
+  else if (side === 1) {              // Spawn below map
     x = Math.random() * mapW;
-    y = mapH + 120;
+    y = mapH + spawnOffset;
   }
-  else if (side === 2) {     // Left
-    x = -120;
+  else if (side === 2) {              // Spawn left of map
+    x = -spawnOffset;
     y = Math.random() * mapH;
   }
-  else {                     // Right
-    x = mapW + 120;
+  else {                              // Spawn right of map
+    x = mapW + spawnOffset;
     y = Math.random() * mapH;
   }
 
@@ -197,14 +200,14 @@ export function spawnOgre() {
     frame: 0,
     frameTimer: 0,
 
-    flashTimer: 0
+    flashTimer: 0,
   };
 
   ogres.push(ogre);
   playOgreEnter();
-
   return ogre;
 }
+
 
 
 
@@ -213,6 +216,7 @@ export function spawnOgre() {
 // ------------------------------------------------------------
 
 export function updateOgres(delta = 16) {
+  
   const p = gameState.player;
   if (!p) return;
 
@@ -221,7 +225,13 @@ export function updateOgres(delta = 16) {
   const dt = delta / 1000;
 
   for (let i = ogres.length - 1; i >= 0; i--) {
-    const o = ogres[i];
+      const o = ogres[i];
+
+      // 🔍 Debug: confirm we're not flinging into NaN-space
+      if (!o.alive) continue;
+      if (isNaN(o.x) || isNaN(o.y)) {
+          console.log("OGRE INVALID POSITION", o);
+      }
 
     // --- Death fade ---
     if (!o.alive) {
@@ -239,6 +249,27 @@ export function updateOgres(delta = 16) {
     const dx = px - o.x;
     const dy = py - o.y;
     const distSq = dx * dx + dy * dy;
+
+    // ----------------------------------------------------
+    // ⭐ BRAVERY AURA PUSHBACK (works in ALL states)
+    // ----------------------------------------------------
+    if (p.invincible === true) {
+        const aura = 130; // same radius as goblins/crossbows
+        const dxp = o.x - px;
+        const dyp = o.y - py;
+        const dp = Math.hypot(dxp, dyp);
+
+        if (dp < aura && dp > 0) {
+            const push = (aura - dp) * 0.35;
+            const nx = dxp / dp;
+            const ny = dyp / dp;
+
+            o.x += nx * push;
+            o.y += ny * push;
+        }
+    }
+
+    
 
 
     // ----------------------------------------------------
@@ -426,7 +457,7 @@ export function drawOgres(ctx) {
     }
 
     const drawX = o.x - OGRE_SIZE / 2;
-    let drawY = o.y - OGRE_SIZE / 2 - 25;
+    let drawY = o.y - OGRE_SIZE / 2;
 
     if (o.alive) drawY -= 10;
     else drawY += 25;

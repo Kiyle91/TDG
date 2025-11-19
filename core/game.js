@@ -670,6 +670,12 @@ export async function initGame(mode = "new") {
   // Map & path
   await loadMap();
 
+  // 🌍 Store real pixel size so enemies spawn properly
+  const { width: mapW, height: mapH } = getMapPixelSize();
+  gameState.mapWidth = mapW;
+  gameState.mapHeight = mapH;
+  console.log("📏 Map size set:", mapW, mapH);
+
   const pathPoints = extractPathFromMap();
   setGoblinPath(pathPoints);
 
