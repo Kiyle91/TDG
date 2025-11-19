@@ -49,7 +49,11 @@ import {
 
 import { createPlayer, restorePlayer } from "../core/player.js";
 import { showAlert, showConfirm, showInput } from "../core/alert.js";
-import { updateHubProfile, updateHubCurrencies } from "./hub.js";
+import {
+  updateHubProfile,
+  updateHubCurrencies,
+  updateContinueButton
+} from "./hub.js";
 import { playFairySprinkle } from "./soundtrack.js";
 
 // ------------------------------------------------------------
@@ -112,6 +116,7 @@ export function initProfiles() {
         fadeIn(hub);
         updateHubProfile();
         updateHubCurrencies();
+        updateContinueButton();
 
         showAlert(`Profile "${name}" created successfully!`);
       }, 600);
@@ -167,6 +172,7 @@ export function initProfiles() {
       fadeIn(hub);
       updateHubProfile();
       updateHubCurrencies();
+      updateContinueButton();
     }, 800);
   });
 }

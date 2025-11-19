@@ -253,11 +253,11 @@ export function saveToSlot(index) {
   all[key][slot] = snap;
   persistAllSaves(all);
 
-  
-  const p = gameState.profile;
-  if (p) {
-      p.lastSave = slot;
-      saveProfiles();
+  // ⭐ Persist last save slot into the active profile
+  const profile = gameState.profile;
+  if (profile) {
+    profile.lastSave = slot;
+    saveProfiles(); // <- this writes it to td_profiles
   }
 
   return snap;

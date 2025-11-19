@@ -90,21 +90,14 @@ export function initHub() {
   updateHubProfile();
   updateSpireUnlocks();
 
+  
+
   // ============================================================
   // ⭐ CONTINUE BUTTON – SHOW/HIDE LOGIC
   // ============================================================
 
   // ⭐ CONTINUE BUTTON LOGIC
-  const profile =
-    gameState.profile ??
-    gameState.profiles?.[gameState.activeProfileIndex ?? 0];
-  const lastSlot = profile?.lastSave;
-
-  if (typeof lastSlot === "number") {
-      continueBtn.style.display = "block";
-  } else {
-      continueBtn.style.display = "none";
-  }
+  updateContinueButton(continueBtn);
 
   // ============================================================
   // ⭐ CONTINUE BUTTON – LOAD LAST SAVE
@@ -112,9 +105,7 @@ export function initHub() {
   continueBtn?.addEventListener("click", async () => {
       playFairySprinkle();
 
-      const profile =
-        gameState.profile ??
-        gameState.profiles?.[gameState.activeProfileIndex ?? 0];
+      const profile = getActiveProfile();
       const slot = profile?.lastSave;
 
       if (typeof slot !== "number") {
@@ -433,10 +424,35 @@ export function updateHubProfile() {
   levelEl.textContent = `Level ${gameState.player?.level || 1}`;
 }
 
+export function updateContinueButton(
+  btn = document.getElementById("continue-btn")
+) {
+  if (!btn) return;
+
+  const profile = getActiveProfile();
+  const hasSave = typeof profile?.lastSave === "number";
+  btn.style.display = hasSave ? "block" : "none";
+}
+
 
 // ============================================================
 // UTILITY
 // ============================================================
+
+function getActiveProfile() {
+  if (gameState.profile) return gameState.profile;
+
+  const profiles = Array.isArray(gameState.profiles)
+    ? gameState.profiles
+    : [];
+  if (!profiles.length) return null;
+
+  const index = Number.isInteger(gameState.activeProfileIndex)
+    ? gameState.activeProfileIndex
+    : 0;
+
+  return profiles[index] ?? profiles[0] ?? null;
+}
 
 function updateSpireUnlocks() {}
 
