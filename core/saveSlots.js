@@ -2,37 +2,22 @@
 // 💾 saveSlots.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ Renders 10 save slots (Hub or Navbar)
+// ✦ Autosave (Slot 0) + Manual Saves (Slots 1–9)
 // ✦ Save / Load / Delete functionality
-// ✦ FULLY FIXED: loads correct map + applies snapshot cleanly
+// ✦ Fully compatible with continue button + autosave
 // ============================================================
+
 /* ------------------------------------------------------------
  * MODULE: saveSlots.js
  * PURPOSE:
- *   Renders up to 10 save slots in any container (Hub or
- *   in-game navbar), allowing saving, loading, and deleting
- *   individual slots. Ensures correct map restoration,
- *   full game reinitialization, and safe UI transitions.
+ *   Renders up to 10 save slots (Autosave + Manual Saves).
+ *   Ensures correct map restoration, safe UI transitions,
+ *   and fully integrates with continue button logic.
  *
- * SUMMARY:
- *   • renderSlots(container, allowSave)
- *       - Shows 10 slots with Save/Overwrite, Load, Delete.
- *   • Correctly loads snapshot → applies map, player, spires,
- *     goblins, currencies, and skins, then resumes gameplay.
- *   • Works in hub OR during gameplay (navbar save overlay).
- *
- * FEATURES:
- *   • Save / Overwrite (when allowSave = true)
- *   • Load snapshot correctly restores currentMap before init
- *   • Delete individual slot with instant UI refresh
- *   • Applies snapshot AFTER initGame() for full reconstruction
- *   • Skin system guaranteed via ensureSkin()
- *
- * TECHNICAL NOTES:
- *   • Snapshot structure stored in localStorage via saveSystem.js
- *   • showScreen("game-container") must be called BEFORE initGame()
- *   • Gameplay loop is explicitly (re)started after load
+ * STRUCTURE:
+ *   Slot 0 = Autosave (Game triggers automatically)
+ *   Slots 1–9 = Manual saves
  * ------------------------------------------------------------ */
-
 
 // ------------------------------------------------------------
 // ↪️ Imports
@@ -54,12 +39,12 @@ import { ensureSkin } from "./skins.js";
 
 
 // ------------------------------------------------------------
-// 🧱 RENDER SAVE SLOTS (PATCHED)
+// 🧱 RENDER SAVE SLOTS
 // ------------------------------------------------------------
 export function renderSlots(containerEl, allowSave = true) {
   if (!containerEl) return;
 
-  // ⭐ Prevent stacked event handlers (no parameter reassignment)
+  // ⭐ Prevent duplicated event handlers
   const clean = containerEl.cloneNode(false);
   containerEl.replaceWith(clean);
   const container = clean;
@@ -67,20 +52,75 @@ export function renderSlots(containerEl, allowSave = true) {
   container.innerHTML = "";
   const summaries = getSlotSummaries() || [];
 
-  for (let i = 0; i < 10; i++) {
+  // ============================================================
+  // ⭐ AUTOSAVE BLOCK (Slot 0)
+  // ============================================================
+  {
+    const summary = summaries[0];
+    const slotEl = document.createElement("div");
+    slotEl.className = "save-slot save-slot-auto";
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "save-slot-title auto-title";
+
+    if (!summary) {
+      titleEl.textContent = "AUTO SAVE — Empty";
+    } else {
+      const d = new Date(summary.savedAt);
+      const timeStr = d.toLocaleString(undefined, {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      titleEl.textContent =
+        `AUTO SAVE — Map ${summary.map}, ` +
+        `Wave ${summary.wave}, Lv ${summary.level}, ` +
+        `${timeStr}`;
+    }
+
+    const btnRow = document.createElement("div");
+    btnRow.className = "save-slot-buttons";
+
+    // Autosave is LOAD-ONLY
+    if (summary) {
+      const loadBtn = document.createElement("button");
+      loadBtn.className = "load-btn";
+      loadBtn.textContent = "Load";
+      loadBtn.dataset.index = 0;
+      btnRow.appendChild(loadBtn);
+    }
+
+    slotEl.appendChild(titleEl);
+    slotEl.appendChild(btnRow);
+    container.appendChild(slotEl);
+  }
+
+  // ============================================================
+  // ⭐ HEADER: MANUAL SAVES (Slots 1–9)
+  // ============================================================
+  const header = document.createElement("h3");
+  header.className = "save-header";
+  header.textContent = "Manual Saves";
+  container.appendChild(header);
+
+  // ============================================================
+  // ⭐ MANUAL SAVE SLOTS 1–9
+  // ============================================================
+  for (let i = 1; i < 10; i++) {
     const summary = summaries[i];
     const slotEl = document.createElement("div");
     slotEl.className = "save-slot";
 
-    // --------------------------------------------------------
-    // TITLE / SLOT HEADER
-    // --------------------------------------------------------
-
+    // -----------------------------
+    // TITLE
+    // -----------------------------
     const titleEl = document.createElement("div");
     titleEl.className = "save-slot-title";
 
     if (!summary) {
-      titleEl.textContent = `Empty Slot ${i + 1}`;
+      titleEl.textContent = `Empty Slot ${i}`;
     } else {
       const d = new Date(summary.savedAt);
       const timeStr = d.toLocaleString(undefined, {
@@ -96,17 +136,13 @@ export function renderSlots(containerEl, allowSave = true) {
         `${timeStr}`;
     }
 
-    // --------------------------------------------------------
-    // BUTTON ROW
-    // --------------------------------------------------------
-
+    // -----------------------------
+    // BUTTONS
+    // -----------------------------
     const btnRow = document.createElement("div");
     btnRow.className = "save-slot-buttons";
 
-    // ========================================================
-    // SAVE / OVERWRITE (In-game only)
-    // ========================================================
-
+    // SAVE/OVERWRITE
     if (allowSave) {
       const saveBtn = document.createElement("button");
       saveBtn.className = "save-btn";
@@ -126,26 +162,16 @@ export function renderSlots(containerEl, allowSave = true) {
       btnRow.appendChild(saveBtn);
     }
 
-    // ========================================================
-    // LOAD BUTTON (Hub or Navbar)
-    // ========================================================
-
+    // LOAD
     if (summary) {
       const loadBtn = document.createElement("button");
       loadBtn.className = "load-btn";
       loadBtn.textContent = "Load";
       loadBtn.dataset.index = i;
-
-      // ⭐ DO NOT load here — the Hub attaches a listener to the container.
-      // This button simply exists and is detected by event delegation.
-
       btnRow.appendChild(loadBtn);
     }
 
-    // ========================================================
-    // DELETE BUTTON
-    // ========================================================
-
+    // DELETE
     if (summary) {
       const delBtn = document.createElement("button");
       delBtn.className = "delete-btn";
@@ -161,15 +187,11 @@ export function renderSlots(containerEl, allowSave = true) {
       btnRow.appendChild(delBtn);
     }
 
-    // --------------------------------------------------------
-    // Final assembly
-    // --------------------------------------------------------
     slotEl.appendChild(titleEl);
     slotEl.appendChild(btnRow);
     container.appendChild(slotEl);
   }
 
-  // ⭐ Critical fix for hub load: return the new <div>
   return container;
 }
 
