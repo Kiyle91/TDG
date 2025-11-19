@@ -62,9 +62,57 @@ function persistAllSaves(all) {
   }
 }
 
-function getProfileKey() {
-  const idx = gameState.activeProfileIndex ?? 0;
-  return `profile_${idx}`;
+function getProfileIndex() {
+  const idx = gameState.activeProfileIndex;
+  return Number.isInteger(idx) ? idx : 0;
+}
+
+function getActiveProfile() {
+  if (gameState.profile) return gameState.profile;
+  const idx = getProfileIndex();
+  return Array.isArray(gameState.profiles)
+    ? gameState.profiles[idx] || null
+    : null;
+}
+
+function getProfileStorageKeys() {
+  const keys = [];
+  const profile = getActiveProfile();
+  if (profile?.id) keys.push(`profile_${profile.id}`);
+  keys.push(`profile_${getProfileIndex()}`);
+  return [...new Set(keys)];
+}
+
+function getPrimaryProfileKey() {
+  return getProfileStorageKeys()[0];
+}
+
+function resolveProfileSlots(all, { create = false } = {}) {
+  const [primary, ...fallbacks] = getProfileStorageKeys();
+  let slots = all[primary];
+  let migrated = false;
+
+  if (!slots) {
+    for (const key of fallbacks) {
+      if (!all[key]) continue;
+      slots = all[key];
+      all[primary] = slots;
+      if (key !== primary) delete all[key];
+      migrated = true;
+      break;
+    }
+  }
+
+  if (!slots && create) {
+    slots = [];
+    all[primary] = slots;
+    migrated = true;
+    for (const key of fallbacks) {
+      if (key !== primary) delete all[key];
+    }
+  }
+
+  return { slots: slots || null, migrated, primary };
 }
 
 
@@ -81,7 +129,8 @@ export function snapshotGame() {
   return {
     version: 1,
     savedAt: Date.now(),
-    profileKey: getProfileKey(),
+    profileKey: getPrimaryProfileKey(),
+    profileId: getActiveProfile()?.id || null,
 
     meta: {
       profileName: gameState.profile.name || "Princess",
@@ -246,14 +295,16 @@ export function saveToSlot(index) {
   }
 
   const all = loadAllSaves();
-  const key = getProfileKey();
-  if (!all[key]) all[key] = [];
+  const { slots } = resolveProfileSlots(all, { create: true });
+  if (!slots) {
+    throw new Error("Unable to resolve save slots for active profile");
+  }
 
   const snap = snapshotGame();
-  all[key][slot] = snap;
+  slots[slot] = snap;
   persistAllSaves(all);
 
-  // ⭐ Persist last save slot into the active profile
+  // ??? Persist last save slot into the active profile
   const profile = gameState.profile;
   if (profile) {
     profile.lastSave = slot;
@@ -270,9 +321,10 @@ export function loadFromSlot(index) {
   }
 
   const all = loadAllSaves();
-  const key = getProfileKey();
-  const slots = all[key] || [];
-  return slots[slot] || null;
+  const { slots, migrated } = resolveProfileSlots(all);
+  if (migrated) persistAllSaves(all);
+  const list = slots || [];
+  return list[slot] || null;
 }
 
 export function deleteSlot(index) {
@@ -282,19 +334,20 @@ export function deleteSlot(index) {
   }
 
   const all = loadAllSaves();
-  const key = getProfileKey();
-  if (!all[key]) return;
+  const { slots } = resolveProfileSlots(all, { create: true });
+  if (!slots) return;
 
-  all[key][slot] = null;
+  slots[slot] = null;
   persistAllSaves(all);
 }
 
 export function getSlotSummaries() {
   const all = loadAllSaves();
-  const key = getProfileKey();
-  const slots = all[key] || [];
+  const { slots, migrated } = resolveProfileSlots(all);
+  if (migrated) persistAllSaves(all);
+  const list = slots || [];
 
-  return slots.map((snap, index) => {
+  return list.map((snap, index) => {
     if (!snap) return null;
 
     const meta = snap.meta || {};
@@ -315,11 +368,11 @@ export function autoSave() {
   const snap = snapshotGame();
 
   const all = loadAllSaves();
-  const key = getProfileKey();
-  if (!all[key]) all[key] = [];
+  const { slots } = resolveProfileSlots(all, { create: true });
+  if (!slots) return snap;
 
   // Always use slot 0 for autosave
-  all[key][0] = snap;
+  slots[0] = snap;
 
   // Update lastSave pointer
   const profile = gameState.profile;

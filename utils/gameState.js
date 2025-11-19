@@ -40,6 +40,36 @@
 
 import { createPlayer } from "../core/player.js";
 
+function generateProfileId(existingIds = new Set()) {
+  let id;
+  do {
+    id =
+      "p_" +
+      Date.now().toString(36) +
+      "_" +
+      Math.random().toString(36).slice(2, 8);
+  } while (existingIds.has(id));
+  return id;
+}
+
+function ensureProfileHasId(profile) {
+  if (!profile) return null;
+
+  const used = new Set(
+    (gameState.profiles || [])
+      .filter(p => p !== profile && p?.id)
+      .map(p => p.id)
+  );
+
+  if (profile.id && !used.has(profile.id)) {
+    return profile.id;
+  }
+
+  const newId = generateProfileId(used);
+  profile.id = newId;
+  return newId;
+}
+
 // ============================================================
 // 💾 GLOBAL RUNTIME STATE
 // ============================================================
@@ -117,6 +147,8 @@ export function setProfile(profile) {
 // ============================================================
 
 function migrateProfile(profile) {
+  ensureProfileHasId(profile);
+
   if (!profile.currencies) {
     profile.currencies = { gold: 0, diamonds: 0 };
   }
@@ -183,7 +215,9 @@ export function addProfile(name) {
   }
 
   const newProfile = {
-    id: gameState.profiles.length + 1,
+    id: generateProfileId(
+      new Set(gameState.profiles.map(p => p?.id).filter(Boolean))
+    ),
     name,
     created: Date.now(),
 
