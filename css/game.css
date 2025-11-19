@@ -55,8 +55,8 @@
 ============================================================ */
 #game-container {
   position: relative;
-  width: 80vw;
-  height: auto;
+  width: 95vw;
+  height: 95vh;
 
   border-radius: 20px;
   overflow: hidden;
