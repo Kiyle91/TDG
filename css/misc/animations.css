@@ -1,13 +1,43 @@
 /* ============================================================
-   💫 OLIVIA’S WORLD: CRYSTAL KEEP — animations.css (Final)
+   💫 css/misc/animations.css — Olivia’s World: Crystal Keep
    ------------------------------------------------------------
-   ✦ Reusable sparkle layer (JS-generated)
-   ✦ Shared across landing, profile, hub
+   ✦ Global animation & particle effects module
+   ✦ Shared across Landing, Profile, and Hub screens
+   ✦ Provides sparkle fields, particle drift, flicker, and
+     Pegasus glide sequence
 ============================================================ */
-
 /* ------------------------------------------------------------
-   Layer control
------------------------------------------------------------- */
+ * MODULE: animations.css
+ * PURPOSE:
+ *   Centralises all ambient & environmental animation effects
+ *   used across non-gameplay screens. This includes magical
+ *   sparkle particle fields, background drift animations,
+ *   Pegasus flight animation, and fade transitions.
+ *
+ * SUMMARY:
+ *   • Sparkle particle generation (used with JS)
+ *   • Full-screen animated sparkle layers
+ *   • Drift + flicker keyframes for particle motion
+ *   • Pegasus gliding animation from off-screen to right exit
+ *   • Layer ordering + background frame setups
+ *
+ * VISUAL FEATURES:
+ *   • Soft pastel sparkles with radial glow
+ *   • Floating drift motion via linear keyframes
+ *   • Bright flicker pulses for magical ambience
+ *   • Pegasus flight with glow + brightness filter
+ *
+ * TECHNICAL NOTES:
+ *   • JS generates `.magic-particle` nodes dynamically
+ *   • All animations run GPU-accelerated (translate/opacity)
+ *   • No gameplay animations belong in this file
+ * ------------------------------------------------------------ */
+
+
+
+/* ============================================================
+   ✨ Layer control (frame setup for screens)
+============================================================ */
 .landing-frame,
 .profile-frame,
 .hub-frame {
@@ -46,9 +76,11 @@
   z-index: 3;
 }
 
-/* ------------------------------------------------------------
-   Sparkle particles
------------------------------------------------------------- */
+
+
+/* ============================================================
+   ✨ Sparkle particles
+============================================================ */
 .magic-particle {
   position: absolute;
 
@@ -72,9 +104,11 @@
              sparkleFlicker 3s ease-in-out infinite;
 }
 
-/* ------------------------------------------------------------
-   Sparkle animations
------------------------------------------------------------- */
+
+
+/* ============================================================
+   ✨ Sparkle animations (motion + brightness pulse)
+============================================================ */
 @keyframes sparkleDrift {
   0%   { transform: translate(40px, -40px) scale(1.1); opacity: 1; }
   25%  { transform: translate(-30px, -60px) scale(1.2); opacity: 0.9; }
@@ -88,8 +122,14 @@
   50%      { filter: blur(2px) brightness(3);   }
 }
 
+
+
 /* ============================================================
-   🪽 PEGASUS GLIDE — Continuous Flight Across the Screen
+   🪽 Pegasus Glide Animation
+   ------------------------------------------------------------
+   ✦ Continuous loop
+   ✦ Brightened pastel glow
+   ✦ Flies across upper screen then fades
 ============================================================ */
 .pegasus-fly {
   position: absolute;
@@ -107,7 +147,6 @@
   filter: drop-shadow(0 0 18px rgba(224, 187, 255, 0.8))
           brightness(1.15);
 
-  /* ✨ Continuous glide */
   animation: pegasusGlide 10s linear infinite;
   animation-delay: 0.5s;
 }
@@ -123,11 +162,12 @@
     opacity: 1;
   }
 
-  /* Pause off-screen */
+  /* Fade-out after exit */
   41% {
     transform: translate(120vw, 300px);
-    opacity: 0; /* fades invisible */
+    opacity: 0;
   }
+
   100% {
     transform: translate(120vw, 300px);
     opacity: 0;
@@ -135,12 +175,14 @@
 }
 
 
+
 /* ============================================================
-   ✨ MAGIC SPARKLES FADE
+   ✨ Magic Sparkles (fade control)
 ============================================================ */
 .magic-sparkle {
   transition: opacity 0.6s ease;
 }
+
 
 
 /* ============================================================

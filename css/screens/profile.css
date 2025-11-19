@@ -1,4 +1,40 @@
 /* ============================================================
+   👑 css/screens/profile.css — Olivia’s World: Crystal Keep
+   ------------------------------------------------------------
+   ✦ Full Profile Selection Screen styling
+   ✦ Includes animated pastel background + crystal frame
+   ✦ Handles profile grid, slot cards, delete button, and logo
+============================================================ */
+/* ------------------------------------------------------------
+ * MODULE: profile.css
+ * PURPOSE:
+ *   Styles the entire Profile Selection screen, containing the
+ *   animated background, crystal frame, profile slot grid,
+ *   delete controls, and the "Create New Profile" button.
+ *
+ * SUMMARY:
+ *   • Full-page pastel animated gradient
+ *   • Crystal frame container around content
+ *   • Profile slot cards (occupied or empty)
+ *   • Delete button styling + hover glow
+ *   • New Profile button
+ *   • Animated logo
+ *
+ * VISUAL FEATURES:
+ *   • Pink → lilac → sky-blue animated gradient
+ *   • Soft crystal borders + inset glow
+ *   • Responsive grid layout (3 columns)
+ *   • Slot hover scaling with pastel lighting
+ *
+ * TECHNICAL NOTES:
+ *   • Integrates with #profile-screen .screen system
+ *   • Image backgrounds loaded via JS or static assets
+ *   • All animations are GPU-friendly
+ * ------------------------------------------------------------ */
+
+
+
+/* ============================================================
    👑 PROFILE SCREEN BASE — centered layout
 ============================================================ */
 #profile-screen {
@@ -29,6 +65,8 @@
   }
 }
 
+
+
 /* ============================================================
    💎 PROFILE FRAME
 ============================================================ */
@@ -54,6 +92,8 @@
   align-items: center;
 }
 
+
+
 /* ============================================================
    🌄 BACKGROUND IMAGE
 ============================================================ */
@@ -65,6 +105,8 @@
   object-position: center;
   z-index: 0;
 }
+
+
 
 /* ============================================================
    💎 PROFILE CONTAINER
@@ -91,6 +133,8 @@
     inset 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
+
+
 /* ============================================================
    💫 PROFILE PAGE TITLE
 ============================================================ */
@@ -107,6 +151,8 @@
   margin-bottom: 15%;
 }
 
+
+
 /* ============================================================
    🌸 PROFILE GRID
 ============================================================ */
@@ -118,6 +164,8 @@
   align-items: center;
   margin-bottom: 35px;
 }
+
+
 
 /* ============================================================
    💖 PROFILE SLOT CARDS
@@ -181,6 +229,8 @@
   border: 2px dashed rgba(91, 139, 230, 0.6);
 }
 
+
+
 /* ============================================================
    🗑️ DELETE BUTTON
 ============================================================ */
@@ -224,6 +274,8 @@
     inset 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
+
+
 /* ============================================================
    💎 CREATE NEW PROFILE BUTTON
 ============================================================ */
@@ -254,6 +306,8 @@
     inset 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
+
+
 /* ============================================================
    💎 PROFILE LOGO
 ============================================================ */
@@ -281,6 +335,8 @@
             drop-shadow(0 0 40px rgba(255, 182, 224, 0.6));
   }
 }
+
+
 
 /* ============================================================
    🌟 END OF FILE

@@ -1,5 +1,35 @@
 /* ============================================================
-   📜 STORY INTRO OVERLAY
+   📜 story.css — Olivia’s World: Crystal Keep
+   ------------------------------------------------------------
+   ✦ Crystal-glass story intro overlay
+   ✦ Portrait + text + typewriter-compatible layout
+   ✦ Fully matches controller popup / level-up aesthetic
+   ✦ Pastel glow, glass blur, soft neon shadows
+============================================================ */
+
+/* ------------------------------------------------------------
+ * MODULE: story.css
+ * PURPOSE:
+ *   Styles the STORY INTRO overlay displayed at the start of
+ *   each map (or narrative sequence). Provides a crystal-glass
+ *   box containing portrait art + scroll text + continue button.
+ *
+ * SUMMARY:
+ *   • .story-overlay — blurred dim background layer  
+ *   • .story-box — main crystal glass container  
+ *   • .story-content — portrait + text row  
+ *   • .story-next-btn — continue/OK button  
+ *
+ * FEATURES:
+ *   • Neon crystal glow borders  
+ *   • Fully centered dynamic layout  
+ *   • Portrait-safe container  
+ *   • Typewriter-friendly text region  
+ * ------------------------------------------------------------ */
+
+
+/* ============================================================
+   📜 STORY INTRO OVERLAY BOX
 ============================================================ */
 .story-box {
   position: relative;
@@ -31,7 +61,9 @@
     inset 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
-/* Story text */
+/* ============================================================
+   ✒️ STORY TEXT BLOCK
+============================================================ */
 .story-text {
   width: 100%;
   height: 200px;
@@ -50,7 +82,9 @@
   text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
 }
 
-/* Story continue button — FIXED BROKEN RULE */
+/* ============================================================
+   ▶️ CONTINUE BUTTON
+============================================================ */
 .story-next-btn {
   display: inline-block;
   padding: 12px 36px;
@@ -76,7 +110,9 @@
   transform: scale(1.05);
 }
 
-/* Story content row */
+/* ============================================================
+   🖼️ TEXT + PORTRAIT ROW
+============================================================ */
 .story-content {
   display: flex;
   align-items: center;
@@ -84,10 +120,10 @@
   height: 260px;
 }
 
-/* Story portrait */
+/* Portrait image */
 .story-portrait {
   width: 180px;
-  height: 240px;
+  height: 220px;
 
   border-radius: 12px;
   object-fit: cover;
@@ -101,7 +137,7 @@
 }
 
 /* ============================================================
-   💬 TEXT
+   🌟 TEXT DETAILS
 ============================================================ */
 .story-text {
   color: #ffffff;
@@ -123,7 +159,7 @@
 }
 
 /* ============================================================
-   🌈 UNIVERSAL OVERLAY BACKGROUND — Story only
+   🌫️ BLURRED BACKDROP
 ============================================================ */
 .story-overlay {
   position: fixed;
@@ -144,7 +180,7 @@
 }
 
 /* ============================================================
-   ✨ BUTTON — Story Continue Button
+   🎨 BUTTON — REPEATED STYLE (Kept intentionally)
 ============================================================ */
 .story-next-btn {
   font-size: 1.1rem;
@@ -181,125 +217,8 @@
     inset 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
-
-
-
-.story-portrait,
-.spire-img {
-    width: 140px;
-    height: 180px;}
-
 /* ============================================================
-   ✨ BUTTONS — Continue / OK / Level-up Stat Buttons
-============================================================ */
-.story-next-btn,
-.levelup-btn {
-  font-size: 1.1rem;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-  font-family: "Comic Sans MS", cursive;
-
-  color: #ffffff;
-  cursor: pointer;
-
-  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
-
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 16px;
-
-  transition: all 0.3s ease;
-
-  box-shadow:
-    0 0 20px rgba(120, 200, 255, 0.9),
-    inset 0 0 12px rgba(255, 255, 255, 0.4);
-}
-
-.story-next-btn:hover,
-.levelup-btn:hover {
-  transform: scale(1.05);
-  box-shadow:
-    0 0 30px rgba(224, 187, 255, 0.9),
-    inset 0 0 18px rgba(255, 255, 255, 0.5);
-}
-
-.story-next-btn:active,
-.levelup-btn:active {
-  transform: scale(0.97);
-  box-shadow:
-    0 0 18px rgba(120, 200, 255, 0.8),
-    inset 0 0 8px rgba(255, 255, 255, 0.4);
-}
-
-
-.story-box .story-content,
-.spire-unlock-box .story-content {
-  display: flex;
-  flex-direction: row;
-
-  justify-content: flex-start;
-  align-items: center;
-
-  gap: 40px;
-  text-align: left;
-}
-
-/* Level-Up uses centered text & no portrait */
-.levelup-box .story-content {
-  display: block;
-  text-align: center;
-}
-
-/* ============================================================
-   💎 CRYSTAL BOX BASE — Story, Spire Unlock, Level-Up
-   ✨ Updated to match controller tutorial box
-============================================================ */
-.story-box,
-.levelup-box {
-  position: relative;
-
-  width: 900px;
-  min-height: 280px;
-  padding: 40px 60px;
-
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 22px;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-
-  color: #ffffff;
-  text-align: center;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  font-family: "Comic Sans MS", cursive;
-
-  /* MATCH controller popup glow */
-  box-shadow:
-    0 0 25px rgba(120, 200, 255, 0.9),
-    inset 0 0 20px rgba(255, 255, 255, 0.4);
-
-  backdrop-filter: blur(20px);
-
-  animation: overlayPop 0.5s ease;
-}
-
-@keyframes overlayPop {
-  from { transform: scale(0.95); opacity: 0; }
-  to   { transform: scale(1);    opacity: 1; }
-}
-
-/* ✨ Soft Aura */
-.story-box::before,
-.levelup-box::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  border-radius: 22px;
-  background: radial-gradient(circle, rgba(255,255,255,0.25), transparent 70%);
-  pointer-events: none;
-}
-
-/* ============================================================
-   👑 PORTRAITS (Story) + Spire Images
+   👑 PORTRAIT SHARED STYLE (Used also by Spire Unlocked)
 ============================================================ */
 .story-portrait,
 .spire-img {
@@ -319,3 +238,5 @@
 }
 
 /* ============================================================
+   🌟 END OF FILE
+============================================================ */

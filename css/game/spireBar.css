@@ -1,6 +1,13 @@
 /* ============================================================
-   🏰 SPIRE BAR HUD
+   🏰 SPIRE BAR HUD — Crystal Glass Vertical HUD
+   ------------------------------------------------------------
+   ✦ Matches the entire aesthetic theme (story, levelup, overlays)
+   ✦ Soft pastel glow, glass panel, gold highlight on unlock
 ============================================================ */
+
+/* ------------------------------------------------------------
+   🌟 BAR CONTAINER
+------------------------------------------------------------ */
 .spire-bar {
   position: absolute;
   top: 50%;
@@ -17,16 +24,22 @@
   padding: 10px 6px;
 
   background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
 
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 0 16px rgba(181, 226, 255, 0.4),
+    inset 0 0 12px rgba(255, 255, 255, 0.3);
 
   z-index: 9999;
 }
 
+/* ------------------------------------------------------------
+   💎 SPIRE SLOTS
+------------------------------------------------------------ */
 .spire-slot {
   width: 64px;
   height: 64px;
@@ -38,7 +51,8 @@
   justify-content: center;
 
   overflow: hidden;
-  border-radius: 8px;
+
+  border-radius: 10px;
 
   filter: grayscale(1) brightness(0.6);
   opacity: 0.6;
@@ -53,7 +67,9 @@
   pointer-events: none;
 }
 
-/* Quantity label bottom-right */
+/* ------------------------------------------------------------
+   🔢 QUANTITY LABEL
+------------------------------------------------------------ */
 .spire-slot span {
   position: absolute;
   bottom: 2px;
@@ -66,12 +82,16 @@
   text-shadow: 0 0 3px #000;
 }
 
-/* Unlocked slot glow */
+/* ------------------------------------------------------------
+   ✨ UNLOCKED STATE — Gold Glow
+------------------------------------------------------------ */
 .spire-slot.unlocked {
   filter: none;
   opacity: 1;
 
-  box-shadow: 0 0 10px rgba(255, 223, 95, 0.6);
+  box-shadow:
+    0 0 14px rgba(255, 223, 95, 0.7),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
 .spire-slot.unlocked span {
@@ -81,9 +101,9 @@
     0 0 12px #ffdf5f;
 }
 
-/* ============================================================
-   🔢 SPIRE HOTKEY LABELS
-============================================================ */
+/* ------------------------------------------------------------
+   🔢 HOTKEY LABELS
+------------------------------------------------------------ */
 .key-label {
   position: absolute;
   top: 4px;
@@ -102,23 +122,29 @@
   color: #fff;
 
   background: linear-gradient(135deg, #8cd5ff, #d4b5ff);
+  border-radius: 6px;
 
   border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 6px;
 
   text-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
 
   box-shadow:
-    0 0 8px rgba(181, 226, 255, 0.5),
-    inset 0 0 4px rgba(255, 255, 255, 0.4);
+    0 0 10px rgba(181, 226, 255, 0.5),
+    inset 0 0 6px rgba(255, 255, 255, 0.4);
 
   pointer-events: none;
   z-index: 2;
 }
 
-/* Gold key when spire unlocked */
+/* Gold hotkey for unlocked spires */
 .spire-slot.unlocked .key-label {
   background: linear-gradient(135deg, #ffe37f, #ffd3a0);
   color: #fff;
-  text-shadow: 0 0 6px rgba(255, 215, 90, 0.8);
+  text-shadow:
+    0 0 6px rgba(255, 215, 90, 0.9),
+    0 0 12px rgba(255, 215, 90, 0.8);
 }
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

@@ -1,4 +1,40 @@
 /* ============================================================
+   🎁 css/overlays/chest.css — Olivia’s World: Crystal Keep
+   ------------------------------------------------------------
+   ✦ Styles for the Daily Reward Chest on the Hub screen
+   ✦ Controls chest position, animation, disabled state, timer
+   ✦ Includes sparkle burst particle effects
+============================================================ */
+/* ------------------------------------------------------------
+ * MODULE: chest.css
+ * PURPOSE:
+ *   Provides all visuals for the Daily Reward Chest component,
+ *   including pulse animation, hover glow, disabled cooldown
+ *   visuals, and the multi-particle sparkle burst triggered by
+ *   claimReward() in chest.js.
+ *
+ * SUMMARY:
+ *   • Centered chest element + responsive sizing
+ *   • Animated hover + idle pulse states
+ *   • Disabled cooldown state (grayscale + dim)
+ *   • Timer text styling
+ *   • Sparkle generation (paired with JS)
+ *
+ * VISUAL FEATURES:
+ *   • Crystal pink glow (drop-shadow)
+ *   • Smooth scaling animations
+ *   • Radiant sparkle burst with drift + fade
+ *   • Clean and readable timer text
+ *
+ * TECHNICAL NOTES:
+ *   • Sparkle positions controlled via CSS vars (--x, --y)
+ *   • JS dynamically creates `.sparkle` nodes
+ *   • Particle animations are GPU-accelerated
+ * ------------------------------------------------------------ */
+
+
+
+/* ============================================================
    🎁 DAILY REWARD CHEST — Center Screen
 ============================================================ */
 #daily-chest {
@@ -52,6 +88,8 @@
   text-shadow: 0 0 6px rgba(255, 192, 230, 0.6);
 }
 
+
+
 /* ============================================================
    ✨ CHEST PULSE ANIMATION
 ============================================================ */
@@ -59,6 +97,8 @@
   0%   { transform: scale(1); }
   100% { transform: scale(1.05); }
 }
+
+
 
 /* ============================================================
    ✨ Sparkles — Enhanced Burst

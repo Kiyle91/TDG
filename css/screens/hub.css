@@ -1,4 +1,42 @@
 /* ============================================================
+   🏰 css/screens/hub.css — Olivia’s World: Crystal Keep
+   ------------------------------------------------------------
+   ✦ Full Hub Screen layout with crystal-frame container
+   ✦ Animated pastel gradient background (hubGlow)
+   ✦ Includes buttons, currencies, profile panel, spire cards,
+     news panels (left & right), logo animations & footer
+============================================================ */
+/* ------------------------------------------------------------
+ * MODULE: hub.css
+ * PURPOSE:
+ *   Defines the entire Hub Screen UI — the main non-combat menu
+ *   where the player selects maps, views stats, manages skins,
+ *   accesses settings, and reads news panels.
+ *
+ * SUMMARY:
+ *   • Full screen pastel gradient with animated glow
+ *   • Crystal bordered Hub Frame with background image
+ *   • Grid-based navigation buttons
+ *   • Left + right animated news feeds
+ *   • Profile display panel + currency display
+ *   • Logo animation + sparkle effects
+ *   • Spire unlock cards
+ *
+ * VISUAL FEATURES:
+ *   • Soft drop-shadows & blurred glass UI
+ *   • Pastel gradients (blue → lilac → magenta)
+ *   • Responsive sizing using clamp()
+ *   • Smooth hover scale animations
+ *
+ * TECHNICAL NOTES:
+ *   • Scrollbars styled for news feed boxes
+ *   • Integrates with animations.css for sparkles & Pegasus
+ *   • No JS dependencies except updating hub-currencies + profile
+ * ------------------------------------------------------------ */
+
+
+
+/* ============================================================
    🏰 HUB SCREEN BASE
 ============================================================ */
 #hub-screen {
@@ -29,6 +67,8 @@
   }
 }
 
+
+
 /* ============================================================
    💎 HUB CONTAINER
 ============================================================ */
@@ -53,6 +93,8 @@
     inset 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
+
+
 /* ============================================================
    💖 BUTTON CONTAINER
 ============================================================ */
@@ -63,6 +105,8 @@
   justify-items: center;
   align-items: center;
 }
+
+
 
 /* ============================================================
    🌸 BUTTONS
@@ -94,6 +138,8 @@
     inset 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
+
+
 /* ============================================================
    💎 HUB FRAME
 ============================================================ */
@@ -119,37 +165,6 @@
   align-items: center;
 }
 
-/* ============================================================
-   🌄 BACKGROUND IMAGE
-============================================================ */
-.hub-frame .hub-bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  z-index: 0;
-}
-
-/* ============================================================
-   🌸 HUB FOOTER
-============================================================ */
-.hub-footer {
-  position: absolute;
-  bottom: 1.5vh;
-  right: 2vw;
-
-  font-size: clamp(0.7rem, 1vw, 0.9rem);
-  color: rgba(255, 255, 255, 0.85);
-  text-shadow: 0 0 6px rgba(224, 187, 255, 0.6);
-
-  z-index: 2;
-}
-
-/* ============================================================
-   ✨ FRAME GLOW ANIMATION
-============================================================ */
 @keyframes frameGlow {
   0% {
     box-shadow:
@@ -166,6 +181,36 @@
 }
 
 
+
+/* ============================================================
+   🌄 BACKGROUND IMAGE
+============================================================ */
+.hub-frame .hub-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+
+
+/* ============================================================
+   🌸 HUB FOOTER
+============================================================ */
+.hub-footer {
+  position: absolute;
+  bottom: 1.5vh;
+  right: 2vw;
+
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 0 6px rgba(224, 187, 255, 0.6);
+
+  z-index: 2;
+}
 
 
 
@@ -202,6 +247,8 @@
             drop-shadow(0 0 45px rgba(255, 182, 224, 0.6));
   }
 }
+
+
 
 /* ============================================================
    📰 HUB NEWS FEED (Right)
@@ -286,6 +333,8 @@
   border-radius: 6px;
 }
 
+
+
 /* ============================================================
    📜 HUB NEWS FEED (Left Mirror)
 ============================================================ */
@@ -368,10 +417,13 @@
 #hub-news-left .news-feed::-webkit-scrollbar {
   width: 5px;
 }
+
 #hub-news-left .news-feed::-webkit-scrollbar-thumb {
   background-color: rgba(91, 139, 230, 0.6);
   border-radius: 6px;
 }
+
+
 
 /* ============================================================
    💰 HUB CURRENCY DISPLAY
@@ -404,11 +456,11 @@
     inset 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
-
-
 #hub-diamonds::before {
   content: "💎 ";
 }
+
+
 
 /* ============================================================
    👑 HUB PROFILE DISPLAY
@@ -441,7 +493,6 @@
     inset 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
-/* Inner text */
 #hub-profile-name {
   font-size: 1.5rem;
   color: #ffe6f7;
@@ -453,7 +504,11 @@
   opacity: 0.9;
 }
 
-/* Sparkle effect */
+
+
+/* ============================================================
+   ✨ SPARKLE EFFECT (Local Hub UI)
+============================================================ */
 .sparkle {
   position: fixed;
   width: 10px;
@@ -477,6 +532,8 @@
     opacity: 0;
   }
 }
+
+
 
 /* ============================================================
    🏹 HUB SPIRE CARDS
@@ -517,6 +574,8 @@
   color: #ffe6f7;
   text-shadow: 0 0 6px rgba(224, 187, 255, 0.6);
 }
+
+
 
 /* ============================================================
    🌟 END OF FILE

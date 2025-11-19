@@ -1,16 +1,43 @@
 /* ============================================================
+   🎚️ css/overlays/settings.css — Olivia’s World: Crystal Keep
+   ------------------------------------------------------------
+   ✦ Crystal Glass Settings Menu
+   ✦ Sliders, toggles, difficulty selection
+   ✦ Matches overlay aesthetic (blur, glow, pastel)
+============================================================ */
+/* ------------------------------------------------------------
+ * MODULE: settings.css
+ * PURPOSE:
+ *   Defines the full styling of the Settings overlay, including
+ *   the crystal box, sliders, toggles, and difficulty selector.
+ *
+ * SUMMARY:
+ *   • .settings-container — wrapper
+ *   • .settings-grid — glass panel
+ *   • .setting-item — base row style
+ *   • .slider — audio sliders
+ *   • toggle checkbox — visual switch
+ *   • difficulty group — radio-based button selector
+ *
+ * VISUAL FEATURES:
+ *   • Soft neon glow
+ *   • Frosted crystal backgrounds
+ *   • Animated focus/hover states
+ * ------------------------------------------------------------ */
+
+
+
+/* ============================================================
    🌸 CONTAINER + TITLE
 ============================================================ */
 .settings-container {
   width: 700px;
   max-width: 90vw;
-  
 
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  
 
   padding: 20px;
 }
@@ -23,6 +50,8 @@
   font-family: "Princess Sofia", cursive;
   text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
 }
+
+
 
 /* ============================================================
    🌈 SETTINGS GRID BOX
@@ -43,6 +72,8 @@
     0 0 20px rgba(181, 226, 255, 0.5),
     inset 0 0 15px rgba(255, 255, 255, 0.3);
 }
+
+
 
 /* ============================================================
    🎚️ SETTING ITEM BASE
@@ -70,6 +101,8 @@
   font-weight: bold;
   color: #b5e2ff;
 }
+
+
 
 /* ============================================================
    🎵 SLIDERS
@@ -106,6 +139,8 @@
   box-shadow: 0 0 15px rgba(255, 204, 238, 0.9);
 }
 
+
+
 /* ============================================================
    🌈 TOGGLE SWITCHES
 ============================================================ */
@@ -121,7 +156,6 @@
   border: 2px solid rgba(91, 139, 230, 0.6);
 
   background: linear-gradient(90deg, #8cd5ff, #d4b5ff);
-
   transition: all 0.3s ease;
 
   box-shadow:
@@ -129,7 +163,7 @@
     inset 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
-/* toggle knob */
+/* Toggle knob */
 .setting-item.toggle input[type="checkbox"]::before {
   content: "";
   position: absolute;
@@ -141,12 +175,12 @@
 
   background: #ffffff;
   border-radius: 50%;
-
   transition: all 0.3s ease;
+
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
-/* enabled */
+/* Enabled */
 .setting-item.toggle input[type="checkbox"]:checked {
   background: linear-gradient(90deg, #8cd5ff, #d4b5ff);
   box-shadow: 0 0 15px rgba(181, 226, 255, 0.7);
@@ -157,11 +191,10 @@
   box-shadow: 0 0 10px rgba(255, 189, 227, 0.8);
 }
 
-/* disabled */
+/* Disabled */
 .setting-item.toggle input[type="checkbox"]:not(:checked) {
   background: #5b5b66;
   border-color: rgba(150, 150, 150, 0.5);
-
   box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -170,21 +203,22 @@
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
-/* label color when enabled */
+/* Label when enabled */
 .setting-item.toggle input[type="checkbox"]:checked ~ span {
   color: #b5e2ff;
   text-shadow: 0 0 6px rgba(140, 213, 255, 0.7);
 }
 
-/* label color when disabled */
+/* Label when disabled */
 .setting-item.toggle input[type="checkbox"]:not(:checked) ~ span {
   color: #999999;
   text-shadow: none;
 }
 
 
+
 /* ============================================================
-   🌸 Difficulty — Final Crystal Buttons + Real Radio Circles
+   🏅 DIFFICULTY SELECTOR
 ============================================================ */
 
 /* Container */
@@ -202,26 +236,26 @@
   color: #fff;
 }
 
-/* Difficulty row container */
+/* Radio + label row */
 .difficulty-options {
   display: flex;
-  justify-content: center;   /* ⭐ fixes “squished left” */
+  justify-content: center;
   align-items: center;
   gap: 20px;
   margin-top: 6px;
   width: 100%;
 }
 
-/* Keep real radios visible (your screenshot shows circles) */
+/* Real radio button */
 .difficulty-options input[type="radio"] {
-  transform: scale(1.3);              /* bigger circle */
-  accent-color: #d4b5ff;              /* pastel lavender */
+  transform: scale(1.3);
+  accent-color: #d4b5ff;
   cursor: pointer;
 }
 
-/* Label next to the circle (crystal button) */
+/* Crystal pill label */
 .difficulty-options label {
-  padding: 8px 22px;  /* ⭐ MORE PADDING — final polish */
+  padding: 8px 22px;
   border-radius: 12px;
 
   background: rgba(255, 255, 255, 0.12);
@@ -239,7 +273,7 @@
   transition: all 0.25s ease;
 }
 
-/* Hover effect */
+/* Hover */
 .difficulty-options label:hover {
   transform: scale(1.05);
   box-shadow:
@@ -247,7 +281,7 @@
     inset 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
-/* Selected pastel gradient */
+/* Selected */
 .difficulty-options input[type="radio"]:checked + label {
   background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
   transform: scale(1.10);
@@ -257,10 +291,11 @@
     inset 0 0 14px rgba(255, 255, 255, 0.5);
 }
 
-/* Tighten radio+label alignment */
+/* Alignment tweak */
 .difficulty-options input[type="radio"] + label {
-  margin-left: 4px; /* circle close to the crystal pill */
+  margin-left: 4px;
 }
+
 
 
 /* ============================================================

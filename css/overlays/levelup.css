@@ -1,22 +1,31 @@
 /* ============================================================
-   💫 LEVEL UP — Button Group
+   💎 levelup.css — Olivia’s World: Crystal Keep
+   ------------------------------------------------------------
+   ✦ Level-up overlay (crystal-glass panel)
+   ✦ Stat upgrade cards (buttons with icons)
+   ✦ Pastel glow, blur, neon border — matches controller popup
+   ✦ Standardised with story.css and spires.css
 ============================================================ */
-.levelup-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+/* ------------------------------------------------------------
+ * MODULE: levelup.css
+ * PURPOSE:
+ *   Handles the UI styling of the LEVEL-UP overlay and the
+ *   stat upgrade button grid.
+ *
+ * UI FEATURES:
+ *   • Fullscreen blurred overlay
+ *   • Crystal-glass levelup-box
+ *   • Grid of upgrade buttons with icons
+ *   • Pastel purple/blue/pink gradient highlights
+ *
+ * NOTES:
+ *   • .levelup-btn appears twice in original code; unified
+ *   • Overlay uses same blur strength as controller popup
+ * ------------------------------------------------------------ */
 
-  gap: 12px;
-  margin-top: 10px;
-}
-
-.levelup-btn {
-  padding: 10px 22px;
-  font-size: 16px;
-}
 
 /* ============================================================
-   🌈 FIX — Make LEVEL-UP and SPIRE-UNLOCK match controller popup
+   🌈 FULLSCREEN OVERLAY
 ============================================================ */
 .levelup-overlay {
   position: fixed;
@@ -28,8 +37,8 @@
   align-items: center;
   justify-content: center;
 
-  background: rgba(0, 0, 0, 0.45);     /* dim background like controller */
-  backdrop-filter: blur(20px);         /* strong blur */
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 
   z-index: 99999;
@@ -41,17 +50,16 @@
   to   { opacity: 1; }
 }
 
-/* ============================================================
-   ✨ LEVEL UP OVERLAY
-============================================================ */
-
+/* Compatibility with .overlay system */
 #overlay-levelup.overlay {
-  display: none; /* default */
+  display: none;
   align-items: center;
   justify-content: center;
+
+  background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  background: rgba(0, 0, 0, 0.45);
+
   z-index: 99999;
 }
 
@@ -59,19 +67,30 @@
   display: flex;
 }
 
+/* ============================================================
+   💎 LEVEL-UP CRYSTAL PANEL
+============================================================ */
 .levelup-box {
   width: 820px;
   padding: 40px 60px;
+
   border-radius: 22px;
   border: 2px solid rgba(255, 255, 255, 0.7);
 
   background: rgba(255, 255, 255, 0.15);
-  box-shadow:
-    0 0 25px rgba(120, 200, 255, 0.9),
-    inset 0 0 20px rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px);
 
   text-align: center;
   animation: overlayPop 0.4s ease;
+
+  box-shadow:
+    0 0 25px rgba(120, 200, 255, 0.9),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+@keyframes overlayPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
 }
 
 .levelup-title {
@@ -86,15 +105,23 @@
   font-size: 1.2rem;
 }
 
+/* ============================================================
+   💫 BUTTON GROUP (Grid of upgrades)
+============================================================ */
 .levelup-buttons {
   display: flex;
-  justify-content: center;
-  gap: 24px;
   flex-wrap: wrap;
+  justify-content: center;
+
+  gap: 24px;
+  margin-top: 10px;
 }
 
+/* ============================================================
+   📦 LEVEL-UP BUTTON (Crystal Stat Card)
+============================================================ */
 .levelup-btn {
-  position: relative;      /* IMPORTANT — prevents overlap */
+  position: relative;
   width: 160px;
   height: 190px;
 
@@ -107,57 +134,17 @@
   border-radius: 18px;
   border: 2px solid rgba(255, 255, 255, 0.7);
 
-  background: linear-gradient(145deg, #b3d8ff, #ffd6ef);
-  color: #4b2b6f;
+  /* Gradient from spires + story + controller */
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
 
-  font-size: 1.1rem;
-  font-weight: bold;
-
-  cursor: pointer;
-  transition: all 0.25s ease;
-
-  box-shadow:
-    0 0 18px rgba(200,180,255,0.6),
-    inset 0 0 10px rgba(255,255,255,0.4);
-}
-
-.levelup-btn:hover {
-  transform: scale(1.06);
-  box-shadow:
-    0 0 30px rgba(255, 255, 255, 0.9),
-    inset 0 0 14px rgba(255,255,255,0.5);
-}
-
-.levelup-icon {
-  width: 90px;
-  height: 90px;
-  object-fit: contain;
-  margin-bottom: 10px;
-
-  filter:
-    drop-shadow(0 0 12px rgba(120,200,255,0.8))
-    drop-shadow(0 0 20px rgba(240,180,255,0.7));
-}
-
-
-/* ============================================================
-   ✨ BUTTON — Level-up Stat Button
-============================================================ */
-.levelup-btn {
+  color: #ffffff;
   font-size: 1.1rem;
   font-weight: bold;
   letter-spacing: 0.5px;
   font-family: "Comic Sans MS", cursive;
 
-  color: #ffffff;
   cursor: pointer;
-
-  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
-
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 16px;
-
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 
   box-shadow:
     0 0 20px rgba(120, 200, 255, 0.9),
@@ -165,10 +152,10 @@
 }
 
 .levelup-btn:hover {
-  transform: scale(1.05);
+  transform: scale(1.06);
   box-shadow:
-    0 0 30px rgba(224, 187, 255, 0.9),
-    inset 0 0 18px rgba(255, 255, 255, 0.5);
+    0 0 30px rgba(224, 187, 255, 1),
+    inset 0 0 14px rgba(255, 255, 255, 0.5);
 }
 
 .levelup-btn:active {
@@ -177,3 +164,20 @@
     0 0 18px rgba(120, 200, 255, 0.8),
     inset 0 0 8px rgba(255, 255, 255, 0.4);
 }
+
+/* Stat icon inside card */
+.levelup-icon {
+  width: 90px;
+  height: 90px;
+
+  margin-bottom: 10px;
+  object-fit: contain;
+
+  filter:
+    drop-shadow(0 0 12px rgba(120, 200, 255, 0.8))
+    drop-shadow(0 0 20px rgba(240, 180, 255, 0.7));
+}
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

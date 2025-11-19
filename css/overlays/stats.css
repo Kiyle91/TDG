@@ -1,7 +1,33 @@
 /* ============================================================
-   👑 PLAYER STATS — Princess Layout
+   👑 css/overlays/player-stats.css — Olivia’s World: Crystal Keep
+   ------------------------------------------------------------
+   ✦ Player Stats Overlay (Princess Layout)
+   ✦ Portrait panel + crystal stat card
+   ✦ Pastel neon glow with soft blur & sparkles
 ============================================================ */
+/* ------------------------------------------------------------
+ * MODULE: player-stats.css
+ * PURPOSE:
+ *   Styles the Player Stats overlay shown from the in-game menu.
+ *   Includes the portrait panel, stat breakdown box, and table.
+ *
+ * SUMMARY:
+ *   • .stats-container — wrapper
+ *   • .stats-portrait — glowing portrait frame
+ *   • .stats-table — crystal glass stat box
+ *   • .stat-row — labeled stat values
+ *
+ * VISUAL FEATURES:
+ *   • Pastel crystal glow
+ *   • Soft neon shadows
+ *   • Princess Sofia / Comic Sans fantasy theme
+ * ------------------------------------------------------------ */
 
+
+
+/* ============================================================
+   🌸 CONTAINER + TITLE
+============================================================ */
 .stats-container {
   display: flex;
   flex-direction: column;
@@ -22,8 +48,10 @@
   text-shadow: 0 0 10px rgba(255, 192, 230, 0.9);
 }
 
+
+
 /* ============================================================
-   🧚 MAIN STATS LAYOUT
+   🧚 MAIN LAYOUT
 ============================================================ */
 .stats-content {
   display: flex;
@@ -33,6 +61,8 @@
 
   flex-wrap: wrap;
 }
+
+
 
 /* ============================================================
    🌸 PORTRAIT PANEL
@@ -61,6 +91,8 @@
   object-fit: cover;
   user-select: none;
 }
+
+
 
 /* ============================================================
    📋 STATS TABLE
@@ -103,6 +135,8 @@
   text-shadow: 0 0 4px rgba(140, 213, 255, 0.8);
 }
 
+
+
 /* ============================================================
    ✨ GLOW ANIMATION
 ============================================================ */
@@ -110,3 +144,9 @@
   0%   { box-shadow: 0 0 20px rgba(140, 213, 255, 0.6); }
   100% { box-shadow: 0 0 35px rgba(255, 189, 227, 0.8); }
 }
+
+
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

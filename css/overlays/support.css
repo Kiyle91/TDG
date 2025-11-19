@@ -1,13 +1,34 @@
+/* ============================================================
+   🌸 css/hub/support.css — Olivia’s World: Crystal Keep
+   ------------------------------------------------------------
+   ✦ Support Button (bottom-left of Hub)
+   ✦ Support Screen Overlay (crystal glass, blurred)
+   ✦ Mirrors Credits Button for perfect symmetry
+============================================================ */
+
+/* ------------------------------------------------------------
+ * MODULE: support.css
+ * PURPOSE:
+ *   Provides styling for:
+ *     • #support-btn — floating hub button
+ *     • #support-screen — full-screen overlay panel
+ *
+ * VISUAL STYLE:
+ *   • Pastel gradient pill button
+ *   • Soft neon glow on hover
+ *   • Crystal blur backdrop for overlay
+ * ------------------------------------------------------------ */
+
 
 
 /* ============================================================
-   🌸 HUB — Support Button (Bottom-Left Floating, Matches Credits)
+   💖 SUPPORT BUTTON (Bottom-Left Floating)
+   — Mirrors the Credits Button
 ============================================================ */
-
 #support-btn {
   position: absolute;
   bottom: 22px;
-  left: 42px;          /* ⬅️ mirrored from credits button */
+  left: 42px; /* mirrored from credits button */
 
   padding: 12px 38px;
   font-size: 1.15rem;
@@ -49,13 +70,20 @@
     inset 0 0 8px rgba(255, 255, 255, 0.35);
 }
 
+
+
+/* ============================================================
+   🌸 SUPPORT SCREEN OVERLAY
+   — Crystal Glass Backdrop (matches Credits / Story / Levelup)
+============================================================ */
 #support-screen {
   position: fixed;
   inset: 0;
+
   width: 100%;
   height: 100%;
 
-  display: none;
+  display: none; /* shown via .active */
   justify-content: center;
   align-items: center;
 
@@ -71,6 +99,8 @@
   display: flex;
 }
 
+
+
 /* ============================================================
-/* End of File
+   🌟 END OF FILE
 ============================================================ */

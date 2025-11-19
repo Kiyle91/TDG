@@ -149,25 +149,3 @@
 /* ============================================================
    🌟 END OF FILE
 ============================================================ */
-
-
-/* ============================================================
-   💎 SPIRE UNLOCK VERSION
-============================================================ */
-.spire-unlock-box .story-content {
-  justify-content: center;
-  gap: 60px;
-}
-
-.spire-img {
-  animation: spirePulse 3s ease-in-out infinite;
-
-  filter:
-    drop-shadow(0 0 12px rgba(120,200,255,0.9))
-    drop-shadow(0 0 20px rgba(200,170,255,0.7));
-}
-
-@keyframes spirePulse {
-  0%, 100% { transform: scale(1);     opacity: 1; }
-  50%      { transform: scale(1.05); opacity: 0.95; }
-}

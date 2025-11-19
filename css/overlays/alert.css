@@ -1,9 +1,37 @@
 /* ============================================================
-   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — alert.css (Controller Style)
+   🌸 css/overlays/alert.css — Olivia’s World: Crystal Keep
    ------------------------------------------------------------
-   ✦ Matches the controller popup & level-up overlays exactly
-   ✦ Darkened blurred backdrop + glowing crystal box
+   ✦ Unified alert / confirm / input modal system
+   ✦ Matches controller popup + level-up overlays
+   ✦ Dark blurred backdrop + neon crystal glow box
 ============================================================ */
+/* ------------------------------------------------------------
+ * MODULE: alert.css
+ * PURPOSE:
+ *   Provides the full styling for the OW alert modal system:
+ *   alerts, confirms, name inputs, and level-up prompts.
+ *   This matches your in-game controller popup visuals.
+ *
+ * SUMMARY:
+ *   • Dark blurred modal backdrop (#ow-alert-modal)
+ *   • Crystal glowing alert box (.ow-alert-box)
+ *   • Pop-in & fade animations
+ *   • Text, input field, and button theming
+ *   • Yes / No / OK action button row
+ *
+ * VISUAL FEATURES:
+ *   • Strong neon outer glow
+ *   • Pastel glass UI
+ *   • Smooth fade-in & pop-in animations
+ *   • Responsive min/max width handling
+ *
+ * TECHNICAL NOTES:
+ *   • JS toggles #ow-alert-modal’s display
+ *   • Box is centered using flexbox
+ *   • Backdrop intentionally darker for readability
+ * ------------------------------------------------------------ */
+
+
 
 /* ============================================================
    💖 MODAL BACKDROP (Dark + Blurred)
@@ -16,8 +44,8 @@
   width: 100vw;
   height: 100vh;
 
-  background: rgba(0, 0, 0, 0.35);       /* ✔ darker */
-  backdrop-filter: blur(22px);           /* ✔ strong blur */
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
 
   display: none;
@@ -27,7 +55,6 @@
   z-index: 9999;
   animation: fadeIn 0.3s ease forwards;
 
-  /* REMOVE border + box-shadow (should not be on the backdrop) */
   border: none;
   box-shadow: none;
 }
@@ -37,11 +64,13 @@
   to   { opacity: 1; }
 }
 
+
+
 /* ============================================================
-   💎 ALERT / INPUT BOX — Crystal Glow (Matching Controller Popup)
+   💎 ALERT / INPUT BOX — Crystal Glow
 ============================================================ */
 .ow-alert-box {
-  background: rgba(255, 255, 255, 0.15);   /* same translucent glass */
+  background: rgba(255, 255, 255, 0.15);
   border: 2px solid rgba(181, 226, 255, 0.6);
   border-radius: 20px;
 
@@ -51,9 +80,8 @@
   color: #ffffff;
   font-family: "Princess Sofia", "Comic Sans MS", cursive;
 
-  /* ✔ EXACT neon glow like your controller popup */
   box-shadow:
-    0 0 25px rgba(120, 200, 255, 0.9),     /* strong outer glow */
+    0 0 25px rgba(120, 200, 255, 0.9),
     inset 0 0 20px rgba(255, 255, 255, 0.4);
 
   min-width: 360px;
@@ -69,6 +97,8 @@
   from { transform: scale(0.9); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
 }
+
+
 
 /* ============================================================
    🌷 TEXT + INPUT
@@ -108,6 +138,8 @@
     0 0 12px rgba(255, 204, 238, 0.8),
     inset 0 0 10px rgba(255, 255, 255, 0.6);
 }
+
+
 
 /* ============================================================
    🌸 BUTTONS — Yes / No / OK
@@ -155,6 +187,8 @@
 /* Variants */
 .ow-alert-btn.ok { color: #e7fff9; }
 .ow-alert-btn.cancel { color: #ffe6f7; opacity: 0.9; }
+
+
 
 /* ============================================================
    🌟 END OF FILE

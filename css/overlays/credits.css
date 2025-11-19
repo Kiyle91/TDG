@@ -1,26 +1,53 @@
 /* ============================================================
-   🎬 CREDITS SCREEN — Crystal Glass Edition (Matches Story / Level-Up)
+   🎬 css/screens/credits.css — Olivia’s World: Crystal Keep
    ------------------------------------------------------------
-   ✦ Blurred dark backdrop
-   ✦ Crystal-glass scroll panel
-   ✦ Pastel glow + Princess Sofia headings
-   ✦ Fully consistent with ALL other overlays
+   ✦ Credits screen styled as crystal-glass cinematic overlay
+   ✦ Dark blurred backdrop + glowing pastel scroll panel
+   ✦ Matches story-box, level-up, end-screen theming exactly
 ============================================================ */
-
 /* ------------------------------------------------------------
+ * MODULE: credits.css
+ * PURPOSE:
+ *   Defines the entire Credits Screen UI, including the dark
+ *   blurred backdrop, glowing crystal container, scroll panel,
+ *   pastel headings, paragraph styling, and return button.
+ *
+ * SUMMARY:
+ *   • #credits-screen backdrop + fade-in animation
+ *   • .credits-container crystal glass panel
+ *   • Scrollable credits area with styled scrollbar
+ *   • Princess Sofia headings + Comic Sans body text
+ *   • Return button (credits-btn)
+ *   • Hub "Credits" button floating on bottom-right
+ *
+ * VISUAL FEATURES:
+ *   • Frosted glass layers
+ *   • White/pink/lilac glow effects
+ *   • Responsive scaling with @media breakpoints
+ *   • Consistent with all story / level-up overlays
+ *
+ * TECHNICAL NOTES:
+ *   • Credits screen shows after Map 9 victory
+ *   • Uses .active class for display toggle
+ *   • Z-index set extremely high for full takeover
+ * ------------------------------------------------------------ */
+
+
+
+/* ============================================================
    🔮 BACKDROP
-------------------------------------------------------------- */
+============================================================ */
 #credits-screen {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
 
-  display: none; /* hidden until shown */
+  display: none;
   justify-content: center;
   align-items: center;
 
-  background: rgba(0, 0, 0, 0.45); /* same dim as level-up */
+  background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 
@@ -37,9 +64,11 @@
   to   { opacity: 1; }
 }
 
-/* ------------------------------------------------------------
-   💎 CRYSTAL PANEL (Matches story-box / levelup-box / end-panel)
-------------------------------------------------------------- */
+
+
+/* ============================================================
+   💎 CRYSTAL PANEL
+============================================================ */
 .credits-container {
   position: relative;
 
@@ -69,7 +98,7 @@
   to   { transform: scale(1);    opacity: 1; }
 }
 
-/* Crystal glow aura */
+/* Glow aura */
 .credits-container::before {
   content: "";
   position: absolute;
@@ -79,9 +108,11 @@
   pointer-events: none;
 }
 
-/* ------------------------------------------------------------
+
+
+/* ============================================================
    📜 SCROLL AREA
-------------------------------------------------------------- */
+============================================================ */
 .credits-scroll {
   flex: 1;
   overflow-y: auto;
@@ -91,14 +122,17 @@
 .credits-scroll::-webkit-scrollbar {
   width: 10px;
 }
+
 .credits-scroll::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.6);
   border-radius: 20px;
 }
 
-/* ------------------------------------------------------------
-   ✨ TEXT STYLING — Matching story.css / end-screen
-------------------------------------------------------------- */
+
+
+/* ============================================================
+   ✨ TEXT STYLING
+============================================================ */
 .credits-title {
   text-align: center;
   font-size: 2.6rem;
@@ -137,9 +171,11 @@
   margin: 2px 0 10px 0;
 }
 
-/* ------------------------------------------------------------
-   ✨ RETURN BUTTON — Matches story-next-btn / end-screen buttons
-------------------------------------------------------------- */
+
+
+/* ============================================================
+   ✨ RETURN BUTTON — Same as story-next-btn
+============================================================ */
 .credits-btn {
   align-self: center;
 
@@ -179,9 +215,11 @@
     inset 0 0 8px rgba(255,255,255,0.4);
 }
 
-/* ------------------------------------------------------------
+
+
+/* ============================================================
    🧚 Responsive
-------------------------------------------------------------- */
+============================================================ */
 @media (max-width: 800px) {
   .credits-container {
     width: 92%;
@@ -202,16 +240,17 @@
   }
 }
 
-/* ============================================================
-   🌸 HUB — Credits Button (Bottom-Right Floating)
-============================================================ */
 
+
+/* ============================================================
+   🌸 HUB — Credits Button (Floating)
+============================================================ */
 #credits-btn {
   position: absolute;
   bottom: 22px;
-  right: 42px;        /* ⬅️ moved more left */
-  
-  padding: 12px 38px; /* ⬅️ slightly wider */
+  right: 42px;
+
+  padding: 12px 38px;
   font-size: 1.15rem;
 
   font-family: "Comic Sans MS", cursive;
@@ -250,3 +289,9 @@
     0 0 16px rgba(120, 200, 255, 0.8),
     inset 0 0 8px rgba(255, 255, 255, 0.35);
 }
+
+
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

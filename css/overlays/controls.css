@@ -1,0 +1,71 @@
+/* ============================================================
+   🎮 css/overlays/controls.css — Olivia’s World: Crystal Keep
+   ------------------------------------------------------------
+   ✦ Keybind Display Overlay (Standalone Module)
+   ✦ Used inside the Skins Panel and future Controls Overlay
+   ✦ Simple grid layout for "key → description" mappings
+============================================================ */
+/* ------------------------------------------------------------
+ * MODULE: controls.css
+ * PURPOSE:
+ *   Provides a clean, readable layout for showing keyboard
+ *   controls and gameplay button mappings. Originally used
+ *   inside the Skins panel, now extracted for standalone use.
+ *
+ * SUMMARY:
+ *   • .controls-grid — 2-column control layout
+ *   • .c-key — bold button label
+ *   • .c-desc — descriptive text
+ *
+ * NOTES:
+ *   • This file will be expanded later for a full Controls menu
+ *   • Matches the pastel / crystal UI styling of the project
+ * ------------------------------------------------------------ */
+
+
+
+/* ============================================================
+   🎮 KEYBIND GRID
+   ------------------------------------------------------------
+   Two-column layout:
+   | KEY | Description |
+============================================================ */
+.controls-grid {
+  display: grid;
+  grid-template-columns: 150px auto;
+
+  gap: 10px 20px;
+  padding: 10px 0;
+
+  font-size: 1.2rem;
+}
+
+
+
+/* ============================================================
+   🎛️ KEY LABEL
+   ------------------------------------------------------------
+   Usually displays:
+   - WASD
+   - Arrow Keys
+   - Space
+   - Shift
+============================================================ */
+.c-key {
+  font-weight: 700;
+}
+
+
+
+/* ============================================================
+   📝 DESCRIPTION TEXT
+============================================================ */
+.c-desc {
+  opacity: 0.9;
+}
+
+
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

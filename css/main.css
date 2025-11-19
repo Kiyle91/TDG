@@ -1,10 +1,39 @@
 /* ============================================================
-   🌸 OLIVIA’S WORLD: CRYSTAL KEEP — main.css (Updated Palette)
+   🌸 main.css — Olivia’s World: Crystal Keep
    ------------------------------------------------------------
-   ✦ Global base + animated crystal gradient
-   ✦ Centers active screens (landing, profile, hub)
-   ✦ Matches new blue–lilac–magenta theme
+   ✦ Global foundational styles for the entire game
+   ✦ Manages base layout, resets, fonts, and background system
+   ✦ Controls universal .screen visibility logic
+   ✦ Defines global glow utility classes (blue / lilac / magenta)
 ============================================================ */
+/* ------------------------------------------------------------
+ * MODULE: main.css
+ * PURPOSE:
+ *   Provides all global styling rules shared across the entire
+ *   Olivia’s World game. This includes body layout, reset rules,
+ *   universal text/font behavior, and the animated crystal
+ *   gradient background used on every non-gameplay screen.
+ *
+ * SUMMARY:
+ *   • Base body + html setup
+ *   • User-select disable for UI cleanliness
+ *   • Centered screen layout for landing/profile/hub
+ *   • CrystalBG 24s gradient animation
+ *   • .screen active/inactive logic
+ *   • Glow utility classes for components
+ *
+ * VISUAL FEATURES:
+ *   • Pastel animated crystal background
+ *   • High-contrast white text base
+ *   • Flex-centered screen containers
+ *   • Soft glow utility classes
+ *
+ * TECHNICAL NOTES:
+ *   • No screen-specific rules belong here
+ *   • No overlays or game HUD rules belong here
+ *   • This file must load first in the CSS order
+ * ------------------------------------------------------------ */
+
 
 
 /* ============================================================
@@ -93,13 +122,3 @@ body {
 /* ============================================================
    🌟 END OF FILE
 ============================================================ */
-
-
-
-
-
-
-
-
-
-

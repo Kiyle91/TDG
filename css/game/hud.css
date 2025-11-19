@@ -1,5 +1,36 @@
 /* ============================================================
-   💖 HUD — Balanced layout + capped bars
+   💖 css/game/hud.css — Olivia’s World: Crystal Keep
+   ------------------------------------------------------------
+   ✦ Main HUD system (HP / Mana / Crystal Counters / Echo Meter)
+   ✦ Includes corner-circle HUD, bravery bar, and top stat bars
+   ✦ Fully matches pastel-crystal glass UI aesthetic
+============================================================ */
+/* ------------------------------------------------------------
+ * MODULE: hud.css
+ * PURPOSE:
+ *   Provides all visual styling for the in-game HUD, including:
+ *     • HP and Mana bars
+ *     • Echo + Arrow counters inside glowing circular frames
+ *     • Bravery charge meter
+ *     • Animated crystal glow effects
+ *
+ * SUMMARY:
+ *   • #hud — master HUD wrapper
+ *   • .hud-corner — left/right circular counters
+ *   • #bravery-bar — left-side vertical charge bar
+ *   • #hp-bar / #mana-bar — top gradient bars
+ *   • Shared badge elements (gold, diamonds, waves, lives)
+ *
+ * NOTES:
+ *   • JS controls the values via CSS vars (→ --fill)
+ *   • Uses soft pastel gradients + glassmorphic layers
+ *   • Fully responsive and matches the overall theme
+ * ------------------------------------------------------------ */
+
+
+
+/* ============================================================
+   💖 HUD — Main Backdrop (bottom gradient bar)
 ============================================================ */
 
 #hud {
@@ -25,8 +56,14 @@
   font-weight: bold;
 }
 
+
+
 /* ============================================================
-   🌸 Corner HUD Circles — More Visible, Higher Contrast
+   🌸 HUD CORNER CIRCLES
+   ------------------------------------------------------------
+   • Arrow & Crystal counters
+   • Soft radial glow
+   • Breathing animation
 ============================================================ */
 
 #hud {
@@ -35,7 +72,7 @@
   pointer-events: none;
 }
 
-/* Base container */
+/* Base circular container */
 .hud-corner {
   position: absolute;
   bottom: 1.8rem;
@@ -44,6 +81,7 @@
   height: clamp(64px, 6vw, 88px);
 
   border-radius: 999px;
+  backdrop-filter: blur(7px);
 
   background: radial-gradient(
     circle at 30% 25%,
@@ -59,9 +97,6 @@
   align-items: center;
   justify-content: center;
 
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
-
   pointer-events: none;
   z-index: 40;
 
@@ -69,14 +104,13 @@
 }
 
 /* Anchors */
-.hud-corner-left  { left: 1.8rem;  }
+.hud-corner-left  { left: 1.8rem; }
 .hud-corner-right { right: 1.8rem; }
 
-/* Inner circle */
+/* Inner core */
 .hud-circle-inner {
   width: 84%;
   height: 84%;
-
   border-radius: 999px;
 
   background: radial-gradient(
@@ -87,12 +121,11 @@
 
   display: flex;
   flex-direction: column;
+  gap: 0.2rem;
   align-items: center;
   justify-content: center;
-  gap: 0.2rem;
 
-  box-shadow:
-    inset 0 0 14px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.2);
 }
 
 /* Icons */
@@ -105,36 +138,27 @@
     0 0 8px rgba(255, 255, 255, 0.9);
 }
 
-.hud-circle-icon-arrow {
-  filter: drop-shadow(0 0 4px rgba(107, 170, 240, 0.9));
-}
+.hud-circle-icon-arrow   { filter: drop-shadow(0 0 4px rgba(107,170,240,0.9)); }
+.hud-circle-icon-crystal { filter: drop-shadow(0 0 4px rgba(170,120,255,0.9)); }
 
-.hud-circle-icon-crystal {
-  filter: drop-shadow(0 0 4px rgba(170, 120, 255, 0.9));
-}
-
-/* Counter text */
+/* Counter Text */
 .hud-circle-counter {
   font-family: "Comic Sans MS", system-ui;
   font-weight: 700;
 
   color: #ffffff;
-  text-shadow:
-    0 0 3px rgba(0, 0, 0, 0.4),
-    0 0 6px rgba(255, 255, 255, 0.4);
+  font-size: clamp(0.85rem, 1vw, 1.1rem);
 
   display: flex;
   align-items: center;
   gap: 0.12rem;
 
-  font-size: clamp(0.85rem, 1vw, 1.1rem);
+  text-shadow:
+    0 0 3px rgba(0,0,0,0.4),
+    0 0 6px rgba(255,255,255,0.4);
 }
 
-.hud-circle-counter span {
-  color: #fff;
-}
-
-/* Crystal slash separator */
+/* Divider slash */
 .hud-circle-separator {
   opacity: 0.8;
 }
@@ -144,24 +168,24 @@
   0% {
     transform: scale(1);
     box-shadow:
-      0 0 0 2px rgba(255, 255, 255, 0.35),
-      0 0 14px rgba(110, 90, 170, 0.6);
+      0 0 0 2px rgba(255,255,255,0.35),
+      0 0 14px rgba(110,90,170,0.6);
   }
   50% {
     transform: scale(1.03);
     box-shadow:
-      0 0 0 2px rgba(255, 255, 255, 0.6),
-      0 0 22px rgba(170, 140, 255, 0.85);
+      0 0 0 2px rgba(255,255,255,0.6),
+      0 0 22px rgba(170,140,255,0.85);
   }
   100% {
     transform: scale(1);
     box-shadow:
-      0 0 0 2px rgba(255, 255, 255, 0.35),
-      0 0 14px rgba(110, 90, 170, 0.6);
+      0 0 0 2px rgba(255,255,255,0.35),
+      0 0 14px rgba(110,90,170,0.6);
   }
 }
 
-/* Flash */
+/* Flash effect */
 .hud-circle-flash {
   animation: hudCircleFlash 0.45s ease-out;
 }
@@ -170,38 +194,34 @@
   0% {
     transform: scale(1.08);
     box-shadow:
-      0 0 0 3px rgba(255, 255, 255, 0.9),
-      0 0 28px rgba(255, 230, 180, 1);
+      0 0 0 3px rgba(255,255,255,0.9),
+      0 0 28px rgba(255,230,180,1);
   }
   100% {
     transform: scale(1);
     box-shadow:
-      0 0 0 2px rgba(255, 255, 255, 0.45),
-      0 0 16px rgba(120, 90, 200, 0.7);
+      0 0 0 2px rgba(255,255,255,0.45),
+      0 0 16px rgba(120,90,200,0.7);
   }
 }
 
-/* 🔮 Flash glow when all Echoes collected */
+/* Echo full-power glow */
 .echo-power-flash {
   animation: echoPulse 1s infinite alternate ease-in-out;
   filter: drop-shadow(0 0 12px #d9b8ff);
 }
 
 @keyframes echoPulse {
-  from {
-    transform: scale(1);
-    opacity: 1;
-  }
-  to {
-    transform: scale(1.1);
-    opacity: 1;
-  }
+  from { transform: scale(1);   opacity: 1; }
+  to   { transform: scale(1.1); opacity: 1; }
 }
+
 
 
 /* ============================================================
    🩵 BRAVERY BAR — Vertical Charge Meter
 ============================================================ */
+
 #bravery-bar {
   position: absolute;
   top: 50%;
@@ -211,8 +231,8 @@
   width: 28px;
   height: 240px;
 
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.7);
   border-radius: 12px;
 
   box-shadow:
@@ -223,14 +243,14 @@
   z-index: 9999;
 }
 
-/* Fill */
+/* Charging fill */
 #bravery-fill {
   position: absolute;
   bottom: 0;
   left: 0;
 
   width: 100%;
-  height: 0%;      /* controlled by JS */
+  height: 0%; /* JS controlled */
 
   background: linear-gradient(180deg, #ffe37f, #ff9ad4, #d9b3ff);
   box-shadow:
@@ -240,27 +260,21 @@
   transition: height 0.25s ease-out;
 }
 
-/* Flash when full */
+/* Full glow loop */
 #bravery-fill.full {
   animation: braveryGlow 1.2s ease-in-out infinite;
 }
 
-/* Smooth glowing pulse loop */
 @keyframes braveryGlow {
-  0%   { filter: brightness(1) drop-shadow(0 0 6px #ff8cff); }
+  0%   { filter: brightness(1)   drop-shadow(0 0 6px #ff8cff); }
   50%  { filter: brightness(1.4) drop-shadow(0 0 14px #ffc8ff); }
-  100% { filter: brightness(1) drop-shadow(0 0 6px #ff8cff); }
+  100% { filter: brightness(1)   drop-shadow(0 0 6px #ff8cff); }
 }
 
-@keyframes braveryTextPulse {
-  0% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.08); }
-  100% { opacity: 0.6; transform: scale(1); }
-}
 
 
 /* ============================================================
-   💖 HUD — Balanced layout + capped bars
+   💖 TOP HUD — HP & Mana Bars
 ============================================================ */
 
 #hud {
@@ -272,22 +286,24 @@
   height: 50px;
 
   background: linear-gradient(180deg, #ffe4f7 0%, #e3caff 100%);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+  border-bottom: 2px solid rgba(255,255,255,0.4);
 }
 
-/* Center stats block */
+/* Center stats */
 #center-stats {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
 
   height: 50px;
+
   display: flex;
   align-items: center;
   gap: 18px;
 
   font-family: "Comic Sans MS", cursive;
   font-weight: bold;
+
   color: #bb3ebb;
   text-shadow: 0 0 4px #bb3ebb;
 }
@@ -298,23 +314,23 @@
   position: absolute;
   top: 8px;
 
-  width: 350px;      /* capped size */
+  width: 350px;
   height: 30px;
 
   overflow: hidden;
   border-radius: 10px;
 
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.9);
 
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
 }
 
-/* HP left, Mana right */
+/* Placement */
 #hp-bar   { left: 20px; }
 #mana-bar { right: 20px; }
 
-/* Text overlay */
+/* Text inside bars */
 .bar-text {
   position: absolute;
   inset: 0;
@@ -332,22 +348,19 @@
   pointer-events: none;
 }
 
-/* Fill layer (width controlled by JS via --fill) */
+/* Dynamic fill */
 #hp-bar::before,
 #mana-bar::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-
+  inset: 0;
   width: var(--fill, 100%);
-  border-radius: inherit;
 
+  border-radius: inherit;
   transition: width 0.25s ease-out;
 }
 
-/* Gradient fills */
+/* Fill colors */
 #hp-bar::before {
   background: linear-gradient(90deg, #ff3164, #ff94d2);
 }
@@ -355,3 +368,39 @@
 #mana-bar::before {
   background: linear-gradient(90deg, #33aaff, #99e0ff);
 }
+
+/* ============================================================
+   🎀 SHARED BADGE STYLES
+   ------------------------------------------------------------
+   Used for:
+   • Gold
+   • Diamonds
+   • Waves
+   • Lives
+============================================================ */
+
+#gold-display,
+#diamond-display,
+#wave-display,
+#lives-display {
+  padding: 6px 12px;
+  font-weight: 600;
+
+  color: #fff;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 182, 224, 0.6);
+  border-radius: 10px;
+
+  box-shadow: 0 0 10px rgba(224, 187, 255, 0.5);
+}
+
+/* Prefixed icons */
+#gold-display::before    { content: "💰 "; }
+#diamond-display::before { content: "💎 "; }
+#wave-display::before    { content: "🌀 "; }
+#lives-display::before   { content: "❤️ "; }
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

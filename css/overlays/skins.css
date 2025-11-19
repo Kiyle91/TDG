@@ -1,12 +1,33 @@
 /* ============================================================
-   💖 OLIVIA’S WORLD: CRYSTAL KEEP — skins.css
+   🎨 css/overlays/skins.css — Olivia’s World: Crystal Keep
    ------------------------------------------------------------
-   ✦ Character skins overlay
-   ✦ Each skin shows a portrait, name, and unlock requirement
+   ✦ Crystal Glass Character Skins Menu
+   ✦ Portraits, names, requirements, locked/unlocked
+   ✦ Supports both 3×3 grid & new fullscreen 4× layout
 ============================================================ */
+/* ------------------------------------------------------------
+ * MODULE: skins.css
+ * PURPOSE:
+ *   Defines all styling for the Skins overlay system, including
+ *   the original 3-column grid and the newer fullscreen panel
+ *   version used for more advanced skin systems.
+ *
+ * SUMMARY:
+ *   • .skins-container — wrapper for classic layout
+ *   • .skins-grid — 3-column grid
+ *   • .skin-card — crystal frame card
+ *   • locked/unlocked skin states
+ *   • #skins-overlay — fullscreen version
+ *   • .skins-panel — glowing 4-column version
+ *
+ * NOTES:
+ *   • Both versions are kept — your JS picks which one to use.
+ * ------------------------------------------------------------ */
+
+
 
 /* ============================================================
-   🌸 CONTAINER + TITLE
+   🌸 CLASSIC SKINS SYSTEM — Container + Title
 ============================================================ */
 .skins-container {
   width: 900px;
@@ -27,19 +48,22 @@
   text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
 }
 
+
+
 /* ============================================================
-   🌸 GRID LAYOUT
+   🌸 CLASSIC 3-COLUMN GRID
 ============================================================ */
 .skins-grid {
   width: 100%;
-
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 25px;
 }
 
+
+
 /* ============================================================
-   💎 SKIN CARD BASE
+   💎 SKIN CARD BASE (Classic)
 ============================================================ */
 .skin-card {
   position: relative;
@@ -49,7 +73,6 @@
   cursor: pointer;
 
   background: rgba(255, 255, 255, 0.1);
-
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
 
@@ -60,6 +83,8 @@
     inset 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
+
+
 /* ============================================================
    🖼️ PORTRAIT IMAGE
 ============================================================ */
@@ -68,21 +93,21 @@
   height: 220px;
 
   margin-bottom: 10px;
-
   object-fit: cover;
-  border-radius: 16px;
 
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.1);
 
   border: 2px solid rgba(181, 226, 255, 0.6);
-
   box-shadow:
     0 0 15px rgba(181, 226, 255, 0.6),
     inset 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
+
+
 /* ============================================================
-   💬 INFO TEXT
+   💬 TEXT
 ============================================================ */
 .skin-info h4 {
   margin-bottom: 4px;
@@ -97,6 +122,8 @@
   font-size: 0.9rem;
   opacity: 0.8;
 }
+
+
 
 /* ============================================================
    🔒 LOCKED STATE
@@ -124,6 +151,8 @@
   border: 2px dashed rgba(181, 226, 255, 0.4);
 }
 
+
+
 /* ============================================================
    ✨ UNLOCKED HOVER EFFECT
 ============================================================ */
@@ -135,107 +164,140 @@
 }
 
 
-/* =========================================================
-   🌈 Skins Overlay — Full Screen Panel
-   ========================================================= */
+
+/* ============================================================
+   🌈 FULLSCREEN SKINS OVERLAY — New UI Variant
+============================================================ */
 #skins-overlay {
-    position: fixed;
-    inset: 0;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(12px);
-    z-index: 9999;
+  position: fixed;
+  inset: 0;
+
+  display: none;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(12px);
+
+  z-index: 9999;
 }
 
 #skins-overlay.active {
-    display: flex;
-    opacity: 1;
+  display: flex;
+  opacity: 1;
 }
 
+
+
+/* ============================================================
+   💎 FULLSCREEN PANEL
+============================================================ */
 .skins-panel {
-    width: 75%;
-    max-width: 1300px;
-    padding: 40px;
-    background: linear-gradient(135deg, #ffe6f9, #d7c6ff, #c6e8ff);
-    border-radius: 26px;
-    box-shadow: 0 0 40px rgba(255,255,255,0.4);
-    animation: panelGlow 10s ease infinite;
+  width: 75%;
+  max-width: 1300px;
+
+  padding: 40px;
+  background: linear-gradient(135deg, #ffe6f9, #d7c6ff, #c6e8ff);
+
+  border-radius: 26px;
+  box-shadow: 0 0 40px rgba(255,255,255,0.4);
+
+  animation: panelGlow 10s ease infinite;
 }
 
-.skins-title {
-    text-align: center;
-    font-size: 44px;
-    margin-bottom: 30px;
+
+
+/* ============================================================
+   🌸 FULLSCREEN TITLE OVERRIDE
+============================================================ */
+.skins-panel .skins-title {
+  text-align: center;
+  font-size: 44px;
+  margin-bottom: 30px;
 }
 
-.skins-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
+
+
+/* ============================================================
+   🌸 FULLSCREEN 4-COLUMN GRID
+============================================================ */
+.skins-panel .skins-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
 }
 
-.skin-card {
-    text-align: center;
-    background: rgba(255,255,255,0.3);
-    padding: 25px;
-    border-radius: 20px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.7);
-    box-shadow: 0 0 20px rgba(255,255,255,0.25);
+
+
+/* ============================================================
+   💎 FULLSCREEN SKIN CARD
+============================================================ */
+.skins-panel .skin-card {
+  text-align: center;
+
+  background: rgba(255,255,255,0.3);
+  padding: 25px;
+
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255,255,255,0.7);
+  box-shadow: 0 0 20px rgba(255,255,255,0.25);
 }
 
+
+
+/* ============================================================
+   🖼️ FULLSCREEN PORTRAIT
+============================================================ */
 .skin-portrait {
-    width: 160px;
-    height: 160px;
-    object-fit: contain;
-    margin-bottom: 10px;
+  width: 160px;
+  height: 160px;
+
+  object-fit: contain;
+  margin-bottom: 10px;
 }
 
 .skin-desc {
-    font-size: 14px;
-    opacity: 0.8;
+  font-size: 14px;
+  opacity: 0.8;
 }
 
+
+
+/* ============================================================
+   ✨ EQUIP BUTTON
+============================================================ */
 .skin-btn {
-    margin-top: 10px;
-    padding: 10px 25px;
-    border-radius: 30px;
-    font-size: 16px;
-    cursor: pointer;
-    background: #fff;
-    border: 2px solid #fff;
-    transition: 0.2s;
+  margin-top: 10px;
+  padding: 10px 25px;
+
+  border-radius: 30px;
+  font-size: 16px;
+
+  cursor: pointer;
+  background: #fff;
+  border: 2px solid #fff;
+
+  transition: 0.2s;
 }
 
 .skin-btn:hover:not(.equipped) {
-    background: #ffebff;
-    border-color: #ffccff;
+  background: #ffebff;
+  border-color: #ffccff;
 }
 
 .skin-btn.equipped {
-    background: #c6ffe6;
-    border-color: #9fffd2;
-    cursor: default;
-    opacity: 0.8;
+  background: #c6ffe6;
+  border-color: #9fffd2;
+
+  cursor: default;
+  opacity: 0.8;
 }
 
-.controls-grid {
-  display: grid;
-  grid-template-columns: 150px auto;
-  gap: 10px 20px;
-  padding: 10px 0;
-  font-size: 1.2rem;
-}
 
-.c-key {
-  font-weight: 700;
-}
 
-.c-desc {
-  opacity: 0.9;
-}
+
 
 
 /* ============================================================

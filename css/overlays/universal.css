@@ -1,4 +1,41 @@
 /* ============================================================
+   🌸 css/overlays/overlays.css — Olivia’s World: Crystal Keep
+   ------------------------------------------------------------
+   ✦ Universal overlay system for modals, confirmations,
+     settings, controls, and spire unlock panels
+   ✦ Provides glassy crystal overlay box + fade transitions
+   ✦ Includes darkened variants for specific overlays
+============================================================ */
+/* ------------------------------------------------------------
+ * MODULE: overlays.css
+ * PURPOSE:
+ *   Defines the visual system behind every overlay-style popup
+ *   in the game. This includes the shared blurred background,
+ *   pop-in animation, close button visuals, and special overlay
+ *   variants for settings, player stats, confirm prompts, etc.
+ *
+ * SUMMARY:
+ *   • .overlay — universal backdrop layer
+ *   • .overlay-box — glass crystal popup panel
+ *   • Close button styling
+ *   • Pop-in animation on open
+ *   • Dark overlay variants for game settings & stats
+ *
+ * VISUAL FEATURES:
+ *   • High-blur frosted glass background
+ *   • Soft pastel glow borders
+ *   • Smooth opacity transition
+ *   • Pop-in scale animation
+ *
+ * TECHNICAL NOTES:
+ *   • JS toggles .active on overlays
+ *   • Z-index layered above all HUD/UI at 999
+ *   • Some overlays intentionally darkened for readability
+ * ------------------------------------------------------------ */
+
+
+
+/* ============================================================
    🌸 UNIVERSAL OVERLAY LAYER
 ============================================================ */
 .overlay {
@@ -22,7 +59,11 @@
   opacity: 1;
 }
 
-/* Overlay box */
+
+
+/* ============================================================
+   📦 OVERLAY BOX (Glass Crystal Panel)
+============================================================ */
 .overlay-box {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(91, 139, 230, 0.6);
@@ -43,7 +84,11 @@
   to   { transform: scale(1); opacity: 1; }
 }
 
-/* Close button */
+
+
+/* ============================================================
+   ❌ CLOSE BUTTON
+============================================================ */
 .overlay-close {
   margin-top: 50px;
   padding: 10px 30px;
@@ -71,8 +116,22 @@
 }
 
 
-#overlay-settings-game, #overlay-game-controls, #overlay-player-stats, #overlay-confirm, #spire-unlock-overlay {
-  background: rgba(0, 0, 0, 0.75);  /* darken background */
-  backdrop-filter: blur(20px);      /* strong blur */
+
+/* ============================================================
+   🌑 DARK VARIANTS — Settings / Controls / Stats
+============================================================ */
+#overlay-settings-game,
+#overlay-game-controls,
+#overlay-player-stats,
+#overlay-confirm,
+#spire-unlock-overlay {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(30px);
 }
+
+
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */
