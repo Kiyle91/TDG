@@ -205,11 +205,11 @@ import { autoSave } from "./saveSystem.js";
 export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding
   1: [
-    { goblins: 3,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 3,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 3, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 3, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 3, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // 🌲 MAP 2 — Early Mixed Units
@@ -352,7 +352,18 @@ export function resetWaveSystem() {
 
 }
 
-export function restoreWaveFromSnapshot(meta) {
+export function getWaveSnapshotState() {
+  return {
+    currentWaveIndex,
+    waveActive,
+    waveCleared,
+    firstWaveStarted,
+    betweenWaveTimer,
+    betweenWaveTimerActive: window.betweenWaveTimerActive === true,
+  };
+}
+
+export function restoreWaveFromSnapshot(meta, snapshot) {
   if (!meta) return;
 
   // Restore correct wave index (1-based → 0-based)
@@ -364,21 +375,69 @@ export function restoreWaveFromSnapshot(meta) {
   // Ensure legacy window-access sees correct index
   window.currentWaveIndex = currentWaveIndex;
 
-  // Resume wave engine
-  firstWaveStarted = true;
-  window.firstWaveStarted = true;
+  const waveState = meta.waveState || {};
+  const hasSavedEnemies = snapshot
+    ? [
+        snapshot.goblins,
+        snapshot.worgs,
+        snapshot.elites,
+        snapshot.ogres,
+        snapshot.trolls,
+        snapshot.crossbows,
+      ].some(arr => Array.isArray(arr) && arr.length > 0)
+    : false;
 
-  waveActive = true;
-  waveCleared = false;
+  const resolvedFirstWave =
+    typeof waveState.firstWaveStarted === "boolean"
+      ? waveState.firstWaveStarted
+      : (meta.firstWaveStarted ??
+        (hasSavedEnemies || false));
+
+  firstWaveStarted = !!resolvedFirstWave;
+  window.firstWaveStarted = firstWaveStarted;
+
+  waveActive =
+    typeof waveState.waveActive === "boolean"
+      ? waveState.waveActive
+      : hasSavedEnemies;
+  waveCleared =
+    typeof waveState.waveCleared === "boolean"
+      ? waveState.waveCleared
+      : (!waveActive && firstWaveStarted);
   justStartedWave = false;
 
   // Clear active spawn sequence (snapshot stores enemies, not timers)
   spawnQueue.length = 0;
   spawnTimer = 0;
 
-  // Allow immediate wave continuation
-  betweenWaveTimer = 0;
-  window.betweenWaveTimerActive = false;
+  let restoredTimer = 0;
+  if (!waveActive) {
+    if (typeof waveState.betweenWaveTimer === "number") {
+      restoredTimer = Math.max(0, waveState.betweenWaveTimer);
+    } else if (!firstWaveStarted) {
+      restoredTimer = FIRST_WAVE_DELAY;
+    }
+  }
+
+  betweenWaveTimer = waveActive ? 0 : restoredTimer;
+
+  let restoredTimerActive =
+    waveActive
+      ? false
+      : (typeof waveState.betweenWaveTimerActive === "boolean"
+          ? waveState.betweenWaveTimerActive
+          : betweenWaveTimer > 0);
+
+  if (!waveActive && betweenWaveTimer <= 0) {
+    if (!firstWaveStarted) {
+      betweenWaveTimer = FIRST_WAVE_DELAY;
+      restoredTimerActive = true;
+    } else {
+      restoredTimerActive = false;
+    }
+  }
+
+  window.betweenWaveTimerActive = restoredTimerActive;
 
   // No victory pending after restore
   gameState.victoryPending = false;

@@ -29,7 +29,7 @@ import { getSpires } from "./spires.js";
 import { updateHUD } from "./ui.js";
 import { getTrolls } from "./troll.js";
 import { getCrossbows } from "./crossbow.js";
-import { restoreWaveFromSnapshot } from "./game.js";
+import { restoreWaveFromSnapshot, getWaveSnapshotState } from "./game.js";
 
 
 // ------------------------------------------------------------
@@ -125,6 +125,19 @@ export function snapshotGame() {
   }
 
   const { gold, diamonds } = getCurrencies();
+  const waveRuntime = typeof getWaveSnapshotState === "function"
+    ? getWaveSnapshotState()
+    : {};
+  const normalizedWaveState = {
+    firstWaveStarted: waveRuntime.firstWaveStarted === true,
+    waveActive: waveRuntime.waveActive === true,
+    waveCleared: waveRuntime.waveCleared === true,
+    betweenWaveTimer:
+      typeof waveRuntime.betweenWaveTimer === "number"
+        ? Math.max(0, waveRuntime.betweenWaveTimer)
+        : 0,
+    betweenWaveTimerActive: waveRuntime.betweenWaveTimerActive === true,
+  };
 
   return {
     version: 1,
@@ -142,6 +155,8 @@ export function snapshotGame() {
       level: gameState.player.level ?? 1,
       hp: gameState.player.hp ?? 0,
       maxHp: gameState.player.maxHp ?? 0,
+      firstWaveStarted: normalizedWaveState.firstWaveStarted,
+      waveState: normalizedWaveState,
     },
 
     progress: safeClone(gameState.progress),
@@ -168,7 +183,7 @@ export function applySnapshot(snapshot) {
   // 1) Restore wave engine BEFORE anything else
   // ----------------------------------------------------------
   if (snapshot.meta) {
-    restoreWaveFromSnapshot(snapshot.meta);
+    restoreWaveFromSnapshot(snapshot.meta, snapshot);
   }
 
   // ----------------------------------------------------------
