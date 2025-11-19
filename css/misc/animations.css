@@ -1,0 +1,148 @@
+/* ============================================================
+   💫 OLIVIA’S WORLD: CRYSTAL KEEP — animations.css (Final)
+   ------------------------------------------------------------
+   ✦ Reusable sparkle layer (JS-generated)
+   ✦ Shared across landing, profile, hub
+============================================================ */
+
+/* ------------------------------------------------------------
+   Layer control
+------------------------------------------------------------ */
+.landing-frame,
+.profile-frame,
+.hub-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-bg,
+.hub-bg {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.magic-sparkle {
+  position: absolute;
+  inset: 0;
+
+  overflow: hidden;
+  pointer-events: none;
+
+  opacity: 1;
+  z-index: 2;
+}
+
+#landing-container,
+#profile-container,
+#hub-container {
+  position: relative;
+  z-index: 3;
+}
+
+/* ------------------------------------------------------------
+   Sparkle particles
+------------------------------------------------------------ */
+.magic-particle {
+  position: absolute;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+  opacity: 1;
+  mix-blend-mode: screen;
+
+  background: radial-gradient(
+    circle,
+    #ffffff 0%,
+    rgba(181, 226, 255, 0.5) 50%,
+    transparent 80%
+  );
+
+  filter: blur(3px) brightness(1.8);
+
+  animation: sparkleDrift 18s linear infinite,
+             sparkleFlicker 3s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------
+   Sparkle animations
+------------------------------------------------------------ */
+@keyframes sparkleDrift {
+  0%   { transform: translate(40px, -40px) scale(1.1); opacity: 1; }
+  25%  { transform: translate(-30px, -60px) scale(1.2); opacity: 0.9; }
+  50%  { transform: translate(-60px, 20px) scale(1);   opacity: 1; }
+  75%  { transform: translate(40px, 40px) scale(1.1);  opacity: 1; }
+  100% { transform: translate(0, 0) scale(1);          opacity: 1; }
+}
+
+@keyframes sparkleFlicker {
+  0%, 100% { filter: blur(3px) brightness(1.5); }
+  50%      { filter: blur(2px) brightness(3);   }
+}
+
+/* ============================================================
+   🪽 PEGASUS GLIDE — Continuous Flight Across the Screen
+============================================================ */
+.pegasus-fly {
+  position: absolute;
+  top: -5%;
+  left: -250px;
+
+  width: 150px;
+  height: auto;
+
+  opacity: 1;
+  pointer-events: none;
+
+  z-index: 2;
+
+  filter: drop-shadow(0 0 18px rgba(224, 187, 255, 0.8))
+          brightness(1.15);
+
+  /* ✨ Continuous glide */
+  animation: pegasusGlide 10s linear infinite;
+  animation-delay: 0.5s;
+}
+
+@keyframes pegasusGlide {
+  0% {
+    transform: translate(-250px, -100px);
+    opacity: 1;
+  }
+
+  40% {
+    transform: translate(120vw, 300px);
+    opacity: 1;
+  }
+
+  /* Pause off-screen */
+  41% {
+    transform: translate(120vw, 300px);
+    opacity: 0; /* fades invisible */
+  }
+  100% {
+    transform: translate(120vw, 300px);
+    opacity: 0;
+  }
+}
+
+
+/* ============================================================
+   ✨ MAGIC SPARKLES FADE
+============================================================ */
+.magic-sparkle {
+  transition: opacity 0.6s ease;
+}
+
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

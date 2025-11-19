@@ -1,0 +1,169 @@
+/* ============================================================
+   💾 SAVE / LOAD MENU — Crystal Glass UI
+   ------------------------------------------------------------
+   ✦ Matches Story / Level-Up / Controller Popup aesthetic
+   ✦ Animated glowing crystal panel
+   ✦ Pastel gradients + blur + neon edges
+============================================================ */
+
+/* Container overlay (already inherits backdrop from your fix) */
+#overlay-save-game {
+  z-index: 99999;       /* match story + levelup */
+  display: none;        /* hidden until active */
+  align-items: center;
+  justify-content: center;
+}
+
+/* Crystal panel */
+.save-container {
+  width: 650px;
+  max-width: 90vw;
+
+  padding: 40px 60px;
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 0 25px rgba(120, 200, 255, 0.9),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  animation: overlayPop 0.45s ease;
+  text-align: center;
+}
+
+/* Title */
+.save-title {
+  font-size: 2rem;
+  margin-bottom: 25px;
+
+  color: #ffffff;
+  font-family: "Princess Sofia", cursive;
+
+  text-shadow:
+    0 0 10px #fff,
+    0 0 18px #d6b3ff;
+}
+
+/* Slot list */
+#save-slots-ingame {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Individual save slot */
+.save-slot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 100px;   
+
+  padding: 16px 20px;
+
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+
+  font-family: "Comic Sans MS", cursive;
+  transition: all 0.25s ease;
+}
+
+.save-slot:hover {
+  transform: scale(1.02);
+  box-shadow:
+    0 0 25px rgba(224, 187, 255, 0.9),
+    inset 0 0 14px rgba(255, 255, 255, 0.4);
+}
+
+/* Slot name */
+.save-slot-title {
+  font-size: 1.1rem;
+  text-shadow: 0 0 6px rgba(255,255,255,0.7);
+}
+
+/* Button group */
+.save-slot-buttons {
+  display: flex;
+
+  gap: 10px;
+}
+
+/* Save / Load / Delete buttons */
+.save-btn,
+.load-btn,
+.delete-btn {
+  padding: 6px 14px;
+
+  font-size: 0.95rem;
+  font-family: "Comic Sans MS", cursive;
+  cursor: pointer;
+
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  background: linear-gradient(145deg, #8cd5ff, #d4b5ff, #ffbde3);
+  color: #ffffff;
+
+  box-shadow:
+    0 0 12px rgba(120, 200, 255, 0.8),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+
+  transition: all 0.2s ease;
+}
+
+.save-btn:hover,
+.load-btn:hover,
+.delete-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Delete button variant */
+.delete-btn {
+  background: linear-gradient(145deg, #ff6b8d, #ff91b2, #ffc2da);
+}
+.delete-btn:hover {
+  box-shadow:
+    0 0 15px rgba(255,150,150,1),
+    inset 0 0 10px rgba(255,255,255,0.5);
+}
+
+/* OK button */
+#overlay-save-game .overlay-close {
+  margin-top: 28px;
+  padding: 12px 34px;
+
+  font-family: "Comic Sans MS", cursive;
+  font-size: 1.1rem;
+
+  border-radius: 14px;
+  border: 2px solid rgba(255,255,255,0.7);
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  color: #ffffff;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 0 20px rgba(120,200,255,0.9),
+    inset 0 0 12px rgba(255,255,255,0.4);
+
+  transition: all 0.3s ease;
+}
+
+#overlay-save-game .overlay-close:hover {
+  transform: scale(1.05);
+}

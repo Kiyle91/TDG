@@ -1,0 +1,243 @@
+/* ============================================================
+   💖 OLIVIA’S WORLD: CRYSTAL KEEP — skins.css
+   ------------------------------------------------------------
+   ✦ Character skins overlay
+   ✦ Each skin shows a portrait, name, and unlock requirement
+============================================================ */
+
+/* ============================================================
+   🌸 CONTAINER + TITLE
+============================================================ */
+.skins-container {
+  width: 900px;
+  max-width: 95vw;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.skins-title {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+
+  color: #ffffff;
+  font-family: "Princess Sofia", cursive;
+  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
+}
+
+/* ============================================================
+   🌸 GRID LAYOUT
+============================================================ */
+.skins-grid {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+/* ============================================================
+   💎 SKIN CARD BASE
+============================================================ */
+.skin-card {
+  position: relative;
+
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================================
+   🖼️ PORTRAIT IMAGE
+============================================================ */
+.skin-image {
+  width: 180px;
+  height: 220px;
+
+  margin-bottom: 10px;
+
+  object-fit: cover;
+  border-radius: 16px;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  border: 2px solid rgba(181, 226, 255, 0.6);
+
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.6),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   💬 INFO TEXT
+============================================================ */
+.skin-info h4 {
+  margin-bottom: 4px;
+
+  font-size: 1.1rem;
+  font-family: "Comic Sans MS", cursive;
+
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.8);
+}
+
+.skin-info p {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* ============================================================
+   🔒 LOCKED STATE
+============================================================ */
+.skin-card.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(80%) brightness(0.8);
+}
+
+.skin-placeholder {
+  width: 180px;
+  height: 220px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.6);
+
+  background: rgba(255, 255, 255, 0.08);
+
+  border-radius: 16px;
+  border: 2px dashed rgba(181, 226, 255, 0.4);
+}
+
+/* ============================================================
+   ✨ UNLOCKED HOVER EFFECT
+============================================================ */
+.skin-card.unlocked:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 30px rgba(224, 187, 255, 1),
+    inset 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+
+/* =========================================================
+   🌈 Skins Overlay — Full Screen Panel
+   ========================================================= */
+#skins-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(12px);
+    z-index: 9999;
+}
+
+#skins-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.skins-panel {
+    width: 75%;
+    max-width: 1300px;
+    padding: 40px;
+    background: linear-gradient(135deg, #ffe6f9, #d7c6ff, #c6e8ff);
+    border-radius: 26px;
+    box-shadow: 0 0 40px rgba(255,255,255,0.4);
+    animation: panelGlow 10s ease infinite;
+}
+
+.skins-title {
+    text-align: center;
+    font-size: 44px;
+    margin-bottom: 30px;
+}
+
+.skins-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.skin-card {
+    text-align: center;
+    background: rgba(255,255,255,0.3);
+    padding: 25px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.7);
+    box-shadow: 0 0 20px rgba(255,255,255,0.25);
+}
+
+.skin-portrait {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.skin-desc {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.skin-btn {
+    margin-top: 10px;
+    padding: 10px 25px;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #fff;
+    border: 2px solid #fff;
+    transition: 0.2s;
+}
+
+.skin-btn:hover:not(.equipped) {
+    background: #ffebff;
+    border-color: #ffccff;
+}
+
+.skin-btn.equipped {
+    background: #c6ffe6;
+    border-color: #9fffd2;
+    cursor: default;
+    opacity: 0.8;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: 150px auto;
+  gap: 10px 20px;
+  padding: 10px 0;
+  font-size: 1.2rem;
+}
+
+.c-key {
+  font-weight: 700;
+}
+
+.c-desc {
+  opacity: 0.9;
+}
+
+
+/* ============================================================
+   🌟 END OF FILE
+============================================================ */

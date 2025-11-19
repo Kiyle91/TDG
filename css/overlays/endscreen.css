@@ -1,0 +1,144 @@
+/* ============================================================
+   🌟 END SCREEN — Crystal Glass Overlay (Unified Aesthetic)
+   ------------------------------------------------------------
+   ✦ Matches Story / Level-Up / Spire-Unlock theme
+   ✦ Crystal-glass panels, soft glows, pastel gradients
+============================================================ */
+
+.end-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.45);  /* same dim as level-up overlay */
+  backdrop-filter: blur(20px);     
+  -webkit-backdrop-filter: blur(20px);
+
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  z-index: 99999;
+}
+
+.end-overlay.visible {
+  opacity: 1;
+}
+
+/* ============================================================
+   ✨ END PANEL — Crystal Glass Box
+============================================================ */
+.end-panel {
+  position: relative;
+
+  width: 900px;
+  min-height: 300px;
+
+  padding: 50px 70px;
+
+  background: rgba(255, 255, 255, 0.15); /* crystal glass */
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  color: #ffffff;
+  text-align: center;
+  font-family: "Comic Sans MS", cursive;
+  font-size: 1.2rem;
+
+  box-shadow:
+    0 0 25px rgba(120, 200, 255, 0.9),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+
+  backdrop-filter: blur(20px);
+
+  animation: overlayPop 0.5s ease;
+}
+
+/* ✨ Soft Aura Glow */
+.end-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  border-radius: 22px;
+  background: radial-gradient(circle, rgba(255,255,255,0.25), transparent 70%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   💬 TEXT
+============================================================ */
+
+.end-panel h1 {
+  margin-bottom: 1rem;
+  font-size: 2.6rem;
+  font-family: "Princess Sofia", cursive;
+  color: #ffffff;
+
+  text-shadow:
+    0 0 10px #fff,
+    0 0 18px #d6b3ff;
+}
+
+.end-panel p {
+  margin-bottom: 2.2rem;
+  font-size: 1.3rem;
+  color: #e8dbff;
+}
+
+/* ============================================================
+   ✨ BUTTONS
+============================================================ */
+
+.end-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.end-buttons button {
+  padding: 12px 30px;
+
+  font-size: 1.1rem;
+  font-weight: bold;
+  font-family: "Comic Sans MS", cursive;
+
+  color: #ffffff;
+  cursor: pointer;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(120, 200, 255, 0.8),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.end-buttons button:hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 0 30px rgba(224, 187, 255, 0.9),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.end-buttons button:active {
+  transform: scale(0.97);
+  box-shadow:
+    0 0 18px rgba(120, 200, 255, 0.8),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   ✨ POP ANIMATION (matches story / level-up)
+============================================================ */
+@keyframes overlayPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}

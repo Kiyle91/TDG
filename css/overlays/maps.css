@@ -1,0 +1,244 @@
+/* ============================================================
+   🗺️ OLIVIA’S WORLD: CRYSTAL KEEP — maps.css
+   ------------------------------------------------------------
+   ✦ Map selection overlay (3×3 grid)
+   ✦ Locked/unlocked visual states
+   ✦ Pastel crystal aesthetic
+============================================================ */
+
+/* ============================================================
+   🌸 CONTAINER
+============================================================ */
+.map-grid-container {
+  width: 700px;
+  max-width: 90vw;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-title {
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+
+  color: #ffffff;
+  font-family: "Princess Sofia", cursive;
+  text-shadow: 0 0 10px rgba(181, 226, 255, 0.8);
+}
+
+/* ============================================================
+   🌈 GRID LAYOUT (3×3)
+============================================================ */
+.map-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* ============================================================
+   💎 MAP TILE BASE
+============================================================ */
+.map-tile {
+  width: 140px;
+  height: 140px;
+
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 2rem;
+  font-weight: bold;
+  color: #fff;
+
+  border-radius: 16px;
+  border: 2px solid rgba(91, 139, 230, 0.6);
+
+  background: linear-gradient(
+    145deg,
+    rgba(140, 213, 255, 0.25),
+    rgba(212, 181, 255, 0.25)
+  );
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================================
+   🔒 LOCKED TILE
+============================================================ */
+.map-tile.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+
+  background: radial-gradient(
+    circle,
+    rgba(100, 100, 100, 0.3),
+    rgba(40, 40, 40, 0.4)
+  );
+
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.1),
+    inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.map-tile.locked::after {
+  content: "🔒";
+  position: absolute;
+
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.85);
+
+  text-shadow: 0 0 10px rgba(224, 187, 255, 0.7);
+}
+
+/* ============================================================
+   ✅ UNLOCKED TILE
+============================================================ */
+.map-tile.unlocked {
+  opacity: 1;
+  cursor: pointer;
+
+  background: linear-gradient(145deg, #8cd5ff, #d4b5ff, #ffbde3);
+
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.map-tile.unlocked:hover {
+  transform: scale(1.05);
+
+  box-shadow:
+    0 0 35px rgba(224, 187, 255, 1),
+    inset 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================================
+   🌟 TILE CONTENT
+============================================================ */
+.map-tile span {
+  z-index: 2;
+  pointer-events: none;
+
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.8);
+}
+
+/* ============================================================
+   💫 HOVER GLOW ANIMATION
+============================================================ */
+@keyframes tilePulse {
+  0%   { box-shadow: 0 0 20px rgba(181, 226, 255, 0.6); }
+  50%  { box-shadow: 0 0 35px rgba(224, 187, 255, 0.9); }
+  100% { box-shadow: 0 0 20px rgba(181, 226, 255, 0.6); }
+}
+
+/* ============================================================
+   🌟 END OF FILE
+/* ============================================================ */   
+
+
+/* ============================================================
+    MAP TILES
+============================================================ */
+/* Base tile appearance */
+.map-tile {
+  width: 180px;
+  height: 180px;
+  border-radius: 18px;
+  padding: 8px;
+  cursor: pointer;
+
+  background: rgba(255,255,255,0.10);
+  border: 2px solid rgba(255,255,255,0.35);
+  backdrop-filter: blur(10px);
+  transition: all 0.25s ease;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Thumbnail image */
+.map-thumb {
+  width: 90%;
+  height: 90%;
+  border-radius: 14px;
+  object-fit: cover;
+  transition: all 0.25s ease;
+}
+
+/* Title */
+.map-title {
+  margin-top: 6px;
+  font-family: "Comic Sans MS", cursive;
+  font-size: 1.1rem;
+  color: #fff;
+  text-shadow: 0 0 6px rgba(255,255,255,0.7);
+}
+
+/* LOCKED STATE — Grey, dim, no glow */
+.map-tile:not(.unlocked) {
+  filter: grayscale(100%) brightness(0.5);
+  opacity: 0.65;
+  cursor: default;
+}
+
+.map-tile:not(.unlocked) .map-thumb {
+  box-shadow: none !important;
+}
+
+.map-tile:not(.unlocked):hover {
+  transform: none;
+}
+
+/* UNLOCKED STATE — Brightens + hover glow */
+.map-tile.unlocked {
+  filter: none;
+  opacity: 1;
+}
+
+.map-tile.unlocked:hover {
+  transform: scale(1.05);
+}
+
+.map-tile.unlocked .map-thumb {
+  box-shadow:
+    0 0 12px rgba(120,200,255,0.7),
+    inset 0 0 6px rgba(255,255,255,0.4);
+}
+
+/* Locked map tiles */
+.map-tile.locked {
+  filter: grayscale(100%) brightness(0.6);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.map-tile.locked:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Unlocked map tiles */
+.map-tile.unlocked {
+  filter: none;
+  cursor: pointer;
+  opacity: 1;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.map-tile.unlocked:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+}

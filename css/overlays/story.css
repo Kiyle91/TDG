@@ -1,0 +1,321 @@
+/* ============================================================
+   📜 STORY INTRO OVERLAY
+============================================================ */
+.story-box {
+  position: relative;
+  width: 900px;
+  height: 350px;
+
+  padding: 50px 70px;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 20px;
+
+  font-size: 1.2rem;
+  color: #fff;
+  text-align: center;
+  line-height: 1.6;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  z-index: 1000;
+
+  animation: overlayPop 0.5s ease;
+
+  box-shadow:
+    0 0 25px rgba(181, 226, 255, 0.8),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+/* Story text */
+.story-text {
+  width: 100%;
+  height: 200px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin-bottom: 15px;
+
+  overflow: hidden;
+  white-space: pre-wrap;
+  line-height: 1.6;
+
+  font-family: "Comic Sans MS", cursive;
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
+}
+
+/* Story continue button — FIXED BROKEN RULE */
+.story-next-btn {
+  display: inline-block;
+  padding: 12px 36px;
+
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ffffff;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+  border: 2px solid rgba(91, 139, 230, 0.6);
+  border-radius: 16px;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(181, 226, 255, 0.6),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.story-next-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Story content row */
+.story-content {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  height: 260px;
+}
+
+/* Story portrait */
+.story-portrait {
+  width: 180px;
+  height: 240px;
+
+  border-radius: 12px;
+  object-fit: cover;
+
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(181, 226, 255, 0.6);
+
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.6),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   💬 TEXT
+============================================================ */
+.story-text {
+  color: #ffffff;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
+}
+
+.story-text h2 {
+  margin-bottom: 10px;
+  font-size: 26px;
+  font-family: "Princess Sofia", cursive;
+
+  color: #ffffff;
+  text-shadow:
+    0 0 8px #fff,
+    0 0 16px #c8b3ff;
+}
+
+/* ============================================================
+   🌈 UNIVERSAL OVERLAY BACKGROUND — Story only
+============================================================ */
+.story-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  z-index: 99999;
+  animation: fadeIn 0.4s ease;
+}
+
+/* ============================================================
+   ✨ BUTTON — Story Continue Button
+============================================================ */
+.story-next-btn {
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  font-family: "Comic Sans MS", cursive;
+
+  color: #ffffff;
+  cursor: pointer;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(120, 200, 255, 0.9),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.story-next-btn:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 30px rgba(224, 187, 255, 0.9),
+    inset 0 0 18px rgba(255, 255, 255, 0.5);
+}
+
+.story-next-btn:active {
+  transform: scale(0.97);
+  box-shadow:
+    0 0 18px rgba(120, 200, 255, 0.8),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+
+
+
+.story-portrait,
+.spire-img {
+    width: 140px;
+    height: 180px;}
+
+/* ============================================================
+   ✨ BUTTONS — Continue / OK / Level-up Stat Buttons
+============================================================ */
+.story-next-btn,
+.levelup-btn {
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  font-family: "Comic Sans MS", cursive;
+
+  color: #ffffff;
+  cursor: pointer;
+
+  background: linear-gradient(90deg, #8cd5ff, #d4b5ff, #ffbde3);
+
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 0 20px rgba(120, 200, 255, 0.9),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+.story-next-btn:hover,
+.levelup-btn:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 30px rgba(224, 187, 255, 0.9),
+    inset 0 0 18px rgba(255, 255, 255, 0.5);
+}
+
+.story-next-btn:active,
+.levelup-btn:active {
+  transform: scale(0.97);
+  box-shadow:
+    0 0 18px rgba(120, 200, 255, 0.8),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+
+.story-box .story-content,
+.spire-unlock-box .story-content {
+  display: flex;
+  flex-direction: row;
+
+  justify-content: flex-start;
+  align-items: center;
+
+  gap: 40px;
+  text-align: left;
+}
+
+/* Level-Up uses centered text & no portrait */
+.levelup-box .story-content {
+  display: block;
+  text-align: center;
+}
+
+/* ============================================================
+   💎 CRYSTAL BOX BASE — Story, Spire Unlock, Level-Up
+   ✨ Updated to match controller tutorial box
+============================================================ */
+.story-box,
+.levelup-box {
+  position: relative;
+
+  width: 900px;
+  min-height: 280px;
+  padding: 40px 60px;
+
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  color: #ffffff;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  font-family: "Comic Sans MS", cursive;
+
+  /* MATCH controller popup glow */
+  box-shadow:
+    0 0 25px rgba(120, 200, 255, 0.9),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+
+  backdrop-filter: blur(20px);
+
+  animation: overlayPop 0.5s ease;
+}
+
+@keyframes overlayPop {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+/* ✨ Soft Aura */
+.story-box::before,
+.levelup-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  border-radius: 22px;
+  background: radial-gradient(circle, rgba(255,255,255,0.25), transparent 70%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   👑 PORTRAITS (Story) + Spire Images
+============================================================ */
+.story-portrait,
+.spire-img {
+  width: 180px;
+  height: 220px;
+  object-fit: contain;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  box-shadow:
+    0 0 20px rgba(120, 200, 255, 0.9),
+    inset 0 0 10px rgba(255, 255, 255, 0.4);
+
+  pointer-events: none;
+}
+
+/* ============================================================

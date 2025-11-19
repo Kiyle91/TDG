@@ -1,0 +1,100 @@
+/* ============================================================
+   🎁 DAILY REWARD CHEST — Center Screen
+============================================================ */
+#daily-chest {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  transform: translate(-50%, -50%);
+  z-index: 15;
+}
+
+#chest-img {
+  display: block;
+  width: clamp(140px, 20vw, 220px);
+
+  cursor: pointer;
+  transform-origin: center;
+
+  transition: transform 0.3s ease, filter 0.3s ease;
+
+  filter: drop-shadow(0 0 25px rgba(255, 192, 230, 0.7));
+  animation: chestPulse 4s ease-in-out infinite alternate;
+
+  will-change: transform, filter;
+}
+
+#chest-img:hover {
+  transform: scale(1.06);
+  filter: drop-shadow(0 0 40px rgba(255, 192, 230, 0.9));
+}
+
+/* Disabled state */
+#daily-chest.disabled #chest-img {
+  opacity: 0.5;
+  cursor: default;
+
+  filter: grayscale(0.9) brightness(0.7);
+  animation: none;
+}
+
+#chest-timer {
+  font-size: 1rem;
+  color: #df85da;
+
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 6px rgba(255, 192, 230, 0.6);
+}
+
+/* ============================================================
+   ✨ CHEST PULSE ANIMATION
+============================================================ */
+@keyframes chestPulse {
+  0%   { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+/* ============================================================
+   ✨ Sparkles — Enhanced Burst
+============================================================ */
+.sparkle {
+  position: fixed;
+
+  opacity: 0.95;
+  pointer-events: none;
+  mix-blend-mode: screen;
+
+  transform: translate(-50%, -50%) scale(1);
+  animation: sparkleFly 1.5s ease-out forwards,
+             sparkleFade 1.5s ease-in forwards;
+
+  z-index: 9999;
+}
+
+@keyframes sparkleFly {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(calc(var(--x) - 50%), calc(var(--y) - 50%))
+                scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(var(--x) - 50%), calc(var(--y) - 50%))
+                scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkleFade {
+  0%   { filter: blur(0px); }
+  100% { filter: blur(8px); }
+}

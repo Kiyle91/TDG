@@ -26,134 +26,8 @@
 }
 
 /* ============================================================
-   🎀 SHARED BADGE STYLES (gold, diamonds, wave, lives)
-============================================================ */
-#gold-display,
-#diamond-display,
-#wave-display,
-#lives-display {
-  padding: 6px 12px;
-  font-weight: 600;
-
-  color: #fff;
-
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 182, 224, 0.6);
-  border-radius: 10px;
-
-  box-shadow: 0 0 10px rgba(224, 187, 255, 0.5);
-}
-
-/* Prefixed emojis */
-#gold-display::before    { content: "💰 "; }
-#diamond-display::before { content: "💎 "; }
-#wave-display::before    { content: "🌀 "; }
-#lives-display::before   { content: "❤️ "; }
-
-/* ============================================================
-   🏰 GAME CONTAINER — Crystal Frame
-============================================================ */
-#game-container {
-  position: relative;
-  width: 95vw;
-  height: 95vh;
-
-  border-radius: 20px;
-  overflow: hidden;
-
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-
-  border: 4px solid rgba(91, 139, 230, 0.8);
-
-  box-shadow:
-    0 0 30px rgba(181, 226, 255, 0.8),
-    inset 0 0 25px rgba(224, 187, 255, 0.4),
-    0 0 50px rgba(255, 182, 224, 0.5);
-}
-
-/* ============================================================
-   🎨 GAME CANVAS
-============================================================ */
-#game-canvas {
-  width: 100%;
-  height: 100%;
-
-  background: radial-gradient(
-    circle at center,
-    #f0f8ff 0%,
-    #e0ccff 100%
-  );
-}
-
-
-
-/* ============================================================
-   🩵 BRAVERY BAR — Vertical Charge Meter
-   ============================================================ */
-#bravery-bar {
-  position: absolute;
-  top: 50%;
-  left: 12px;
-  transform: translateY(-50%);
-
-  width: 28px;
-  height: 240px;
-
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 12px;
-
-  box-shadow:
-    0 0 12px rgba(120,200,255,0.5),
-    inset 0 0 10px rgba(255,255,255,0.4);
-
-  overflow: hidden;
-  z-index: 9999;
-}
-
-/* Fill */
-#bravery-fill {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-
-  width: 100%;
-  height: 0%;      /* controlled by JS */
-
-  background: linear-gradient(180deg, #ffe37f, #ff9ad4, #d9b3ff);
-  box-shadow:
-    0 0 16px rgba(255,200,255,0.8),
-    inset 0 0 12px rgba(255,255,255,0.5);
-
-  transition: height 0.25s ease-out;
-}
-
-/* Flash when full */
-/* When full, stay permanently flashing */
-#bravery-fill.full {
-  animation: braveryGlow 1.2s ease-in-out infinite;
-}
-
-/* Smooth glowing pulse loop */
-@keyframes braveryGlow {
-  0%   { filter: brightness(1) drop-shadow(0 0 6px #ff8cff); }
-  50%  { filter: brightness(1.4) drop-shadow(0 0 14px #ffc8ff); }
-  100% { filter: brightness(1) drop-shadow(0 0 6px #ff8cff); }
-}
-
-
-
-@keyframes braveryTextPulse {
-  0% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.08); }
-  100% { opacity: 0.6; transform: scale(1); }
-}
-
-
-/* ============================================================
    🌸 Corner HUD Circles — More Visible, Higher Contrast
-   ============================================================ */
+============================================================ */
 
 #hud {
   position: absolute;
@@ -171,14 +45,12 @@
 
   border-radius: 999px;
 
-  /* 🔥 Less white, more gentle lavender */
   background: radial-gradient(
     circle at 30% 25%,
     rgba(255, 255, 255, 0.65),
     rgba(180, 150, 255, 0.25)
   );
 
-  /* 🔥 Stronger outline + darker glow */
   box-shadow:
     0 0 0 2px rgba(255, 255, 255, 0.45),
     0 0 18px rgba(120, 90, 200, 0.7);
@@ -207,7 +79,6 @@
 
   border-radius: 999px;
 
-  /* 🔥 Slight lavender tint, more depth */
   background: radial-gradient(
     circle at 50% 20%,
     rgba(255, 255, 255, 0.75),
@@ -221,7 +92,7 @@
   gap: 0.2rem;
 
   box-shadow:
-    inset 0 0 14px rgba(0, 0, 0, 0.2); /* 🔥 subtle inner shade */
+    inset 0 0 14px rgba(0, 0, 0, 0.2);
 }
 
 /* Icons */
@@ -229,7 +100,6 @@
   font-size: clamp(1rem, 1.3vw, 1.35rem);
   line-height: 1;
 
-  /* 🔥 Reduce brightness + sharpen edges */
   text-shadow:
     0 0 4px rgba(0, 0, 0, 0.25),
     0 0 8px rgba(255, 255, 255, 0.9);
@@ -248,7 +118,6 @@
   font-family: "Comic Sans MS", system-ui;
   font-weight: 700;
 
-  /* 🔥 stronger contrast */
   color: #ffffff;
   text-shadow:
     0 0 3px rgba(0, 0, 0, 0.4),
@@ -327,4 +196,162 @@
     transform: scale(1.1);
     opacity: 1;
   }
+}
+
+
+/* ============================================================
+   🩵 BRAVERY BAR — Vertical Charge Meter
+============================================================ */
+#bravery-bar {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+
+  width: 28px;
+  height: 240px;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+
+  box-shadow:
+    0 0 12px rgba(120,200,255,0.5),
+    inset 0 0 10px rgba(255,255,255,0.4);
+
+  overflow: hidden;
+  z-index: 9999;
+}
+
+/* Fill */
+#bravery-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+  height: 0%;      /* controlled by JS */
+
+  background: linear-gradient(180deg, #ffe37f, #ff9ad4, #d9b3ff);
+  box-shadow:
+    0 0 16px rgba(255,200,255,0.8),
+    inset 0 0 12px rgba(255,255,255,0.5);
+
+  transition: height 0.25s ease-out;
+}
+
+/* Flash when full */
+#bravery-fill.full {
+  animation: braveryGlow 1.2s ease-in-out infinite;
+}
+
+/* Smooth glowing pulse loop */
+@keyframes braveryGlow {
+  0%   { filter: brightness(1) drop-shadow(0 0 6px #ff8cff); }
+  50%  { filter: brightness(1.4) drop-shadow(0 0 14px #ffc8ff); }
+  100% { filter: brightness(1) drop-shadow(0 0 6px #ff8cff); }
+}
+
+@keyframes braveryTextPulse {
+  0% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 0.6; transform: scale(1); }
+}
+
+
+/* ============================================================
+   💖 HUD — Balanced layout + capped bars
+============================================================ */
+
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 50px;
+
+  background: linear-gradient(180deg, #ffe4f7 0%, #e3caff 100%);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Center stats block */
+#center-stats {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+
+  height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  font-family: "Comic Sans MS", cursive;
+  font-weight: bold;
+  color: #bb3ebb;
+  text-shadow: 0 0 4px #bb3ebb;
+}
+
+/* Bar containers */
+#hp-bar,
+#mana-bar {
+  position: absolute;
+  top: 8px;
+
+  width: 350px;      /* capped size */
+  height: 30px;
+
+  overflow: hidden;
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+/* HP left, Mana right */
+#hp-bar   { left: 20px; }
+#mana-bar { right: 20px; }
+
+/* Text overlay */
+.bar-text {
+  position: absolute;
+  inset: 0;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 13px;
+  font-weight: bold;
+  font-family: "Comic Sans MS", cursive;
+
+  color: #ffffff;
+  text-shadow: 0 0 4px #bb3ebb;
+
+  pointer-events: none;
+}
+
+/* Fill layer (width controlled by JS via --fill) */
+#hp-bar::before,
+#mana-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: var(--fill, 100%);
+  border-radius: inherit;
+
+  transition: width 0.25s ease-out;
+}
+
+/* Gradient fills */
+#hp-bar::before {
+  background: linear-gradient(90deg, #ff3164, #ff94d2);
+}
+
+#mana-bar::before {
+  background: linear-gradient(90deg, #33aaff, #99e0ff);
 }
