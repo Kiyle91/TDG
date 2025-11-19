@@ -291,6 +291,23 @@ export function updateGoblins(delta) {
         e.x += (dxp / distToPlayer) * moveSpeed * dt;
         e.y += (dyp / distToPlayer) * moveSpeed * dt;
 
+        if (player.invincible === true) {
+        const dx = e.x - px;
+        const dy = e.y - py;
+        const dist = Math.hypot(dx, dy);
+
+        const BRAVERY_AURA_RADIUS = 130; // Matches your glow radius
+
+        if (dist < BRAVERY_AURA_RADIUS && dist > 0) {
+            const pushForce = (BRAVERY_AURA_RADIUS - dist) * 0.35;
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+            e.x += nx * pushForce;
+            e.y += ny * pushForce;
+        }
+      }
+
         if (Math.abs(dxp) > Math.abs(dyp))
           e.dir = dxp > 0 ? "right" : "left";
         else
@@ -452,6 +469,12 @@ function attackPlayer(goblin, player) {
     return;
   }
 
+  // ⭐ BRAVERY INVULNERABILITY
+  if (player.invincible === true) {
+    goblin.attacking = false;
+    return;
+  }
+
   playGoblinAttack();
 
   let damage = GOBLIN_DAMAGE;
@@ -461,8 +484,6 @@ function attackPlayer(goblin, player) {
 
   player.hp = Math.max(0, player.hp - damage);
   player.flashTimer = 200;
-  player.invulnTimer = 0;
-  player.invincible = false;
 
   updateHUD();
 
@@ -521,7 +542,7 @@ export function damageGoblin(goblin, amount) {
     incrementGoblinDefeated();
     awardXP(3);
     addGold(3);
-    addBravery(1);
+    addBravery(100);
     updateHUD();
     spawnLoot("goblin", goblin.x, goblin.y);
   }
