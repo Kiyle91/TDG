@@ -206,10 +206,10 @@ export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding
   1: [
     { goblins: 3,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 7,  worgs: 0, ogres: 0, elites: 1, trolls: 1, crossbows: 0 },
-    { goblins: 10, worgs: 0, ogres: 0, elites: 2, trolls: 2, crossbows: 0 },
-    { goblins: 14, worgs: 0, ogres: 0, elites: 3, trolls: 3, crossbows: 1 },
-    { goblins: 18, worgs: 0, ogres: 0, elites: 4, trolls: 4, crossbows: 1 },
+    { goblins: 3,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 3, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 3, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 3, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // 🌲 MAP 2 — Early Mixed Units
@@ -602,15 +602,33 @@ async function updateWaveSystem(delta) {
   autoSave();
 
   setTimeout(() => {
-    stopGameplay("victory");
+      stopGameplay("victory");
 
-    if (mapId === 9) {
-      import("./credits.js").then(mod => {
-        mod.showCredits();
-      });
-    }
+      // ⭐ Delay autosave so the map transition has time to apply
+      setTimeout(() => {
+          try {
+              // Save updated profile first (mapsUnlocked, currentMap)
+              gameState.progress.currentMap = nextMap;
+              gameState.profile.progress.currentMap = nextMap;
+
+              saveProfiles();
+
+              // Autosave into Slot 0 (no await needed)
+              import("./saveSystem.js").then(mod => {
+                  mod.saveToSlot(0);
+              });
+          } catch (err) {
+              console.warn("Autosave-after-victory failed:", err);
+          }
+      }, 300);
+
+      if (mapId === 9) {
+        import("./credits.js").then(mod => {
+          mod.showCredits();
+        });
+      }
   }, VICTORY_DELAY);
-}
+  }
 
 // ------------------------------------------------------------
 // 🎥 LOCAL CAMERA STATE
