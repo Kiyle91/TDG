@@ -432,7 +432,7 @@ function updateCrossbowBolts(delta) {
 
 function drawCrossbowBolts(ctx) {
   ctx.save();
-  ctx.fillStyle = "rgba(255, 230, 120, 0.95)";
+  ctx.fillStyle = "rgba(255, 0, 0, 0.95)";
 
   for (const b of crossbowBolts) {
     ctx.beginPath();

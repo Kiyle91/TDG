@@ -1,59 +1,203 @@
 /* ============================================================
    💖 css/game/hud.css — Olivia’s World: Crystal Keep
    ------------------------------------------------------------
-   ✦ Main HUD system (HP / Mana / Crystal Counters / Echo Meter)
-   ✦ Includes corner-circle HUD, bravery bar, and top stat bars
-   ✦ Fully matches pastel-crystal glass UI aesthetic
+   ✦ Main HUD system (HP / Mana / Wave / Gold / Diamonds / Lives)
+   ✦ Corner-circle counters (Arrows + Crystal Echoes)
+   ✦ Bravery charge bar (left) + Spire Bar (right in separate file)
+   ✦ Pastel crystal glass, zero duplicate rules
 ============================================================ */
 /* ------------------------------------------------------------
  * MODULE: hud.css
  * PURPOSE:
  *   Provides all visual styling for the in-game HUD, including:
- *     • HP and Mana bars
- *     • Echo + Arrow counters inside glowing circular frames
- *     • Bravery charge meter
- *     • Animated crystal glow effects
+ *     • Top HP & Mana bars
+ *     • Center wave / lives / gold / diamonds badges
+ *     • Arrow + Crystal Echo circular HUD at bottom corners
+ *     • Bravery vertical charge meter on the left
  *
- * SUMMARY:
- *   • #hud — master HUD wrapper
- *   • .hud-corner — left/right circular counters
- *   • #bravery-bar — left-side vertical charge bar
- *   • #hp-bar / #mana-bar — top gradient bars
- *   • Shared badge elements (gold, diamonds, waves, lives)
- *
- * NOTES:
- *   • JS controls the values via CSS vars (→ --fill)
- *   • Uses soft pastel gradients + glassmorphic layers
- *   • Fully responsive and matches the overall theme
+ * HTML STRUCTURE (index.html):
+ *   <section id="game-container">
+ *     <div id="hud">
+ *       <div id="hp-bar"><span id="hp-text" class="bar-text"></span></div>
+ *       <div id="center-stats">
+ *         <div id="wave-display"></div>
+ *         <div id="lives-display"></div>
+ *         <div id="gold-display"></div>
+ *         <div id="diamond-display"></div>
+ *       </div>
+ *       <div id="mana-bar"><span id="mana-text" class="bar-text"></span></div>
+ *     </div>
+ *     ...
+ *     <div id="bravery-bar"><div id="bravery-fill"></div></div>
+ *     <div class="hud-corner hud-corner-left" id="hud-arrows-circle">...</div>
+ *     <div class="hud-corner hud-corner-right" id="hud-crystals-circle">...</div>
+ *   </section>
  * ------------------------------------------------------------ */
 
 
 
 /* ============================================================
-   💖 HUD — Main Backdrop (bottom gradient bar)
+   💖 TOP HUD — Main Bar Wrapper
+   ------------------------------------------------------------
+   Sits at the very top of #game-container and contains:
+   • HP bar (left)
+   • Center stats badges (wave, lives, gold, diamonds)
+   • Mana bar (right)
 ============================================================ */
 
 #hud {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
 
-  padding: 0 60px;
-  height: 60px;
   width: 100%;
+  height: 60px;
 
-  background: linear-gradient(
-    90deg,
-    rgba(140, 213, 255, 0.4),
-    rgba(212, 181, 255, 0.35),
-    rgba(255, 189, 227, 0.4)
-  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  border-bottom: 2px solid rgba(91, 139, 230, 0.6);
-  backdrop-filter: blur(8px);
+  background: linear-gradient(180deg, #ffe4f7 0%, #e3caff 100%);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 0 16px rgba(181, 226, 255, 0.45);
+
+  pointer-events: none; /* HUD is informational; gameplay clicks go to canvas/nav */
+  z-index: 20;
+}
+
+
+
+/* ============================================================
+   ❤️ HP & Mana Bars
+============================================================ */
+
+#hp-bar,
+#mana-bar {
+  position: absolute;
+  top: 12px;
+
+  width: 340px;
+  height: 30px;
+
+  overflow: hidden;
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Placement within HUD */
+#hp-bar {
+  left: 20px;
+}
+
+#mana-bar {
+  right: 20px;
+}
+
+/* Fill layer driven by JS via --fill variable */
+#hp-bar::before,
+#mana-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  width: var(--fill, 100%);
+  border-radius: inherit;
+
+  transition: width 0.25s ease-out;
+}
+
+/* HP = pink gradient */
+#hp-bar::before {
+  background: linear-gradient(90deg, #ff3164, #ff94d2);
+}
+
+/* Mana = blue gradient */
+#mana-bar::before {
+  background: linear-gradient(90deg, #33aaff, #99e0ff);
+}
+
+/* Text label overlay (HP/Mana values) */
+.bar-text {
+  position: absolute;
+  inset: 0;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 13px;
+  font-weight: bold;
+  font-family: "Comic Sans MS", cursive;
+
+  color: #ffffff;
+  text-shadow: 0 0 4px #bb3ebb;
+
+  pointer-events: none;
+}
+
+
+
+/* ============================================================
+   💎 CENTER STATS (Wave / Lives / Gold / Diamonds)
+============================================================ */
+
+#center-stats {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  font-family: "Comic Sans MS", cursive;
+  font-weight: bold;
+
+  color: #bb3ebb;
+  text-shadow: 0 0 4px #bb3ebb;
+}
+
+/* Shared badge styling */
+#gold-display,
+#diamond-display,
+#wave-display,
+#lives-display {
+  padding: 6px 12px;
+  font-weight: 600;
 
   color: #fff;
-  font-weight: bold;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 182, 224, 0.6);
+  border-radius: 10px;
+
+  box-shadow: 0 0 10px rgba(224, 187, 255, 0.5);
+}
+
+/* Emoji prefixes (icons only, text comes from JS/HTML) */
+#wave-display::before {
+  content: "🌀 ";
+}
+
+#lives-display::before {
+  content: "❤️ ";
+}
+
+#gold-display::before {
+  content: "💰 ";
+}
+
+#diamond-display::before {
+  content: "💎 ";
 }
 
 
@@ -61,18 +205,10 @@
 /* ============================================================
    🌸 HUD CORNER CIRCLES
    ------------------------------------------------------------
-   • Arrow & Crystal counters
-   • Soft radial glow
-   • Breathing animation
+   • Left circle: arrows
+   • Right circle: crystal echoes (found / total)
 ============================================================ */
 
-#hud {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-/* Base circular container */
 .hud-corner {
   position: absolute;
   bottom: 1.8rem;
@@ -82,6 +218,7 @@
 
   border-radius: 999px;
   backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
 
   background: radial-gradient(
     circle at 30% 25%,
@@ -97,17 +234,22 @@
   align-items: center;
   justify-content: center;
 
-  pointer-events: none;
+  pointer-events: none; /* purely HUD info */
   z-index: 40;
 
   animation: hudCirclePulse 3.2s ease-in-out infinite;
 }
 
 /* Anchors */
-.hud-corner-left  { left: 1.8rem; }
-.hud-corner-right { right: 1.8rem; }
+.hud-corner-left {
+  left: 1.8rem;
+}
 
-/* Inner core */
+.hud-corner-right {
+  right: 1.8rem;
+}
+
+/* Inner glowing core */
 .hud-circle-inner {
   width: 84%;
   height: 84%;
@@ -128,7 +270,7 @@
   box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.2);
 }
 
-/* Icons */
+/* Icon glyphs (arrow / crystal) */
 .hud-circle-icon {
   font-size: clamp(1rem, 1.3vw, 1.35rem);
   line-height: 1;
@@ -138,10 +280,15 @@
     0 0 8px rgba(255, 255, 255, 0.9);
 }
 
-.hud-circle-icon-arrow   { filter: drop-shadow(0 0 4px rgba(107,170,240,0.9)); }
-.hud-circle-icon-crystal { filter: drop-shadow(0 0 4px rgba(170,120,255,0.9)); }
+.hud-circle-icon-arrow {
+  filter: drop-shadow(0 0 4px rgba(107, 170, 240, 0.9));
+}
 
-/* Counter Text */
+.hud-circle-icon-crystal {
+  filter: drop-shadow(0 0 4px rgba(170, 120, 255, 0.9));
+}
+
+/* Counter text */
 .hud-circle-counter {
   font-family: "Comic Sans MS", system-ui;
   font-weight: 700;
@@ -154,11 +301,11 @@
   gap: 0.12rem;
 
   text-shadow:
-    0 0 3px rgba(0,0,0,0.4),
-    0 0 6px rgba(255,255,255,0.4);
+    0 0 3px rgba(0, 0, 0, 0.4),
+    0 0 6px rgba(255, 255, 255, 0.4);
 }
 
-/* Divider slash */
+/* Divider slash between found / total echoes */
 .hud-circle-separator {
   opacity: 0.8;
 }
@@ -168,24 +315,24 @@
   0% {
     transform: scale(1);
     box-shadow:
-      0 0 0 2px rgba(255,255,255,0.35),
-      0 0 14px rgba(110,90,170,0.6);
+      0 0 0 2px rgba(255, 255, 255, 0.35),
+      0 0 14px rgba(110, 90, 170, 0.6);
   }
   50% {
     transform: scale(1.03);
     box-shadow:
-      0 0 0 2px rgba(255,255,255,0.6),
-      0 0 22px rgba(170,140,255,0.85);
+      0 0 0 2px rgba(255, 255, 255, 0.6),
+      0 0 22px rgba(170, 140, 255, 0.85);
   }
   100% {
     transform: scale(1);
     box-shadow:
-      0 0 0 2px rgba(255,255,255,0.35),
-      0 0 14px rgba(110,90,170,0.6);
+      0 0 0 2px rgba(255, 255, 255, 0.35),
+      0 0 14px rgba(110, 90, 170, 0.6);
   }
 }
 
-/* Flash effect */
+/* Short flash when a value changes (e.g., arrow gain or echo collected) */
 .hud-circle-flash {
   animation: hudCircleFlash 0.45s ease-out;
 }
@@ -194,32 +341,38 @@
   0% {
     transform: scale(1.08);
     box-shadow:
-      0 0 0 3px rgba(255,255,255,0.9),
-      0 0 28px rgba(255,230,180,1);
+      0 0 0 3px rgba(255, 255, 255, 0.9),
+      0 0 28px rgba(255, 230, 180, 1);
   }
   100% {
     transform: scale(1);
     box-shadow:
-      0 0 0 2px rgba(255,255,255,0.45),
-      0 0 16px rgba(120,90,200,0.7);
+      0 0 0 2px rgba(255, 255, 255, 0.45),
+      0 0 16px rgba(120, 90, 200, 0.7);
   }
 }
 
-/* Echo full-power glow */
+/* Echo full-power glow (e.g., all echoes collected) */
 .echo-power-flash {
   animation: echoPulse 1s infinite alternate ease-in-out;
   filter: drop-shadow(0 0 12px #d9b8ff);
 }
 
 @keyframes echoPulse {
-  from { transform: scale(1);   opacity: 1; }
-  to   { transform: scale(1.1); opacity: 1; }
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.1);
+    opacity: 1;
+  }
 }
 
 
 
 /* ============================================================
-   🩵 BRAVERY BAR — Vertical Charge Meter
+   🩵 BRAVERY BAR — Vertical Charge Meter (Left Side)
 ============================================================ */
 
 #bravery-bar {
@@ -231,175 +384,53 @@
   width: 28px;
   height: 240px;
 
-  background: rgba(255,255,255,0.15);
-  border: 2px solid rgba(255,255,255,0.7);
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.7);
   border-radius: 12px;
 
   box-shadow:
-    0 0 12px rgba(120,200,255,0.5),
-    inset 0 0 10px rgba(255,255,255,0.4);
+    0 0 12px rgba(120, 200, 255, 0.5),
+    inset 0 0 10px rgba(255, 255, 255, 0.4);
 
   overflow: hidden;
   z-index: 9999;
 }
 
-/* Charging fill */
+/* Charging fill (JS controls height %) */
 #bravery-fill {
   position: absolute;
   bottom: 0;
   left: 0;
 
   width: 100%;
-  height: 0%; /* JS controlled */
+  height: 0%; /* JS-controlled */
 
   background: linear-gradient(180deg, #ffe37f, #ff9ad4, #d9b3ff);
   box-shadow:
-    0 0 16px rgba(255,200,255,0.8),
-    inset 0 0 12px rgba(255,255,255,0.5);
+    0 0 16px rgba(255, 200, 255, 0.8),
+    inset 0 0 12px rgba(255, 255, 255, 0.5);
 
   transition: height 0.25s ease-out;
 }
 
-/* Full glow loop */
+/* When bravery is full, JS adds .full for constant glow */
 #bravery-fill.full {
   animation: braveryGlow 1.2s ease-in-out infinite;
 }
 
 @keyframes braveryGlow {
-  0%   { filter: brightness(1)   drop-shadow(0 0 6px #ff8cff); }
-  50%  { filter: brightness(1.4) drop-shadow(0 0 14px #ffc8ff); }
-  100% { filter: brightness(1)   drop-shadow(0 0 6px #ff8cff); }
+  0% {
+    filter: brightness(1) drop-shadow(0 0 6px #ff8cff);
+  }
+  50% {
+    filter: brightness(1.4) drop-shadow(0 0 14px #ffc8ff);
+  }
+  100% {
+    filter: brightness(1) drop-shadow(0 0 6px #ff8cff);
+  }
 }
 
 
-
-/* ============================================================
-   💖 TOP HUD — HP & Mana Bars
-============================================================ */
-
-#hud {
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 50px;
-
-  background: linear-gradient(180deg, #ffe4f7 0%, #e3caff 100%);
-  border-bottom: 2px solid rgba(255,255,255,0.4);
-}
-
-/* Center stats */
-#center-stats {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-
-  height: 50px;
-
-  display: flex;
-  align-items: center;
-  gap: 18px;
-
-  font-family: "Comic Sans MS", cursive;
-  font-weight: bold;
-
-  color: #bb3ebb;
-  text-shadow: 0 0 4px #bb3ebb;
-}
-
-/* Bar containers */
-#hp-bar,
-#mana-bar {
-  position: absolute;
-  top: 8px;
-
-  width: 350px;
-  height: 30px;
-
-  overflow: hidden;
-  border-radius: 10px;
-
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.9);
-
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
-}
-
-/* Placement */
-#hp-bar   { left: 20px; }
-#mana-bar { right: 20px; }
-
-/* Text inside bars */
-.bar-text {
-  position: absolute;
-  inset: 0;
-
-  display: grid;
-  place-items: center;
-
-  font-size: 13px;
-  font-weight: bold;
-  font-family: "Comic Sans MS", cursive;
-
-  color: #ffffff;
-  text-shadow: 0 0 4px #bb3ebb;
-
-  pointer-events: none;
-}
-
-/* Dynamic fill */
-#hp-bar::before,
-#mana-bar::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  width: var(--fill, 100%);
-
-  border-radius: inherit;
-  transition: width 0.25s ease-out;
-}
-
-/* Fill colors */
-#hp-bar::before {
-  background: linear-gradient(90deg, #ff3164, #ff94d2);
-}
-
-#mana-bar::before {
-  background: linear-gradient(90deg, #33aaff, #99e0ff);
-}
-
-/* ============================================================
-   🎀 SHARED BADGE STYLES
-   ------------------------------------------------------------
-   Used for:
-   • Gold
-   • Diamonds
-   • Waves
-   • Lives
-============================================================ */
-
-#gold-display,
-#diamond-display,
-#wave-display,
-#lives-display {
-  padding: 6px 12px;
-  font-weight: 600;
-
-  color: #fff;
-
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 182, 224, 0.6);
-  border-radius: 10px;
-
-  box-shadow: 0 0 10px rgba(224, 187, 255, 0.5);
-}
-
-/* Prefixed icons */
-#gold-display::before    { content: "💰 "; }
-#diamond-display::before { content: "💎 "; }
-#wave-display::before    { content: "🌀 "; }
-#lives-display::before   { content: "❤️ "; }
 
 /* ============================================================
    🌟 END OF FILE
