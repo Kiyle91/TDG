@@ -581,7 +581,7 @@
 ============================================================ */
 #continue-btn {
   position: absolute;
-  bottom: 190px;
+  bottom: 205px;
   left: 50%;
   transform: translateX(-50%);
 
@@ -624,9 +624,7 @@
     inset 0 0 8px rgba(255, 255, 255, 0.35);
 }
 
-#continue-btn {
-  display: none; /* Hidden until JS decides to show it */
-}
+
 /* ============================================================
    🌟 END OF FILE
 ============================================================ */
