@@ -303,8 +303,26 @@ export function updateCrossbows(delta) {
         const backSpeed = CROSSBOW_SPEED * 0.7;
         c.x -= (dx / dist) * backSpeed * dt;
         c.y -= (dy / dist) * backSpeed * dt;
-      }
 
+        if (player.invincible === true) {
+        const aura = 130; // same glow radius
+
+        const dxp = c.x - px;
+        const dyp = c.y - py;
+        const distToPlayer = Math.hypot(dxp, dyp);
+
+        if (distToPlayer < aura && distToPlayer > 0) {
+            const push = (aura - distToPlayer) * 0.35;
+            const nx = dxp / distToPlayer;
+            const ny = dyp / distToPlayer;
+
+            c.x += nx * push;
+            c.y += ny * push;
+          }
+    
+        }
+      }
+      
       // Collision with other crossbows
       for (let j = 0; j < crossbowList.length; j++) {
         const o = crossbowList[j];
@@ -384,9 +402,15 @@ function updateCrossbowBolts(delta) {
       const dy = player.pos.y - b.y;
       const dist = Math.hypot(dx, dy);
 
-      if (dist < 28) {
-        const dmg = ATTACK_DAMAGE;
+    if (dist < 28) {
 
+        // ⭐ BRAVERY INVULNERABILITY
+        if (player.invincible === true) {
+            crossbowBolts.splice(i, 1);
+            continue;
+        }
+
+        const dmg = ATTACK_DAMAGE;
         player.hp = Math.max(0, player.hp - dmg);
         spawnDamageSparkles(player.pos.x, player.pos.y);
         spawnFloatingText(`-${dmg}`, player.pos.x, player.pos.y - 40, "#ff8080");
