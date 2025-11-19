@@ -143,17 +143,33 @@ export async function initOgres() {
 // ------------------------------------------------------------
 
 export function spawnOgre() {
+  const p = gameState.player;
+  if (!p) return;
+
   const mapW = gameState.mapWidth ?? 3000;
   const mapH = gameState.mapHeight ?? 3000;
 
-  // Choose random side of map
+  // Much closer to map edges, like elites + crossbows
   const side = Math.floor(Math.random() * 4);
+
   let x, y;
 
-  if (side === 0) { x = Math.random() * mapW; y = -300; }
-  else if (side === 1) { x = Math.random() * mapW; y = mapH + 300; }
-  else if (side === 2) { x = -300; y = Math.random() * mapH; }
-  else { x = mapW + 300; y = Math.random() * mapH; }
+  if (side === 0) {          // Top
+    x = Math.random() * mapW;
+    y = -120;
+  }
+  else if (side === 1) {     // Bottom
+    x = Math.random() * mapW;
+    y = mapH + 120;
+  }
+  else if (side === 2) {     // Left
+    x = -120;
+    y = Math.random() * mapH;
+  }
+  else {                     // Right
+    x = mapW + 120;
+    y = Math.random() * mapH;
+  }
 
   const hpMult = getDifficultyHpMultiplier();
   const scaledHP = Math.round(BASE_HP * hpMult);
@@ -191,6 +207,7 @@ export function spawnOgre() {
 }
 
 
+
 // ------------------------------------------------------------
 // 🔁 UPDATE — AI, chase, attack, flash, fade
 // ------------------------------------------------------------
@@ -199,8 +216,8 @@ export function updateOgres(delta = 16) {
   const p = gameState.player;
   if (!p) return;
 
-  const px = p.pos.x;
-  const py = p.pos.y;
+  const px = p.pos?.x ?? p.x ?? 0;
+  const py = p.pos?.y ?? p.y ?? 0;
   const dt = delta / 1000;
 
   for (let i = ogres.length - 1; i >= 0; i--) {
@@ -239,13 +256,17 @@ export function updateOgres(delta = 16) {
       if (o.attackTimer >= HIT_DELAY_TIME && !o.damageApplied) {
         o.damageApplied = true;
 
-        if (!p.invincible) {
-          p.hp = Math.max(0, p.hp - OGRE_DAMAGE);
-          spawnFloatingText(px, py - 40, `-${OGRE_DAMAGE}`, "#ff5577");
-          spawnDamageSparkles(px, py);
-          playOgreAttack();
-          updateHUD();
+        // ⭐ BRAVERY INVULNERABILITY (ignore ALL ogre damage)
+        if (p.invincible === true) {
+            o.damageApplied = true; // mark as used so the attack ends normally
+            continue;               // go to next ogre
         }
+
+        p.hp = Math.max(0, p.hp - OGRE_DAMAGE);
+        spawnFloatingText(px, py - 40, `-${OGRE_DAMAGE}`, "#ff5577");
+        spawnDamageSparkles(px, py);
+        playOgreAttack();
+        updateHUD();
       }
 
       // End attack
@@ -268,6 +289,25 @@ export function updateOgres(delta = 16) {
       const dist = Math.sqrt(distSq);
       o.x += (dx / dist) * OGRE_SPEED * dt;
       o.y += (dy / dist) * OGRE_SPEED * dt;
+            
+      if (p.invincible === true) {
+        const aura = 130; // same radius as bravery glow
+
+        const dxp = o.x - px;
+        const dyp = o.y - py;
+        const dp = Math.hypot(dxp, dyp);
+
+        if (dp < aura && dp > 0) {
+          const push = (aura - dp) * 0.35;
+          const nx = dxp / dp;
+          const ny = dyp / dp;
+
+          o.x += nx * push;
+          o.y += ny * push;
+        }
+      }
+
+
     } else {
       // Attack if cooled down
       o.attackCooldown -= delta;

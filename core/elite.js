@@ -271,9 +271,15 @@ export function updateElites(delta = 16) {
         const pdy = p.pos.y - e.y;
 
         if (Math.hypot(pdx, pdy) < ATTACK_RANGE + 20) {
-          const dmg = ATTACK_DAMAGE;
-          p.hp = Math.max(0, p.hp - dmg);
-          p.flashTimer = 200;
+
+            // ⭐ BRAVERY INVULNERABILITY
+            if (p.invincible === true) {
+                return; // ignore all elite damage
+            }
+
+            const dmg = ATTACK_DAMAGE;
+            p.hp = Math.max(0, p.hp - dmg);
+            p.flashTimer = 200;
 
           spawnFloatingText(p.pos.x, p.pos.y - 30, `-${dmg}`, "#ff5577", 20);
           updateHUD();
@@ -297,6 +303,21 @@ export function updateElites(delta = 16) {
       if (dist > 5) {
         e.x += (dx / dist) * moveSpeed * dt;
         e.y += (dy / dist) * moveSpeed * dt;
+                if (p.invincible === true) {
+            const aura = 130; // matches glow radius
+            const dxp = e.x - p.pos.x;
+            const dyp = e.y - p.pos.y;
+            const dp = Math.hypot(dxp, dyp);
+
+            if (dp < aura && dp > 0) {
+                const push = (aura - dp) * 0.35;
+                const nx = dxp / dp;
+                const ny = dyp / dp;
+
+                e.x += nx * push;
+                e.y += ny * push;
+            }
+        }
       }
 
       e.dir =
