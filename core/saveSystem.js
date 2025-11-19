@@ -311,7 +311,23 @@ export function getSlotSummaries() {
   });
 }
 
+export function autoSave() {
+  const snap = snapshotGame();
 
+  const all = loadAllSaves();
+  const key = getProfileKey();
+  if (!all[key]) all[key] = [];
+
+  // Always use slot 0 for autosave
+  all[key][0] = snap;
+
+  // Update lastSave pointer
+  const profile = gameState.profile;
+  if (profile) profile.lastSave = 0;
+
+  persistAllSaves(all);
+  saveProfiles();
+}
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================

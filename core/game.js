@@ -195,6 +195,9 @@ function scaleEnemyHp(enemy) {
   enemy.maxHp = Math.round(enemy.maxHp * mult);
 }
 
+import { autoSave } from "./saveSystem.js";
+
+
 // ============================================================
 // 🌊 WAVE CONFIGS
 // ============================================================
@@ -202,7 +205,7 @@ function scaleEnemyHp(enemy) {
 export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding
   1: [
-    { goblins: 3,  worgs: 0, ogres: 0, elites: 0, trolls: 10, crossbows: 0 },
+    { goblins: 3,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 7,  worgs: 0, ogres: 0, elites: 1, trolls: 1, crossbows: 0 },
     { goblins: 10, worgs: 0, ogres: 0, elites: 2, trolls: 2, crossbows: 0 },
     { goblins: 14, worgs: 0, ogres: 0, elites: 3, trolls: 3, crossbows: 1 },
@@ -308,7 +311,7 @@ for (let i = 1; i <= 20; i++) {
 
 const FIRST_WAVE_DELAY = 5000;
 const BETWEEN_WAVES_DELAY = 5000;
-const VICTORY_DELAY = 5000;
+const VICTORY_DELAY = 3000;
 
 let betweenWaveTimer = 0;
 
@@ -594,6 +597,9 @@ async function updateWaveSystem(delta) {
     unlockMap(nextMap);
     saveProfiles();
   }
+
+  // ⭐ AUTO-SAVE HERE (perfect moment)
+  autoSave();
 
   setTimeout(() => {
     stopGameplay("victory");
