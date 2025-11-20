@@ -2,7 +2,7 @@
 // 💎 spireUpgrades.js — Turret diamond upgrade system
 // ------------------------------------------------------------
 // ✦ 1% damage per 20 diamonds spent, per spire
-// ✦ Linked to Hub → Spires overlay
+// ✦ Linked to Hub ➜ Spires overlay
 // ✦ Provides damage multiplier for PROJECTILE_DAMAGE
 // ============================================================
 
@@ -11,7 +11,7 @@ import { updateHubCurrencies } from "./hub.js"; // already exists in your projec
 // If updateHubCurrencies is elsewhere, adjust the import accordingly.
 
 // ------------------------------------------------------------
-// 🔧 Helpers
+// 💫 Helpers
 // ------------------------------------------------------------
 
 // Ensure profile.spires exists (safety if load order weird)
@@ -33,12 +33,12 @@ function ensureSpireData() {
   }
 }
 
-// 1% per 20 diamonds spent → multiplier
+// 1% per 20 diamonds spent ➜ multiplier
 export function getSpireDamageMultiplier(spireId) {
   ensureSpireData();
   const spent = gameState.profile.spires[spireId]?.diamondsSpent || 0;
   const bonusPercent = Math.floor(spent / 20); // integer %
-  return 1 + bonusPercent / 100; // e.g. 5% → 1.05
+  return 1 + bonusPercent / 100; // e.g. 5% ➜ 1.05
 }
 
 // ------------------------------------------------------------
@@ -49,7 +49,16 @@ function refreshSpireUpgradeUI() {
   ensureSpireData();
 
   const cards = document.querySelectorAll("#overlay-spires .spire-card");
-  const playerLevel = gameState.profile.level || gameState.level || 1;
+
+  // Pull the active player level from runtime first, falling back to any
+  // persisted profile data so locked cards flip to unlocked as soon as the
+  // player reaches the required level.
+  const playerLevel =
+    gameState.player?.level ??
+    gameState.profile?.player?.level ??
+    gameState.profile?.level ??
+    gameState.level ??
+    1;
 
   cards.forEach(card => {
     const id = Number(card.dataset.spire);
@@ -57,6 +66,7 @@ function refreshSpireUpgradeUI() {
 
     const btn = card.querySelector("[data-upgrade-btn]");
     const levelEl = card.querySelector("[data-spire-level]");
+    const unlockText = card.querySelector(".unlock-info");
 
     if (!btn || !levelEl) return;
 
@@ -66,14 +76,25 @@ function refreshSpireUpgradeUI() {
     levelEl.textContent = `Damage Bonus: ${bonus}%`;
 
     // Disable if spire not unlocked yet or not enough diamonds
-    const unlocked = card.classList.contains("unlocked") || playerLevel >= requiredLevel;
-    const canAfford = (gameState.currencies?.diamonds ?? gameState.diamonds ?? 0) >= 20;
+    const unlocked = playerLevel >= requiredLevel;
+    card.classList.toggle("unlocked", unlocked);
+    card.classList.toggle("locked", !unlocked);
 
-    if (!unlocked || !canAfford) {
-      btn.classList.add("disabled");
-    } else {
-      btn.classList.remove("disabled");
+    if (unlockText) {
+      unlockText.textContent = unlocked
+        ? "Unlocked"
+        : `🔒 Unlocks at Level ${requiredLevel}`;
     }
+
+    const diamonds =
+      gameState.profile?.currencies?.diamonds ??
+      gameState.currencies?.diamonds ??
+      gameState.profile?.diamonds ??
+      gameState.diamonds ??
+      0;
+    const canAfford = diamonds >= 20;
+
+    btn.classList.toggle("disabled", !unlocked || !canAfford);
   });
 }
 
@@ -83,7 +104,10 @@ function attemptUpgradeSpire(card, spireId) {
   const btn = card.querySelector("[data-upgrade-btn]");
   if (!btn || btn.classList.contains("disabled")) return;
 
-  const currencies = gameState.currencies || gameState.profile.currencies || gameState;
+  const currencies =
+    gameState.profile?.currencies ??
+    gameState.currencies ??
+    gameState;
   const diamonds = currencies.diamonds ?? 0;
 
   if (diamonds < 20) {
