@@ -613,6 +613,34 @@
     inset 0 0 8px rgba(255, 255, 255, 0.35);
 }
 
+#start-btn {
+  position: absolute;
+  bottom: 26.5%; /* adjust so it appears above Continue */
+  left: 50%;
+  transform: translateX(-50%);
+
+  padding: 12px 38px;
+  font-size: 1.15rem;
+  font-family: "Comic Sans MS", cursive;
+  font-weight: bold;
+  color: #ffffff;
+  cursor: pointer;
+
+  background: linear-gradient(145deg, #8cd5ff, #d4b5ff, #ffbde3);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 14px;
+
+  box-shadow:
+    0 0 18px rgba(181, 226, 255, 0.7),
+    inset 0 0 12px rgba(255, 255, 255, 0.4);
+
+  transition: all 0.25s ease;
+  z-index: 25;
+}
+
+#start-btn:hover {
+  transform: translateX(-50%) scale(1.06);
+}
 
 /* ============================================================
    🌟 END OF FILE

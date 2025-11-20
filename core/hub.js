@@ -55,6 +55,7 @@ import { renderSlots } from "./saveSlots.js";
 import { loadFromSlot, applySnapshot } from "./saveSystem.js";
 
 import { showCredits } from "./credits.js";
+import { getSlotSummaries } from "./saveSystem.js";
 
 
 // ============================================================
@@ -84,6 +85,7 @@ export function initHub() {
   const continueBtn = document.getElementById("continue-btn");
 
   // Initialize hub subsystems
+  updateStartButton();
   initChest();
   initSettingsMenu();
   updateHubCurrencies();
@@ -318,6 +320,10 @@ export function initHub() {
   initSkinsMenu();
 }
 
+export function updateStartButton() {
+    // Delegate to unified Start/Continue visibility logic
+    updateContinueButton();
+}
 
 // ============================================================
 // 🌈 SKINS MENU
@@ -433,7 +439,16 @@ export function updateContinueButton(
   if (!btn) return;
 
   const profile = getActiveProfile();
-  const hasSave = typeof profile?.lastSave === "number";
+  const startBtn = document.getElementById("start-btn");
+
+  const summaries = getSlotSummaries() || [];
+  const hasAnySlotSave = summaries.some(s => s);
+  const hasSave = typeof profile?.lastSave === "number" || hasAnySlotSave;
+
+  if (startBtn) {
+    startBtn.style.display = hasSave ? "none" : "block";
+  }
+
   btn.style.display = hasSave ? "block" : "none";
 }
 
@@ -475,6 +490,9 @@ function fadeOut(element, callback) {
   setTimeout(() => callback?.(), 400);
 }
 
+document.getElementById("start-btn").addEventListener("click", () => {
+    document.getElementById("new-story-btn").click();
+});
 
 // ============================================================
 // 🌟 END OF FILE

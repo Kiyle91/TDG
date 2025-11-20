@@ -1,7 +1,8 @@
 #daily-chest {
   position: fixed;  /* not absolute */
-  right: 26%;
-  bottom: 30%;
+  right: 25%;
+  width: 220px;
+  bottom: 40%;
   transform: translateY(50%);
   z-index: 999;
 }
