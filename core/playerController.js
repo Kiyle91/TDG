@@ -2,62 +2,57 @@
 // 🧭 playerController.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ WASD movement + directional animations
-// ✦ Melee / Ranged / Heal / Spell combat system
+// ✦ Melee / Ranged / Heal / Spell combat system (modular)
 // ✦ Silver arrows, knockback, collisions, sparkle FX
 // ✦ Bravery aura + stat-scaled damage & mana costs
-// ✦ Unified target system (goblins, ogres, worgs, elites, trolls, crossbows)
+// ✦ Unified enemy contact damage & pushback
 // ✦ NO window.__goblins — uses imported getGoblins()
 // ============================================================
 /* ------------------------------------------------------------
  * MODULE: playerController.js
  * PURPOSE:
- *   Controls the player character — input, movement, combat,
- *   projectiles, animations, and visual FX.
+ *   Controls the player character — input, movement, animation,
+ *   and bridges input → combat modules → visual FX.
  *
  * SUMMARY:
  *   - Movement: WASD / arrows + map collision & goblin shunt
  *   - Combat:
- *       • Melee (Space)
- *       • Ranged (Mouse)
- *       • Heal (R)
- *       • Spell (F)
+ *       • Melee (Space)  → ./combat/melee.js
+ *       • Ranged (Mouse) → ./combat/ranged.js
+ *       • Heal (R)       → ./combat/heal.js
+ *       • Spell (F)      → ./combat/spell.js
  *   - Targets:
  *       • Goblins (getGoblins)
  *       • Ogres (getOgres)
- *       • Worgs (getWorg)
- *       • Elites (getElites)
- *       • Trolls (getTrolls)
- *       • Crossbow goblins (getCrossbows)
  *   - FX: glitter sparkles, damage bursts, bravery aura
  *   - Works with fixed timestep game loop + camera
  * ------------------------------------------------------------ */
 
-// ------------------------------------------------------------ 
+// ------------------------------------------------------------
 // ↪️ Imports
 // ------------------------------------------------------------
 
 import { gameState } from "../utils/gameState.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
-import { damageGoblin, getGoblins } from "./goblin.js";
-import { updateHUD, getArrowCount } from "./ui.js";
-import {
-  playFairySprinkle,
-  playMeleeSwing,
-  playArrowSwish,
-  playSpellCast,
-  playPlayerDamage,
-  playCancelSound,
-} from "./soundtrack.js";
+import { getGoblins } from "./goblin.js";
+import { updateHUD, getArrowCount, activateBravery } from "./ui.js";
+import { playPlayerDamage, playCancelSound } from "./soundtrack.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { handleSpireKey } from "./spirePlacement.js";
-import { getOgres, damageOgre, OGRE_HIT_RADIUS } from "./ogre.js";
-import { getWorg } from "./worg.js";
-import { getElites, damageElite } from "./elite.js";
-import { getTrolls } from "./troll.js";
+import { getOgres } from "./ogre.js";
 import { getMapPixelSize } from "./map.js";
 import { SKINS } from "./skins.js";
-import { activateBravery } from "./ui.js";
-import { getCrossbows } from "./crossbow.js";
+
+import {
+  updateAndDrawSparkles,
+  spawnDamageSparkles
+} from "./fx/sparkles.js";
+
+import { performMelee, drawSlashArc } from "./combat/melee.js";
+import { performRanged } from "./combat/ranged.js";
+import { performSpell as castSpell } from "./combat/spell.js";
+import { performHeal as castHeal } from "./combat/heal.js";
+import { spawnArrow } from "./combat/arrow.js";
 
 // ------------------------------------------------------------
 // 🔢 Spire Hotkeys (1–5 etc.)
@@ -66,21 +61,6 @@ import { getCrossbows } from "./crossbow.js";
 window.addEventListener("keydown", (e) => {
   if (e.code.startsWith("Digit")) handleSpireKey(e.code);
 });
-
-// ------------------------------------------------------------
-// 🧩 Unified Target Helper
-// ------------------------------------------------------------
-
-function getAllTargets() {
-  return [
-    ...getGoblins(),
-    ...getOgres(),
-    ...getWorg(),
-    ...getElites(),
-    ...getTrolls(),
-    ...getCrossbows(),
-  ];
-}
 
 // ------------------------------------------------------------
 // 🔧 Input + Runtime State
@@ -102,24 +82,6 @@ let currentFrame = 0;
 let currentDir = "down";
 let isMoving = false;
 
-// Ranged projectiles (silver arrows)
-let projectiles = [];
-
-// Cooldowns (seconds)
-const CD_MELEE = 0.5;
-const CD_RANGED = 0.4;
-const CD_HEAL = 1.0;
-const CD_SPELL = 1.0;
-
-// Mana costs
-const COST_HEAL = 15;
-const COST_SPELL = 10;
-
-// Damage multipliers
-const DMG_MELEE = 1.2;
-const DMG_RANGED = 0.9;
-const DMG_SPELL = 4;
-
 // Walk anim timer
 let frameTimer = 0;
 
@@ -136,11 +98,11 @@ const sprites = {
     right: [null, null],
   },
   attack: {
-    left: [null, null], // 0: attack_*, 1: melee_*
+    left: [null, null],   // 0: attack_*, 1: melee_*
     right: [null, null],
   },
   shoot: {
-    left: [null, null], // 0: raise_*, 1: shoot_*
+    left: [null, null],   // 0: raise_*, 1: shoot_*
     right: [null, null],
     lowerLeft: null,
     lowerRight: null,
@@ -152,6 +114,12 @@ const sprites = {
   heal: null,
   dead: null,
 };
+
+// Cooldowns (seconds)
+const CD_MELEE = 0.5;
+const CD_RANGED = 0.4;
+const CD_HEAL = 1.0;
+const CD_SPELL = 1.0;
 
 function loadSprite(src) {
   return new Promise((resolve) => {
@@ -206,7 +174,6 @@ async function loadPlayerSprites() {
 
   // Dead
   sprites.dead = await L("_slain.png");
-
 }
 
 // ------------------------------------------------------------
@@ -262,6 +229,15 @@ function ensurePlayerRuntime() {
 }
 
 // ------------------------------------------------------------
+// ⚠️ Shared “Not Enough Mana” Feedback
+// ------------------------------------------------------------
+
+function notEnoughMana(p) {
+  spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough mana!", "#77aaff");
+  if (typeof playCancelSound === "function") playCancelSound();
+}
+
+// ------------------------------------------------------------
 // ⌨️ Input Handlers
 // ------------------------------------------------------------
 
@@ -279,10 +255,10 @@ function onKeyDown(e) {
         performMeleeAttack();
         break;
       case "KeyR":
-        performHeal();
+        performHealAction();
         break;
       case "KeyF":
-        performSpell();
+        performSpellAction();
         break;
     }
   }
@@ -320,58 +296,22 @@ export function destroyPlayerController() {
 }
 
 // ------------------------------------------------------------
-// 🎯 Nearest Goblin (legacy helper for facing)
-// ------------------------------------------------------------
-
-function findNearestGoblinInRange(px, py, maxDist = 320) {
-  let target = null;
-  let best = maxDist;
-
-  for (const g of getGoblins()) {
-    if (!g?.alive) continue;
-    const dx = g.x - px;
-    const dy = g.y - py;
-    const d = Math.hypot(dx, dy);
-    if (d < best) {
-      best = d;
-      target = g;
-    }
-  }
-
-  return { target, dist: best };
-}
-
-// ------------------------------------------------------------
-// ⚠️ Shared “Not Enough Mana” Feedback
-// ------------------------------------------------------------
-
-function notEnoughMana(p) {
-  spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough mana!", "#77aaff");
-  if (typeof playCancelSound === "function") playCancelSound();
-}
-
-// ------------------------------------------------------------
-// 🗡️ Melee Attack (Space)
+// 🗡️ Melee Attack (Space) → combat/melee.js
 // ------------------------------------------------------------
 
 function performMeleeAttack() {
   const p = gameState.player;
   if (!p) return;
 
-  const dmg = p.attack * DMG_MELEE;
-
-  const prevDir = currentDir;
-  const { target } = findNearestGoblinInRange(p.pos.x, p.pos.y, 320);
-
-  if (target) {
-    const dxToGoblin = target.x - p.pos.x;
-    currentDir = dxToGoblin < 0 ? "left" : "right";
-  }
+  if (attackCooldown > 0) return;
 
   isAttacking = true;
   attackType = "melee";
   attackCooldown = CD_MELEE;
   currentFrame = 0;
+
+  const { tier } = performMelee(p, currentDir);
+  p.lastMeleeTier = tier;
 
   setTimeout(() => {
     currentFrame = 1;
@@ -380,175 +320,55 @@ function performMeleeAttack() {
   setTimeout(() => {
     isAttacking = false;
     currentFrame = 0;
-    currentDir = prevDir;
   }, 400);
-
-  const range = 130;
-  const ox = p.pos.x;
-  const oy = p.pos.y;
-  let hit = false;
-
-  const allTargets = getAllTargets();
-
-  for (const t of allTargets) {
-    if (!t.alive) continue;
-
-    const dx = t.x - ox;
-    const dy = t.y - oy;
-    const dist = Math.hypot(dx, dy);
-    if (dist > range + (t.width || 32) / 2) continue;
-
-    if (t.type === "elite") {
-      damageElite(t, dmg, "player");
-    } else if (t.type === "ogre" || t.maxHp >= 400) {
-      damageOgre(t, dmg, "player");
-    } else {
-      damageGoblin(t, dmg);
-    }
-
-    hit = true;
-
-    // Knockback (no knockback on ogres)
-    if (t.type !== "ogre") {
-      const len = Math.max(1, dist);
-      t.x += (dx / len) * 50;
-      t.y += (dy / len) * 50;
-    }
-  }
-
-  spawnCanvasSparkleBurst(
-    p.pos.x,
-    p.pos.y,
-    12,
-    70,
-    ["#ffd6eb", "#b5e2ff", "#ffffff"]
-  );
-
-  playMeleeSwing();
-
 }
 
 // ------------------------------------------------------------
-// 🏹 Ranged Attack — Silver Arrows (Mouse)
+// 🏹 Ranged Attack (Mouse) → combat/ranged.js
 // ------------------------------------------------------------
 
 function performRangedAttack(e) {
   const p = gameState.player;
   if (!p || !canvasRef) return;
 
-  if (p.mana < 2) {
-    notEnoughMana(p);
+  if (attackCooldown > 0) return;
+
+  // Call modular ranged system
+  const result = performRanged(p, e, canvasRef);
+
+  if (!result.ok) {
+    if (result.reason === "mana") notEnoughMana(p);
     return;
   }
 
-  p.mana -= 2;
-  updateHUD();
-
-  const dmg = Math.max(1, (Number(p.rangedAttack) || 0) * DMG_RANGED);
-
-  const rect = canvasRef.getBoundingClientRect();
-  const scaleX = window.canvasScaleX || (canvasRef.width / rect.width);
-  const scaleY = window.canvasScaleY || (canvasRef.height / rect.height);
-
-  const canvasX = (e.clientX - rect.left) * scaleX;
-  const canvasY = (e.clientY - rect.top) * scaleY;
-  const worldX = (window.cameraX || 0) + canvasX;
-  const worldY = (window.cameraY || 0) + canvasY;
-
-  const dx = worldX - p.pos.x;
-  const dy = worldY - p.pos.y;
-  const angle = Math.atan2(dy, dx);
-  const deg = ((angle * 180) / Math.PI + 360) % 360;
-
-  let facing;
-  if (deg >= 330 || deg < 30) facing = "right";
-  else if (deg >= 30 && deg < 90) facing = "bottomRight";
-  else if (deg >= 90 && deg < 150) facing = "bottomLeft";
-  else if (deg >= 150 && deg < 210) facing = "left";
-  else if (deg >= 210 && deg < 270) facing = "topLeft";
-  else if (deg >= 270 && deg < 330) facing = "topRight";
-  else facing = "right";
-
-  p.facing = facing;
+  // Sync facing for shooting animation
+  if (result.facing) {
+    p.facing = result.facing;
+  }
 
   isAttacking = true;
   attackType = "ranged";
   attackCooldown = CD_RANGED;
+
   setTimeout(() => {
     isAttacking = false;
   }, 300);
-
-  const speed = 1200;
-  const startX = p.pos.x + Math.cos(angle) * 30;
-  const startY = p.pos.y + Math.sin(angle) * 30;
-  const projectile = {
-    x: startX,
-    y: startY,
-    angle,
-    speed,
-    dmg,
-    alive: true,
-    life: 0,
-  };
-
-  projectiles.push(projectile);
-  playArrowSwish();
-
-  const checkArrowCollision = () => {
-    if (!projectile.alive) return;
-
-    const dt = 16 / 1000;
-    projectile.x += Math.cos(projectile.angle) * projectile.speed * dt;
-    projectile.y += Math.sin(projectile.angle) * projectile.speed * dt;
-    projectile.life += 16;
-
-    const targets = getAllTargets();
-    for (const t of targets) {
-      if (!t.alive) continue;
-
-      const dx = t.x - projectile.x;
-      const dy = t.y - projectile.y;
-      const dist = Math.hypot(dx, dy);
-
-      let hitRadius = 26;
-      if (t.type === "elite") {
-        hitRadius = 50;
-      } else if (t.type === "ogre" || t.maxHp >= 400) {
-        hitRadius = OGRE_HIT_RADIUS || 60;
-      } else {
-        hitRadius = 32;
-      }
-
-      if (dist < hitRadius) {
-        if (t.type === "elite") damageElite(t, dmg);
-        else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "player");
-        else damageGoblin(t, dmg);
-
-        projectile.alive = false;
-        break;
-      }
-    }
-
-    if (projectile.alive && projectile.life < 1000) {
-      requestAnimationFrame(checkArrowCollision);
-    }
-  };
-
-  requestAnimationFrame(checkArrowCollision);
 }
 
 // ------------------------------------------------------------
-// 💖 Heal (R)
+// 💖 Heal (R) → combat/heal.js
 // ------------------------------------------------------------
 
-function performHeal() {
+function performHealAction() {
   const p = gameState.player;
   if (!p) return;
 
-  const cost = Number(COST_HEAL) || 0;
+  if (attackCooldown > 0) return;
 
-  if (p.mana < cost) {
-    notEnoughMana(p);
+  const result = castHeal(p);
+
+  if (!result.ok) {
+    if (result.reason === "mana") notEnoughMana(p);
     return;
   }
 
@@ -556,215 +376,47 @@ function performHeal() {
   attackType = "heal";
   attackCooldown = CD_HEAL;
   currentFrame = 0;
+
+  const anim = result.anim;
+
   setTimeout(() => {
     isAttacking = false;
     currentFrame = 0;
-  }, 1000);
-
-  p.mana = Math.max(0, p.mana - cost);
-
-  const sp = Number(p.spellPower) || 0;
-  const mh = Number(p.maxHp) || 0;
-  const rawHeal = sp * 1.2 + mh * 0.08 + 10;
-  const amount = Math.max(1, Math.round(rawHeal));
-
-  const prevHP = p.hp;
-  p.hp = Math.min(p.maxHp, p.hp + amount);
-  const actual = Math.max(0, Math.round(p.hp - prevHP));
-
-  playFairySprinkle();
-  spawnFloatingText(p.pos.x, p.pos.y - 40, `+${actual}`, "#7aff7a");
-
-  spawnCanvasSparkleBurst(
-    p.pos.x,
-    p.pos.y,
-    18,
-    90,
-    ["#b3ffb3", "#99ffcc", "#ccffcc"]
-  );
-
-  updateHUD();
-
+  }, anim.totalTime);
 }
 
 // ------------------------------------------------------------
-// 🔮 Spell (F) — Pastel AoE Burst
+// 🔮 Spell (F) → combat/spell.js
 // ------------------------------------------------------------
 
-function performSpell() {
+function performSpellAction() {
   const p = gameState.player;
   if (!p) return;
 
-  if (p.mana < COST_SPELL) {
-    notEnoughMana(p);
+  if (attackCooldown > 0) return;
+
+  const result = castSpell(p);
+
+  if (!result.ok) {
+    if (result.reason === "mana") notEnoughMana(p);
     return;
   }
 
   isAttacking = true;
   attackType = "spell";
   attackCooldown = CD_SPELL;
-  p.mana -= COST_SPELL;
-
   currentFrame = 0;
+
+  const anim = result.anim;
+
   setTimeout(() => {
     currentFrame = 1;
-  }, 350);
+  }, anim.chargeTime);
+
   setTimeout(() => {
     isAttacking = false;
     currentFrame = 0;
-  }, 900);
-
-  setTimeout(() => {
-    const dmg = Math.max(1, (Number(p.spellPower) || 0) * DMG_SPELL);
-    const radius = 150;
-    let hits = 0;
-
-    const targets = getAllTargets();
-    for (const t of targets) {
-      if (!t.alive) continue;
-
-      const dx = t.x - p.pos.x;
-      const dy = t.y - p.pos.y;
-      const dist = Math.hypot(dx, dy);
-
-      if (dist < radius) {
-        if (t.type === "elite") damageElite(t, dmg, "spell");
-        else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "spell");
-        else damageGoblin(t, dmg);
-        hits++;
-      }
-    }
-
-    spawnCanvasSparkleBurst(
-      p.pos.x,
-      p.pos.y,
-      26,
-      160,
-      ["#ffb3e6", "#b3ecff", "#fff2b3", "#cdb3ff", "#b3ffd9", "#ffffff"]
-    );
-
-    updateHUD();
-    playSpellCast();
-  }, 400);
-}
-
-// ------------------------------------------------------------
-// 🌈 GLITTER BURSTS — Optimized Sparkle System
-// ------------------------------------------------------------
-
-const sparkles = [];
-const MAX_SPARKLES = 60;
-
-function spawnCanvasSparkleBurst(x, y, count = 50, radius = 140, colors) {
-  colors ??= ["#ffd6eb", "#b5e2ff", "#fff2b3"];
-
-  for (let i = 0; i < count; i++) {
-    if (sparkles.length >= MAX_SPARKLES) {
-      sparkles.shift();
-    }
-
-    const ang = Math.random() * Math.PI * 2;
-    const speed = 140 + Math.random() * 160;
-
-    sparkles.push({
-      x,
-      y,
-      vx: Math.cos(ang) * speed,
-      vy: Math.sin(ang) * speed,
-      life: 600 + Math.random() * 400,
-      age: 0,
-      size: 2 + Math.random() * 2.5,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    });
-  }
-}
-
-function updateAndDrawSparkles(ctx, delta) {
-  if (!sparkles.length) return;
-
-  const dt = delta / 1000;
-
-  ctx.save();
-  ctx.globalCompositeOperation = "lighter";
-
-  for (let i = sparkles.length - 1; i >= 0; i--) {
-    const s = sparkles[i];
-    s.age += delta;
-
-    if (s.age >= s.life) {
-      sparkles.splice(i, 1);
-      continue;
-    }
-
-    const t = s.age / s.life;
-
-    s.vx *= 0.985;
-    s.vy *= 0.985;
-    s.x += s.vx * dt;
-    s.y += s.vy * dt;
-
-    const alpha = (1 - t) * 0.9;
-    const r = s.size * (1 + 0.4 * (1 - t));
-
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = s.color;
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  ctx.restore();
-}
-
-// ------------------------------------------------------------
-// 🌸 Damage Sparkle Burst (Soft Pink Hit)
-// ------------------------------------------------------------
-
-export function spawnDamageSparkles(x, y) {
-  const palette = ["#ff7aa8", "#ff99b9", "#ffb3c6", "#ffccd5"];
-  spawnCanvasSparkleBurst(x, y, 10, 50, palette);
-}
-
-// ------------------------------------------------------------
-// 🏹 Legacy Silver Arrow Projectiles (Map + Goblin Only)
-// (Used in addition to the per-arrow collision system above)
-// ------------------------------------------------------------
-
-function updateProjectiles(delta) {
-  const dt = delta / 1000;
-
-  for (let i = projectiles.length - 1; i >= 0; i--) {
-    const a = projectiles[i];
-    if (!a.alive) {
-      projectiles.splice(i, 1);
-      continue;
-    }
-
-    a.x += Math.cos(a.angle) * a.speed * dt;
-    a.y += Math.sin(a.angle) * a.speed * dt;
-
-    a.life += delta;
-    if (a.life > 1500) {
-      a.alive = false;
-      continue;
-    }
-
-    const hitbox = 8;
-    if (isRectBlocked(a.x - hitbox / 2, a.y - hitbox / 2, hitbox, hitbox)) {
-      a.alive = false;
-      continue;
-    }
-
-    for (const g of getGoblins()) {
-      if (!g.alive) continue;
-      const dist = Math.hypot(g.x - a.x, g.y - a.y);
-      if (dist < 45) {
-        damageGoblin(g, a.dmg);
-        a.alive = false;
-        break;
-      }
-    }
-  }
+  }, anim.totalTime);
 }
 
 // ============================================================
@@ -788,8 +440,11 @@ export function updatePlayer(delta) {
 
   if (p.flashTimer > 0) p.flashTimer -= delta;
 
-  if (attackCooldown > 0) attackCooldown -= dt;
-  updateProjectiles(delta);
+  // Cooldown tick
+  if (attackCooldown > 0) {
+    attackCooldown -= dt;
+    if (attackCooldown < 0) attackCooldown = 0;
+  }
 
   // 🔮 Passive mana regen
   const regenRate = 0.8 + (p.level ?? 1) * 0.05;
@@ -927,10 +582,12 @@ export function updatePlayer(delta) {
   // Mirror convenience
   gameState.player.x = p.pos.x;
   gameState.player.y = p.pos.y;
+
+
 }
 
 // ============================================================
-// 🎨 DRAW PLAYER — Sprite + HP Bar + Projectiles + Sparkles
+// 🎨 DRAW PLAYER — Sprite + HP Bar + Sparkles
 // ============================================================
 
 export function drawPlayer(ctx) {
@@ -1017,7 +674,6 @@ export function drawPlayer(ctx) {
     ctx.beginPath();
     ctx.arc(x, y, auraRadius * 0.95, 0, Math.PI * 2);
     ctx.stroke();
-
     ctx.restore();
   }
 
@@ -1075,6 +731,14 @@ export function drawPlayer(ctx) {
     }
   }
 
+  // ---------------------------------------------
+  // 🗡️ Slash Arc FX (Tier-scaled, first attack frame only)
+  // ---------------------------------------------
+  if (isAttacking && attackType === "melee" && currentFrame === 0) {
+    const tier = p.lastMeleeTier || 1;
+    drawSlashArc(ctx, x, y, currentDir, tier);
+  }
+
   // ❤️ Player HP bar
   if (!p.dead) {
     const barWidth = 42;
@@ -1104,16 +768,6 @@ export function drawPlayer(ctx) {
     ctx.strokeStyle = "rgba(255,182,193,0.6)";
     ctx.lineWidth = 1;
     ctx.strokeRect(x - barWidth / 2, y + offsetY, barWidth, barHeight);
-  }
-
-  // 🏹 Silver arrow projectiles
-  ctx.fillStyle = "rgba(240,240,255,0.9)";
-  for (const a of projectiles) {
-    ctx.save();
-    ctx.translate(a.x, a.y);
-    ctx.rotate(a.angle);
-    ctx.fillRect(0, -3, 45, 4);
-    ctx.restore();
   }
 
   // 🌈 Sparkles

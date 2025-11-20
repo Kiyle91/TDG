@@ -37,7 +37,7 @@ import {
   playGoblinAttack,
   playPlayerDamage
 } from "./soundtrack.js";
-import { spawnDamageSparkles } from "./playerController.js";
+import { spawnDamageSparkles } from "./fx/sparkles.js"
 import { spawnLoot } from "./loot.js";
 import { awardXP } from "./levelSystem.js";
 import { incrementGoblinDefeated } from "./game.js";

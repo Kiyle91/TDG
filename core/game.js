@@ -194,6 +194,7 @@ function scaleEnemyHp(enemy) {
   enemy.hp = Math.round(enemy.hp * mult);
   enemy.maxHp = Math.round(enemy.maxHp * mult);
 }
+import { updateArrows, drawArrows } from "./combat/arrow.js";
 
 // ============================================================
 // 🌊 WAVE CONFIGS
@@ -903,6 +904,7 @@ export function updateGame(delta) {
   updateSpires(delta);
   updateOgres(delta);
   updateProjectiles(delta);
+  updateArrows(delta);
   updatePlayer(delta);
   updateFloatingText(delta);
   updatePegasus(delta);
@@ -968,6 +970,7 @@ export function renderGame() {
   drawPlayer(ctx);
 
   drawProjectiles(ctx);
+  drawArrows(ctx);
   drawFloatingText(ctx);
   drawLoot(ctx);
   renderSparkleBursts(ctx, 16);

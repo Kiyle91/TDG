@@ -39,7 +39,7 @@ import { spawnFloatingText } from "./floatingText.js";
 import { awardXP } from "./levelSystem.js";
 import { updateHUD } from "./ui.js";
 import { playGoblinDeath, playGoblinDamage } from "./soundtrack.js";
-import { spawnDamageSparkles } from "./playerController.js";
+import { spawnDamageSparkles } from "./fx/sparkles.js";
 import { spawnLoot } from "./loot.js";
 
 
