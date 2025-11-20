@@ -37,6 +37,7 @@
 
 /* ============================================================
    🌸 UNIVERSAL OVERLAY LAYER
+   (Darkened background + blur, hidden until .active class added)
 ============================================================ */
 .overlay {
   position: fixed;
@@ -62,13 +63,13 @@
 
 
 /* ============================================================
-   📦 OVERLAY BOX (Glass Crystal Panel)
+   📦 OVERLAY BOX — Frosted Crystal Panel
 ============================================================ */
 .overlay-box {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
-  padding: 40px 80px;
+
   text-align: center;
   color: #fff;
 
@@ -77,6 +78,7 @@
     inset 0 0 20px rgba(255, 255, 255, 0.4);
 
   animation: overlayPop 0.4s ease;
+
 }
 
 @keyframes overlayPop {
@@ -90,8 +92,7 @@
    ❌ CLOSE BUTTON
 ============================================================ */
 .overlay-close {
-  margin-top: 50px;
-  padding: 10px 30px;
+  margin: 15px;
 
   font-size: 1.2rem;
   color: #fff;
@@ -118,7 +119,8 @@
 
 
 /* ============================================================
-   🌑 DARK VARIANTS — Settings / Controls / Stats
+   🌑 DARK OVERLAY VARIANTS
+   (These overlays use a darker, more dramatic background)
 ============================================================ */
 #overlay-settings-game,
 #overlay-controls,
@@ -134,5 +136,33 @@
 
 
 /* ============================================================
+   📸 HOW-TO-PLAY IMAGE SUPPORT
+   (Displayed inside overlay-box instead of text-based layout)
+============================================================ */
+.controls-image-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.controls-image {
+  width: 70%;
+  max-width: 1400px;
+  height: auto;
+  padding: 0;
+  border-radius: 18px;
+
+  border: 2px solid rgba(255, 182, 255, 0.6);
+  box-shadow:
+    0 0 25px rgba(255, 200, 255, 0.6),
+    0 0 12px rgba(181, 226, 255, 0.5),
+    inset 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+
+
+/* ============================================================
    🌟 END OF FILE
 ============================================================ */
+
