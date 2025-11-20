@@ -342,6 +342,11 @@ export function resetWaveSystem() {
   spawnTimer = 0;
 
   gameState.victoryPending = false;
+  // Ensure HUD/meta wave counters start at wave 1 for new runs
+  gameState.wave = 1;
+  const mapId = gameState.progress?.currentMap ?? 1;
+  const waves = waveConfigs[mapId];
+  gameState.totalWaves = Array.isArray(waves) ? waves.length : 0;
   firstWaveStarted = false;
   window.firstWaveStarted = false;
 
