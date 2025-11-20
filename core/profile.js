@@ -118,7 +118,7 @@ export function initProfiles() {
         updateHubCurrencies();
         updateContinueButton();
 
-        showAlert(`Profile "${name}" created successfully!`);
+        
       }, 600);
     });
   });
@@ -142,7 +142,6 @@ export function initProfiles() {
           gameState.profiles.splice(index, 1);
           saveProfiles();
           renderProfileSlots(slotsContainer);
-          showAlert(`Profile "${profile.name}" deleted successfully.`);
           playFairySprinkle();
         },
         () => playFairySprinkle()
