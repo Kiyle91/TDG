@@ -195,8 +195,6 @@ function scaleEnemyHp(enemy) {
   enemy.maxHp = Math.round(enemy.maxHp * mult);
 }
 
-import { autoSave } from "./saveSystem.js";
-
 
 // ============================================================
 // 🌊 WAVE CONFIGS
@@ -670,33 +668,17 @@ async function updateWaveSystem(delta) {
       saveProfiles();
   }
 
-  // ⭐ Auto-save BEFORE showing victory screen
-  autoSave();
-
   setTimeout(() => {
       stopGameplay("victory");
 
-      // ⭐ Apply progression ONLY for real gameplay — not load
-      setTimeout(() => {
-          try {
-              // Progress advance is handled by the end-screen Continue button; just persist unlocks.
-              if (mapId < 9) {
-                  saveProfiles();
-
-                  // Autosave into Slot 0 after updating progression
-                  import("./saveSystem.js").then(mod => {
-                      mod.saveToSlot(0);
-                  });
-              }
-
-              // Map 9 → Credits
-              if (mapId === 9) {
-                  import("./../core/credits.js").then(mod => mod.showCredits());
-              }
-          } catch (err) {
-              console.warn("Autosave-after-victory failed:", err);
-          }
-      }, 300);
+      // Map 9 → Credits (handled for players who let the screen sit)
+      if (mapId === 9) {
+          setTimeout(() => {
+              import("./../core/credits.js")
+                .then(mod => mod.showCredits())
+                .catch(err => console.warn("Credits display failed:", err));
+          }, 300);
+      }
 
 }, VICTORY_DELAY);
 

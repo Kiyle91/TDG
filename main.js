@@ -37,6 +37,7 @@ import { updateBraveryBar, updateHUD } from "./core/ui.js";
 import { startGoblinIntroStory } from "./core/story.js";
 import { initNavbar } from "./core/navbar.js";
 import { initCredits } from "./core/credits.js";
+import { autoSave } from "./core/saveSystem.js";
 
 import { getOgres } from "./core/ogre.js";
 import { getElites } from "./core/elite.js";
@@ -254,6 +255,7 @@ export async function startNewGameStory() {
   showScreen("game-container");
 
   await initGame();
+  safeAutoSave();
   startGameplay();
 }
 
@@ -346,6 +348,14 @@ function showTempMsg(text) {
   setTimeout(() => msg.remove(), 2000);
 }
 
+function safeAutoSave() {
+  try {
+    autoSave();
+  } catch (err) {
+    console.warn("Autosave skipped:", err);
+  }
+}
+
 // ============================================================
 // 🕯 END SCREEN (Victory / Defeat)
 // ============================================================
@@ -409,25 +419,30 @@ function showEndScreen(reason) {
 
       gameState.profile.currencies.diamonds += 100;
       gameState.profile.currencies.gold = 0;
-      saveProfiles();
-
       showTempMsg("💎 +100 Diamonds");
 
-      if (nextMap > 9) {
+      const reachedCredits = nextMap > 9;
+
+      if (!reachedCredits) {
+        unlockMap(nextMap);
+        gameState.progress.currentMap = nextMap;
+        gameState.profile.progress.currentMap = nextMap;
+      }
+
+      resetCombatState();
+      saveProfiles();
+
+      if (reachedCredits) {
         overlay.remove();      // 🔄 Hide overlay so credits are visible
         showScreen("credits-screen");
         return;
       }
 
-      unlockMap(nextMap);
-      gameState.progress.currentMap = nextMap;
-      gameState.profile.progress.currentMap = nextMap;
-      saveProfiles();
-
       overlay.remove();
       showScreen("game-container");
 
       await initGame();
+      safeAutoSave();
       startGameplay();
     };
 
