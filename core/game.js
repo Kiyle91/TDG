@@ -195,7 +195,6 @@ function scaleEnemyHp(enemy) {
   enemy.maxHp = Math.round(enemy.maxHp * mult);
 }
 
-
 // ============================================================
 // 🌊 WAVE CONFIGS
 // ============================================================
@@ -793,6 +792,7 @@ export async function initGame(mode = "new") {
       gameState.exploration.total = 0;
       gameState.exploration.bonusGiven = false;
     }
+
   }
 
   const icon = document.getElementById("hud-crystals-circle");

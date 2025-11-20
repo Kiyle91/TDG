@@ -1,5 +1,5 @@
 ﻿// ============================================================
-// ­ƒî© ui.js ÔÇö OliviaÔÇÖs World: Crystal Keep
+// ­ ui.js ÔÇö OliviaÔÇÖs World: Crystal Keep
 // ------------------------------------------------------------
 // Ô£ª Core HUD manager for in-game and Hub UI
 // Ô£ª Updates wave, gold, diamonds, lives, HP/Mana, arrows
@@ -28,7 +28,7 @@
  * ------------------------------------------------------------ */
 
 // ------------------------------------------------------------
-// Ôå¬´©Å Imports
+//  Imports
 // ------------------------------------------------------------
 
 import { gameState, getCurrencies, saveProfiles } from "../utils/gameState.js";
@@ -38,7 +38,7 @@ import { SKINS, ensureSkin } from "./skins.js";
 
 
 // ============================================================
-// ÔÅ©´©Å GAME PAUSE / RESUME
+//  GAME PAUSE / RESUME
 // ============================================================
 
 export function pauseGame() {
@@ -51,7 +51,7 @@ export function resumeGame() {
 
 
 // ------------------------------------------------------------
-// ÔÜÖ´©Å LOCAL STATE
+//  LOCAL STATE
 // ------------------------------------------------------------
 
 let waveDisplay, goldDisplay, diamondDisplay, livesDisplay;
@@ -67,7 +67,7 @@ let lastArrowCount = -1;
 
 
 // ============================================================
-// ­ƒîÀ INITIALIZATION
+// ­ INITIALIZATION
 // ============================================================
 
 export function initUI() {
@@ -82,7 +82,7 @@ export function initUI() {
 
 
 // ============================================================
-// ­ƒÆû UPDATE HUD
+// ­ UPDATE HUD
 // ============================================================
 
 export function updateHUD() {
@@ -92,7 +92,7 @@ export function updateHUD() {
   const p = gameState.player || {};
 
   // ------------------------------------------------------------
-  // ­ƒîƒ WAVE DISPLAY
+  // ­ WAVE DISPLAY
   // ------------------------------------------------------------
 
   const wave  = gameState.wave ?? 1;
@@ -113,7 +113,7 @@ export function updateHUD() {
   livesDisplay.textContent = `Lives: ${playerLives}`;
 
   // ------------------------------------------------------------
-  // ÔØñ´©Å HP & ­ƒö« MANA BARS
+  //  HP &  MANA BARS
   // ------------------------------------------------------------
 
   const hpBar = document.getElementById("hp-bar");
@@ -135,7 +135,7 @@ export function updateHUD() {
   }
 
   // ------------------------------------------------------------
-  // ­ƒÅ╣ ARROW COUNTER (Mana-based)
+  // ­ ARROW COUNTER (Mana-based)
   // ------------------------------------------------------------
 
   const arrowCircle = document.getElementById("hud-arrows-circle");
@@ -150,16 +150,21 @@ export function updateHUD() {
 
     if (arrows !== lastArrowCount) {
       if (arrowCircle) {
-        arrowCircle.classList.remove("hud-circle-flash");
-        void arrowCircle.offsetWidth;
-        arrowCircle.classList.add("hud-circle-flash");
+
+        // Flash ONLY when arrows are spent (count decreases)
+        if (lastArrowCount !== -1 && arrows < lastArrowCount) {
+          arrowCircle.classList.remove("hud-circle-flash");
+          void arrowCircle.offsetWidth;
+          arrowCircle.classList.add("hud-circle-flash");
+        }
       }
+
       lastArrowCount = arrows;
     }
   }
 
   // ------------------------------------------------------------
-  // Ô£º CRYSTAL ECHOES
+  //  CRYSTAL ECHOES
   // ------------------------------------------------------------
 
   if (gameState.exploration) {
@@ -190,7 +195,7 @@ export function updateHUD() {
 
 
 // ============================================================
-// ­ƒô£ GAME STATS ACCESSOR
+// ­GAME STATS ACCESSOR
 // ============================================================
 
 export function getStats() {
@@ -199,7 +204,7 @@ export function getStats() {
 
 
 // ============================================================
-// ­ƒî© OVERLAY HELPERS
+// ­ OVERLAY HELPERS
 // ============================================================
 
 export function showOverlay(id) {
@@ -233,7 +238,7 @@ export function closeOverlay(overlay) {
 
 
 // ============================================================
-// ÔÜÖ´©Å SETTINGS MENU
+//  SETTINGS MENU
 // ============================================================
 
 export function initSettingsMenu() {

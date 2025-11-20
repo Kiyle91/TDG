@@ -383,7 +383,7 @@ function performMeleeAttack() {
     currentDir = prevDir;
   }, 400);
 
-  const range = 80;
+  const range = 130;
   const ox = p.pos.x;
   const oy = p.pos.y;
   let hit = false;

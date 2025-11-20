@@ -34,7 +34,6 @@ import {
 } from "./utils/gameState.js";
 
 import { updateBraveryBar, updateHUD } from "./core/ui.js";
-import { startGoblinIntroStory } from "./core/story.js";
 import { initNavbar } from "./core/navbar.js";
 import { initCredits } from "./core/credits.js";
 import { autoSave } from "./core/saveSystem.js";
@@ -44,6 +43,8 @@ import { getElites } from "./core/elite.js";
 import { getWorg } from "./core/worg.js";
 import { getCrossbows } from "./core/crossbow.js";
 import { initGoblins } from "./core/goblin.js";
+
+import { showOpeningStory } from "./core/story.js";
 
 // ============================================================
 // 🎮 GLOBAL GAME LOOP STATE
@@ -96,7 +97,7 @@ export function startGameplay() {
   accumulator = 0;
 
   window.__gameLoopID = requestAnimationFrame(gameLoop);
-  
+
 }
 
 // ============================================================
@@ -245,11 +246,14 @@ export function fullNewGameReset() {
 export async function startNewGameStory() {
   fullNewGameReset();
   showScreen("game-container");
-
-  await initGame();
+  gameState.paused = true;
+  await showOpeningStory();  
+  await initGame("new");
   safeAutoSave();
-  startGameplay();
+  gameState.paused = false;
+  startGameplay("new");
 }
+
 
 // ============================================================
 // 🔁 RESET GAMEPLAY (Try Again)

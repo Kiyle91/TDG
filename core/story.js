@@ -170,10 +170,43 @@ export async function triggerEndOfWave5Story(mapId) {
 
   await showStory({
     text: wave5Text[mapId] || "You stand victorious, Guardian.",
-    useAriana: false,
+    useAriana: true,
   });
 
   gameState.paused = false;
+}
+
+// ------------------------------------------------------------
+// 💖 OPENING STORY (2-PAGE INTRO)
+// ------------------------------------------------------------
+
+export async function showOpeningStory() {
+  // PAGE 1
+  await showStory({
+    text: `
+🌸 *Princess Ariana:*  
+Guardian… thank goodness you've arrived.
+
+The Crystal Isles are trembling.  
+Darkness stirs beneath the goblin hordes,  
+and our ancient defenses are weakening.
+    `.trim(),
+    useAriana: true
+  });
+
+  // PAGE 2
+  await showStory({
+    text: `
+🌙 The Crystal Heart — source of all light in the Isles —  
+has begun to fade.  
+Only you can reignite its power.
+
+Seek out the Crystal Echoes.  
+Reclaim the Spires.  
+And protect our home, Guardian.
+    `.trim(),
+    useAriana: true
+  });
 }
 
 // ------------------------------------------------------------
