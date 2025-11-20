@@ -214,74 +214,74 @@ export const waveConfigs = {
 
   // 🌲 MAP 2 — Early Mixed Units
   2: [
-    { goblins: 10, worgs: 2,  ogres: 0, elites: 4, trolls: 4, crossbows: 4 },
-    { goblins: 14, worgs: 4,  ogres: 0, elites: 5, trolls: 4, crossbows: 4 },
-    { goblins: 18, worgs: 6,  ogres: 0, elites: 6, trolls: 5, crossbows: 5 },
-    { goblins: 22, worgs: 8,  ogres: 1, elites: 7, trolls: 5, crossbows: 6 },
-    { goblins: 26, worgs: 10, ogres: 1, elites: 8, trolls: 6, crossbows: 6 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // 🏞 MAP 3 — Early-Mid Mix
   3: [
-    { goblins: 16, worgs: 6,  ogres: 0, elites: 10, trolls: 8, crossbows: 8 },
-    { goblins: 20, worgs: 8,  ogres: 0, elites: 12, trolls: 8, crossbows: 8 },
-    { goblins: 24, worgs: 10, ogres: 1, elites: 14, trolls: 9, crossbows: 8 },
-    { goblins: 28, worgs: 12, ogres: 1, elites: 16, trolls: 10, crossbows: 9 },
-    { goblins: 32, worgs: 14, ogres: 2, elites: 18, trolls: 10, crossbows: 10 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // ❄ MAP 4 — Worg Pressure
   4: [
-    { goblins: 18, worgs: 12, ogres: 0, elites: 12, trolls: 12, crossbows: 8 },
-    { goblins: 20, worgs: 14, ogres: 0, elites: 13, trolls: 12, crossbows: 8 },
-    { goblins: 22, worgs: 16, ogres: 1, elites: 14, trolls: 13, crossbows: 9 },
-    { goblins: 24, worgs: 18, ogres: 1, elites: 15, trolls: 14, crossbows: 9 },
-    { goblins: 26, worgs: 20, ogres: 2, elites: 16, trolls: 14, crossbows: 10 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // 🔥 MAP 5 — Mid Game Sustain
   5: [
-    { goblins: 20, worgs: 10, ogres: 1, elites: 14, trolls: 14, crossbows: 10 },
-    { goblins: 24, worgs: 12, ogres: 1, elites: 15, trolls: 14, crossbows: 10 },
-    { goblins: 28, worgs: 14, ogres: 2, elites: 16, trolls: 15, crossbows: 10 },
-    { goblins: 30, worgs: 16, ogres: 3, elites: 17, trolls: 15, crossbows: 11 },
-    { goblins: 34, worgs: 18, ogres: 3, elites: 18, trolls: 16, crossbows: 12 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // 🜂 MAP 6 — Chaotic Alternation
   6: [
-    { goblins: 28, worgs: 12, ogres: 1, elites: 18, trolls: 18, crossbows: 14 },
-    { goblins: 18, worgs: 20, ogres: 1, elites: 18, trolls: 18, crossbows: 14 },
-    { goblins: 26, worgs: 14, ogres: 2, elites: 19, trolls: 18, crossbows: 15 },
-    { goblins: 14, worgs: 26, ogres: 2, elites: 20, trolls: 18, crossbows: 15 },
-    { goblins: 30, worgs: 20, ogres: 3, elites: 22, trolls: 18, crossbows: 16 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // ⚔ MAP 7 — Elite-Heavy Spike
   7: [
-    { goblins: 28, worgs: 14, ogres: 1, elites: 22, trolls: 18, crossbows: 16 },
-    { goblins: 22, worgs: 18, ogres: 2, elites: 24, trolls: 18, crossbows: 16 },
-    { goblins: 30, worgs: 22, ogres: 2, elites: 26, trolls: 18, crossbows: 17 },
-    { goblins: 24, worgs: 16, ogres: 3, elites: 28, trolls: 16, crossbows: 17 },
-    { goblins: 32, worgs: 24, ogres: 3, elites: 30, trolls: 18, crossbows: 18 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // ⚡ MAP 8 — Very Late Scaling
   8: [
-    { goblins: 34, worgs: 18, ogres: 1, elites: 26, trolls: 18, crossbows: 18 },
-    { goblins: 38, worgs: 22, ogres: 1, elites: 28, trolls: 18, crossbows: 18 },
-    { goblins: 42, worgs: 24, ogres: 2, elites: 30, trolls: 18, crossbows: 18 },
-    { goblins: 44, worgs: 20, ogres: 2, elites: 32, trolls: 18, crossbows: 18 },
-    { goblins: 48, worgs: 26, ogres: 3, elites: 34, trolls: 18, crossbows: 20 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // 👑 MAP 9 — Final Showdown
   9: [
-    { goblins: 40, worgs: 24, ogres: 2, elites: 30, trolls: 18, crossbows: 20 },
-    { goblins: 46, worgs: 28, ogres: 3, elites: 32, trolls: 18, crossbows: 20 },
-    { goblins: 52, worgs: 34, ogres: 4, elites: 34, trolls: 18, crossbows: 20 },
-    { goblins: 58, worgs: 38, ogres: 5, elites: 36, trolls: 18, crossbows: 20 },
-    { goblins: 64, worgs: 42, ogres: 6, elites: 38, trolls: 18, crossbows: 20 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 };
 

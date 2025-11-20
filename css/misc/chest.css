@@ -1,140 +1,103 @@
-/* ============================================================
-   🎁 css/overlays/chest.css — Olivia’s World: Crystal Keep
-   ------------------------------------------------------------
-   ✦ Styles for the Daily Reward Chest on the Hub screen
-   ✦ Controls chest position, animation, disabled state, timer
-   ✦ Includes sparkle burst particle effects
-============================================================ */
-/* ------------------------------------------------------------
- * MODULE: chest.css
- * PURPOSE:
- *   Provides all visuals for the Daily Reward Chest component,
- *   including pulse animation, hover glow, disabled cooldown
- *   visuals, and the multi-particle sparkle burst triggered by
- *   claimReward() in chest.js.
- *
- * SUMMARY:
- *   • Centered chest element + responsive sizing
- *   • Animated hover + idle pulse states
- *   • Disabled cooldown state (grayscale + dim)
- *   • Timer text styling
- *   • Sparkle generation (paired with JS)
- *
- * VISUAL FEATURES:
- *   • Crystal pink glow (drop-shadow)
- *   • Smooth scaling animations
- *   • Radiant sparkle burst with drift + fade
- *   • Clean and readable timer text
- *
- * TECHNICAL NOTES:
- *   • Sparkle positions controlled via CSS vars (--x, --y)
- *   • JS dynamically creates `.sparkle` nodes
- *   • Particle animations are GPU-accelerated
- * ------------------------------------------------------------ */
-
-
-
-/* ============================================================
-   🎁 DAILY REWARD CHEST — Center Screen
-============================================================ */
 #daily-chest {
-  position: absolute;
-  top: 55%;
-  left: 50%;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-
-  transform: translate(-50%, -50%);
-  z-index: 15;
+  position: fixed;  /* not absolute */
+  right: 26%;
+  bottom: 30%;
+  transform: translateY(50%);
+  z-index: 999;
 }
 
 #chest-img {
-  display: block;
-  width: clamp(140px, 20vw, 220px);
-
+  width: 150px;
+  height: auto;
   cursor: pointer;
-  transform-origin: center;
 
   transition: transform 0.3s ease, filter 0.3s ease;
 
-  filter: drop-shadow(0 0 25px rgba(255, 192, 230, 0.7));
+  filter: drop-shadow(0 0 20px rgba(255, 192, 230, 0.70));
   animation: chestPulse 4s ease-in-out infinite alternate;
-
-  will-change: transform, filter;
 }
 
 #chest-img:hover {
-  transform: scale(1.06);
-  filter: drop-shadow(0 0 40px rgba(255, 192, 230, 0.9));
+  transform: scale(1.10);
+  filter: drop-shadow(0 0 32px rgba(255, 192, 230, 0.95));
 }
 
-/* Disabled state */
+/* Disabled */
 #daily-chest.disabled #chest-img {
   opacity: 0.5;
   cursor: default;
 
-  filter: grayscale(0.9) brightness(0.7);
+  /* The KEY fix */
+  filter:
+    grayscale(0.9)
+    brightness(0.7)
+    drop-shadow(0 0 20px rgba(255, 192, 230, 0.25));
+
   animation: none;
 }
-
-#chest-timer {
-  font-size: 1rem;
-  color: #df85da;
-
-  letter-spacing: 0.5px;
-  text-shadow: 0 0 6px rgba(255, 192, 230, 0.6);
-}
-
-
 
 /* ============================================================
    ✨ CHEST PULSE ANIMATION
 ============================================================ */
 @keyframes chestPulse {
   0%   { transform: scale(1); }
-  100% { transform: scale(1.05); }
+  100% { transform: scale(1.04); }
 }
 
-
-
 /* ============================================================
-   ✨ Sparkles — Enhanced Burst
+   ✨ SPARKLES — 30% Smaller, Correctly Positioned
 ============================================================ */
 .sparkle {
   position: fixed;
 
-  opacity: 0.95;
+  /* These are dynamically assigned in JS */
+  left: var(--origin-x);
+  top: var(--origin-y);
+
+  /* Base scale */
+  transform: translate(-50%, -50%) scale(0.7);
+
+  opacity: 0.9;
   pointer-events: none;
   mix-blend-mode: screen;
 
-  transform: translate(-50%, -50%) scale(1);
-  animation: sparkleFly 1.5s ease-out forwards,
-             sparkleFade 1.5s ease-in forwards;
+  animation:
+    sparkleFly 1.2s ease-out forwards,
+    sparkleFade 1.2s ease-in forwards;
 
   z-index: 9999;
 }
 
+/* ============================================================
+   ✨ Sparkle Flight Path (Reduced Travel)
+============================================================ */
 @keyframes sparkleFly {
   0% {
-    transform: translate(-50%, -50%) scale(0.8);
+    transform: translate(-50%, -50%) scale(0.5);
     opacity: 1;
   }
   70% {
-    transform: translate(calc(var(--x) - 50%), calc(var(--y) - 50%))
-                scale(1.2);
+    transform: translate(
+                calc(var(--x) * 0.7),
+                calc(var(--y) * 0.7)
+              )
+              scale(0.85);
     opacity: 1;
   }
   100% {
-    transform: translate(calc(var(--x) - 50%), calc(var(--y) - 50%))
-                scale(0);
+    transform: translate(
+                calc(var(--x) * 0.7),
+                calc(var(--y) * 0.7)
+              )
+              scale(0);
     opacity: 0;
   }
 }
 
+/* ============================================================
+   ✨ Sparkle Fade (Soft Blur)
+============================================================ */
 @keyframes sparkleFade {
   0%   { filter: blur(0px); }
-  100% { filter: blur(8px); }
+  100% { filter: blur(5px); }
 }

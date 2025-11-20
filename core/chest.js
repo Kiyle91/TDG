@@ -150,8 +150,15 @@ function spawnSparkles() {
     sparkle.style.width = `${size}px`;
     sparkle.style.height = `${size}px`;
     sparkle.style.borderRadius = "50%";
-    sparkle.style.left = `${window.innerWidth / 2}px`;
-    sparkle.style.top = `${window.innerHeight / 2}px`;
+    
+    // Get exact chest center on screen
+    const rect = imgEl.getBoundingClientRect();
+    const originX = rect.left + rect.width / 2;
+    const originY = rect.top + rect.height / 2;
+
+    // Set sparkle origin (CSS handles translation)
+    sparkle.style.left = `${originX}px`;
+    sparkle.style.top = `${originY}px`;
 
     const color = `hsl(${Math.random() * 360}, 100%, ${70 + Math.random() * 20}%)`;
     sparkle.style.background = color;
