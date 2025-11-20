@@ -308,11 +308,13 @@ export function initHub() {
   const supportBack = document.getElementById("support-back-btn");
 
   supportBtn?.addEventListener("click", () => {
+    supportScreen.style.display = "flex";
     supportScreen.classList.remove("hidden");
     supportScreen.classList.add("active");
   });
 
   supportBack?.addEventListener("click", () => {
+    supportScreen.style.display = "none";  
     supportScreen.classList.remove("active");
     supportScreen.classList.add("hidden");
   });
