@@ -177,29 +177,6 @@ export async function triggerEndOfWave5Story(mapId) {
 }
 
 // ------------------------------------------------------------
-// 🏹 GOBLIN INTRO STORY
-// ------------------------------------------------------------
-
-export async function startGoblinIntroStory() {
-  gameState.paused = true;
-
-  const goblinText = `
-Use WASD to move across the Crystal Plains.
-Press SPACE to strike with your glitter blade.
-Press F to cast a glitter spell.
-Press R to heal your wounds.
-Press E to fire a silver arrow.
-  `.trim();
-
-  await showStory({
-    text: goblinText,
-    useAriana: false,
-  });
-
-  gameState.paused = false;
-}
-
-// ------------------------------------------------------------
 // 🏆 VICTORY STORY (Optional)
 // ------------------------------------------------------------
 

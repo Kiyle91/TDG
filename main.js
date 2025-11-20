@@ -96,15 +96,7 @@ export function startGameplay() {
   accumulator = 0;
 
   window.__gameLoopID = requestAnimationFrame(gameLoop);
-
-  if (!gameState.goblinIntroPlayed) {
-    gameState.goblinIntroPlayed = true;
-    gameState.paused = true;
-
-    startGoblinIntroStory().then(() => {
-      gameState.paused = false;
-    });
-  }
+  
 }
 
 // ============================================================

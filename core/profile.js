@@ -142,7 +142,7 @@ export function initProfiles() {
           gameState.profiles.splice(index, 1);
           saveProfiles();
           renderProfileSlots(slotsContainer);
-          playFairySprinkle();
+          playFairySprinkle()
         },
         () => playFairySprinkle()
       );
