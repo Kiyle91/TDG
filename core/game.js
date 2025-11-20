@@ -284,6 +284,22 @@ export const waveConfigs = {
 };
 
 // ============================================================
+// 🏆 VICTORY MESSAGES — Per Map
+// ============================================================
+
+const VICTORY_MESSAGES = {
+  1: "✨ Map One Complete! The goblins scatter before your growing power!",
+  2: "🌿 Map Two Cleared! The Hollow Woods fall silent once more.",
+  3: "🔥 Map Three Victorious! The Ember Plains glow in your honour.",
+  4: "🌙 Map Four Defeated! Shadows tremble at your presence.",
+  5: "❄️ Map Five Purified! Even the frost bows to the Princess.",
+  6: "⚡ Map Six Triumphed! The Arcane Crystals resonate with power.",
+  7: "💎 Map Seven Won! You stand unmatched in the Crystal Isles!",
+  8: "🌈 Map Eight Cleared! Magic ripples through the realm!",
+  9: "👑 Final Map Conquered! The Crystal Keep is safe once more!"
+};
+
+// ============================================================
 // 🎯 WAVE STATE
 // ============================================================
 
@@ -674,6 +690,9 @@ async function updateWaveSystem(delta) {
   }
 
   setTimeout(() => {
+      const map = gameState.progress.currentMap ?? 1;
+      window.__victoryMessage = VICTORY_MESSAGES[map] || "✨ Victory!" ;
+    
       stopGameplay("victory");
 
       // Map 9 → Credits (handled for players who let the screen sit)

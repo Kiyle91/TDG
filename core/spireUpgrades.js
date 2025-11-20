@@ -10,6 +10,10 @@ import { gameState, saveProfiles } from "../utils/gameState.js";
 import { updateHubCurrencies } from "./hub.js"; // already exists in your project
 // If updateHubCurrencies is elsewhere, adjust the import accordingly.
 
+// Throttle UI spam so a single click only triggers one upgrade
+const UPGRADE_COOLDOWN_MS = 300;
+const lastUpgradeAttempt = new Map();
+
 // ------------------------------------------------------------
 // 💫 Helpers
 // ------------------------------------------------------------
@@ -104,6 +108,11 @@ function attemptUpgradeSpire(card, spireId) {
   const btn = card.querySelector("[data-upgrade-btn]");
   if (!btn || btn.classList.contains("disabled")) return;
 
+  const now = Date.now();
+  const lastAttempt = lastUpgradeAttempt.get(spireId) || 0;
+  if (now - lastAttempt < UPGRADE_COOLDOWN_MS) return;
+  lastUpgradeAttempt.set(spireId, now);
+
   const currencies =
     gameState.profile?.currencies ??
     gameState.currencies ??
@@ -142,7 +151,12 @@ export function initSpireUpgrades() {
     const btn = card.querySelector("[data-upgrade-btn]");
     if (!btn) return;
 
-    btn.addEventListener("click", () => attemptUpgradeSpire(card, id));
+    if (btn._upgradeHandler) {
+      btn.removeEventListener("click", btn._upgradeHandler);
+    }
+
+    btn._upgradeHandler = () => attemptUpgradeSpire(card, id);
+    btn.addEventListener("click", btn._upgradeHandler);
   });
 
   refreshSpireUpgradeUI();
