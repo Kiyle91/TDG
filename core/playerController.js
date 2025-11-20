@@ -254,7 +254,7 @@ function ensurePlayerRuntime() {
     const bw = SPRITE_SIZE * 0.55;
     const bh = SPRITE_SIZE * 0.38;
     const ox = -bw / 2;
-    const oy = SPRITE_SIZE * 0.20;
+    const oy = SPRITE_SIZE * 0.50;
     p.body = { bw, bh, ox, oy };
   }
 
