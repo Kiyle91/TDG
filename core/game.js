@@ -309,7 +309,7 @@ for (let i = 1; i <= 20; i++) {
 
 const FIRST_WAVE_DELAY = 5000;
 const BETWEEN_WAVES_DELAY = 5000;
-const VICTORY_DELAY = 3000;
+const VICTORY_DELAY = 50;
 
 let betweenWaveTimer = 0;
 
