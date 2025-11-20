@@ -43,6 +43,26 @@ function safeClone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 
+function clampMapId(id) {
+  const n = Number(id) || 1;
+  return Math.min(Math.max(n, 1), 9);
+}
+
+function sanitizeProgress(prog) {
+  const baseUnlocked = [true, false, false, false, false, false, false, false, false];
+  const progress = prog ? JSON.parse(JSON.stringify(prog)) : {};
+
+  // Ensure mapsUnlocked is valid length and first map unlocked
+  if (!Array.isArray(progress.mapsUnlocked) || progress.mapsUnlocked.length !== 9) {
+    progress.mapsUnlocked = [...baseUnlocked];
+  } else if (!progress.mapsUnlocked[0]) {
+    progress.mapsUnlocked[0] = true;
+  }
+
+  progress.currentMap = clampMapId(progress.currentMap || 1);
+  return progress;
+}
+
 function loadAllSaves() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
@@ -139,6 +159,8 @@ export function snapshotGame() {
     betweenWaveTimerActive: waveRuntime.betweenWaveTimerActive === true,
   };
 
+  const sanitizedProgress = sanitizeProgress(gameState.progress);
+
   return {
     version: 1,
     savedAt: Date.now(),
@@ -147,7 +169,7 @@ export function snapshotGame() {
 
     meta: {
       profileName: gameState.profile.name || "Princess",
-      map: gameState.progress?.currentMap ?? 1,
+      map: sanitizedProgress.currentMap,
       wave: gameState.wave ?? 1,
       totalWaves: gameState.totalWaves ?? 1,
       gold,
@@ -159,7 +181,7 @@ export function snapshotGame() {
       waveState: normalizedWaveState,
     },
 
-    progress: safeClone(gameState.progress),
+    progress: sanitizedProgress,
     player: safeClone(gameState.player),
 
     spires: safeClone(getSpires() || []),
@@ -211,7 +233,9 @@ export function applySnapshot(snapshot) {
   // 4) Restore progress
   // ----------------------------------------------------------
   if (snapshot.progress) {
-    gameState.progress = JSON.parse(JSON.stringify(snapshot.progress));
+    gameState.progress = sanitizeProgress(snapshot.progress);
+  } else {
+    gameState.progress = sanitizeProgress(gameState.progress);
   }
 
   // ----------------------------------------------------------

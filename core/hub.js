@@ -120,9 +120,9 @@ export function initHub() {
       }
 
       if (snap.progress?.currentMap) {
-        gameState.progress.currentMap = snap.progress.currentMap;
+        gameState.progress.currentMap = Math.min(Math.max(snap.progress.currentMap, 1), 9);
       } else if (snap.meta?.map) {
-        gameState.progress.currentMap = snap.meta.map;
+        gameState.progress.currentMap = Math.min(Math.max(snap.meta.map, 1), 9);
       } else {
         gameState.progress.currentMap = 1;
       }
@@ -204,8 +204,10 @@ export function initHub() {
   loadGameBtn.addEventListener("click", () => {
     playFairySprinkle();
 
+    const containerHost = document.getElementById("save-slots-container");
+    renderSlots(containerHost, false);
+    // renderSlots replaces the element, so re-query after renderSlots completes
     const container = document.getElementById("save-slots-container");
-    renderSlots(container, false);
     showOverlay("overlay-load");
 
     // Ensure only one active listener across overlay reopenings
