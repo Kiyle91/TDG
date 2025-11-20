@@ -21,6 +21,7 @@ import { startGameplay } from "../main.js";
 import { initGame } from "./game.js";
 import { applyMapSpawn } from "./game.js";
 import { resetCombatState } from "./game.js";
+import { closeOverlay } from "./ui.js";
 
 // ------------------------------------------------------------
 // 🔐 UPDATE TILE VISUAL STATES
@@ -88,7 +89,10 @@ export function initMapSelect() {
 
       // 5️⃣ Close overlay
       const ov = document.getElementById("overlay-maps");
-      if (ov) ov.classList.remove("active");
+      if (ov) {
+        ov.style.pointerEvents = "none";
+        closeOverlay(ov);
+      }
 
       // 6️⃣ Show game
       showScreen("game-container");
