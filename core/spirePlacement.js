@@ -81,9 +81,8 @@ export function handleSpireKey(keyCode) {
 // ------------------------------------------------------------
 
 function tryPlaceSpire(num) {
-  const player = gameState.player;
-  if (!player || !gameState.profile) return;
-
+  const player = gameState.player ?? gameState.profile?.player ?? gameState.profile;
+  if (!player) return;
   const data = SPIRE_UNLOCKS[num];
   if (!data) return;
 

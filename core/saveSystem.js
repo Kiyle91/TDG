@@ -26,7 +26,7 @@ import { getWorg } from "./worg.js";
 import { getElites, clearElites } from "./elite.js";
 import { getOgres, clearOgres } from "./ogre.js";
 import { getSpires } from "./spires.js";
-import { updateHUD } from "./ui.js";
+import { updateHUD, updateBraveryBar } from "./ui.js";
 import { getTrolls } from "./troll.js";
 import { getCrossbows } from "./crossbow.js";
 import { restoreWaveFromSnapshot, getWaveSnapshotState } from "./game.js";
@@ -61,6 +61,22 @@ function sanitizeProgress(prog) {
 
   progress.currentMap = clampMapId(progress.currentMap || 1);
   return progress;
+}
+
+function sanitizeBravery(bravery) {
+  const fallback = { current: 0, max: 100, charged: false, draining: false };
+  if (!bravery) return { ...fallback };
+
+  const max = Math.max(1, Number(bravery.max) || fallback.max);
+  const currentRaw = Number(bravery.current);
+  const current = Math.min(max, Math.max(0, Number.isFinite(currentRaw) ? currentRaw : 0));
+
+  return {
+    current,
+    max,
+    charged: bravery.charged === true && current >= max,
+    draining: bravery.draining === true && current > 0,
+  };
 }
 
 function loadAllSaves() {
@@ -183,6 +199,7 @@ export function snapshotGame() {
 
     progress: sanitizedProgress,
     player: safeClone(gameState.player),
+    bravery: sanitizeBravery(gameState.bravery),
 
     spires: safeClone(getSpires() || []),
     goblins: safeClone(getGoblins() || []),
@@ -239,7 +256,12 @@ export function applySnapshot(snapshot) {
   }
 
   // ----------------------------------------------------------
-  // 5) Restore player (minus cosmetics)
+  // 5) Restore bravery
+  // ----------------------------------------------------------
+  gameState.bravery = sanitizeBravery(snapshot.bravery || gameState.bravery);
+
+  // ----------------------------------------------------------
+  // 6) Restore player (minus cosmetics)
   // ----------------------------------------------------------
   if (snapshot.player) {
     const restored = JSON.parse(JSON.stringify(snapshot.player));
@@ -253,7 +275,7 @@ export function applySnapshot(snapshot) {
   gameState.player.unlockedSkins = currentUnlocked;
 
   // ----------------------------------------------------------
-  // 6) HUD metadata
+  // 7) HUD metadata
   // ----------------------------------------------------------
   if (snapshot.meta) {
     gameState.wave = snapshot.meta.wave ?? gameState.wave;
@@ -261,7 +283,7 @@ export function applySnapshot(snapshot) {
   }
 
   // ----------------------------------------------------------
-  // 7) Restore only gold (diamonds persist)
+  // 8) Restore only gold (diamonds persist)
   // ----------------------------------------------------------
   if (snapshot.meta) {
     const prof = gameState.profile;
@@ -271,7 +293,7 @@ export function applySnapshot(snapshot) {
   }
 
   // ----------------------------------------------------------
-  // 8) Restore SPIRES + ENEMIES
+  // 9) Restore SPIRES + ENEMIES
   // ----------------------------------------------------------
   const clone = (x) => JSON.parse(JSON.stringify(x));
 
@@ -317,9 +339,10 @@ export function applySnapshot(snapshot) {
   }
 
   // ----------------------------------------------------------
-  // 9) Update HUD
+  // 10) Update HUD + bravery
   // ----------------------------------------------------------
   updateHUD();
+  updateBraveryBar();
 }
 
 
