@@ -138,7 +138,8 @@ export async function initOgres() {
 }
 
 
-export function spawnOgre() {
+export function spawnOgre(options = {}) {
+  const { skipDifficultyScaling = false } = options;
   const p = gameState.player;
   if (!p) return;
 
@@ -174,7 +175,7 @@ export function spawnOgre() {
     y = Math.random() * mapH;
   }
 
-  const hpMult = getDifficultyHpMultiplier();
+  const hpMult = skipDifficultyScaling ? 1 : getDifficultyHpMultiplier();
   const scaledHP = Math.round(BASE_HP * hpMult);
 
   const ogre = {

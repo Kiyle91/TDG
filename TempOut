@@ -1,1 +1,8 @@
 
+  
+  // Final wave → schedule victory
+  gameState.victoryPending = true;
+
+  // ⭐ Correctly clamp next map to 1–9
+  const nextMap = Math.min(mapId + 1, 9);
+

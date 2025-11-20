@@ -450,6 +450,8 @@ export function restoreWaveFromSnapshot(meta, snapshot) {
 function startNextWave() {
   firstWaveStarted = true;
   window.firstWaveStarted = true;
+  window.betweenWaveTimerActive = false;
+  betweenWaveTimer = 0;
 
   const mapId = gameState.progress.currentMap ?? 1;
   const waves = waveConfigs[mapId];
@@ -499,8 +501,8 @@ function startNextWave() {
       // TROLL
       if (i < wave.trolls) spawnScaled(spawnTroll);
 
-      // OGRE
-      if (i < wave.ogres) spawnScaled(spawnOgre);
+      // OGRE (spawnOgre already scales by difficulty; disable here to avoid double-scaling)
+      if (i < wave.ogres) spawnScaled(() => spawnOgre({ skipDifficultyScaling: true }));
 
       // CROSSBOW
       if (i < wave.crossbows) spawnScaled(spawnCrossbow);
@@ -653,6 +655,14 @@ async function updateWaveSystem(delta) {
 
   // ⭐ Correctly clamp next map to 1–9
   const nextMap = Math.min(mapId + 1, 9);
+
+  // ⭐ Clamp persisted progress so it never exceeds map 9
+  if (gameState.progress?.currentMap > 9) {
+      gameState.progress.currentMap = 9;
+  }
+  if (gameState.profile?.progress?.currentMap > 9) {
+      gameState.profile.progress.currentMap = 9;
+  }
 
   // ⭐ Unlock next map (only if map < 9)
   if (mapId < 9) {

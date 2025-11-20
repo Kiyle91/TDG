@@ -162,56 +162,57 @@ export function initHub() {
   });
 
   // ============================================================
-  // LOAD GAME — FIXED VERSION
+  // LOAD GAME – FIXED VERSION
   // ============================================================
+
+  const handleLoadSlotClick = async (evt) => {
+    const btn = evt.target.closest(".load-btn");
+    if (!btn) return;
+
+    playFairySprinkle();
+
+    const slotIndex = Number(btn.dataset.index);
+    const snap = loadFromSlot(slotIndex);
+    if (!snap) return;
+
+    if (snap.progress?.currentMap) {
+      gameState.progress.currentMap = Math.min(snap.progress.currentMap, 9);
+    } else if (snap.meta?.map) {
+      gameState.progress.currentMap = Math.min(snap.meta.map, 9);
+    } else {
+      gameState.progress.currentMap = 1;
+    }
+
+    const ov = document.getElementById("overlay-load");
+    if (ov) {
+      ov.classList.remove("active");
+      ov.style.display = "none";
+    }
+
+    showScreen("game-container");
+
+    const gameMod = await import("./game.js");
+    await gameMod.initGame("load");
+
+    applySnapshot(snap);
+    ensureSkin(gameState.player);
+    saveProfiles();
+
+    startGameplay?.();
+  };
 
   loadGameBtn.addEventListener("click", () => {
     playFairySprinkle();
 
-    const stale = document.getElementById("save-slots-container");
-    renderSlots(stale, false);
-
     const container = document.getElementById("save-slots-container");
-
+    renderSlots(container, false);
     showOverlay("overlay-load");
 
-    container.addEventListener(
-      "click",
-      async (evt) => {
-        const btn = evt.target.closest(".load-btn");
-        if (!btn) return;
-
-        playFairySprinkle();
-
-        const slotIndex = Number(btn.dataset.index);
-        const snap = loadFromSlot(slotIndex);
-        if (!snap) return;
-
-        if (snap.progress?.currentMap) {
-          gameState.progress.currentMap = snap.progress.currentMap;
-        } else if (snap.meta?.map) {
-          gameState.progress.currentMap = snap.meta.map;
-        } else {
-          gameState.progress.currentMap = 1;
-        }
-
-        const ov = document.getElementById("overlay-load");
-        ov.classList.remove("active");
-        ov.style.display = "none";
-
-        showScreen("game-container");
-
-        const gameMod = await import("./game.js");
-        await gameMod.initGame("load");
-
-        applySnapshot(snap);
-        ensureSkin(gameState.player);
-        saveProfiles();
-
-        startGameplay?.();
-      },
-      { once: true }
-    );
+    // Ensure only one active listener across overlay reopenings
+    if (container) {
+      container.removeEventListener("click", handleLoadSlotClick);
+      container.addEventListener("click", handleLoadSlotClick);
+    }
   });
 
   // ============================================================
