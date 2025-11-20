@@ -57,6 +57,8 @@ import { loadFromSlot, applySnapshot } from "./saveSystem.js";
 import { showCredits } from "./credits.js";
 import { getSlotSummaries } from "./saveSystem.js";
 
+import { initSpireUpgrades, refreshSpireUpgradeFromHub } from "./spireUpgrades.js";
+
 
 // ============================================================
 // 🌷 INIT HUB
@@ -91,6 +93,7 @@ export function initHub() {
   updateHubCurrencies();
   updateHubProfile();
   updateSpireUnlocks();
+  initSpireUpgrades();
 
   
 
@@ -239,6 +242,7 @@ export function initHub() {
   spiresBtn.addEventListener("click", () => {
     playFairySprinkle();
     updateSpireUnlocks();
+    refreshSpireUpgradeFromHub();
     showOverlay("overlay-spires");
   });
 

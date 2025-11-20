@@ -4,6 +4,7 @@
 // ✦ Elemental projectile system (canvas-based)
 // ✦ Frost / Flame / Arcane / Moon / Crystal / Heal
 // ✦ Crystal Echo Power → DOUBLE DAMAGE
+// ✦ Turret Upgrade System → DAMAGE MULTIPLIER PER SPIRE
 // ============================================================
 /* ------------------------------------------------------------
  * MODULE: projectiles.js
@@ -12,30 +13,12 @@
  *   Spire towers, including movement, collision, damage, status
  *   effects, healing bolts, and rendering.
  *
- * SUMMARY:
- *   The game uses a pure-canvas projectile system (no images).
- *   Each projectile travels toward its assigned target, applying
- *   fire burn, frost slow, arcane burst, moon stun, crystal hit,
- *   or healing to the player. Damage is routed to the appropriate
- *   enemy handler, and Crystal Echo Power can double all damage.
- *
- * FEATURES:
- *   • spawnProjectile() — creates any projectile type
- *   • updateProjectiles() — movement, hit detection, effects
- *   • drawProjectiles() — soft-glow canvas rendering
- *   • Elemental behaviours:
- *        - Frost → slow (applies once)
- *        - Flame → burn DoT (non-stacking)
- *        - Moon  → stun
- *        - Heal  → targets player.pos
- *        - Crystal / Arcane → direct hits
- *   • Fully compatible with all enemy types and loot-power systems
- *
  * TECHNICAL NOTES:
  *   • Ogres are immune to all tower projectile damage
  *   • Healing projectiles use player.pos.x/y at cast time
  *   • Projectiles auto-destroy on impact or target death
- *   • Uses radial gradients for pastel projectile glow
+ *   • Radial gradients give pastel-style visuals
+ *   • Spire upgrades scale PROJECTILE_DAMAGE only
  * ------------------------------------------------------------ */
 
 
@@ -51,6 +34,8 @@ import { damageElite } from "./elite.js";
 import { damageTroll } from "./troll.js";
 import { damageOgre } from "./ogre.js";
 import { damageCrossbow } from "./crossbow.js";
+import { getSpireDamageMultiplier } from "./spireUpgrades.js";
+
 
 // ------------------------------------------------------------
 // 🗺️ MODULE-LEVEL VARIABLES
@@ -69,6 +54,7 @@ const PROJECTILE_DAMAGE = {
 
 let projectiles = [];
 
+
 // ------------------------------------------------------------
 // 🌱 INITIALIZATION
 // ------------------------------------------------------------
@@ -77,14 +63,15 @@ export function initProjectiles() {
   projectiles = [];
 }
 
+
 // ------------------------------------------------------------
 // 💥 SPAWN PROJECTILE
 // ------------------------------------------------------------
 
-export function spawnProjectile(x, y, target, type = "crystal") {
+export function spawnProjectile(x, y, target, type = "crystal", sourceSpireId = null) {
   if (!target) return;
 
-  // Player target adapter
+  // Player target remap adapter
   if (target === gameState.player) {
     target = {
       x: gameState.player.pos.x,
@@ -100,10 +87,12 @@ export function spawnProjectile(x, y, target, type = "crystal") {
     y,
     target,
     type,
+    sourceSpireId,   // 💎 NEW — turret upgrade source id
     angle: 0,
-    life: 0,
+    life: 0
   });
 }
+
 
 // ------------------------------------------------------------
 // 🎯 DAMAGE ROUTER
@@ -125,6 +114,7 @@ function damageFromProjectile(target, amount) {
     default:         damageGoblin(target, amount); break;
   }
 }
+
 
 // ------------------------------------------------------------
 // 🧠 UPDATE PROJECTILES
@@ -154,10 +144,10 @@ export function updateProjectiles(delta) {
 
     // 🎯 IMPACT
     if (dist < 8) {
+
       // --------------------------------------------------------
       // 💛 HEAL PROJECTILE
       // --------------------------------------------------------
-
       if (p.type === "heal") {
         const pl = gameState.player;
         if (pl) {
@@ -169,8 +159,8 @@ export function updateProjectiles(delta) {
       // --------------------------------------------------------
       // ❄ FROST
       // --------------------------------------------------------
-
       else if (p.type === "frost") {
+
         t.slowTimer = 2000;
 
         if (!t._owFrostSlowed) {
@@ -182,13 +172,17 @@ export function updateProjectiles(delta) {
         let dmg = PROJECTILE_DAMAGE.frost;
         if (gameState.echoPowerActive) dmg *= 2;
 
+        // 💎 turret upgrade multiplier
+        if (p.sourceSpireId != null) {
+          dmg *= getSpireDamageMultiplier(p.sourceSpireId);
+        }
+
         damageFromProjectile(t, dmg);
       }
 
       // --------------------------------------------------------
       // 🔥 FLAME
       // --------------------------------------------------------
-
       else if (p.type === "flame") {
 
         if (!t.isBurning) {
@@ -199,8 +193,13 @@ export function updateProjectiles(delta) {
           spawnFloatingText(t.x, t.y - 60, "🔥");
         }
 
-        let dmg = 20;
+        let dmg = 20; // flame uses fixed 20 base
         if (gameState.echoPowerActive) dmg *= 2;
+
+        // 💎 turret upgrade multiplier
+        if (p.sourceSpireId != null) {
+          dmg *= getSpireDamageMultiplier(p.sourceSpireId);
+        }
 
         damageFromProjectile(t, dmg);
       }
@@ -208,7 +207,6 @@ export function updateProjectiles(delta) {
       // --------------------------------------------------------
       // 🌙 MOON — STUN
       // --------------------------------------------------------
-
       else if (p.type === "moon") {
         t.stunTimer = 1000;
         spawnFloatingText(t.x, t.y - 60, "🌙", "#ccbbff");
@@ -216,16 +214,25 @@ export function updateProjectiles(delta) {
         let dmg = PROJECTILE_DAMAGE.moon;
         if (gameState.echoPowerActive) dmg *= 2;
 
+        // 💎 turret upgrade multiplier
+        if (p.sourceSpireId != null) {
+          dmg *= getSpireDamageMultiplier(p.sourceSpireId);
+        }
+
         damageFromProjectile(t, dmg);
       }
 
       // --------------------------------------------------------
-      // 💎 CRYSTAL / ARCANE
+      // 💎 CRYSTAL / ARCANE / DEFAULT
       // --------------------------------------------------------
-
       else {
         let dmg = PROJECTILE_DAMAGE[p.type] ?? 10;
         if (gameState.echoPowerActive) dmg *= 2;
+
+        // 💎 turret upgrade multiplier
+        if (p.sourceSpireId != null) {
+          dmg *= getSpireDamageMultiplier(p.sourceSpireId);
+        }
 
         damageFromProjectile(t, dmg);
       }
@@ -240,6 +247,7 @@ export function updateProjectiles(delta) {
     p.y += (dy / dist) * step;
   }
 }
+
 
 // ------------------------------------------------------------
 // 🎨 PROJECTILE COLOR THEMES
@@ -285,6 +293,7 @@ function getProjectileColors(type) {
   }
 }
 
+
 // ------------------------------------------------------------
 // 🎨 DRAW PROJECTILES
 // ------------------------------------------------------------
@@ -319,6 +328,7 @@ export function drawProjectiles(ctx) {
     ctx.restore();
   }
 }
+
 
 // ============================================================
 // 🌟 END OF FILE

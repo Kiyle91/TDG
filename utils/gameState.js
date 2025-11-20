@@ -15,23 +15,6 @@
  *   Provides one global, persistent, and safe state container for
  *   player profiles, currencies, progress, bravery, settings, XP,
  *   runtime data, and map progression.
- *
- * SUMMARY:
- *   • gameState — global container (runtime + persistent data)
- *   • Profiles:
- *       - addProfile()
- *       - loadProfiles()
- *       - saveProfiles()
- *       - setProfile()
- *   • Progress:
- *       - unlockMap()
- *       - setCurrentMap()
- *   • Currencies:
- *       - addGold / spendGold
- *       - addDiamonds / spendDiamonds
- *       - addXP
- *   • Utility:
- *       - resetEchoBuff()
  * ------------------------------------------------------------ */
 
 // ------------------------------------------------------------
@@ -137,6 +120,27 @@ export function setProfile(profile) {
     draining: false,
   };
 
+  // 💎 Ensure spire upgrade data exists
+  if (!profile.spires) {
+    profile.spires = {
+      1: { diamondsSpent: 0 },
+      2: { diamondsSpent: 0 },
+      3: { diamondsSpent: 0 },
+      4: { diamondsSpent: 0 },
+      5: { diamondsSpent: 0 },
+      6: { diamondsSpent: 0 },
+    };
+  } else {
+    for (let i = 1; i <= 6; i++) {
+      if (!profile.spires[i]) {
+        profile.spires[i] = { diamondsSpent: 0 };
+      } else if (typeof profile.spires[i].diamondsSpent !== "number") {
+        profile.spires[i].diamondsSpent =
+          Number(profile.spires[i].diamondsSpent) || 0;
+      }
+    }
+  }
+
   gameState.echoPowerActive = false;
 
   saveProfiles();
@@ -149,10 +153,12 @@ export function setProfile(profile) {
 function migrateProfile(profile) {
   ensureProfileHasId(profile);
 
+  // Currencies
   if (!profile.currencies) {
     profile.currencies = { gold: 0, diamonds: 0 };
   }
 
+  // Progress
   if (!profile.progress) {
     profile.progress = {
       mapsUnlocked: [...gameState.progress.mapsUnlocked],
@@ -181,10 +187,12 @@ function migrateProfile(profile) {
     profile.progress.currentMap = 1;
   }
 
+  // Exploration
   if (!profile.exploration) {
     profile.exploration = {};
   }
 
+  // Bravery
   if (!profile.bravery) {
     profile.bravery = {
       current: 0,
@@ -192,6 +200,30 @@ function migrateProfile(profile) {
       charged: false,
       draining: false,
     };
+  }
+
+  // ============================================================
+  // 💎 NEW — Spire Upgrade Migration
+  // ============================================================
+
+  if (!profile.spires) {
+    profile.spires = {
+      1: { diamondsSpent: 0 },
+      2: { diamondsSpent: 0 },
+      3: { diamondsSpent: 0 },
+      4: { diamondsSpent: 0 },
+      5: { diamondsSpent: 0 },
+      6: { diamondsSpent: 0 },
+    };
+  } else {
+    for (let i = 1; i <= 6; i++) {
+      if (!profile.spires[i]) {
+        profile.spires[i] = { diamondsSpent: 0 };
+      } else if (typeof profile.spires[i].diamondsSpent !== "number") {
+        profile.spires[i].diamondsSpent =
+          Number(profile.spires[i].diamondsSpent) || 0;
+      }
+    }
   }
 }
 
@@ -241,6 +273,16 @@ export function addProfile(name) {
       charged: false,
       draining: false,
     },
+
+    // 💎 NEW — Spire Upgrade Data
+    spires: {
+      1: { diamondsSpent: 0 },
+      2: { diamondsSpent: 0 },
+      3: { diamondsSpent: 0 },
+      4: { diamondsSpent: 0 },
+      5: { diamondsSpent: 0 },
+      6: { diamondsSpent: 0 },
+    }
   };
 
   gameState.profiles.push(newProfile);
@@ -251,19 +293,16 @@ export function addProfile(name) {
 }
 
 // ============================================================
-// 💾 SAVE ALL PROFILES (Silent, production-safe)
+// 💾 SAVE ALL PROFILES
 // ============================================================
 
 export function saveProfiles() {
   try {
     if (gameState.profile) {
-
-      // Store progress, player, bravery exactly as before
       gameState.profile.progress = { ...gameState.progress };
       gameState.profile.player = { ...gameState.player };
       gameState.profile.bravery = { ...gameState.bravery };
 
-      // 🔥 FIXED: exploration may not exist for new profiles
       const explorationSafe = gameState.profile.exploration || {
         echoes: [],
         crystalsFound: 0,
@@ -281,7 +320,7 @@ export function saveProfiles() {
 }
 
 // ============================================================
-// 💾 LOAD PROFILES FROM STORAGE
+// 💾 LOAD PROFILES
 // ============================================================
 
 export function loadProfiles() {
@@ -374,10 +413,7 @@ export function resetEchoBuff() {
   if (icon) icon.classList.remove("echo-power-flash");
 }
 
-
 loadProfiles();
-
-
 
 // ============================================================
 // 🌟 END OF FILE

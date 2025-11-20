@@ -146,6 +146,88 @@
     inset 0 0 20px rgba(255, 255, 255, 0.6);
 }
 
+
+/* ============================================================
+   💎 SPIRE UPGRADE BUTTON + LEVEL TEXT
+   ------------------------------------------------------------ */
+.spire-upgrade-btn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 14px;
+
+  font-size: 0.9rem;
+  font-family: "Comic Sans MS", cursive;
+  font-weight: bold;
+
+  color: #ffffff;
+  cursor: pointer;
+
+  background: linear-gradient(145deg, #8cd5ff, #d4b5ff, #ffbde3);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+
+  box-shadow:
+    0 0 12px rgba(181, 226, 255, 0.7),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
+
+  transition: all 0.25s ease;
+}
+
+.spire-upgrade-btn:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 18px rgba(224, 187, 255, 1),
+    inset 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.spire-upgrade-btn.disabled {
+  opacity: 0.5;
+  cursor: default;
+  filter: grayscale(60%);
+  box-shadow:
+    0 0 10px rgba(0, 0, 0, 0.25),
+    inset 0 0 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Damage bonus text */
+.spire-upgrade-level {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  font-family: "Comic Sans MS", cursive;
+
+  color: #ffffff;
+  opacity: 0.9;
+
+  text-shadow: 0 0 6px rgba(224, 187, 255, 0.8);
+}
+
+/* Little pulse when upgrading */
+.spire-card.pulse-upgrade {
+  animation: spireUpgradePulse 0.5s ease-out;
+}
+
+@keyframes spireUpgradePulse {
+  0% {
+    transform: scale(1);
+    box-shadow:
+      0 0 20px rgba(255, 255, 255, 0.9),
+      inset 0 0 10px rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow:
+      0 0 35px rgba(255, 220, 255, 1),
+      inset 0 0 16px rgba(255, 255, 255, 0.7);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 20px rgba(181, 226, 255, 0.8),
+      inset 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+}
+
+
 /* ============================================================
    🌟 END OF FILE
 ============================================================ */

@@ -8,18 +8,11 @@
  *   Handles projectiles, targeting, sprite rendering,
  *   fade-out destruction, and optimized enemy scanning.
  *
- * SUMMARY:
- *   • initSpires() — load all spire sprites + reset array
- *   • addSpire() — place a new tower in the world
- *   • updateSpires(delta) — throttled AI + projectile emission
- *   • drawSpires(ctx) — optimized rendering w/ shadows + aura
- *   • getSpires() — accessor for placement & save/load systems
- *
  * DESIGN NOTES:
- *   • Targeting updates are throttled (200ms) for performance
- *   • Distance checks use squared distance where possible
- *   • Each spire has a limited durability (MAX_ATTACKS)
- *   • Crystal Echo Power adds a soft aura glow + double damage
+ *   • Targeting updates throttled (200ms)
+ *   • Distance checks squared for performance
+ *   • Each spire has limited durability (MAX_ATTACKS)
+ *   • Crystal Echo Power adds aura + double damage
  * ------------------------------------------------------------ */
 
 // ------------------------------------------------------------
@@ -50,6 +43,24 @@ const FADE_SPEED = 2;
 const SPIRE_SIZE = 96;
 
 const TARGET_UPDATE_INTERVAL = 200; // ms
+
+
+// ------------------------------------------------------------
+// SPIRE TYPE → UPGRADE ID MAP
+// ------------------------------------------------------------
+
+const SPIRE_ID_MAP = {
+  basic_spire: 1,
+  frost_spire: 2,
+  flame_spire: 3,
+  arcane_spire: 4,
+  light_spire: 5,
+  moon_spire: 6,
+};
+
+function getSpireIdFor(spire) {
+  return SPIRE_ID_MAP[spire.type] ?? null;
+}
 
 
 // ------------------------------------------------------------
@@ -212,30 +223,34 @@ export function updateSpires(delta) {
       continue;
     }
 
-    // Fire projectile
+    // -------------------------------------------------------------------
+    // FIRE PROJECTILE with correct spireId for upgrade system
+    // -------------------------------------------------------------------
+    const spireId = getSpireIdFor(spire);
+
     switch (spire.type) {
       case "basic_spire":
-        spawnProjectile(spire.x, spire.y, target, "crystal");
+        spawnProjectile(spire.x, spire.y, target, "crystal", spireId);
         break;
 
       case "frost_spire":
-        spawnProjectile(spire.x, spire.y, target, "frost");
+        spawnProjectile(spire.x, spire.y, target, "frost", spireId);
         break;
 
       case "flame_spire":
-        spawnProjectile(spire.x, spire.y, target, "flame");
+        spawnProjectile(spire.x, spire.y, target, "flame", spireId);
         break;
 
       case "arcane_spire":
-        spawnProjectile(spire.x, spire.y, target, "arcane");
+        spawnProjectile(spire.x, spire.y, target, "arcane", spireId);
         break;
 
       case "light_spire":
-        spawnProjectile(spire.x, spire.y, target, "heal");
+        spawnProjectile(spire.x, spire.y, target, "heal", spireId);
         break;
 
       case "moon_spire":
-        spawnProjectile(spire.x, spire.y, target, "moon");
+        spawnProjectile(spire.x, spire.y, target, "moon", spireId);
         break;
     }
 

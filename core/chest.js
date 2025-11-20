@@ -78,7 +78,7 @@ function claimReward() {
 
   const profile = gameState.profile;
 
-  addDiamonds(10);
+  addDiamonds(10000);
   updateHUD();
   updateHubCurrencies();
 
@@ -150,7 +150,7 @@ function spawnSparkles() {
     sparkle.style.width = `${size}px`;
     sparkle.style.height = `${size}px`;
     sparkle.style.borderRadius = "50%";
-    
+
     // Get exact chest center on screen
     const rect = imgEl.getBoundingClientRect();
     const originX = rect.left + rect.width / 2;
