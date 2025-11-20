@@ -139,7 +139,10 @@ export function updateHUD() {
   // ------------------------------------------------------------
 
   const arrowCircle = document.getElementById("hud-arrows-circle");
-  const arrowsEl = document.getElementById("hud-arrows");
+  // Support both legacy id (hud-arrows) and current markup (hud-arrows-value)
+  const arrowsEl =
+    document.getElementById("hud-arrows") ||
+    document.getElementById("hud-arrows-value");
 
   if (arrowsEl) {
     const arrows = Math.floor((p.mana || 0) / 2);
