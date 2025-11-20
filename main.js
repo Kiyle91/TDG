@@ -46,6 +46,8 @@ import { initGoblins } from "./core/goblin.js";
 
 import { showOpeningStory } from "./core/story.js";
 
+
+import { VICTORY_SUBTITLES, VICTORY_MESSAGES } from "./core/game.js";
 // ============================================================
 // 🎮 GLOBAL GAME LOOP STATE
 // ============================================================
@@ -372,15 +374,17 @@ function showEndScreen(reason) {
   const subtitle = document.createElement("p");
   const buttons = document.createElement("div");
   buttons.className = "end-buttons";
-
+  
   if (reason === "victory") {
-    title.textContent = "You have held back the goblin forces — for now…";
-    subtitle.textContent = "You return to the Crystal Keep to regroup.";
-  } else if (reason === "defeat" || reason === "lives") {
-    title.textContent = "Sorry, Princess…";
-    subtitle.textContent = "Your strength fades as the goblins overwhelm you.";
-  } else {
-    title.textContent = "Game Ended";
+
+      const mapId = gameState.progress?.currentMap ?? 1;
+
+      const msg = (VICTORY_MESSAGES && VICTORY_MESSAGES[mapId]) || "✨ Victory!";
+      title.textContent = msg;
+
+      const subtitles = VICTORY_SUBTITLES || {};
+      subtitle.textContent =
+          subtitles[mapId] || "You return to the Crystal Keep to regroup.";
   }
 
   const skinKey = gameState?.profile?.cosmetics?.skin || "glitter";

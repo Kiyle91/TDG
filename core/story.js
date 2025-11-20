@@ -184,9 +184,7 @@ export async function showOpeningStory() {
   // PAGE 1
   await showStory({
     text: `
-🌸 *Princess Ariana:*  
-Guardian… thank goodness you've arrived.
-
+  Princess Ariana:  
 The Crystal Isles are trembling.  
 Darkness stirs beneath the goblin hordes,  
 and our ancient defenses are weakening.
@@ -197,12 +195,10 @@ and our ancient defenses are weakening.
   // PAGE 2
   await showStory({
     text: `
-🌙 The Crystal Heart — source of all light in the Isles —  
-has begun to fade.  
+  The Crystal Heart — our light in the Isles — has begun to fade.  
 Only you can reignite its power.
 
 Seek out the Crystal Echoes.  
-Reclaim the Spires.  
 And protect our home, Guardian.
     `.trim(),
     useAriana: true
