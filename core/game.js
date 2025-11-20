@@ -647,46 +647,49 @@ async function updateWaveSystem(delta) {
     return;
   }
 
+  
   // Final wave → schedule victory
   gameState.victoryPending = true;
 
-  const nextMap = mapId + 1;
+  // ⭐ Correctly clamp next map to 1–9
+  const nextMap = Math.min(mapId + 1, 9);
 
-  if (nextMap <= 9) {
-    unlockMap(nextMap);
-    saveProfiles();
+  // ⭐ Unlock next map (only if map < 9)
+  if (mapId < 9) {
+      unlockMap(nextMap);
+      saveProfiles();
   }
 
-  // ⭐ AUTO-SAVE HERE (perfect moment)
+  // ⭐ Auto-save BEFORE showing victory screen
   autoSave();
 
   setTimeout(() => {
       stopGameplay("victory");
 
-      // ⭐ Delay autosave so the map transition has time to apply
+      // ⭐ Apply progression ONLY for real gameplay — not load
       setTimeout(() => {
           try {
-              // Save updated profile first (mapsUnlocked, currentMap)
-              gameState.progress.currentMap = nextMap;
-              gameState.profile.progress.currentMap = nextMap;
+              // Progress advance is handled by the end-screen Continue button; just persist unlocks.
+              if (mapId < 9) {
+                  saveProfiles();
 
-              saveProfiles();
+                  // Autosave into Slot 0 after updating progression
+                  import("./saveSystem.js").then(mod => {
+                      mod.saveToSlot(0);
+                  });
+              }
 
-              // Autosave into Slot 0 (no await needed)
-              import("./saveSystem.js").then(mod => {
-                  mod.saveToSlot(0);
-              });
+              // Map 9 → Credits
+              if (mapId === 9) {
+                  import("./../core/credits.js").then(mod => mod.showCredits());
+              }
           } catch (err) {
               console.warn("Autosave-after-victory failed:", err);
           }
       }, 300);
 
-      if (mapId === 9) {
-        import("./credits.js").then(mod => {
-          mod.showCredits();
-        });
-      }
-  }, VICTORY_DELAY);
+}, VICTORY_DELAY);
+
   }
 
 // ------------------------------------------------------------
