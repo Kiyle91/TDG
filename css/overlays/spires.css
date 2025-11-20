@@ -139,7 +139,7 @@
 }
 
 .spire-card.unlocked:hover {
-  transform: scale(1.02);
+  transform: scale(1.00);
 
   box-shadow:
     0 0 35px rgba(224, 187, 255, 1),
