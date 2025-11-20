@@ -12,6 +12,7 @@ import { getElites, damageElite } from "../elite.js";
 import { getWorg } from "../worg.js";
 import { getTrolls } from "../troll.js";
 import { getCrossbows } from "../crossbow.js";
+import { isRectBlocked } from "../../utils/mapCollision.js";
 
 // ------------------------------------------------------------
 // 🗂 Projectile State
@@ -52,7 +53,7 @@ export function spawnArrow(x, y, angle, dmg) {
 }
 
 // ------------------------------------------------------------
-// 🔁 Update arrows (called from updateGame)
+// 🔁 Update arrows (now includes MAP COLLISION)
 // ------------------------------------------------------------
 export function updateArrows(delta) {
   const dt = delta / 1000;
@@ -65,7 +66,7 @@ export function updateArrows(delta) {
       continue;
     }
 
-    // Lifetime
+    // Lifetime expire
     a.life += delta;
     if (a.life > ARROW_LIFETIME) {
       arrows.splice(i, 1);
@@ -76,7 +77,21 @@ export function updateArrows(delta) {
     a.x += Math.cos(a.angle) * ARROW_SPEED * dt;
     a.y += Math.sin(a.angle) * ARROW_SPEED * dt;
 
-    // Collision check
+    // ------------------------------------------------------------
+    // 🧱 MAP COLLISION CHECK
+    // ------------------------------------------------------------
+    // A small hitbox for the arrow tip
+    const tipX = a.x + Math.cos(a.angle) * (ARROW_LENGTH * 0.5);
+    const tipY = a.y + Math.sin(a.angle) * (ARROW_LENGTH * 0.5);
+
+    if (isRectBlocked(tipX - 4, tipY - 4, 8, 8)) {
+      // Burst sparkles on map hit (soft silver/pink)
+      spawnDamageSparkles(tipX, tipY);
+      a.alive = false;
+      continue;
+    }
+
+    // Enemy collision
     const targets = getAllTargets();
     for (const t of targets) {
       if (!t.alive) continue;
@@ -91,7 +106,6 @@ export function updateArrows(delta) {
       else hitR = 32;
 
       if (dist < hitR) {
-        // Damage target
         if (t.type === "elite") damageElite(t, a.dmg);
         else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, a.dmg, "player");
         else damageGoblin(t, a.dmg);
@@ -103,6 +117,7 @@ export function updateArrows(delta) {
     }
   }
 }
+
 
 // ------------------------------------------------------------
 // ✨ Draw arrows (called from drawGame)
@@ -121,15 +136,20 @@ export function drawArrows(ctx) {
 
     // Silver bolt body
     ctx.fillStyle = "rgba(255,255,255,0.95)";
-    ctx.fillRect(0, -2, ARROW_LENGTH, 4);
+    ctx.fillRect(0,2, ARROW_LENGTH, 2);
 
     // Glow
     const grad = ctx.createLinearGradient(0, 0, ARROW_LENGTH, 0);
     grad.addColorStop(0, "rgba(255, 180, 255, 0.6)");
     grad.addColorStop(1, "rgba(180, 220, 255, 0.4)");
 
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, -4, ARROW_LENGTH, 8);
+// thin magical silver bolt
+    ctx.fillStyle = "rgba(240,240,255,0.95)";
+    ctx.fillRect(-14, -1.2, 28, 2.4);   // very thin line
+
+    // subtle glowing tip
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.fillRect(12, -1.5, 4, 3);        // tiny point
 
     ctx.restore();
   }
