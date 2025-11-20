@@ -1,10 +1,10 @@
-// ============================================================
-// 🌸 ui.js — Olivia’s World: Crystal Keep
+﻿// ============================================================
+// ­ƒî© ui.js ÔÇö OliviaÔÇÖs World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Core HUD manager for in-game and Hub UI
-// ✦ Updates wave, gold, diamonds, lives, HP/Mana, arrows
-// ✦ Manages stats overlays, settings menu, sparkles, bravery bar
-// ✦ Provides pause/resume helpers for all overlays
+// Ô£ª Core HUD manager for in-game and Hub UI
+// Ô£ª Updates wave, gold, diamonds, lives, HP/Mana, arrows
+// Ô£ª Manages stats overlays, settings menu, sparkles, bravery bar
+// Ô£ª Provides pause/resume helpers for all overlays
 // ============================================================
 /* ------------------------------------------------------------
  * MODULE: ui.js
@@ -19,16 +19,16 @@
  *   gameplay state and on-screen visuals.
  *
  * FEATURES:
- *   • initUI(), updateHUD() — main HUD loop
- *   • showOverlay(), closeOverlay() — overlay navigation
- *   • initSettingsMenu() — visuals toggle + persistence
- *   • updateStatsOverlay(), updatePlayerStatsOverlay()
- *   • Full Bravery Bar system (charge, activate, drain)
- *   • toggleMagicSparkles() — global effect toggle
+ *   ÔÇó initUI(), updateHUD() ÔÇö main HUD loop
+ *   ÔÇó showOverlay(), closeOverlay() ÔÇö overlay navigation
+ *   ÔÇó initSettingsMenu() ÔÇö visuals toggle + persistence
+ *   ÔÇó updateStatsOverlay(), updatePlayerStatsOverlay()
+ *   ÔÇó Full Bravery Bar system (charge, activate, drain)
+ *   ÔÇó toggleMagicSparkles() ÔÇö global effect toggle
  * ------------------------------------------------------------ */
 
 // ------------------------------------------------------------
-// ↪️ Imports
+// Ôå¬´©Å Imports
 // ------------------------------------------------------------
 
 import { gameState, getCurrencies, saveProfiles } from "../utils/gameState.js";
@@ -38,7 +38,7 @@ import { SKINS, ensureSkin } from "./skins.js";
 
 
 // ============================================================
-// ⏸️ GAME PAUSE / RESUME
+// ÔÅ©´©Å GAME PAUSE / RESUME
 // ============================================================
 
 export function pauseGame() {
@@ -51,7 +51,7 @@ export function resumeGame() {
 
 
 // ------------------------------------------------------------
-// ⚙️ LOCAL STATE
+// ÔÜÖ´©Å LOCAL STATE
 // ------------------------------------------------------------
 
 let waveDisplay, goldDisplay, diamondDisplay, livesDisplay;
@@ -67,7 +67,7 @@ let lastArrowCount = -1;
 
 
 // ============================================================
-// 🌷 INITIALIZATION
+// ­ƒîÀ INITIALIZATION
 // ============================================================
 
 export function initUI() {
@@ -82,7 +82,7 @@ export function initUI() {
 
 
 // ============================================================
-// 💖 UPDATE HUD
+// ­ƒÆû UPDATE HUD
 // ============================================================
 
 export function updateHUD() {
@@ -92,7 +92,7 @@ export function updateHUD() {
   const p = gameState.player || {};
 
   // ------------------------------------------------------------
-  // 🌟 WAVE DISPLAY
+  // ­ƒîƒ WAVE DISPLAY
   // ------------------------------------------------------------
 
   const wave  = gameState.wave ?? 1;
@@ -113,7 +113,7 @@ export function updateHUD() {
   livesDisplay.textContent = `Lives: ${playerLives}`;
 
   // ------------------------------------------------------------
-  // ❤️ HP & 🔮 MANA BARS
+  // ÔØñ´©Å HP & ­ƒö« MANA BARS
   // ------------------------------------------------------------
 
   const hpBar = document.getElementById("hp-bar");
@@ -135,7 +135,7 @@ export function updateHUD() {
   }
 
   // ------------------------------------------------------------
-  // 🏹 ARROW COUNTER (Mana-based)
+  // ­ƒÅ╣ ARROW COUNTER (Mana-based)
   // ------------------------------------------------------------
 
   const arrowCircle = document.getElementById("hud-arrows-circle");
@@ -159,7 +159,7 @@ export function updateHUD() {
   }
 
   // ------------------------------------------------------------
-  // ✧ CRYSTAL ECHOES
+  // Ô£º CRYSTAL ECHOES
   // ------------------------------------------------------------
 
   if (gameState.exploration) {
@@ -190,7 +190,7 @@ export function updateHUD() {
 
 
 // ============================================================
-// 📜 GAME STATS ACCESSOR
+// ­ƒô£ GAME STATS ACCESSOR
 // ============================================================
 
 export function getStats() {
@@ -199,7 +199,7 @@ export function getStats() {
 
 
 // ============================================================
-// 🌸 OVERLAY HELPERS
+// ­ƒî© OVERLAY HELPERS
 // ============================================================
 
 export function showOverlay(id) {
@@ -233,7 +233,7 @@ export function closeOverlay(overlay) {
 
 
 // ============================================================
-// ⚙️ SETTINGS MENU
+// ÔÜÖ´©Å SETTINGS MENU
 // ============================================================
 
 export function initSettingsMenu() {
@@ -261,7 +261,7 @@ export function initSettingsMenu() {
 
 
 // ============================================================
-// ✨ MAGIC SPARKLES VISIBILITY
+// Ô£¿ MAGIC SPARKLES VISIBILITY
 // ============================================================
 
 export function toggleMagicSparkles(enabled) {
@@ -273,7 +273,7 @@ export function toggleMagicSparkles(enabled) {
 
 
 // ============================================================
-// 👑 HUB & IN-GAME STATS OVERLAYS
+// ­ƒææ HUB & IN-GAME STATS OVERLAYS
 // ============================================================
 
 function setText(id, value) {
@@ -350,7 +350,7 @@ export function updateStatsOverlay() {
     "stat-level": p.level ?? 1,
     "stat-xp": `${p.xp ?? 0} / ${p.xpToNext ?? 100}`,
     "stat-hp": `${p.hp ?? p.maxHp ?? 100} / ${p.maxHp ?? 100}`,
-    "stat-mana": `${p.mana ?? p.maxMana ?? 50} / ${p.maxMana ?? 50}`,
+    "stat-mana": `${Math.round(p.mana ?? p.maxMana ?? 50)} / ${Math.round(p.maxMana ?? 50)}`,
     "stat-spellPower": p.spellPower ?? 10,
     "stat-ranged": p.rangedAttack ?? 10,
     "stat-attack": p.attack ?? 15,
@@ -388,7 +388,7 @@ export function updatePlayerStatsOverlay() {
 
 
 // ============================================================
-// 💖 BRAVERY BAR SYSTEM
+// ­ƒÆû BRAVERY BAR SYSTEM
 // ============================================================
 
 export function updateBraveryBar() {
@@ -513,5 +513,5 @@ export function getArrowCount() {
 
 
 // ============================================================
-// 🌟 END OF FILE — ui.js
+// ­ƒîƒ END OF FILE ÔÇö ui.js
 // ============================================================
