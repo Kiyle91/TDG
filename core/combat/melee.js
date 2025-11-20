@@ -37,28 +37,36 @@ function getPowerTier(attack) {
 // ------------------------------------------------------------
 
 export function drawSlashArc(ctx, x, y, dir, tier) {
-  const base = 50 + tier * 20;
-  const width = 6 + tier * 2;
+  const radius = 42 + tier * 14;     // size of the arc
+  const thickness = 4 + tier * 1.3;  // line width
 
   ctx.save();
   ctx.translate(x, y);
-  ctx.rotate(dir === "left" ? Math.PI : 0);
 
-  const grad = ctx.createLinearGradient(0, 0, base, 0);
-  grad.addColorStop(0, "rgba(255,255,255,1)");
-  grad.addColorStop(1, `rgba(255,150,255,${0.15 + tier * 0.15})`);
+  // Flip horizontally for left-facing attacks
+  if (dir === "left") ctx.scale(-1, 1);
+
+  // Slight tilt for dynamic feel
+  ctx.rotate(-0.4);
+
+  // Pastel glow gradient
+  const grad = ctx.createLinearGradient(0, -radius, 0, radius);
+  grad.addColorStop(0.0, "rgba(255,255,255,0.9)");
+  grad.addColorStop(0.5, `rgba(255,150,255,${0.25 + tier * 0.1})`);
+  grad.addColorStop(1.0, "rgba(255,150,255,0)");
 
   ctx.strokeStyle = grad;
-  ctx.lineWidth = width;
+  ctx.lineWidth = thickness;
   ctx.lineCap = "round";
 
   ctx.beginPath();
-  ctx.moveTo(0, -20);
-  ctx.lineTo(base, 0);
-  ctx.lineTo(0, 20);
+  // Draw a smooth arc (crescent slash)
+  ctx.arc(0, 0, radius, -1.2, 1.2);   // bigger sweep, clean curve
   ctx.stroke();
+
   ctx.restore();
 }
+
 
 // ------------------------------------------------------------
 // 🗡️ Main Melee Function
