@@ -254,8 +254,8 @@
 ============================================================ */
 #hub-news {
   position: absolute;
-  top: 20vh;
-  right: 1vw;
+  top: 5%;
+  right: 1%;
 
   width: clamp(280px, 22vw, 200px);
   padding: 16px 20px;
@@ -289,7 +289,7 @@
 }
 
 .news-feed {
-  max-height: 320px;
+  max-height: 500px;
   overflow-y: auto;
   padding-right: 6px;
 
@@ -339,8 +339,8 @@
 ============================================================ */
 #hub-news-left {
   position: absolute;
-  top: 20vh;
-  left: 1vw;
+  top: 5%;
+  left: 1%;
 
   width: clamp(280px, 22vw, 200px);
   padding: 16px 20px;
@@ -376,7 +376,7 @@
 }
 
 #hub-news-left .news-feed {
-  max-height: 320px;
+  max-height: 500px;
   overflow-y: auto;
   padding-right: 6px;
 
@@ -463,7 +463,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  width: 20%;
+  width: 25%;
   height: 20%;
 
   position: absolute;

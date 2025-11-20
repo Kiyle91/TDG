@@ -27,8 +27,9 @@
 ============================================================ */
 #support-btn {
   position: absolute;
-  bottom: 22px;
-  left: 42px; /* mirrored from credits button */
+  bottom: 6%;
+  left: 3%;
+  width: 200px;
 
   padding: 12px 38px;
   font-size: 1.15rem;
