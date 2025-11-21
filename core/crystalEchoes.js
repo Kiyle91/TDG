@@ -40,7 +40,7 @@
 // ↪️ Imports
 // ------------------------------------------------------------
 
-import { gameState } from "../utils/gameState.js";
+import { addGold, gameState } from "../utils/gameState.js";
 import { awardXP } from "./levelSystem.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { playFairySprinkle } from "./soundtrack.js";
@@ -198,8 +198,12 @@ function collectCrystalEcho(crystal, index) {
 
 
   spawnFloatingText("+5 XP", crystal.x, crystal.y - 10, "#DAB4FF");
+  
   playFairySprinkle();
+
+  addGold (5);
   awardXP(5);
+
   updateHUD();
 
   // Sparkles

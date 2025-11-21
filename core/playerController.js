@@ -60,7 +60,9 @@ import { spawnArrow } from "./combat/arrow.js";
 // ------------------------------------------------------------
 
 window.addEventListener("keydown", (e) => {
-  if (e.code.startsWith("Digit")) handleSpireKey(e.code);
+  const code = e?.code;
+  if (!code) return;
+  if (code.startsWith("Digit")) handleSpireKey(code);
 });
 
 // ------------------------------------------------------------
