@@ -66,14 +66,16 @@ export function awardXP(amount = 25) {
   // Visual feedback
   spawnFloatingText(p.pos.x, p.pos.y - 50, `+${amount} XP`, "#b3ffb3", 18);
 
-  checkLevelUp();
+  checkLevelUp().catch((err) => {
+    console.warn("Level up processing failed:", err);
+  });
 }
 
 // ------------------------------------------------------------
 // 🎯 LEVEL-UP CHECK
 // ------------------------------------------------------------
 
-function checkLevelUp() {
+async function checkLevelUp() {
   const p = gameState.player;
   if (!p) return;
 
@@ -104,7 +106,8 @@ function checkLevelUp() {
     if (profile) {
       const slot = typeof profile.lastSave === "number" ? profile.lastSave : 0;
       try {
-        saveToSlot(slot);
+        const savePromise = saveToSlot(slot);
+        await Promise.resolve(savePromise);
         profile.lastSave = slot;
         saveProfiles();
         console.log(`💾 Autosaved after reaching Level ${p.level}`);

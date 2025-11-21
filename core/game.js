@@ -215,87 +215,89 @@ import { saveToSlot } from "./saveSystem.js";
 // ============================================================
 
 export const waveConfigs = {
-  // 🌿 MAP 1 — Beginner Onboarding
+
+  // 🌿 MAP 1 — Gentle Intro (No ogres yet)
   1: [
-    { goblins: 10,  worgs: 50, ogres: 3, elites: 20, trolls: 20, crossbows: 10 },
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 10, worgs: 2, ogres: 0, elites: 1, trolls: 1, crossbows: 1 },
+    { goblins: 12, worgs: 3, ogres: 0, elites: 1, trolls: 1, crossbows: 1 },
+    { goblins: 14, worgs: 4, ogres: 0, elites: 2, trolls: 1, crossbows: 1 },
+    { goblins: 15, worgs: 5, ogres: 0, elites: 2, trolls: 2, crossbows: 1 },
+    { goblins: 16, worgs: 6, ogres: 0, elites: 2, trolls: 2, crossbows: 2 },
   ],
 
-  // 🌲 MAP 2 — Early Mixed Units
+  // 🌲 MAP 2 — Light Mix (Still no ogres)
   2: [
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 12, worgs: 3, ogres: 0, elites: 1, trolls: 1, crossbows: 1 },
+    { goblins: 14, worgs: 4, ogres: 0, elites: 1, trolls: 1, crossbows: 1 },
+    { goblins: 16, worgs: 5, ogres: 0, elites: 2, trolls: 1, crossbows: 1 },
+    { goblins: 18, worgs: 6, ogres: 0, elites: 2, trolls: 2, crossbows: 1 },
+    { goblins: 20, worgs: 6, ogres: 0, elites: 2, trolls: 2, crossbows: 2 },
   ],
 
-  // 🏞 MAP 3 — Early-Mid Mix
+  // 🏞 MAP 3 — Early Midgame
   3: [
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 14, worgs: 4, ogres: 0, elites: 1, trolls: 2, crossbows: 1 },
+    { goblins: 16, worgs: 5, ogres: 0, elites: 2, trolls: 2, crossbows: 1 },
+    { goblins: 18, worgs: 5, ogres: 0, elites: 2, trolls: 2, crossbows: 1 },
+    { goblins: 20, worgs: 6, ogres: 0, elites: 2, trolls: 3, crossbows: 1 },
+    { goblins: 22, worgs: 6, ogres: 0, elites: 2, trolls: 3, crossbows: 2 },
   ],
 
-  // ❄ MAP 4 — Worg Pressure
+  // ❄ MAP 4 — Small bump (still no ogres)
   4: [
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 16, worgs: 5, ogres: 0, elites: 1, trolls: 2, crossbows: 1 },
+    { goblins: 18, worgs: 5, ogres: 0, elites: 2, trolls: 2, crossbows: 1 },
+    { goblins: 20, worgs: 6, ogres: 0, elites: 2, trolls: 3, crossbows: 1 },
+    { goblins: 22, worgs: 6, ogres: 0, elites: 2, trolls: 3, crossbows: 1 },
+    { goblins: 24, worgs: 7, ogres: 0, elites: 3, trolls: 3, crossbows: 2 },
   ],
 
-  // 🔥 MAP 5 — Mid Game Sustain
+  // 🔥 MAP 5 — Introduce Ogres (small amounts)
   5: [
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 18, worgs: 6, ogres: 1, elites: 2, trolls: 2, crossbows: 1 },
+    { goblins: 20, worgs: 6, ogres: 1, elites: 2, trolls: 2, crossbows: 1 },
+    { goblins: 22, worgs: 7, ogres: 1, elites: 2, trolls: 3, crossbows: 1 },
+    { goblins: 24, worgs: 7, ogres: 1, elites: 3, trolls: 3, crossbows: 1 },
+    { goblins: 26, worgs: 8, ogres: 2, elites: 3, trolls: 3, crossbows: 2 },
   ],
 
-  // 🜂 MAP 6 — Chaotic Alternation
+  // 🜂 MAP 6 — More Elite/Troll flavour
   6: [
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 20, worgs: 7, ogres: 1, elites: 2, trolls: 3, crossbows: 1 },
+    { goblins: 22, worgs: 7, ogres: 1, elites: 3, trolls: 3, crossbows: 1 },
+    { goblins: 24, worgs: 8, ogres: 1, elites: 3, trolls: 3, crossbows: 1 },
+    { goblins: 26, worgs: 8, ogres: 2, elites: 3, trolls: 3, crossbows: 1 },
+    { goblins: 28, worgs: 9, ogres: 2, elites: 3, trolls: 4, crossbows: 2 },
   ],
 
-  // ⚔ MAP 7 — Elite-Heavy Spike
+  // ⚔ MAP 7 — Begin late-game vibe
   7: [
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 22, worgs: 8, ogres: 1, elites: 2, trolls: 3, crossbows: 1 },
+    { goblins: 24, worgs: 8, ogres: 1, elites: 3, trolls: 3, crossbows: 1 },
+    { goblins: 26, worgs: 9, ogres: 2, elites: 3, trolls: 3, crossbows: 1 },
+    { goblins: 28, worgs: 9, ogres: 2, elites: 3, trolls: 4, crossbows: 1 },
+    { goblins: 30, worgs: 10, ogres: 2, elites: 4, trolls: 4, crossbows: 2 },
   ],
 
-  // ⚡ MAP 8 — Very Late Scaling
+  // ⚡ MAP 8 — Late game but still kid-friendly
   8: [
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 24, worgs: 9, ogres: 1, elites: 2, trolls: 3, crossbows: 1 },
+    { goblins: 26, worgs: 9, ogres: 2, elites: 3, trolls: 3, crossbows: 1 },
+    { goblins: 28, worgs: 10, ogres: 2, elites: 3, trolls: 4, crossbows: 1 },
+    { goblins: 30, worgs: 10, ogres: 2, elites: 4, trolls: 4, crossbows: 1 },
+    { goblins: 32, worgs: 11, ogres: 2, elites: 4, trolls: 5, crossbows: 2 },
   ],
 
-  // 👑 MAP 9 — Final Showdown
+  // 👑 MAP 9 — Final showdown (still safe)
   9: [
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 26, worgs: 10, ogres: 1, elites: 3, trolls: 3, crossbows: 1 },
+    { goblins: 28, worgs: 10, ogres: 2, elites: 3, trolls: 4, crossbows: 1 },
+    { goblins: 30, worgs: 11, ogres: 2, elites: 4, trolls: 4, crossbows: 1 },
+    { goblins: 32, worgs: 11, ogres: 2, elites: 4, trolls: 5, crossbows: 1 },
+    { goblins: 34, worgs: 12, ogres: 3, elites: 5, trolls: 5, crossbows: 2 },
   ],
 };
+
 
 // ============================================================
 // 🏆 VICTORY MESSAGES — Per Map
@@ -338,6 +340,7 @@ let waveActive = false;
 let waveCleared = false;
 let justStartedWave = false;
 let autosaveDoneForWave = false; // ⭐ New: track per-wave autosave
+let waveTransitionInProgress = false; // guard progression while wave-end story/save runs
 
 // Prevent wave skipping before first wave spawns
 let firstWaveStarted = false;
@@ -383,6 +386,7 @@ export function resetWaveSystem() {
   waveCleared = false;
   justStartedWave = true;
   autosaveDoneForWave = false; // ⭐ reset autosave flag
+  waveTransitionInProgress = false;
 
   window.betweenWaveTimerActive = true;
 
@@ -414,6 +418,8 @@ export function getWaveSnapshotState() {
 
 export function restoreWaveFromSnapshot(meta, snapshot) {
   if (!meta) return;
+
+  waveTransitionInProgress = false;
 
   // Restore correct wave index (1-based → 0-based)
   if (typeof meta.wave === "number") {
@@ -647,6 +653,11 @@ async function updateWaveSystem(delta) {
     return;
   }
 
+  // If we're running post-wave story/autosave, wait for it to finish before continuing
+  if (waveTransitionInProgress) {
+    return;
+  }
+
   // Handle spawn queue
   spawnTimer -= delta;
   if (spawnQueue.length > 0 && spawnTimer <= 0) {
@@ -668,34 +679,11 @@ async function updateWaveSystem(delta) {
     if (!waveCleared) {
       waveCleared = true;
       waveActive = false;
+      waveTransitionInProgress = true;
 
       const waveNumber = currentWaveIndex + 1;
 
-      if (waveNumber === 1) {
-        await triggerEndOfWave1Story(mapId);
-      }
-      if (waveNumber === 5) {
-        await triggerEndOfWave5Story(mapId);
-      }
-
-      // ⭐ AUTOSAVE every wave after it fully ends (and story ran)
-      if (!autosaveDoneForWave) {
-        const profile = gameState.profile;
-        if (profile) {
-          const slot = typeof profile.lastSave === "number" ? profile.lastSave : 0;
-          try {
-            await saveToSlot(slot);
-            profile.lastSave = slot;
-            saveProfiles();
-            console.log(`💾 Autosaved after Wave ${waveNumber}`);
-          } catch (err) {
-            console.warn("Autosave failed:", err);
-          }
-        }
-        autosaveDoneForWave = true;
-      }
-
-      betweenWaveTimer = BETWEEN_WAVES_DELAY;
+      handleWaveCleared(waveNumber, mapId);
       return;
     }
   }
@@ -749,6 +737,40 @@ async function updateWaveSystem(delta) {
       }, 300);
     }
   }, VICTORY_DELAY);
+}
+
+async function handleWaveCleared(waveNumber, mapId) {
+  try {
+    if (waveNumber === 1) {
+      await triggerEndOfWave1Story(mapId);
+    }
+    if (waveNumber === 5) {
+      await triggerEndOfWave5Story(mapId);
+    }
+
+    // ⭐ AUTOSAVE every wave after it fully ends (and story ran)
+    if (!autosaveDoneForWave) {
+      const profile = gameState.profile;
+      if (profile) {
+        const slot = typeof profile.lastSave === "number" ? profile.lastSave : 0;
+        try {
+          await saveToSlot(slot);
+          profile.lastSave = slot;
+          saveProfiles();
+          console.log(`💾 Autosaved after Wave ${waveNumber}`);
+        } catch (err) {
+          console.warn("Autosave failed:", err);
+        }
+      }
+      autosaveDoneForWave = true;
+    }
+  } catch (err) {
+    console.warn("Wave-end sequence failed:", err);
+  } finally {
+    betweenWaveTimer = BETWEEN_WAVES_DELAY;
+    window.betweenWaveTimerActive = true;
+    waveTransitionInProgress = false;
+  }
 }
 
 // ------------------------------------------------------------
