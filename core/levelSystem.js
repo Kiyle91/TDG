@@ -42,6 +42,8 @@
 import { gameState } from "../utils/gameState.js";
 import { updateHUD, pauseGame, resumeGame } from "./ui.js";
 import { spawnFloatingText } from "./floatingText.js";
+import { saveProfiles } from "../utils/gameState.js";
+import { saveToSlot } from "./saveSystem.js";
 
 // ------------------------------------------------------------
 // 🗺️ MODULE-LEVEL VARIABLES
@@ -96,6 +98,20 @@ function checkLevelUp() {
       "#fff2b3",
       22
     );
+
+    // ⭐ AUTOSAVE ON LEVEL UP
+    const profile = gameState.profile;
+    if (profile) {
+      const slot = typeof profile.lastSave === "number" ? profile.lastSave : 0;
+      try {
+        saveToSlot(slot);
+        profile.lastSave = slot;
+        saveProfiles();
+        console.log(`💾 Autosaved after reaching Level ${p.level}`);
+      } catch (err) {
+        console.warn("Autosave (level-up) failed:", err);
+      }
+    }
 
     // Pause gameplay for allocation
     pauseGame();

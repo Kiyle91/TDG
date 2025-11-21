@@ -196,13 +196,19 @@ function scaleEnemyHp(enemy) {
   enemy.hp = Math.round(enemy.hp * mult);
   enemy.maxHp = Math.round(enemy.maxHp * mult);
 }
+
 import { updateArrows, drawArrows } from "./combat/arrow.js";
 import { damageGoblin } from "./goblin.js";
-
 
 import { spawnDamageSparkles } from "./fx/sparkles.js";
 
 import { updateHealFX, renderHealFX } from "./combat/heal.js";
+
+// ------------------------------------------------------------
+// 💾 AUTOSAVE
+// ------------------------------------------------------------
+
+import { saveToSlot } from "./saveSystem.js";
 
 // ============================================================
 // 🌊 WAVE CONFIGS
@@ -307,10 +313,10 @@ export const VICTORY_MESSAGES = {
   9: "👑 Final Map Conquered! The Crystal Keep is safe once more!"
 };
 
-
 // ============================================================
 // 🏆 VICTORY SUBTITLES — Per Map
 // ============================================================
+
 export const VICTORY_SUBTITLES = {
   1: "Peace returns to the training fields.",
   2: "The Hollow Woods breathe a calm sigh.",
@@ -323,7 +329,6 @@ export const VICTORY_SUBTITLES = {
   9: "The Crystal Keep stands protected — your legend complete."
 };
 
-
 // ============================================================
 // 🎯 WAVE STATE
 // ============================================================
@@ -332,6 +337,7 @@ let currentWaveIndex = 0;
 let waveActive = false;
 let waveCleared = false;
 let justStartedWave = false;
+let autosaveDoneForWave = false; // ⭐ New: track per-wave autosave
 
 // Prevent wave skipping before first wave spawns
 let firstWaveStarted = false;
@@ -376,6 +382,7 @@ export function resetWaveSystem() {
   waveActive = false;
   waveCleared = false;
   justStartedWave = true;
+  autosaveDoneForWave = false; // ⭐ reset autosave flag
 
   window.betweenWaveTimerActive = true;
 
@@ -392,8 +399,6 @@ export function resetWaveSystem() {
   window.firstWaveStarted = false;
 
   betweenWaveTimer = FIRST_WAVE_DELAY;
-
-
 }
 
 export function getWaveSnapshotState() {
@@ -497,6 +502,8 @@ function startNextWave() {
   window.betweenWaveTimerActive = false;
   betweenWaveTimer = 0;
 
+  autosaveDoneForWave = false; // ⭐ new wave, allow autosave again
+
   // Guard progress when resuming from a partially-initialized state
   const mapId = gameState.progress?.currentMap ?? 1;
   const waves = waveConfigs[mapId];
@@ -590,7 +597,6 @@ function startNextWave() {
   // is always ≤ goblins in your wave configs.
 }
 
-
 // ============================================================
 // 👁 CHECK ACTIVE ENEMIES
 // ============================================================
@@ -672,6 +678,23 @@ async function updateWaveSystem(delta) {
         await triggerEndOfWave5Story(mapId);
       }
 
+      // ⭐ AUTOSAVE every wave after it fully ends (and story ran)
+      if (!autosaveDoneForWave) {
+        const profile = gameState.profile;
+        if (profile) {
+          const slot = typeof profile.lastSave === "number" ? profile.lastSave : 0;
+          try {
+            await saveToSlot(slot);
+            profile.lastSave = slot;
+            saveProfiles();
+            console.log(`💾 Autosaved after Wave ${waveNumber}`);
+          } catch (err) {
+            console.warn("Autosave failed:", err);
+          }
+        }
+        autosaveDoneForWave = true;
+      }
+
       betweenWaveTimer = BETWEEN_WAVES_DELAY;
       return;
     }
@@ -694,7 +717,6 @@ async function updateWaveSystem(delta) {
     return;
   }
 
-  
   // Final wave → schedule victory
   gameState.victoryPending = true;
 
@@ -703,33 +725,31 @@ async function updateWaveSystem(delta) {
 
   // ⭐ Clamp persisted progress so it never exceeds map 9
   if (gameState.progress?.currentMap > 9) {
-      gameState.progress.currentMap = 9;
+    gameState.progress.currentMap = 9;
   }
   if (gameState.profile?.progress?.currentMap > 9) {
-      gameState.profile.progress.currentMap = 9;
+    gameState.profile.progress.currentMap = 9;
   }
 
   // ⭐ Unlock next map (only if map < 9)
   if (mapId < 9) {
-      unlockMap(nextMap);
-      saveProfiles();
+    unlockMap(nextMap);
+    saveProfiles();
   }
 
   setTimeout(() => {
-      stopGameplay("victory");
+    stopGameplay("victory");
 
-      // Map 9 → Credits (handled for players who let the screen sit)
-      if (mapId === 9) {
-          setTimeout(() => {
-              import("./../core/credits.js")
-                .then(mod => mod.showCredits())
-                .catch(err => console.warn("Credits display failed:", err));
-          }, 300);
-      }
-
-}, VICTORY_DELAY);
-
-  }
+    // Map 9 → Credits (handled for players who let the screen sit)
+    if (mapId === 9) {
+      setTimeout(() => {
+        import("./../core/credits.js")
+          .then(mod => mod.showCredits())
+          .catch(err => console.warn("Credits display failed:", err));
+      }, 300);
+    }
+  }, VICTORY_DELAY);
+}
 
 // ------------------------------------------------------------
 // 🎥 LOCAL CAMERA STATE
@@ -816,7 +836,6 @@ export async function initGame(mode = "new") {
       gameState.exploration.total = 0;
       gameState.exploration.bonusGiven = false;
     }
-
   }
 
   const icon = document.getElementById("hud-crystals-circle");
@@ -895,7 +914,6 @@ export async function initGame(mode = "new") {
   }
 }
 
-
 // ============================================================
 // 🔁 UPDATE — synchronized world logic (OPTIMIZED)
 // ============================================================
@@ -944,14 +962,14 @@ export function updateGame(delta) {
       if (dist < 32) {
         const t = o.target;
 
-      // Unified damage router for seeker orbs
-      if (t.type === "elite") {
+        // Unified damage router for seeker orbs
+        if (t.type === "elite") {
           damageElite(t, o.dmg, "spell");
-      } else if (t.type === "ogre" || t.maxHp >= 400) {
+        } else if (t.type === "ogre" || t.maxHp >= 400) {
           damageOgre(t, o.dmg, "spell");
-      } else {
+        } else {
           damageGoblin(t, o.dmg);
-      }
+        }
 
         spawnDamageSparkles(t.x, t.y);
         o.alive = false;
@@ -1222,5 +1240,3 @@ window.debugVictory = function () {
     console.warn("⚠️ debugVictory failed:", err);
   }
 };
-
-
