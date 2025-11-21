@@ -13,6 +13,7 @@
  *   • Distance checks squared for performance
  *   • Each spire has limited durability (MAX_ATTACKS)
  *   • Crystal Echo Power adds aura + double damage
+ *   • NEW: Echo mode adds colored pulse rings per spire type
  * ------------------------------------------------------------ */
 
 // ------------------------------------------------------------
@@ -25,10 +26,9 @@ import { getGoblins } from "./goblin.js";
 import { getWorg } from "./worg.js";
 import { getTrolls } from "./troll.js";
 import { getCrossbows } from "./crossbow.js";
+import { getElites } from "./elite.js";
 import { spawnFloatingText } from "./floatingText.js";
 import { gameState } from "../utils/gameState.js";
-import { getElites } from "./elite.js";
-
 
 // ------------------------------------------------------------
 // INTERNAL STATE
@@ -37,13 +37,16 @@ import { getElites } from "./elite.js";
 let spireSprites = {};
 let spires = [];
 
+// 💥 Durability + timing
 const MAX_ATTACKS = 50;
 const FIRE_RATE_MS = 800;
 const FADE_SPEED = 2;
 const SPIRE_SIZE = 96;
-
 const TARGET_UPDATE_INTERVAL = 200; // ms
 
+// 🌈 Pulse FX (simple internal list, also exposed for debugging)
+const spirePulses = [];
+window.__spirePulses = spirePulses;
 
 // ------------------------------------------------------------
 // SPIRE TYPE → UPGRADE ID MAP
@@ -61,7 +64,6 @@ const SPIRE_ID_MAP = {
 function getSpireIdFor(spire) {
   return SPIRE_ID_MAP[spire.type] ?? null;
 }
-
 
 // ------------------------------------------------------------
 // ASSET LOADING
@@ -86,16 +88,15 @@ async function loadSpireSprites() {
   }
 }
 
-
 // ------------------------------------------------------------
 // INIT
 // ------------------------------------------------------------
 
 export async function initSpires() {
   spires.length = 0;
+  spirePulses.length = 0;
   await loadSpireSprites();
 }
-
 
 // ------------------------------------------------------------
 // ADD NEW SPIRE
@@ -112,7 +113,6 @@ export function addSpire(data) {
     cachedTarget: null,
   });
 }
-
 
 // ------------------------------------------------------------
 // OPTIMIZED NEAREST-ENEMY CALCULATOR
@@ -139,9 +139,49 @@ function findNearestEnemy(spire, enemies, range) {
   return closest;
 }
 
+// ------------------------------------------------------------
+// 🌈 SPIRE PULSE FX — spawn + update
+// ------------------------------------------------------------
+
+// Per-type color (pastel-y & bright)
+function getPulseColorBase(spire) {
+  const baseType = spire.type.replace("_spire", ""); // "basic", "frost", etc.
+
+  switch (baseType) {
+    case "basic":  return "255,200,255"; // pink crystal
+    case "frost":  return "150,200,255"; // icy blue
+    case "flame":  return "255,180,120"; // warm flame
+    case "arcane": return "210,160,255"; // purple arcane
+    case "light":  return "255,240,150"; // golden
+    case "moon":   return "210,220,255"; // soft moonlight
+    default:       return "255,200,255";
+  }
+}
+
+function spawnSpirePulse(spire) {
+  spirePulses.push({
+    x: spire.x,
+    y: spire.y,
+    age: 0,
+    life: 700,         // ms
+    startR: 12,
+    endR: 95,
+    colorBase: getPulseColorBase(spire),
+  });
+}
+
+function updateSpirePulses(delta) {
+  for (let i = spirePulses.length - 1; i >= 0; i--) {
+    const p = spirePulses[i];
+    p.age += delta;
+    if (p.age >= p.life) {
+      spirePulses.splice(i, 1);
+    }
+  }
+}
 
 // ------------------------------------------------------------
-// UPDATE — targeting + firing + fade-out
+// UPDATE — targeting + firing + fade-out + pulses
 // ------------------------------------------------------------
 
 export function updateSpires(delta) {
@@ -217,7 +257,7 @@ export function updateSpires(delta) {
     const target = spire.cachedTarget;
     if (!target) continue;
 
-    // Target died
+    // Target died (for non-player)
     if (target !== gameState.player && !target.alive) {
       spire.cachedTarget = null;
       continue;
@@ -254,6 +294,11 @@ export function updateSpires(delta) {
         break;
     }
 
+    // 🌈 Extra pulse ONLY while Crystal Echo Power is active
+    if (gameState.echoPowerActive) {
+      spawnSpirePulse(spire);
+    }
+
     triggerSpire(spire);
 
     // Durability check
@@ -262,8 +307,10 @@ export function updateSpires(delta) {
       spawnFloatingText(spire.x, spire.y - 30, "💥 Broken!", "#ff6fb1");
     }
   }
-}
 
+  // Update pulse ages
+  updateSpirePulses(delta);
+}
 
 // ------------------------------------------------------------
 // INTERNAL: trigger fire animation & cooldown
@@ -275,14 +322,32 @@ function triggerSpire(spire) {
   spire.attacksDone++;
 }
 
-
 // ------------------------------------------------------------
-// DRAW ALL SPIRES
+// DRAW ALL SPIRES + PULSES
 // ------------------------------------------------------------
 
 export function drawSpires(ctx) {
   if (!ctx) return;
 
+  // First: draw pulse rings under the towers
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+
+  for (const p of spirePulses) {
+    const t = Math.max(0, Math.min(1, p.age / p.life));
+    const r = p.startR + (p.endR - p.startR) * t;
+    const alpha = 1 - t;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(${p.colorBase}, ${alpha.toFixed(2)})`;
+    ctx.lineWidth = 5;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+
+  // Then: draw spires themselves
   for (const spire of spires) {
     const base = spire.type.replace("_spire", "");
     const sprites = spireSprites[base] || spireSprites.basic;
@@ -351,7 +416,6 @@ export function drawSpires(ctx) {
   }
 }
 
-
 // ------------------------------------------------------------
 // GETTER
 // ------------------------------------------------------------
@@ -359,7 +423,6 @@ export function drawSpires(ctx) {
 export function getSpires() {
   return spires;
 }
-
 
 // ============================================================
 // END OF FILE
