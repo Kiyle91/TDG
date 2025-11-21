@@ -211,7 +211,7 @@ import { updateHealFX, renderHealFX } from "./combat/heal.js";
 export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding
   1: [
-    { goblins: 100,  worgs: 50, ogres: 3, elites: 50, trolls: 50, crossbows: 2 },
+    { goblins: 100,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
@@ -497,7 +497,8 @@ function startNextWave() {
   window.betweenWaveTimerActive = false;
   betweenWaveTimer = 0;
 
-  const mapId = gameState.progress.currentMap ?? 1;
+  // Guard progress when resuming from a partially-initialized state
+  const mapId = gameState.progress?.currentMap ?? 1;
   const waves = waveConfigs[mapId];
   if (!waves) return;
 
@@ -918,7 +919,9 @@ export function updateGame(delta) {
   updateFloatingText(delta);
   updatePegasus(delta);
   updateLoot(delta);
-  updateWaveSystem(delta);
+  updateWaveSystem(delta).catch(err => {
+    console.warn("updateWaveSystem failed:", err);
+  });
 
   // 🔮 UPDATE SEEKER ORBS
   if (gameState.fx?.seekers) {
@@ -1118,7 +1121,9 @@ export function resetCombatState() {
   goblinsDefeated = 0;
   gameState.victoryPending = false;
 
-  gameState.profile.currencies.gold = 0;
+  if (gameState.profile?.currencies) {
+    gameState.profile.currencies.gold = 0;
+  }
 
   for (let key in ogreMilestones) {
     ogreMilestones[key] = false;
@@ -1182,7 +1187,9 @@ export function resetPlayerState() {
   p.lives = 10;
   p.facing = "right";
 
-  gameState.profile.currencies.gold = 0;
+  if (gameState.profile?.currencies) {
+    gameState.profile.currencies.gold = 0;
+  }
 
   if (typeof window.__playerControllerReset === "function") {
     window.__playerControllerReset();
