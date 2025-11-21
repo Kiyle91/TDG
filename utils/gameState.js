@@ -22,6 +22,7 @@
 // ------------------------------------------------------------
 
 import { createPlayer } from "../core/player.js";
+import { spawnFloatingText } from "../core/floatingText.js";
 
 function generateProfileId(existingIds = new Set()) {
   let id;
@@ -363,10 +364,24 @@ export function addXP(amount) {
   gameState.resources.xp += amount;
 }
 
-export function addGold(amount) {
-  if (!gameState.profile) return;
-  gameState.profile.currencies.gold += amount;
-  saveProfiles();
+
+export function addGold(amount, x = null, y = null) {
+    if (!gameState.profile) return;
+
+    // Apply Echo Power bonus
+    if (gameState.echoPowerActive) {
+        amount = Math.round(amount * 1.5);
+
+        // Boosted gold popup (optional)
+        if (x !== null && y !== null) {
+            spawnFloatingText(x, y - 30, `+${amount} 💛`, "#ffd86b");
+        }
+    }
+
+    // ✔ Correct gold storage location
+    gameState.profile.currencies.gold += amount;
+
+    saveProfiles();
 }
 
 export function spendGold(amount) {
