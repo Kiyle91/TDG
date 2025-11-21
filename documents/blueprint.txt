@@ -1,0 +1,55 @@
+Top-Level
+- index.html
+- main.js
+- assets/ (images, sounds)
+- css/ (game, overlays, screens, misc)
+- data/ (maps: json + tmx)
+- documents/ (design notes)
+- utils/ (constants, mapCollision, gameState, fxTier)
+
+Core Blueprint
+- core/engine/
+  - game.js
+  - gameManager.js
+  - preload.js
+  - mapLoader.js
+  - maps.js
+  - screens.js
+- core/state/
+  - profile.js
+  - saveSystem.js
+  - saveSlots.js
+  - levelSystem.js
+  - credits.js
+  - settings.js
+- core/entities/
+  - player.js
+  - playerController.js
+  - path.js
+  - map.js
+  - enemies/: goblin.js, troll.js, ogre.js, worg.js, elite.js, pegasus.js
+  - spires/: spires.js, spirePlacement.js, spireUpgrades.js, spireBar.js, crossbow.js, projectiles.js, floatingText.js
+  - items/: loot.js, chest.js, skins.js, sparkles.js, crystalEchoes.js
+- core/combat/
+  - melee.js
+  - ranged.js
+  - spell.js
+  - heal.js
+  - arrow.js
+- core/fx/
+  - sparkles.js (and other vfx/sfx helpers)
+- core/ui/
+  - ui.js
+  - navbar.js
+  - alert.js
+  - hub.js
+  - landing.js
+  - story.js
+  - soundtrack.js
+- core/maps/
+  - level metadata and per-map helpers (kept near data/)
+
+Notes
+- Keep one responsibility per file; split monoliths (game.js, playerController.js) into engine/state submodules as needed.
+- Prefer PascalCase for classes and camelCase for functions/instances.
+- Add README.md with quick run steps and a short directory map.

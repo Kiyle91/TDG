@@ -68,14 +68,14 @@ const crystalImages = [
 
 let preloadedImages = [];
 
-function preloadCrystalImages() {
+export function preloadCrystalImages() {
   preloadedImages = crystalImages.map((src) => {
     const img = new Image();
     img.src = src;
     return img;
   });
 }
-preloadCrystalImages();
+
 
 // ------------------------------------------------------------
 // ✨ SPARKLE BURST DATA

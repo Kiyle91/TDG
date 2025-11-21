@@ -27,7 +27,7 @@
 // ------------------------------------------------------------
 // ↪️ Imports
 // ------------------------------------------------------------
-
+import { preloadAllAssets } from "./preloader.js";
 import { showScreen } from "../core/screens.js";
 
 // ------------------------------------------------------------
@@ -42,6 +42,8 @@ export function initLanding() {
     landing.removeEventListener("click", handleClick);
     fadeOut(landing, () => showScreen("profile-screen"));
   };
+
+  preloadAllAssets();
 
   landing.addEventListener("click", handleClick);
 }

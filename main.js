@@ -48,6 +48,10 @@ import { showOpeningStory } from "./core/story.js";
 
 
 import { VICTORY_SUBTITLES, VICTORY_MESSAGES } from "./core/game.js";
+
+import { isPreloadComplete, preloadAllAssets } from "./core/preloader.js";
+
+
 // ============================================================
 // 🎮 GLOBAL GAME LOOP STATE
 // ============================================================
@@ -84,6 +88,41 @@ function gameLoop(timestamp) {
   renderGame();
   window.__gameLoopID = requestAnimationFrame(gameLoop);
 }
+
+
+function showLoadingOverlay() {
+  const el = document.getElementById("game-loading-overlay");
+  if (el) el.style.display = "flex";
+}
+
+function hideLoadingOverlay() {
+  const el = document.getElementById("game-loading-overlay");
+  if (el) el.style.display = "none";
+}
+
+
+// ============================================================
+// ▶️ SAFE GAME START (waits for preloader + shows cover)
+// ============================================================
+
+export async function startGameWithPreload(mode = "new") {
+  showLoadingOverlay();
+
+  // 🔥 ensure preloadAllAssets() runs if not triggered yet
+  preloadAllAssets();
+
+  // 🔄 Wait until preload is fully done
+  while (!isPreloadComplete()) {
+    await new Promise(res => setTimeout(res, 50));
+  }
+
+  // ⭐ Proceed to load actual map
+  await initGame(mode);
+
+  hideLoadingOverlay();
+  startGameplay();
+}
+
 
 // ============================================================
 // ▶️ START GAMEPLAY
@@ -250,7 +289,7 @@ export async function startNewGameStory() {
   showScreen("game-container");
   gameState.paused = true;
   await showOpeningStory();  
-  await initGame("new");
+  await startGameWithPreload("new");
   safeAutoSave();
   gameState.paused = false;
   startGameplay("new");
@@ -296,7 +335,8 @@ export async function resetGameplay() {
   resetCombatState();
 
   const gameMod = await import("./core/game.js");
-  await gameMod.initGame("retry");
+  await startGameWithPreload("retry");
+
 
   lastTimestamp = performance.now();
   accumulator = 0;
@@ -441,7 +481,7 @@ function showEndScreen(reason) {
       overlay.remove();
       showScreen("game-container");
 
-      await initGame();
+      await startGameWithPreload();
       safeAutoSave();
       startGameplay();
     };
