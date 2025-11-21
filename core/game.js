@@ -52,6 +52,7 @@ import {
   clearOgres,
   getOgres,
   spawnOgre,
+  damageOgre,
 } from "./ogre.js";
 
 import {
@@ -78,6 +79,7 @@ import {
   getElites,
   clearElites,
   spawnElite,
+  damageElite,
 } from "./elite.js";
 
 import {
