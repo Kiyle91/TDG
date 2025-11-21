@@ -201,10 +201,12 @@ export function fullNewGameReset() {
 
   gameState.progress.currentMap = 1;
   gameState.progress.mapsUnlocked = [...freshMaps];
+  gameState.progress.storyCompleted = false;
 
   profile.progress = {
     currentMap: 1,
     mapsUnlocked: [...freshMaps],
+    storyCompleted: false,
     // Optional: exploration reset (safe to include)
     exploration: {
       echoes: [],
@@ -534,10 +536,10 @@ window.addEventListener("DOMContentLoaded", async () => {
   initMusic();
   initLanding();
   initProfiles();
+  initSettings();
   initHub();
   await initGame();
   initSparkles();
-  initSettings();
   initNavbar();
   initCredits();
 });

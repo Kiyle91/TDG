@@ -53,6 +53,19 @@ let settings = {
 };
 
 // ------------------------------------------------------------
+//  EXPORTED ACCESSORS (single source of truth)
+// ------------------------------------------------------------
+
+export function getSettings() {
+  return { ...settings };
+}
+
+export function setVisualsEnabled(enabled) {
+  settings.visualsEnabled = !!enabled;
+  saveSettings();
+}
+
+// ------------------------------------------------------------
 // 🌈 INITIAL LOAD
 // ------------------------------------------------------------
 
@@ -126,13 +139,6 @@ function setupListeners() {
     settings.sfxVolume = value;
     if (sfxLabel) sfxLabel.textContent = `${e.target.value}%`;
     setSfxVolume(value);
-    saveSettings();
-  });
-
-  // Visual toggle
-  visualsToggle?.addEventListener("change", (e) => {
-    settings.visualsEnabled = e.target.checked;
-    playFairySprinkle();
     saveSettings();
   });
 

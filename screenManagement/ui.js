@@ -35,6 +35,7 @@ import { gameState, getCurrencies, saveProfiles } from "../utils/gameState.js";
 import { playCancelSound } from "../core/soundtrack.js";
 import { initSpireBar, updateSpireBar } from "../spires/spireBar.js";
 import { SKINS, ensureSkin } from "./skins.js";
+import { getSettings, setVisualsEnabled } from "./settings.js";
 
 
 // ============================================================
@@ -247,20 +248,22 @@ export function initSettingsMenu() {
   const visualsLabel = visualsToggle?.nextElementSibling;
   if (!visualsToggle) return;
 
-  visualsToggle.checked = gameState.settings.visualEffects;
-  if (visualsLabel)
+  const currentSettings = getSettings();
+  visualsToggle.checked = currentSettings.visualsEnabled;
+  if (visualsLabel) {
     visualsLabel.textContent = visualsToggle.checked ? "Enabled" : "Disabled";
+  }
 
   toggleMagicSparkles(visualsToggle.checked);
 
   visualsToggle.addEventListener("change", () => {
     const enabled = visualsToggle.checked;
-    gameState.settings.visualEffects = enabled;
+    setVisualsEnabled(enabled);
 
-    if (visualsLabel)
+    if (visualsLabel) {
       visualsLabel.textContent = enabled ? "Enabled" : "Disabled";
+    }
 
-    saveProfiles();
     toggleMagicSparkles(enabled);
   });
 }

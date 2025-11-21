@@ -22,6 +22,8 @@ const UPGRADE_COST = 20;
 // Ensure profile.spires exists (safety if load order weird)
 function ensureSpireData() {
   const p = gameState.profile;
+  if (!p) return false;
+
   if (!p.spires) {
     p.spires = {
       1: { diamondsSpent: 0 },
@@ -36,11 +38,13 @@ function ensureSpireData() {
       if (!p.spires[i]) p.spires[i] = { diamondsSpent: 0 };
     }
   }
+
+  return true;
 }
 
 // 1% per 20 diamonds spent ➜ multiplier
 export function getSpireDamageMultiplier(spireId) {
-  ensureSpireData();
+  if (!ensureSpireData()) return 1;
   const spent = gameState.profile.spires[spireId]?.diamondsSpent || 0;
   const bonusPercent = Math.floor(spent / 20); // integer %
   return 1 + bonusPercent / 100; // e.g. 5% ➜ 1.05
@@ -51,7 +55,7 @@ export function getSpireDamageMultiplier(spireId) {
 // ------------------------------------------------------------
 
 function refreshSpireUpgradeUI() {
-  ensureSpireData();
+  if (!ensureSpireData()) return;
 
   const cards = document.querySelectorAll("#overlay-spires .spire-card");
 
@@ -105,7 +109,7 @@ function refreshSpireUpgradeUI() {
 }
 
 function attemptUpgradeSpire(card, spireId) {
-  ensureSpireData();
+  if (!ensureSpireData()) return;
 
   const btn = card.querySelector("[data-upgrade-btn]");
   if (!btn || btn.classList.contains("disabled")) return;
@@ -145,7 +149,7 @@ function attemptUpgradeSpire(card, spireId) {
 
 // Public init called from initHub()
 export function initSpireUpgrades() {
-  ensureSpireData();
+  if (!ensureSpireData()) return;
 
   const cards = document.querySelectorAll("#overlay-spires .spire-card");
   cards.forEach(card => {

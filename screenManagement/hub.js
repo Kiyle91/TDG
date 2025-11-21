@@ -69,9 +69,12 @@ export function initHub() {
   if (!hub) return;
 
   // Ensure skin system exists before anything else
-  if (!gameState.player) gameState.player = {};
-  ensureSkin(gameState.player);
-  saveProfiles();
+  const activeProfile = getActiveProfile();
+  if (activeProfile) {
+    if (!gameState.player) gameState.player = {};
+    ensureSkin(gameState.player);
+    saveProfiles();
+  }
 
   // Buttons
   const newStoryBtn = document.getElementById("new-story-btn");
@@ -242,6 +245,7 @@ export function initHub() {
   spiresBtn.addEventListener("click", () => {
     playFairySprinkle();
     updateSpireUnlocks();
+    initSpireUpgrades(); // Ensures UI/events are bound even if profile was created this session
     refreshSpireUpgradeFromHub();
     showOverlay("overlay-spires");
   });
