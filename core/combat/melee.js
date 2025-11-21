@@ -9,7 +9,7 @@
 // ============================================================
 
 import { spawnFloatingText } from "../floatingText.js";
-import { spawnDamageSparkles } from "../fx/sparkles.js";
+import { spawnDamageSparkles, spawnCanvasSparkleBurst } from "../fx/sparkles.js";
 import { getGoblins, damageGoblin } from "../goblin.js";
 import { getOgres, damageOgre } from "../ogre.js";
 import { getWorg } from "../worg.js";
@@ -18,7 +18,6 @@ import { getTrolls } from "../troll.js";
 import { getCrossbows } from "../crossbow.js";
 import { playMeleeSwing } from "../soundtrack.js";
 import { gameState } from "../../utils/gameState.js";
-import { spawnCanvasSparkleBurst } from "../fx/sparkles.js";
 // ------------------------------------------------------------
 // 🔥 Power Tier Calculation (based on Player Attack stat)
 // ------------------------------------------------------------

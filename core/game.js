@@ -200,6 +200,8 @@ import { damageGoblin } from "./goblin.js";
 
 import { spawnDamageSparkles } from "./fx/sparkles.js";
 
+import { updateHealFX, renderHealFX } from "./combat/heal.js";
+
 // ============================================================
 // 🌊 WAVE CONFIGS
 // ============================================================
@@ -909,6 +911,7 @@ export function updateGame(delta) {
   updateOgres(delta);
   updateProjectiles(delta);
   updateArrows(delta);
+  updateHealFX(delta);
   updatePlayer(delta);
   updateFloatingText(delta);
   updatePegasus(delta);
@@ -1008,12 +1011,12 @@ export function renderGame() {
   drawTrolls(ctx);
   drawOgres(ctx);
   drawPlayer(ctx);
-
   drawProjectiles(ctx);
   drawArrows(ctx);
   drawFloatingText(ctx);
   drawLoot(ctx);
   renderSparkleBursts(ctx, 16);
+  renderHealFX(ctx);
 
   // 🚀 PULSE RINGS
   if (gameState.fx?.pulses) {
