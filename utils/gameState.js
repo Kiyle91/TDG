@@ -426,6 +426,10 @@ export function resetEchoBuff() {
 
   const icon = document.getElementById("hud-crystals-circle");
   if (icon) icon.classList.remove("echo-power-flash");
+
+  // Remove gold glow when Echo mode ends
+  const goldEl = document.getElementById("gold-display");
+  if (goldEl) goldEl.classList.remove("gold-glow");
 }
 
 loadProfiles();

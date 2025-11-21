@@ -304,8 +304,12 @@ export function renderSparkleBursts(ctx, delta) {
 function awardCrystalBonus(lastCrystal) {
   gameState.exploration.bonusGiven = true;
 
+
   // Enable tower double-damage mode
   gameState.echoPowerActive = true;
+
+  const goldEl = document.getElementById("gold-display");
+  if (goldEl) goldEl.classList.add("gold-glow");
 
   const icon = document.getElementById("hud-crystals-circle");
   if (icon) icon.classList.add("echo-power-flash");

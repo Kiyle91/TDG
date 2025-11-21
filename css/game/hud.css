@@ -462,6 +462,22 @@
   box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.4);
 }
 
+/* ============================================================
+   ✨ GOLD GLOW — Active only during Echo Power
+   ============================================================ */
+.gold-glow {
+    animation: goldPulse 1.4s infinite ease-in-out;
+    color: #ffffff !important;
+    /* Keep a warm outline while the text itself stays white */
+    text-shadow: 0 0 6px rgba(255, 216, 77, 0.9), 0 0 12px rgba(255, 187, 51, 0.8);
+}
+
+@keyframes goldPulse {
+    0%   { opacity: 0.85; transform: scale(1); }
+    50%  { opacity: 1;    transform: scale(1.12); }
+    100% { opacity: 0.85; transform: scale(1); }
+}
+
 
 /* ============================================================
    🌟 END OF FILE

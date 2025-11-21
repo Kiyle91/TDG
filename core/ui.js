@@ -108,6 +108,7 @@ export function updateHUD() {
 
   goldDisplay.textContent = `Gold: ${gold}`;
   diamondDisplay.textContent = `Diamonds: ${diamonds}`;
+  goldDisplay.classList.toggle("gold-glow", !!gameState.echoPowerActive);
 
   const playerLives = p.lives ?? gameStats.lives;
   livesDisplay.textContent = `Lives: ${playerLives}`;
