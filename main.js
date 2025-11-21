@@ -286,14 +286,24 @@ export function fullNewGameReset() {
 
 export async function startNewGameStory() {
   fullNewGameReset();
+
+  // Switch to game screen first
   showScreen("game-container");
-  gameState.paused = true;
-  await showOpeningStory();  
+
+  // 🔥 Build the game world BEFORE story appears
   await startGameWithPreload("new");
-  safeAutoSave();
+
+  // The world is now rendered — safe to pause
+  gameState.paused = true;
+
+  // Show the intro story
+  await showOpeningStory();
+
+  // After story ends, unpause + start loop normally
   gameState.paused = false;
   startGameplay("new");
 }
+
 
 
 // ============================================================

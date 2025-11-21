@@ -1,0 +1,70 @@
+/core/
+    game.js
+    main.js
+    camera.js
+    collision/
+        mapCollision.js
+        path.js
+
+/combat/
+    melee.js
+    spell.js
+    ranged.js
+    arrow.js
+    projectiles.js
+    damage.js (optional combined)
+    heal.js
+
+/entities/
+    player/
+        player.js (data)
+        playerController.js (input + movement)
+    enemies/
+        goblin.js
+        troll.js
+        ogre.js
+        elite.js
+        worg.js
+        crossbow.js
+    spires/
+        spires.js
+
+/fx/
+    sparkles.js
+    pulses.js
+    fire.js
+    healFX.js
+    seekers.js
+
+/maps/
+    map.js
+    mapLoader.js
+    mapCollision.js
+    map_one.json
+    map_two.json
+    ...
+
+/systems/
+    waves.js     ← after extraction
+    levelSystem.js
+    saveSystem.js
+    autoSave.js
+    story.js
+    storyFlags.js
+    bravery.js
+    echoPower.js
+    loot.js
+
+/ui/
+    ui.js
+    navbar.js
+    overlays/
+        levelup.js
+        credits.js
+        endscreen.js
+        alert.js
+        controls.js
+        settings.js
+    screens.js
+    landing.js
+    hub.js
