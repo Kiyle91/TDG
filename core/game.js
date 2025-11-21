@@ -195,6 +195,10 @@ function scaleEnemyHp(enemy) {
   enemy.maxHp = Math.round(enemy.maxHp * mult);
 }
 import { updateArrows, drawArrows } from "./combat/arrow.js";
+import { damageGoblin } from "./goblin.js";
+
+
+import { spawnDamageSparkles } from "./fx/sparkles.js";
 
 // ============================================================
 // 🌊 WAVE CONFIGS
@@ -203,7 +207,7 @@ import { updateArrows, drawArrows } from "./combat/arrow.js";
 export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding
   1: [
-    { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 10,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
@@ -911,6 +915,42 @@ export function updateGame(delta) {
   updateLoot(delta);
   updateWaveSystem(delta);
 
+  // 🔮 UPDATE SEEKER ORBS
+  if (gameState.fx?.seekers) {
+    for (let i = gameState.fx.seekers.length - 1; i >= 0; i--) {
+      const o = gameState.fx.seekers[i];
+      if (!o.alive || !o.target?.alive) {
+        gameState.fx.seekers.splice(i, 1);
+        continue;
+      }
+
+      const dx = o.target.x - o.x;
+      const dy = o.target.y - o.y;
+      const dist = Math.hypot(dx, dy);
+
+      const dt = delta / 1000;
+      o.x += (dx / dist) * o.speed * dt;
+      o.y += (dy / dist) * o.speed * dt;
+
+      // Hit enemy
+      if (dist < 32) {
+        const t = o.target;
+
+      // Unified damage router for seeker orbs
+      if (t.type === "elite") {
+          damageElite(t, o.dmg, "spell");
+      } else if (t.type === "ogre" || t.maxHp >= 400) {
+          damageOgre(t, o.dmg, "spell");
+      } else {
+          damageGoblin(t, o.dmg);
+      }
+
+        spawnDamageSparkles(t.x, t.y);
+        o.alive = false;
+      }
+    }
+  }
+
   // Throttled HUD
   hudUpdateTimer += delta;
   if (hudUpdateTimer >= HUD_UPDATE_INTERVAL) {
@@ -974,6 +1014,53 @@ export function renderGame() {
   drawFloatingText(ctx);
   drawLoot(ctx);
   renderSparkleBursts(ctx, 16);
+
+  // 🚀 PULSE RINGS
+  if (gameState.fx?.pulses) {
+    for (let i = gameState.fx.pulses.length - 1; i >= 0; i--) {
+      const p = gameState.fx.pulses[i];
+      p.age += 16;
+
+      const t = p.age / p.life;
+      if (t >= 1) {
+        gameState.fx.pulses.splice(i, 1);
+        continue;
+      }
+
+      const r = p.radius * (0.4 + 1.8 * t); // expands outward
+      const alpha = 1 - t;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.strokeStyle = p.color.replace("0.8", alpha.toFixed(2));
+      ctx.lineWidth = 6;
+      ctx.stroke();
+    }
+  }
+
+  // 🔮 DRAW SEEKER ORBS
+  if (gameState.fx?.seekers) {
+    for (const o of gameState.fx.seekers) {
+      if (!o.alive) continue;
+
+      ctx.save();
+      ctx.globalAlpha = 0.8;
+      ctx.fillStyle = o.color;
+
+      // main orb
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, o.size, 0, Math.PI * 2);
+      ctx.fill();
+
+      // glow
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, o.size * 1.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+  }
 
   ctx.restore();
 

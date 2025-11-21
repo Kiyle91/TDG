@@ -14,8 +14,61 @@ import { damageOgre, getOgres } from "../ogre.js";
 import { getWorg } from "../worg.js";
 import { getTrolls } from "../troll.js";
 import { getCrossbows } from "../crossbow.js";
-
+import { gameState } from "../../utils/gameState.js";
 import { playSpellCast } from "../soundtrack.js";
+// ------------------------------------------------------------
+// 🔮 Crystal Seeker Orbs (homes to enemies)
+// ------------------------------------------------------------
+function spawnSeekerOrb(x, y, dmg) {
+  if (!gameState.fx) gameState.fx = {};
+  if (!gameState.fx.seekers) gameState.fx.seekers = [];
+
+  const t = getRandomAliveTarget();
+  if (!t) return;
+
+  gameState.fx.seekers.push({
+    x, y,
+    target: t,
+    speed: 450,
+    dmg,
+    alive: true,
+    size: 14,
+    color: "#ffccff"
+  });
+}
+
+function getRandomAliveTarget() {
+  const all = [
+    ...getGoblins(),
+    ...getOgres(),
+    ...getWorg(),
+    ...getElites(),
+    ...getTrolls(),
+    ...getCrossbows()
+  ].filter(e => e.alive);
+
+  if (all.length === 0) return null;
+  return all[Math.floor(Math.random() * all.length)];
+}
+
+
+// ------------------------------------------------------------
+// 🌟 Radiating Pulse Ring
+// ------------------------------------------------------------
+
+function spawnPulseRing(x, y, radius, color = "rgba(255,200,255,0.8)") {
+  // Store a temporary pulse object in gameState.fx.pulses (we'll render in game.js)
+  if (!gameState.fx) gameState.fx = {};
+  if (!gameState.fx.pulses) gameState.fx.pulses = [];
+
+  gameState.fx.pulses.push({
+    x, y,
+    radius,
+    age: 0,
+    life: 500,      // ms
+    color
+  });
+}
 
 // ------------------------------------------------------------
 // CONFIG
@@ -91,6 +144,7 @@ export function performSpell(player) {
       }
     }
 
+
     // Sparkle burst effect
     spawnCanvasSparkleBurst(
       player.pos.x,
@@ -99,6 +153,15 @@ export function performSpell(player) {
       160,
       ["#ffb3e6", "#b3ecff", "#fff2b3", "#cdb3ff", "#b3ffd9", "#ffffff"]
     );
+
+    spawnPulseRing(player.pos.x, player.pos.y, 120, "rgba(255,150,255,0.8)");
+
+    // seekers (3 homing balls)
+    for (let i = 0; i < 3; i++) {
+    setTimeout(() => {
+        spawnSeekerOrb(player.pos.x, player.pos.y, dmg);
+    }, 120 + i * 120);  // cool staggered launch
+    }
 
     playSpellCast();
     updateHUD();
