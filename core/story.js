@@ -25,10 +25,10 @@
 // ↪️ Imports
 // ------------------------------------------------------------ 
 
-import { showScreen } from "./screens.js";
+import { showScreen } from "../screenManagement/screens.js";
 import { startGameplay } from "../main.js";
 import { gameState } from "../utils/gameState.js";
-import { SKINS, ensureSkin } from "./skins.js";
+import { SKINS, ensureSkin } from "../screenManagement/skins.js";
 
 // ------------------------------------------------------------
 // 🌟 RESOLVE PORTRAIT (player skin OR Ariana override)

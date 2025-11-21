@@ -21,8 +21,8 @@
 // ↪️ Imports
 // ------------------------------------------------------------
 
-import { createPlayer } from "../core/player.js";
-import { spawnFloatingText } from "../core/floatingText.js";
+import { createPlayer } from "../player/player.js";
+import { spawnFloatingText } from "../fx/floatingText.js";
 
 function generateProfileId(existingIds = new Set()) {
   let id;

@@ -37,10 +37,10 @@
 // ------------------------------------------------------------
 
 import { gameState, saveProfiles, setCurrentMap, unlockMap } from "../utils/gameState.js";
-import { updateHUD, showOverlay } from "./ui.js";
-import { initGoblins } from "./goblin.js";
-import { initSpires } from "./spires.js";
-import { initProjectiles } from "./projectiles.js";
+import { updateHUD, showOverlay } from "../screenManagement/ui.js";
+import { initGoblins } from "../entities/goblin.js";
+import { initSpires } from "../spires/spires.js";
+import { initProjectiles } from "../spires/projectiles.js";
 
 // ------------------------------------------------------------
 // ⚙️ SESSION START

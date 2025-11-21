@@ -41,10 +41,10 @@
 // ------------------------------------------------------------
 
 import { addGold, gameState } from "../utils/gameState.js";
-import { awardXP } from "./levelSystem.js";
-import { spawnFloatingText } from "./floatingText.js";
+import { awardXP } from "../player/levelSystem.js";
+import { spawnFloatingText } from "../fx/floatingText.js";
 import { playFairySprinkle } from "./soundtrack.js";
-import { updateHUD } from "./ui.js";
+import { updateHUD } from "../screenManagement/ui.js";
 
 
 // ------------------------------------------------------------

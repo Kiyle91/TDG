@@ -17,13 +17,13 @@ import {
   applyMapSpawn
 } from "./core/game.js";
 
-import { initLanding } from "./core/landing.js";
-import { initProfiles } from "./core/profile.js";
-import { initHub } from "./core/hub.js";
-import { initSparkles } from "./core/sparkles.js";
-import { initSettings } from "./core/settings.js";
+import { initLanding } from "./screenManagement/landing.js";
+import { initProfiles } from "./screenManagement/profile.js";
+import { initHub } from "./screenManagement/hub.js";
+import { initSparkles } from "./fx/sparkles.js";
+import { initSettings } from "./screenManagement/settings.js";
 import { initMusic } from "./core/soundtrack.js";
-import { showScreen } from "./core/screens.js";
+import { showScreen } from "./screenManagement/screens.js";
 
 import { 
   gameState, 
@@ -33,16 +33,16 @@ import {
   saveProfiles
 } from "./utils/gameState.js";
 
-import { updateBraveryBar, updateHUD } from "./core/ui.js";
-import { initNavbar } from "./core/navbar.js";
-import { initCredits } from "./core/credits.js";
-import { autoSave } from "./core/saveSystem.js";
+import { updateBraveryBar, updateHUD } from "./screenManagement/ui.js";
+import { initNavbar } from "./screenManagement/navbar.js";
+import { initCredits } from "./screenManagement/credits.js";
+import { autoSave } from "./save/saveSystem.js";
 
-import { getOgres } from "./core/ogre.js";
-import { getElites } from "./core/elite.js";
-import { getWorg } from "./core/worg.js";
-import { getCrossbows } from "./core/crossbow.js";
-import { initGoblins } from "./core/goblin.js";
+import { getOgres } from "./entities/ogre.js";
+import { getElites } from "./entities/elite.js";
+import { getWorg } from "./entities/worg.js";
+import { getCrossbows } from "./entities/crossbow.js";
+import { initGoblins } from "./entities/goblin.js";
 
 import { showOpeningStory } from "./core/story.js";
 

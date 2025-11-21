@@ -14,13 +14,13 @@
 import { preloadCrystalImages } from "./crystalEchoes.js";
 
 // Loot images
-import { loadLootImages } from "./loot.js";
+import { loadLootImages } from "../entities/loot.js";
 
 // Pegasus animation frames
-import { loadPegasus } from "./pegasus.js";
+import { loadPegasus } from "../entities/pegasus.js";
 
 // Map loader (preloads map JSON + image layers)
-import { loadMap } from "./map.js";
+import { loadMap } from "../maps/map.js";
 
 let preloadStarted = false;
 let preloadFinished = false;
