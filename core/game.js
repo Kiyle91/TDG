@@ -211,7 +211,7 @@ import { updateHealFX, renderHealFX } from "./combat/heal.js";
 export const waveConfigs = {
   // 🌿 MAP 1 — Beginner Onboarding
   1: [
-    { goblins: 100,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 100,  worgs: 50, ogres: 3, elites: 50, trolls: 50, crossbows: 2 },
     { goblins: 1,  worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
