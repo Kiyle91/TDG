@@ -47,6 +47,10 @@ import { renderSlots } from "./saveSlots.js";
 import { loadFromSlot, applySnapshot } from "./saveSystem.js";
 import { ensureSkin } from "./skins.js";
 import { gameState, saveProfiles } from "../utils/gameState.js";
+import {
+  initSpireUpgrades,
+  refreshSpireUpgradeFromHub,
+} from "./spireUpgrades.js";
 
 // ------------------------------------------------------------
 // 🌸 INIT NAVBAR
@@ -194,7 +198,20 @@ function handleNavAction(action) {
 
     default:
       break;
+    // --------------------------------------------------------
+    // 🔮 SPIRES (In-Game View + Upgrades)
+    // --------------------------------------------------------
+    case "spires":
+      playFairySprinkle();
+      initSpireUpgrades();
+      refreshSpireUpgradeFromHub();
+      import("./ui.js").then((mod) =>
+        mod.showOverlay?.("overlay-spires")
+      );
+      break;  
   }
+
+  
 }
 
 function handleInGameSlotClick(evt) {

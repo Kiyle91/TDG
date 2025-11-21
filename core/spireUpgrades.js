@@ -13,6 +13,7 @@ import { updateHubCurrencies } from "./hub.js"; // already exists in your projec
 // Throttle UI spam so a single click only triggers one upgrade
 const UPGRADE_COOLDOWN_MS = 300;
 const lastUpgradeAttempt = new Map();
+const UPGRADE_COST = 20;
 
 // ------------------------------------------------------------
 // 💫 Helpers
@@ -87,7 +88,7 @@ function refreshSpireUpgradeUI() {
     if (unlockText) {
       unlockText.textContent = unlocked
         ? "Unlocked"
-        : `🔒 Unlocks at Level ${requiredLevel}`;
+        : `Unlocks at Level ${requiredLevel}`;
     }
 
     const diamonds =
@@ -96,7 +97,8 @@ function refreshSpireUpgradeUI() {
       gameState.profile?.diamonds ??
       gameState.diamonds ??
       0;
-    const canAfford = diamonds >= 20;
+    const canAfford = diamonds >= UPGRADE_COST;
+    btn.textContent = `Upgrade (${UPGRADE_COST} \u{1F48E})`;
 
     btn.classList.toggle("disabled", !unlocked || !canAfford);
   });
@@ -119,18 +121,18 @@ function attemptUpgradeSpire(card, spireId) {
     gameState;
   const diamonds = currencies.diamonds ?? 0;
 
-  if (diamonds < 20) {
+  if (diamonds < UPGRADE_COST) {
     // If you have a fancy alert, swap this for showAlert("Not enough diamonds!");
     console.log("Not enough diamonds for upgrade.");
     refreshSpireUpgradeUI();
     return;
   }
 
-  // Spend 20 diamonds
-  currencies.diamonds = diamonds - 20;
+  // Spend diamonds
+  currencies.diamonds = diamonds - UPGRADE_COST;
 
   // Track invested diamonds
-  gameState.profile.spires[spireId].diamondsSpent += 20;
+  gameState.profile.spires[spireId].diamondsSpent += UPGRADE_COST;
 
   // Little glow pulse
   card.classList.add("pulse-upgrade");

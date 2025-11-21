@@ -232,6 +232,11 @@
   pointer-events: auto;
 }
 
+.overlay.show {
+    display: flex !important;
+    /* Match universal overlay layer above navbar/canvas */
+    z-index: 12000 !important;
+}
 
 /* ============================================================
    🌟 END OF FILE
