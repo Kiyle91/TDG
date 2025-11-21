@@ -41,6 +41,7 @@ export function performRanged(player, e, canvasRef) {
 
   const canvasX = (e.clientX - rect.left) * scaleX;
   const canvasY = (e.clientY - rect.top) * scaleY;
+
   const worldX = (window.cameraX || 0) + canvasX;
   const worldY = (window.cameraY || 0) + canvasY;
 

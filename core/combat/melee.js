@@ -18,6 +18,7 @@ import { getTrolls } from "../troll.js";
 import { getCrossbows } from "../crossbow.js";
 import { playMeleeSwing } from "../soundtrack.js";
 import { gameState } from "../../utils/gameState.js";
+
 // ------------------------------------------------------------
 // 🔥 Power Tier Calculation (based on Player Attack stat)
 // ------------------------------------------------------------
@@ -36,16 +37,16 @@ function getPowerTier(attack) {
 // ------------------------------------------------------------
 
 export function drawSlashArc(ctx, x, y, dir, tier) {
-  const radius = 42 + tier * 14;     // size of the arc
-  const thickness = 4 + tier * 1.3;  // line width
+  const radius = 42 + tier * 14;        // arc sweep size
+  const thickness = 4 + tier * 1.3;     // line width
 
   ctx.save();
   ctx.translate(x, y);
 
-  // Flip horizontally for left-facing attacks
+  // Flip horizontally when facing left
   if (dir === "left") ctx.scale(-1, 1);
 
-  // Slight tilt for dynamic feel
+  // Dynamic tilt for motion feel
   ctx.rotate(-0.4);
 
   // Pastel glow gradient
@@ -59,13 +60,11 @@ export function drawSlashArc(ctx, x, y, dir, tier) {
   ctx.lineCap = "round";
 
   ctx.beginPath();
-  // Draw a smooth arc (crescent slash)
-  ctx.arc(0, 0, radius, -1.2, 1.2);   // bigger sweep, clean curve
+  ctx.arc(0, 0, radius, -1.2, 1.2); // Perfect crescent slash
   ctx.stroke();
 
   ctx.restore();
 }
-
 
 // ------------------------------------------------------------
 // 🗡️ Main Melee Function
@@ -116,14 +115,12 @@ export function performMelee(player) {
       t.y += (dy / len) * push;
     }
 
-    // Visual damage sparkles
     spawnDamageSparkles(t.x, t.y);
   }
 
   // --------------------------------------------------------
   // 🌟 Visual Power Burst (Tier-based intensity)
   // --------------------------------------------------------
-
   const sparkleCount = 8 + tier * 4;
   const sparkleRadius = 60 + tier * 20;
 

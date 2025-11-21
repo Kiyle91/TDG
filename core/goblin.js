@@ -540,9 +540,9 @@ export function damageGoblin(goblin, amount) {
     goblin.fadeTimer = 0;
     playGoblinDeath();
     incrementGoblinDefeated();
-    awardXP(5);
-    addGold(5);
-    addBravery(1.5);
+    awardXP(250);
+    addGold(10);
+    addBravery(10);
     updateHUD();
     spawnLoot("goblin", goblin.x, goblin.y);
   }

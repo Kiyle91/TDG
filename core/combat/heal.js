@@ -1,8 +1,9 @@
 // ============================================================
-// heal.js — Healing ability + calm green visuals
+// heal.js — Healing ability + calm green visuals (Tier-scaled)
 // ------------------------------------------------------------
 //  • Heal ability (mana cost, HUD updates, floating text)
 //  • Soft pulsing heal ring + inward motes FX
+//  • Visuals scale every 5 levels (Tier 1–5)
 // ============================================================
 
 import { updateHUD } from "../ui.js";
@@ -12,11 +13,24 @@ import { playFairySprinkle } from "../soundtrack.js";
 import { gameState } from "../../utils/gameState.js";
 
 const COST_HEAL = 15;
-const HEAL_ANIM_TIME = 1000; // ms
+const HEAL_ANIM_TIME = 1000;
 
-// ------------------------------------------------------------------
+// ------------------------------------------------------------
+// ⭐ Tier calculation (matches melee/ranged/spell tiers)
+// ------------------------------------------------------------
+function getHealTier() {
+  const lvl = Number(gameState.player?.level || 1);
+
+  if (lvl < 5) return 1;
+  if (lvl < 10) return 2;
+  if (lvl < 15) return 3;
+  if (lvl < 20) return 4;
+  return 5; // level 20+
+}
+
+// ------------------------------------------------------------
 // Heal ability
-// ------------------------------------------------------------------
+// ------------------------------------------------------------
 export function performHeal(player) {
   if (!player) return { ok: false };
 
@@ -24,9 +38,12 @@ export function performHeal(player) {
     return { ok: false, reason: "mana" };
   }
 
+  const tier = getHealTier();
+
   player.mana -= COST_HEAL;
   updateHUD();
 
+  // Healing math
   const sp = Number(player.spellPower) || 0;
   const mh = Number(player.maxHp) || 0;
   const rawHeal = sp * 1.2 + mh * 0.08 + 10;
@@ -39,15 +56,22 @@ export function performHeal(player) {
   playFairySprinkle();
   spawnFloatingText(player.pos.x, player.pos.y - 40, `+${actual}`, "#7aff7a");
 
-  // FX
-  spawnHealPulse(player.pos.x, player.pos.y);
-  spawnHealMotes(player.pos.x, player.pos.y);
+  // ------------------------------------------------------------
+  // Tier-scaled FX
+  // ------------------------------------------------------------
+  const moteCount = 16 + tier * 8; // 16 → 24 → 32 → 40 → 48
+  const pulseEndR = 80 + tier * 16;
+
+  spawnHealPulse(player.pos.x, player.pos.y, pulseEndR);
+  spawnHealMotes(player.pos.x, player.pos.y, moteCount);
+
+  // Stronger sparkle burst
   spawnCanvasSparkleBurst(
     player.pos.x,
     player.pos.y,
-    18,
-    90,
-    ["#b3ffb3", "#99ffcc", "#ccffcc"]
+    18 + tier * 4,
+    90 + tier * 20,
+    ["#b3ffb3", "#99ffcc", "#ccffcc", "#e6ffe6", "#d4ffea"]
   );
 
   updateHUD();
@@ -58,9 +82,9 @@ export function performHeal(player) {
   };
 }
 
-// ------------------------------------------------------------------
-// Heal FX helpers
-// ------------------------------------------------------------------
+// ------------------------------------------------------------
+// FX store helpers
+// ------------------------------------------------------------
 function ensureHealFxStore() {
   if (!gameState.fx) gameState.fx = {};
   if (!gameState.fx.healPulses) gameState.fx.healPulses = [];
@@ -68,22 +92,29 @@ function ensureHealFxStore() {
   return gameState.fx;
 }
 
-export function spawnHealPulse(x, y) {
+// ------------------------------------------------------------
+// 🌿 Pulse Ring (tier-scaled)
+// ------------------------------------------------------------
+export function spawnHealPulse(x, y, endRadius = 80) {
   const fx = ensureHealFxStore();
   fx.healPulses.push({
     x,
     y,
     age: 0,
     life: 600,
-    startR: 10,
-    endR: 80,
-    color: "rgba(120, 255, 150, 0.7)",
+    startR: 12,
+    endR: endRadius,
+    color: "rgba(120, 255, 150, 0.75)",
   });
 }
 
-export function spawnHealMotes(x, y) {
+// ------------------------------------------------------------
+// 🌿 Inward Motes (tier-scaled)
+// ------------------------------------------------------------
+export function spawnHealMotes(x, y, count = 16) {
   const fx = ensureHealFxStore();
-  for (let i = 0; i < 16; i++) {
+
+  for (let i = 0; i < count; i++) {
     const ang = Math.random() * Math.PI * 2;
     const dist = 60 + Math.random() * 80;
     fx.healMotes.push({
@@ -94,26 +125,29 @@ export function spawnHealMotes(x, y) {
       age: 0,
       life: 450 + Math.random() * 300,
       size: 3 + Math.random() * 2,
-      color: "rgba(150,255,150,0.85)",
+      color: "rgba(150,255,150,0.9)",
     });
   }
 }
 
+// ------------------------------------------------------------
+// Update FX
+// ------------------------------------------------------------
 export function updateHealFX(delta) {
   const fx = ensureHealFxStore();
-  const dt = delta;
 
+  // Pulses
   for (let i = fx.healPulses.length - 1; i >= 0; i--) {
     const p = fx.healPulses[i];
-    p.age += dt;
+    p.age += delta;
     if (p.age >= p.life) fx.healPulses.splice(i, 1);
   }
 
+  // Motes
   for (let i = fx.healMotes.length - 1; i >= 0; i--) {
     const m = fx.healMotes[i];
-    m.age += dt;
-    const t = m.age / m.life;
-    if (t >= 1) {
+    m.age += delta;
+    if (m.age >= m.life) {
       fx.healMotes.splice(i, 1);
       continue;
     }
@@ -122,20 +156,25 @@ export function updateHealFX(delta) {
   }
 }
 
+// ------------------------------------------------------------
+// Render FX
+// ------------------------------------------------------------
 export function renderHealFX(ctx) {
   const fx = ensureHealFxStore();
 
+  // Pulses
   for (const p of fx.healPulses) {
     const t = p.age / p.life;
     const r = p.startR + (p.endR - p.startR) * t;
     const alpha = 1 - t;
     ctx.beginPath();
     ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-    ctx.strokeStyle = p.color.replace("0.7", alpha.toFixed(2));
+    ctx.strokeStyle = p.color.replace("0.75", alpha.toFixed(2));
     ctx.lineWidth = 4;
     ctx.stroke();
   }
 
+  // Motes
   for (const m of fx.healMotes) {
     const t = m.age / m.life;
     const alpha = 1 - t;
@@ -148,4 +187,3 @@ export function renderHealFX(ctx) {
     ctx.restore();
   }
 }
-

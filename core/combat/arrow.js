@@ -3,9 +3,10 @@
 // ------------------------------------------------------------
 // Physical flying Silver Bolt projectile for player ranged combat
 // Modular, lightweight, enemy-agnostic, sparkle-enhanced.
+// Now includes LEVEL-BASED sparkle scaling.
 // ============================================================
 
-import { spawnDamageSparkles } from "../fx/sparkles.js";
+import { spawnDamageSparkles, spawnCanvasSparkleBurst } from "../fx/sparkles.js";
 import { getGoblins, damageGoblin } from "../goblin.js";
 import { getOgres, damageOgre, OGRE_HIT_RADIUS } from "../ogre.js";
 import { getElites, damageElite } from "../elite.js";
@@ -13,6 +14,7 @@ import { getWorg } from "../worg.js";
 import { getTrolls } from "../troll.js";
 import { getCrossbows } from "../crossbow.js";
 import { isRectBlocked } from "../../utils/mapCollision.js";
+import { gameState } from "../../utils/gameState.js";
 
 // ------------------------------------------------------------
 // 🗂 Projectile State
@@ -22,7 +24,20 @@ export function getArrows() { return arrows; }
 
 const ARROW_SPEED = 1400;
 const ARROW_LIFETIME = 1400; // ms
-const ARROW_LENGTH = 46;
+const BASE_LENGTH = 44;
+
+// ------------------------------------------------------------
+// 🌟 LEVEL → SPARKLE TIER
+// ------------------------------------------------------------
+function getArrowTier() {
+  const lvl = Number(gameState.player?.level || 1);
+
+  if (lvl < 5) return 1;
+  if (lvl < 10) return 2;
+  if (lvl < 15) return 3;
+  if (lvl < 20) return 4;
+  return 5;
+}
 
 // ------------------------------------------------------------
 // 🧠 Unified target access
@@ -42,18 +57,23 @@ function getAllTargets() {
 // 🏹 Spawn a new arrow
 // ------------------------------------------------------------
 export function spawnArrow(x, y, angle, dmg) {
+  const tier = getArrowTier();
+
   arrows.push({
     x,
     y,
     angle,
     dmg,
     life: 0,
-    alive: true
+    alive: true,
+    tier,
+    len: BASE_LENGTH + tier * 6,   // scales length
+    sparkleTick: 0,
   });
 }
 
 // ------------------------------------------------------------
-// 🔁 Update arrows (now includes MAP COLLISION)
+// 🔁 Update arrows (+ MAP COLLISION + sparkle trail)
 // ------------------------------------------------------------
 export function updateArrows(delta) {
   const dt = delta / 1000;
@@ -66,7 +86,7 @@ export function updateArrows(delta) {
       continue;
     }
 
-    // Lifetime expire
+    // Lifetime
     a.life += delta;
     if (a.life > ARROW_LIFETIME) {
       arrows.splice(i, 1);
@@ -78,20 +98,44 @@ export function updateArrows(delta) {
     a.y += Math.sin(a.angle) * ARROW_SPEED * dt;
 
     // ------------------------------------------------------------
+    // ✨ Sparkle Trail (scaled by level)
+    // ------------------------------------------------------------
+    a.sparkleTick += delta;
+
+    const sparkleFreq = Math.max(40, 140 - a.tier * 20);  
+    const sparkleCount = 2 + a.tier;  
+
+    if (a.sparkleTick > sparkleFreq) {
+      a.sparkleTick = 0;
+
+      // sparkle origin slightly behind arrow
+      const sx = a.x - Math.cos(a.angle) * (a.len * 0.4);
+      const sy = a.y - Math.sin(a.angle) * (a.len * 0.4);
+
+      spawnCanvasSparkleBurst(
+        sx,
+        sy,
+        sparkleCount,
+        14 + a.tier * 2,
+        ["#ffffff", "#e8c6ff", "#cdd7ff"]
+      );
+    }
+
+    // ------------------------------------------------------------
     // 🧱 MAP COLLISION CHECK
     // ------------------------------------------------------------
-    // A small hitbox for the arrow tip
-    const tipX = a.x + Math.cos(a.angle) * (ARROW_LENGTH * 0.5);
-    const tipY = a.y + Math.sin(a.angle) * (ARROW_LENGTH * 0.5);
+    const tipX = a.x + Math.cos(a.angle) * (a.len * 0.55);
+    const tipY = a.y + Math.sin(a.angle) * (a.len * 0.55);
 
     if (isRectBlocked(tipX - 4, tipY - 4, 8, 8)) {
-      // Burst sparkles on map hit (soft silver/pink)
       spawnDamageSparkles(tipX, tipY);
       a.alive = false;
       continue;
     }
 
-    // Enemy collision
+    // ------------------------------------------------------------
+    // 🎯 Enemy Collision
+    // ------------------------------------------------------------
     const targets = getAllTargets();
     for (const t of targets) {
       if (!t.alive) continue;
@@ -118,9 +162,8 @@ export function updateArrows(delta) {
   }
 }
 
-
 // ------------------------------------------------------------
-// ✨ Draw arrows (called from drawGame)
+// ✨ Draw arrows (with glow scaling)
 // ------------------------------------------------------------
 export function drawArrows(ctx) {
   ctx.save();
@@ -130,26 +173,27 @@ export function drawArrows(ctx) {
     if (!a.alive) continue;
 
     ctx.save();
-
     ctx.translate(a.x, a.y);
     ctx.rotate(a.angle);
 
-    // Silver bolt body
-    ctx.fillStyle = "rgba(255,255,255,0.95)";
-    ctx.fillRect(0,2, ARROW_LENGTH, 2);
+    // Scaling
+    const glow = 0.35 + a.tier * 0.1;
 
-    // Glow
-    const grad = ctx.createLinearGradient(0, 0, ARROW_LENGTH, 0);
-    grad.addColorStop(0, "rgba(255, 180, 255, 0.6)");
-    grad.addColorStop(1, "rgba(180, 220, 255, 0.4)");
+    // GLOW trail
+    const grad = ctx.createLinearGradient(0, 0, a.len, 0);
+    grad.addColorStop(0, `rgba(255,200,255,${glow})`);
+    grad.addColorStop(1, `rgba(180,220,255,${glow * 0.7})`);
 
-// thin magical silver bolt
-    ctx.fillStyle = "rgba(240,240,255,0.95)";
-    ctx.fillRect(-14, -1.2, 28, 2.4);   // very thin line
+    ctx.fillStyle = grad;
+    ctx.fillRect(-a.len * 0.4, -1.5, a.len, 3);
 
-    // subtle glowing tip
-    ctx.fillStyle = "rgba(255,255,255,0.8)";
-    ctx.fillRect(12, -1.5, 4, 3);        // tiny point
+    // Thin silver core
+    ctx.fillStyle = "white";
+    ctx.fillRect(-a.len * 0.3, -0.8, a.len * 0.9, 1.6);
+
+    // Tip sparkle
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.fillRect(a.len * 0.4, -1.2, 4, 2.4);
 
     ctx.restore();
   }
