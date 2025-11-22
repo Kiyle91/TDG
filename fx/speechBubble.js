@@ -30,7 +30,9 @@ export function updateAndDrawSpeechBubbles(ctx, delta) {
     }
 
     const t = b.age / b.life;
-    const alpha = Math.min(1, 1 - t + 0.2);
+    const fadeStart = 0.65; // show fully for most of life
+    const fadeProgress = Math.max(0, (t - fadeStart) / (1 - fadeStart));
+    const alpha = Math.max(0, 1 - fadeProgress); // gentle fade near the end
 
     ctx.globalAlpha = alpha;
 

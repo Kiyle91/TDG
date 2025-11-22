@@ -6,6 +6,19 @@ import { spawnSpeechBubble } from "../../fx/speechBubble.js";
 
 export default [
 
+  // --- STEP 0: Initial prompt on load (no movement required) ---
+  {
+    id: "move_prompt",
+    stepsRequired: 0,
+    action: (state) => {
+      const p = state.player;
+      spawnSpeechBubble(
+        "PRESS WASD OR ARROW KEYS TO MOVE",
+        p.pos.x, p.pos.y, 4500
+      );
+    }
+  },
+
   // --- STEP 1: First movement (steps >= 5) ---
   {
     id: "wake_up",
