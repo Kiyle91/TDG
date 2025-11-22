@@ -121,6 +121,7 @@ async function checkLevelUp() {
 
     // Show overlay → resume when done
     showLevelUpOverlay(p, () => {
+      updateSummaryPanel(p);
       resumeGame();
     });
   }
@@ -189,6 +190,7 @@ function handleStatUpgrade(p, key, overlay, onClose) {
 
   spawnFloatingText(p.pos.x, p.pos.y - 30, `+${label}`, "#b5e2ff");
   updateHUD();
+  updateSummaryPanel(p);
 
   const text = overlay.querySelector(".levelup-message");
 
@@ -202,6 +204,36 @@ function handleStatUpgrade(p, key, overlay, onClose) {
   } else {
     closeLevelUpOverlay(overlay, onClose);
   }
+}
+
+
+function updateSummaryPanel(p) {
+  // --- Define your true base stats ---
+  const BASE_ATTACK = 15;
+  const BASE_SPELL  = 10;
+  const BASE_RANGED = 10;
+
+  const atk = Number(p.attack || 0);
+  const sp  = Number(p.spellPower || 0);
+  const rng = Number(p.rangedAttack || 0);
+
+  // Points spent = (stat - baseStat) / 5
+  const atkSpent = Math.max(0, Math.floor((atk - BASE_ATTACK) / 5));
+  const spSpent  = Math.max(0, Math.floor((sp  - BASE_SPELL)  / 5));
+  const rngSpent = Math.max(0, Math.floor((rng - BASE_RANGED) / 5));
+
+  const totalSpent = atkSpent + spSpent + rngSpent;
+  const rem = Number(p.statPoints || 0);
+
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+
+  // Display BASE STATS + SPENT VALUES
+  set("sum-attack",       atkSpent);
+  set("sum-spell",        spSpent);
+  set("sum-ranged",       rngSpent);
 }
 
 // ------------------------------------------------------------
