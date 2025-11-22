@@ -1,5 +1,5 @@
 // ============================================================
-// map.js — Map loading, rendering, and caching
+// map.js — Map loading, rendering, and caching (FULL FIX)
 // ============================================================
 
 import { TILE_SIZE, GRID_COLS, GRID_ROWS } from "../utils/constants.js";
@@ -57,12 +57,18 @@ async function loadTSX(tsxUrl) {
   return { columns, image, imageWidth: iw, imageHeight: ih };
 }
 
+// 🔧 COMPLETE REWRITE: Proper layer categorization
 function getLayersForGroup(group = "all") {
   if (!Array.isArray(layers)) return [];
 
-  // Only ever care about tile layers, keep original order from Tiled
-  const tileLayers = layers.filter((l) => l && l.type === "tilelayer");
+  // Get ALL visible tile layers
+  const allVisibleLayers = layers.filter((l) => {
+    return l && 
+           l.type === "tilelayer" && 
+           l.visible === true;
+  });
 
+  // Helper functions for categorization
   const isTreeLayer = (l) => {
     const n = l.name?.toLowerCase?.() || "";
     return n.includes("tree") || n.includes("foliage") || n.includes("above");
@@ -73,25 +79,25 @@ function getLayersForGroup(group = "all") {
     return n === "collision";
   };
 
-  // 🔹 All = every visible tile layer in order
+  // 🔹 "all" = every visible layer (except collision)
   if (group === "all") {
-    return tileLayers;
+    return allVisibleLayers.filter(l => !isCollisionLayer(l));
   }
 
-  // 🔹 Trees group = specifically named canopy / above layers
+  // 🔹 "trees" = only tree/foliage/above layers
   if (group === "trees") {
-    return tileLayers.filter(isTreeLayer);
+    return allVisibleLayers.filter(isTreeLayer);
   }
 
-  // 🔹 Ground group = everything *except* trees + collision
+  // 🔹 "ground" = everything except trees and collision
+  // This includes: road, props, props two, ground layer, etc.
   if (group === "ground") {
-    return tileLayers.filter((l) => !isTreeLayer(l) && !isCollisionLayer(l));
+    return allVisibleLayers.filter((l) => !isTreeLayer(l) && !isCollisionLayer(l));
   }
 
-  // Fallback: just give all tile layers
-  return tileLayers;
+  // Fallback
+  return allVisibleLayers.filter(l => !isCollisionLayer(l));
 }
-
 
 function drawFromPreRendered(ctx, group, cameraX, cameraY, viewportWidth, viewportHeight) {
   const pre = ensurePreRendered(group);
@@ -113,34 +119,44 @@ function drawFromPreRendered(ctx, group, cameraX, cameraY, viewportWidth, viewpo
 }
 
 function drawLayersDirect(ctx, targetLayers, cameraX, cameraY, viewportWidth, viewportHeight) {
-  if (!mapData || !ctx) return;
+  if (!mapData || !ctx || !targetLayers || targetLayers.length === 0) return;
 
-  const startCol = Math.floor(cameraX / TILE_SIZE);
-  const endCol = Math.min(mapData.width - 1,
-    Math.floor((cameraX + viewportWidth) / TILE_SIZE)
+  // Add buffer to prevent edge artifacts
+  const bufferTiles = 1;
+  
+  const startCol = Math.max(0, Math.floor(cameraX / TILE_SIZE) - bufferTiles);
+  const endCol = Math.min(
+    mapData.width - 1,
+    Math.floor((cameraX + viewportWidth) / TILE_SIZE) + bufferTiles
   );
 
-  const startRow = Math.floor(cameraY / TILE_SIZE);
-  const endRow = Math.min(mapData.height - 1,
-    Math.floor((cameraY + viewportHeight) / TILE_SIZE)
+  const startRow = Math.max(0, Math.floor(cameraY / TILE_SIZE) - bufferTiles);
+  const endRow = Math.min(
+    mapData.height - 1,
+    Math.floor((cameraY + viewportHeight) / TILE_SIZE) + bufferTiles
   );
 
   ctx.imageSmoothingEnabled = false;
 
   for (const layer of targetLayers) {
-    if (!layer?.visible || layer.type !== "tilelayer") continue;
+    // Safety checks
+    if (!layer || layer.type !== "tilelayer" || layer.visible !== true) continue;
+    if (!layer.data || !Array.isArray(layer.data)) continue;
 
     const data = layer.data;
-    const width = layer.width;
+    const width = layer.width || mapData.width;
 
     for (let row = startRow; row <= endRow; row++) {
       for (let col = startCol; col <= endCol; col++) {
         const idx = row * width + col;
+        
+        if (idx < 0 || idx >= data.length) continue;
+        
         const gid = data[idx];
-        if (!gid) continue;
+        if (!gid || gid === 0) continue;
 
         const ts = getTilesetForGid(gid);
-        if (!ts) continue;
+        if (!ts || !ts.image) continue;
 
         const localId = gid - ts.firstgid;
         const sx = (localId % ts.columns) * TILE_SIZE;
@@ -166,21 +182,34 @@ function ensurePreRendered(group = "all") {
   ctx.imageSmoothingEnabled = false;
 
   const targetLayers = getLayersForGroup(group);
+  
+  console.log(`🎨 Rendering ${group} group with ${targetLayers.length} layers:`);
+  
   for (const layer of targetLayers) {
-    if (!layer?.visible || layer.type !== "tilelayer") continue;
+    // Only render visible tile layers
+    if (!layer || layer.type !== "tilelayer" || layer.visible !== true) continue;
+    if (!layer.data || !Array.isArray(layer.data)) continue;
 
     const data = layer.data;
-    const width = layer.width;
-    const height = layer.height;
+    const width = layer.width || mapData.width;
+    const height = layer.height || mapData.height;
+    
+    let tilesDrawn = 0;
 
     for (let row = 0; row < height; row++) {
       for (let col = 0; col < width; col++) {
         const idx = row * width + col;
+        
+        if (idx < 0 || idx >= data.length) continue;
+        
         const gid = data[idx];
-        if (!gid) continue;
+        if (!gid || gid === 0) continue;
 
         const ts = getTilesetForGid(gid);
-        if (!ts) continue;
+        if (!ts || !ts.image) {
+          console.warn(`⚠️ No tileset found for GID ${gid} in layer "${layer.name}"`);
+          continue;
+        }
 
         const localId = gid - ts.firstgid;
         const sx = (localId % ts.columns) * TILE_SIZE;
@@ -190,8 +219,11 @@ function ensurePreRendered(group = "all") {
         const dy = row * TILE_SIZE;
 
         ctx.drawImage(ts.image, sx, sy, TILE_SIZE, TILE_SIZE, dx, dy, TILE_SIZE, TILE_SIZE);
+        tilesDrawn++;
       }
     }
+    
+    console.log(`  ✓ "${layer.name}": Drew ${tilesDrawn} tiles`);
   }
 
   preRenderedLayers[group] = canvas;
@@ -218,7 +250,8 @@ export async function loadMap(mode = "runtime") {
     return;
   }
 
-  tilesetCache = new Map();
+  // Clear caches on new map
+  tilesetCache.clear();
   preRenderedLayers = { all: null, ground: null, trees: null };
   pathPoints = [];
 
@@ -243,6 +276,17 @@ export async function loadMap(mode = "runtime") {
 
   mapData = await res.json();
   layers = mapData.layers || [];
+
+  // 🔍 DEBUG: Log all layers to verify what's loaded
+  console.log("📋 All layers in map:");
+  layers.forEach((layer, i) => {
+    if (layer.type === "tilelayer") {
+      console.log(`  ${i}: "${layer.name}" - visible: ${layer.visible}, type: ${layer.type}`);
+    }
+  });
+
+  console.log("\n🌿 Ground layers:", getLayersForGroup("ground").map(l => l.name));
+  console.log("🌲 Tree layers:", getLayersForGroup("trees").map(l => l.name));
 
   initCollision(mapData, TILE_SIZE);
 
@@ -277,9 +321,12 @@ export async function loadMap(mode = "runtime") {
 
   initCrystalEchoes(mapData);
 
+  // Pre-render all layer groups
+  console.log("🎨 Pre-rendering layers...");
   ensurePreRendered("ground");
   ensurePreRendered("trees");
   ensurePreRendered("all");
+  console.log("✅ Pre-rendering complete!");
 
   mapCache.set(id, {
     mapData,
@@ -287,8 +334,8 @@ export async function loadMap(mode = "runtime") {
     tilesets,
     mapPixelWidth,
     mapPixelHeight,
-    tilesetCache,
-    preRenderedLayers,
+    tilesetCache: new Map(tilesetCache),
+    preRenderedLayers: { ...preRenderedLayers },
   });
 }
 
@@ -315,7 +362,8 @@ function getTilesetForGid(gid) {
 // ------------------------------------------------------------
 
 export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
-  if (!mapData) return;
+  if (!mapData || !ctx) return;
+  
   if (drawFromPreRendered(ctx, "all", cameraX, cameraY, viewportWidth, viewportHeight)) {
     return;
   }
@@ -344,10 +392,6 @@ export function drawMapLayered(
   const targetLayers = getLayersForGroup(group);
   drawLayersDirect(ctx, targetLayers, cameraX, cameraY, viewportWidth, viewportHeight);
 }
-
-// ------------------------------------------------------------
-// Extract enemy path
-// ------------------------------------------------------------
 
 // ------------------------------------------------------------
 // Extract ALL enemy paths from map
