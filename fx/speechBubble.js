@@ -19,7 +19,8 @@ export function spawnSpeechBubble(text, x, y, duration = 5000, anchor = null) {
     y,
     anchor: resolvedAnchor,
     life: duration,
-    age: 0
+    age: 0,
+    cachedWidth: null
   });
 }
 
@@ -43,17 +44,20 @@ export function updateAndDrawSpeechBubbles(ctx, delta) {
     const anchorX = b.anchor?.pos?.x ?? b.x;
     const anchorY = b.anchor?.pos?.y ?? b.y;
 
-    drawSpeechBubble(ctx, b.text, anchorX, anchorY - 50); // adjust offset for head height
+    drawSpeechBubble(ctx, b, anchorX, anchorY - 50); // adjust offset for head height
 
     ctx.globalAlpha = 1;
   }
 }
 
-function drawSpeechBubble(ctx, text, x, y) {
+function drawSpeechBubble(ctx, bubble, x, y) {
   ctx.font = "20px Poppins";
   const padding = 14;
-  const metrics = ctx.measureText(text);
-  const w = metrics.width + padding * 2;
+  if (!bubble.cachedWidth) {
+    bubble.cachedWidth = ctx.measureText(bubble.text).width;
+  }
+  const metricsWidth = bubble.cachedWidth;
+  const w = metricsWidth + padding * 2;
   const h = 40;
 
   // Background bubble
@@ -79,7 +83,7 @@ function drawSpeechBubble(ctx, text, x, y) {
   ctx.fillStyle = "#444";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(text, x, y - h/2);
+  ctx.fillText(bubble.text, x, y - h/2);
 }
 
 // Rounded rectangle helper

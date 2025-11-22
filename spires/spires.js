@@ -37,12 +37,17 @@ import { gameState } from "../utils/gameState.js";
 let spireSprites = {};
 let spires = [];
 
+// Shared enemy cache to avoid per-frame allocations in updateSpires
+const combinedEnemiesCache = [];
+let enemyCacheTimer = 0;
+
 // 💥 Durability + timing
 const MAX_ATTACKS = 50;
 const FIRE_RATE_MS = 800;
 const FADE_SPEED = 2;
 const SPIRE_SIZE = 96;
 const TARGET_UPDATE_INTERVAL = 200; // ms
+const ENEMY_CACHE_INTERVAL = TARGET_UPDATE_INTERVAL; // reuse targeting cadence
 
 // 🌈 Pulse FX (simple internal list, also exposed for debugging)
 const spirePulses = [];
@@ -80,12 +85,16 @@ function loadImage(src) {
 async function loadSpireSprites() {
   const list = ["basic", "frost", "flame", "arcane", "light", "moon"];
 
-  for (const t of list) {
-    spireSprites[t] = {
-      idle: await loadImage(`./assets/images/spires/${t}_spire.png`),
-      active: await loadImage(`./assets/images/spires/${t}_spire_active.png`)
-    };
-  }
+  const spritePromises = list.map(async (t) => {
+    const [idle, active] = await Promise.all([
+      loadImage(`./assets/images/spires/${t}_spire.png`),
+      loadImage(`./assets/images/spires/${t}_spire_active.png`),
+    ]);
+
+    spireSprites[t] = { idle, active };
+  });
+
+  await Promise.all(spritePromises);
 }
 
 // ------------------------------------------------------------
@@ -187,13 +196,7 @@ function updateSpirePulses(delta) {
 export function updateSpires(delta) {
   const dt = delta / 1000;
 
-  const combinedEnemies = [
-    ...getGoblins(),
-    ...getWorg(),
-    ...getElites(),
-    ...getTrolls(),
-    ...getCrossbows(),
-  ];
+  refreshEnemyCache(delta);
 
   for (let i = spires.length - 1; i >= 0; i--) {
     const spire = spires[i];
@@ -221,19 +224,19 @@ export function updateSpires(delta) {
 
       switch (spire.type) {
         case "basic_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE);
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemiesCache, SPIRE_RANGE);
           break;
 
         case "frost_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE * 0.9);
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemiesCache, SPIRE_RANGE * 0.9);
           break;
 
         case "flame_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE * 0.9);
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemiesCache, SPIRE_RANGE * 0.9);
           break;
 
         case "arcane_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE * 1.5);
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemiesCache, SPIRE_RANGE * 1.5);
           break;
 
         case "light_spire": {
@@ -249,7 +252,7 @@ export function updateSpires(delta) {
         }
 
         case "moon_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemies, SPIRE_RANGE);
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemiesCache, SPIRE_RANGE);
           break;
       }
     }
@@ -320,6 +323,25 @@ function triggerSpire(spire) {
   spire.cooldown = FIRE_RATE_MS / 1000;
   spire.activeFrameTimer = 200;
   spire.attacksDone++;
+}
+
+// Refresh global enemy list on a shared interval to reduce allocations
+function refreshEnemyCache(delta) {
+  enemyCacheTimer += delta;
+  if (enemyCacheTimer < ENEMY_CACHE_INTERVAL && combinedEnemiesCache.length) {
+    return;
+  }
+
+  enemyCacheTimer = 0;
+  combinedEnemiesCache.length = 0;
+
+  combinedEnemiesCache.push(
+    ...getGoblins(),
+    ...getWorg(),
+    ...getElites(),
+    ...getTrolls(),
+    ...getCrossbows(),
+  );
 }
 
 // ------------------------------------------------------------
