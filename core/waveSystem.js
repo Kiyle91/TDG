@@ -48,7 +48,7 @@ export const waveConfigs = {
   // 🌿 MAP 1 — Gentle Onboarding
   // ============================================================
   1: [
-    { goblins: 100, worgs: 100, elites: 100, trolls: 100, ogres: 10, crossbows: 100 },
+    { goblins: 1, worgs: 0, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
     { goblins: 5, worgs: 0, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
     { goblins: 20, worgs: 5, elites: 3, trolls: 0, ogres: 0, crossbows: 0 },
     { goblins: 24, worgs: 10, elites: 15, trolls: 0, ogres: 0, crossbows: 0 },

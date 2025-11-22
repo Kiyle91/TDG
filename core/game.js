@@ -255,6 +255,7 @@ function applyMapSpawn() {
 
 export async function initGame(mode = "new") {
   // Always unpause on load or new
+  gameState.elapsedTime = 0;
   gameState.paused = false;
   gameState.isPaused = false;
   gameState.echoPowerActive = false;
@@ -375,6 +376,8 @@ export async function initGame(mode = "new") {
 
 export function updateGame(delta) {
   if (gameState.paused) return;
+
+  gameState.elapsedTime = (gameState.elapsedTime || 0) + delta / 1000;
 
   delta = Math.min(delta, 100);
 
@@ -600,8 +603,14 @@ function checkVictoryDefeat() {
 // ============================================================
 
 export function resetCombatState() {
+  gameState.elapsedTime = 0;
   resetWaveKillTracking();
   gameState.victoryPending = false;
+
+  const current = gameState.progress?.currentMap ?? 1;
+  if (current === 1) {
+      loadStepEventsForMap(1, map1Steps);
+  }
 
   if (gameState.profile?.currencies) {
     gameState.profile.currencies.gold = 0;
@@ -660,6 +669,7 @@ export function resetCombatState() {
 
 export function resetPlayerState() {
   const p = gameState.player;
+  gameState.elapsedTime = 0;
   if (!p) return;
 
   applyMapSpawn();

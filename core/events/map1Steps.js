@@ -1,8 +1,8 @@
 // ============================================================
-// 🌲 Map 1 — Glitter's Step-Based Story & Tutorial Script
+// 🌲 Map 1 — Glitter's Time-Based Story & Tutorial Script
 // ------------------------------------------------------------
-// • All events driven ONLY by player.steps
-// • No kills / waves / HP / mana conditions
+// • All events driven by elapsed game time (seconds)
+// • Smooth pacing, no reliance on movement distance
 // • Glitter talks to herself as she explores & fights
 // • Covers: movement, melee, ranged, heal, spell, bravery, spires
 // ============================================================
@@ -12,12 +12,12 @@ import { spawnSpeechBubble } from "../../fx/speechBubble.js";
 export default [
 
   // ============================================================
-  // ⭐ PHASE 0 — WAKE UP & BASIC MOVEMENT
+  // ⭐ PHASE 0 — WAKE UP & BASIC MOVEMENT (0–6s)
   // ============================================================
 
   {
-    id: "step_000",
-    stepsRequired: 0,
+    id: "t_000",
+    timeRequired: 0,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -29,8 +29,8 @@ export default [
   },
 
   {
-    id: "step_005",
-    stepsRequired: 10,
+    id: "t_006",
+    timeRequired: 6,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -41,8 +41,8 @@ export default [
   },
 
   {
-    id: "step_015",
-    stepsRequired: 20,
+    id: "t_012",
+    timeRequired: 12,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -53,8 +53,8 @@ export default [
   },
 
   {
-    id: "step_030",
-    stepsRequired: 30,
+    id: "t_018",
+    timeRequired: 18,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -65,8 +65,8 @@ export default [
   },
 
   {
-    id: "step_045",
-    stepsRequired: 40,
+    id: "t_024",
+    timeRequired: 24,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -77,8 +77,8 @@ export default [
   },
 
   {
-    id: "step_060",
-    stepsRequired: 50,
+    id: "t_030",
+    timeRequired: 30,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -88,9 +88,13 @@ export default [
     },
   },
 
+  // ============================================================
+  // ⭐ PHASE 1 — BASIC COMBAT HINTS (36–60s)
+  // ============================================================
+
   {
-    id: "step_080",
-    stepsRequired: 80,
+    id: "t_036",
+    timeRequired: 36,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -100,13 +104,9 @@ export default [
     },
   },
 
-  // ============================================================
-  // ⭐ PHASE 1 — BASIC COMBAT HINTS
-  // ============================================================
-
   {
-    id: "step_100",
-    stepsRequired: 100,
+    id: "t_044",
+    timeRequired: 44,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -117,8 +117,8 @@ export default [
   },
 
   {
-    id: "step_130",
-    stepsRequired: 130,
+    id: "t_052",
+    timeRequired: 52,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -129,8 +129,8 @@ export default [
   },
 
   {
-    id: "step_160",
-    stepsRequired: 160,
+    id: "t_060",
+    timeRequired: 60,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -140,25 +140,13 @@ export default [
     },
   },
 
-  {
-    id: "step_190",
-    stepsRequired: 190,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Don’t panic. Swing, step, breathe. You’ve got this.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
   // ============================================================
-  // ⭐ PHASE 2 — CRYSTAL ECHOES & EXPLORATION
+  // ⭐ PHASE 2 — CRYSTAL ECHOES & EXPLORATION (65–90s)
   // ============================================================
 
   {
-    id: "step_220",
-    stepsRequired: 220,
+    id: "t_065",
+    timeRequired: 65,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -169,8 +157,8 @@ export default [
   },
 
   {
-    id: "step_250",
-    stepsRequired: 250,
+    id: "t_075",
+    timeRequired: 75,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -181,8 +169,8 @@ export default [
   },
 
   {
-    id: "step_280",
-    stepsRequired: 280,
+    id: "t_085",
+    timeRequired: 85,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -193,8 +181,8 @@ export default [
   },
 
   {
-    id: "step_310",
-    stepsRequired: 310,
+    id: "t_095",
+    timeRequired: 95,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -205,12 +193,12 @@ export default [
   },
 
   // ============================================================
-  // ⭐ PHASE 3 — SPIRES & HOTKEYS (1–6)
+  // ⭐ PHASE 3 — SPIRES & HOTKEYS (1–6) (105–135s)
   // ============================================================
 
   {
-    id: "step_340",
-    stepsRequired: 340,
+    id: "t_105",
+    timeRequired: 105,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -221,8 +209,8 @@ export default [
   },
 
   {
-    id: "step_370",
-    stepsRequired: 370,
+    id: "t_115",
+    timeRequired: 115,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -233,8 +221,8 @@ export default [
   },
 
   {
-    id: "step_400",
-    stepsRequired: 400,
+    id: "t_125",
+    timeRequired: 125,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -245,8 +233,8 @@ export default [
   },
 
   {
-    id: "step_430",
-    stepsRequired: 430,
+    id: "t_135",
+    timeRequired: 135,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -256,25 +244,13 @@ export default [
     },
   },
 
-  {
-    id: "step_460",
-    stepsRequired: 460,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If things get rough… more Spires. Always more Spires.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
   // ============================================================
-  // ⭐ PHASE 4 — HEAL (R), SPELL (F), BRAVERY (Q)
+  // ⭐ PHASE 4 — HEAL (R), SPELL (F), BRAVERY (Q) (140–170s)
   // ============================================================
 
   {
-    id: "step_490",
-    stepsRequired: 490,
+    id: "t_140",
+    timeRequired: 140,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -285,8 +261,8 @@ export default [
   },
 
   {
-    id: "step_520",
-    stepsRequired: 520,
+    id: "t_150",
+    timeRequired: 150,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -297,8 +273,8 @@ export default [
   },
 
   {
-    id: "step_550",
-    stepsRequired: 550,
+    id: "t_160",
+    timeRequired: 160,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -309,20 +285,8 @@ export default [
   },
 
   {
-    id: "step_580",
-    stepsRequired: 580,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Note: don’t fire off F when I’m already low on mana. Future me will be mad.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "step_610",
-    stepsRequired: 610,
+    id: "t_170",
+    timeRequired: 170,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -332,25 +296,13 @@ export default [
     },
   },
 
-  {
-    id: "step_640",
-    stepsRequired: 640,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Bravery builds up over time… I should save Q for the worst moments.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
   // ============================================================
-  // ⭐ PHASE 5 — LEVELS, POWER & SELF-ENCOURAGEMENT
+  // ⭐ PHASE 5 — LEVELS, POWER & SELF-ENCOURAGEMENT (175–230s)
   // ============================================================
 
   {
-    id: "step_670",
-    stepsRequired: 670,
+    id: "t_175",
+    timeRequired: 175,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -361,8 +313,8 @@ export default [
   },
 
   {
-    id: "step_700",
-    stepsRequired: 700,
+    id: "t_195",
+    timeRequired: 195,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -373,8 +325,8 @@ export default [
   },
 
   {
-    id: "step_730",
-    stepsRequired: 730,
+    id: "t_215",
+    timeRequired: 215,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -385,8 +337,8 @@ export default [
   },
 
   {
-    id: "step_760",
-    stepsRequired: 760,
+    id: "t_230",
+    timeRequired: 230,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -397,12 +349,12 @@ export default [
   },
 
   // ============================================================
-  // ⭐ PHASE 6 — MID/LATE MAP FLAVOUR (FIGHTS LAST A WHILE)
+  // ⭐ PHASE 6 — MID/LATE MAP FLAVOUR (240–300s)
   // ============================================================
 
   {
-    id: "step_800",
-    stepsRequired: 800,
+    id: "t_240",
+    timeRequired: 240,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -413,8 +365,8 @@ export default [
   },
 
   {
-    id: "step_850",
-    stepsRequired: 850,
+    id: "t_265",
+    timeRequired: 265,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -425,8 +377,8 @@ export default [
   },
 
   {
-    id: "step_900",
-    stepsRequired: 900,
+    id: "t_285",
+    timeRequired: 285,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -437,8 +389,8 @@ export default [
   },
 
   {
-    id: "step_950",
-    stepsRequired: 950,
+    id: "t_300",
+    timeRequired: 300,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
@@ -449,8 +401,8 @@ export default [
   },
 
   {
-    id: "step_1000",
-    stepsRequired: 1000,
+    id: "t_330",
+    timeRequired: 330,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(

@@ -50,19 +50,17 @@ export function syncStepEventsToSteps(steps = 0) {
 export function updateStepEvents() {
   if (!activeEvents.length) return;
 
-  const state = gameState;
-  const p = state.player;
-  if (!p) return;
-
-  const steps = p.steps ?? 0;
+  const t = gameState.elapsedTime ?? 0;
 
   for (const ev of activeEvents) {
     if (ev.done) continue;
 
-    if (steps >= ev.stepsRequired) {
-      ev.action(state);
-      ev.done = true;
-      break;
+    if (t >= ev.timeRequired) {
+      if (t >= ev.timeRequired && t - ev.timeRequired < 1) {
+        ev.action(gameState);
+        ev.done = true;
+        break;
+      }  
     }
   }
 }
