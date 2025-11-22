@@ -50,6 +50,7 @@ import { awardXP } from "../player/levelSystem.js";
 import { spawnLoot } from "./loot.js";
 import { addBravery } from "../screenManagement/ui.js";
 import { slideRect } from "../utils/mapCollision.js";
+import { getAllPaths } from "../maps/map.js";
 
 
 // ============================================================
@@ -153,8 +154,9 @@ async function loadGoblinSprites() {
 // 🌍 PATH + INIT
 // ============================================================
 
+// Accept either a single path OR an array of paths
 export function setGoblinPath(points) {
-  pathPoints = points || [];
+  pathPoints = Array.isArray(points[0]) ? points : [points];
 }
 
 export async function initGoblins() {
@@ -170,9 +172,21 @@ export async function initGoblins() {
 // ============================================================
 
 export function spawnGoblin() {
-  if (!pathPoints.length) return;
+  const all = getAllPaths();
 
-  const start = pathPoints[0];
+  // NEW: If multiple paths exist, choose one randomly
+  let chosenPath = [];
+
+  if (all && all.length > 0) {
+    chosenPath = all[Math.floor(Math.random() * all.length)];
+  } else {
+    // Fallback: old single-path maps
+    chosenPath = pathPoints[0] || [];
+  }
+
+  if (!chosenPath || chosenPath.length === 0) return;
+
+  const start = chosenPath[0];
 
   goblins.push({
     type: "goblin",
@@ -201,6 +215,7 @@ export function spawnGoblin() {
     knockback: 0,
     speed: BASE_SPEED,
     laneOffset: 0,
+    path: chosenPath
   });
 
   goblinsSpawned++;
@@ -362,7 +377,7 @@ export function updateGoblins(delta) {
     }
 
     else if (e.state === "return") {
-      const target = pathPoints[e.targetIndex];
+      const target = e.path[e.targetIndex];
       if (!target) {
         e.state = "path";
         continue;
@@ -399,7 +414,7 @@ export function updateGoblins(delta) {
     }
 
     else if (e.state === "path") {
-      const target = pathPoints[e.targetIndex];
+      const target = e.path[e.targetIndex];
       if (target) {
         const dx = target.x - e.x;
         const dy = target.y - e.y;
@@ -407,7 +422,7 @@ export function updateGoblins(delta) {
 
         if (dist < 5) {
           e.targetIndex++;
-          if (e.targetIndex >= pathPoints.length) {
+          if (e.targetIndex >= e.path.length) {
             handleGoblinEscape(e);
           }
         } else {

@@ -207,10 +207,10 @@
          "y":0
         }, 
         {
-         "class":"path",
+         "class":"Paths",
          "draworder":"topdown",
          "id":3,
-         "name":"path",
+         "name":"Paths",
          "objects":[
                 {
                  "height":0,

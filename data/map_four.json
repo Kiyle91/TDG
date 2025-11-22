@@ -83,11 +83,11 @@
          "y":0
         }, 
         {
-         "class":"path",
+         "class":"Paths",
          "draworder":"topdown",
          "id":7,
          "locked":true,
-         "name":"path",
+         "name":"Paths",
          "objects":[
                 {
                  "height":0,

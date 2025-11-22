@@ -65,6 +65,7 @@
             163, 164, 165, 166, 161, 162, 163, 164, 476, 477, 478, 166, 161, 161, 162, 163, 475, 476, 477, 161, 162, 163, 164, 165, 166, 161, 162, 163, 164, 162, 163, 164, 165, 161, 473, 474, 475, 476, 477, 478, 166, 166, 161, 161, 162, 163, 164, 163, 163, 162, 162, 162, 162, 162, 161, 161, 161, 161, 161, 161],
          "height":60,
          "id":1,
+         "locked":true,
          "name":"Ground Layer",
          "opacity":1,
          "type":"tilelayer",
@@ -146,11 +147,10 @@
          "y":0
         }, 
         {
-         "class":"path",
+         "class":"Paths",
          "draworder":"topdown",
          "id":2,
-         "locked":true,
-         "name":"path",
+         "name":"Paths",
          "objects":[
                 {
                  "height":0,
@@ -179,6 +179,34 @@
                  "width":0,
                  "x":-157.576,
                  "y":139.394
+                }, 
+                {
+                 "height":0,
+                 "id":10,
+                 "name":"",
+                 "polyline":[
+                        {
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
+                         "x":1218.18,
+                         "y":0
+                        }, 
+                        {
+                         "x":1272.73,
+                         "y":1521.21
+                        }, 
+                        {
+                         "x":2233.33,
+                         "y":1512.12
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":-193.939,
+                 "y":327.273
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -470,7 +498,7 @@
          "name":"collision",
          "opacity":1,
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":60,
          "x":0,
          "y":0
@@ -549,7 +577,7 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":7,
+ "nextobjectid":11,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

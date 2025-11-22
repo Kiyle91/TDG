@@ -1,34 +1,11 @@
 // ============================================================
-// 🐺 worg.js — Olivia’s World: Crystal Keep
+// 🐺 worg.js — Olivia's World: Crystal Keep
 // ------------------------------------------------------------
 // ✦ Path-only runner enemy (no attacks)
+// ✦ FIXED: Now supports multiple paths
 // ✦ Independent damage system + XP/Gold rewards
 // ✦ Cached sprite rendering for zero-lag animation
-// ✦ Frost / Flame / Moon elemental effects supported
-// ✦ Hit flash + smooth death fade
-// ✦ Goblin-style HP bar + shared reward systems
 // ============================================================
-/* ------------------------------------------------------------
- * MODULE: worg.js
- * PURPOSE:
- *   Implements the Worg enemy type as an independent, lightweight
- *   path-runner. Handles movement, elemental debuffs, damage,
- *   death fade, rendering, and reward payout.
- *
- * SUMMARY:
- *   Worgs follow the enemy path, take damage from the player,
- *   spires, and projectiles, and contribute XP, Gold, and Bravery
- *   rewards upon defeat. Uses cached, downscaled sprites for
- *   maximum performance and no frame spikes during mass spawns.
- *
- * FEATURES:
- *   • initWorg() — load sprites + reset system
- *   • spawnWorg() — create new worg at path start
- *   • updateWorg() — movement, debuffs, damage, rewards
- *   • drawWorg() — cached sprite rendering + FX
- *   • getWorg() — returns active Worg list
- * ------------------------------------------------------------ */
-
 
 // ------------------------------------------------------------
 // ↪️ Imports
@@ -48,7 +25,7 @@ import { slideRect } from "../utils/mapCollision.js";
 // ============================================================
 
 let worgList = [];
-let pathPoints = [];
+let allPaths = []; // ✅ Changed to store multiple paths
 let worgSprites = null;
 
 
@@ -133,8 +110,21 @@ async function loadWorgSprites() {
 // 🔧 INITIALIZE SYSTEM
 // ============================================================
 
-export async function initWorg(path) {
-  pathPoints = Array.isArray(path) ? path : [];
+// ✅ FIXED: Now accepts array of paths
+export async function initWorg(paths) {
+  // Handle both single path (legacy) and multiple paths
+  if (Array.isArray(paths)) {
+    if (paths.length > 0 && Array.isArray(paths[0])) {
+      // Multiple paths: [[path1], [path2], ...]
+      allPaths = paths;
+    } else {
+      // Single path: [point1, point2, ...]
+      allPaths = [paths];
+    }
+  } else {
+    allPaths = [];
+  }
+  
   worgList = [];
   await loadWorgSprites();
 }
@@ -154,10 +144,26 @@ function moveWorgWithCollision(w, dx, dy) {
 // 🐺 SPAWN ONE WORG
 // ============================================================
 
-export function spawnWorg() {
-  if (!pathPoints.length) return;
+// ✅ FIXED: Can now specify which path to use, or random if not specified
+export function spawnWorg(pathIndex = null) {
+  if (!allPaths.length) {
+    console.warn("No paths available for worg spawn");
+    return;
+  }
 
-  const start = pathPoints[0];
+  // Choose path: specified index, or random
+  let chosenPathIndex = pathIndex;
+  if (chosenPathIndex === null || chosenPathIndex >= allPaths.length) {
+    chosenPathIndex = Math.floor(Math.random() * allPaths.length);
+  }
+
+  const chosenPath = allPaths[chosenPathIndex];
+  if (!chosenPath || !chosenPath.length) {
+    console.warn(`Invalid path at index ${chosenPathIndex}`);
+    return;
+  }
+
+  const start = chosenPath[0];
 
   const w = {
     type: "worg",
@@ -183,6 +189,9 @@ export function spawnWorg() {
     isBurning: false,
     burnTick: 1000,
     stunTimer: 0,
+
+    path: chosenPath,  // ✅ FIXED: Assign the chosen path
+    pathIndex: chosenPathIndex, // Track which path this worg is on
   };
 
   worgList.push(w);
@@ -191,11 +200,11 @@ export function spawnWorg() {
 
 
 // ============================================================
-// 🔁 UPDATE LOOP
+// 🔄 UPDATE LOOP
 // ============================================================
 
 export function updateWorg(delta = 16) {
-  if (!pathPoints.length || worgList.length === 0) return;
+  if (!allPaths.length || worgList.length === 0) return;
 
   const dt = delta / 1000;
 
@@ -215,7 +224,7 @@ export function updateWorg(delta = 16) {
       if (w.flashTimer < 0) w.flashTimer = 0;
     }
 
-    const target = pathPoints[w.targetIndex];
+    const target = w.path[w.targetIndex];
     if (!target) continue;
 
     const dx = target.x - w.x;
@@ -230,7 +239,7 @@ export function updateWorg(delta = 16) {
       w.y = target.y;
       w.targetIndex++;
 
-      if (w.targetIndex >= pathPoints.length) {
+      if (w.targetIndex >= w.path.length) {
         if (gameState.player) {
           if (typeof gameState.player.lives !== "number") {
             gameState.player.lives = 10;
@@ -437,6 +446,11 @@ export function drawWorg(ctx) {
 
 export function getWorg() {
   return worgList;
+}
+
+// ✅ NEW: Get available paths count
+export function getPathCount() {
+  return allPaths.length;
 }
 
 

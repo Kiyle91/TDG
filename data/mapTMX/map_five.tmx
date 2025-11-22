@@ -112,7 +112,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="2" name="path" class="path" locked="1">
+ <objectgroup id="2" name="Paths" class="Paths" locked="1">
   <object id="8" x="1330.85" y="-48.3946">
    <polyline points="0,0 -13.443,1709.94"/>
   </object>
@@ -333,7 +333,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="3" name="CrystalEchos" class="crystal" locked="1">
+ <objectgroup id="3" name="CrystalEchoes" class="crystal" locked="1">
   <object id="1" x="422.109" y="408.666">
    <point/>
   </object>

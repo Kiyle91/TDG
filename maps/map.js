@@ -349,23 +349,31 @@ export function drawMapLayered(
 // Extract enemy path
 // ------------------------------------------------------------
 
-export function extractPathFromMap() {
+// ------------------------------------------------------------
+// Extract ALL enemy paths from map
+// ------------------------------------------------------------
+export function extractPathsFromMap() {
   if (!mapData) return [];
 
   const pathLayer = layers.find(
-    (l) => l.type === "objectgroup" && l.name.toLowerCase() === "path"
+    (l) => l.type === "objectgroup" && l.name.toLowerCase() === "paths"
   );
   if (!pathLayer) return [];
 
-  const obj = pathLayer.objects.find((o) => o.polyline);
-  if (!obj?.polyline) return [];
+  const allPaths = [];
 
-  pathPoints = obj.polyline.map((p) => ({
-    x: obj.x + p.x,
-    y: obj.y + p.y,
-  }));
+  for (const obj of pathLayer.objects) {
+    if (!obj.polyline) continue;
 
-  return pathPoints;
+    const pts = obj.polyline.map((p) => ({
+      x: obj.x + p.x,
+      y: obj.y + p.y,
+    }));
+
+    allPaths.push(pts);
+  }
+
+  return allPaths;
 }
 
 export function getMapPixelSize() {
@@ -391,6 +399,10 @@ export function extractCrystalEchoes() {
     y: obj.y,
     type: obj.type || "crystal"
   }));
+}
+
+export function getAllPaths() {
+  return extractPathsFromMap();
 }
 
 // ============================================================

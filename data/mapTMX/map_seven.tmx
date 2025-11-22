@@ -88,7 +88,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="3" name="path" class="path">
+ <objectgroup id="3" name="Paths" class="Paths">
   <object id="8" x="940.716" y="-61.7989">
    <polyline points="0,0 -22.8885,1316.09"/>
   </object>

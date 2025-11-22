@@ -24,14 +24,17 @@
 // ðŸ—ºï¸ MAP & LAYERS
 // ------------------------------------------------------------
 
+// ------------------------------------------------------------
+// MAP & LAYERS (MULTI-PATH READY)
+// ------------------------------------------------------------
 import {
   loadMap,
-  extractPathFromMap,
+  extractPathsFromMap,
+  getAllPaths,
   drawMapLayered,
   getMapPixelSize,
   extractCrystalEchoes,
 } from "../maps/map.js";
-
 // ------------------------------------------------------------
 // ðŸ‘¹ ENEMIES (Goblin / Troll / Ogre / Worg / Elite / Crossbow)
 // ------------------------------------------------------------
@@ -287,9 +290,13 @@ export async function initGame(mode = "new") {
   gameState.mapWidth = mapW;
   gameState.mapHeight = mapH;
 
-  const pathPoints = extractPathFromMap();
-  setGoblinPath(pathPoints);
+  // NEW: extract all enemy paths (any polylines in "Paths" layer)
+  const allPaths = extractPathsFromMap();
 
+  // Goblins choose their own lane internally if needed
+  setGoblinPath(allPaths);
+
+  // Crystal Echoes
   const echoPoints = extractCrystalEchoes();
 
   // Only reset exploration count on NEW
@@ -303,14 +310,22 @@ export async function initGame(mode = "new") {
   // Subsystems
   clearLoot();
   await loadLootImages();
-  initGoblins();
-  await initWorg(pathPoints);
-  await initElites();
-  await initTrolls(pathPoints);
-  await initCrossbows();
+  // ------------------------------------------------------------
+  // ENEMY INITIALIZATION (multi-path for all walkers)
+  // ------------------------------------------------------------
+  await initGoblins();
+
+  // Worg & Trolls MUST receive allPaths or they will break waves
+  await initWorg(allPaths);
+  await initTrolls(allPaths);
+
+  await initElites();     // No paths needed
+  await initCrossbows();  // No paths needed
+
   initSpires();
   initOgres();
   initProjectiles();
+
 
   // Player
   if (!gameState.player) {

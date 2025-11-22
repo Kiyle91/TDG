@@ -1,5 +1,5 @@
 // ============================================================
-// 🧌 troll.js — Olivia’s World: Crystal Keep
+// 🧌 troll.js — Olivia's World: Crystal Keep
 // ------------------------------------------------------------
 // MODULE: troll.js
 // PURPOSE:
@@ -129,7 +129,14 @@ async function loadTrollSprites() {
 
 export async function initTrolls(points) {
   trolls = [];
-  pathPoints = points || [];
+  if (Array.isArray(points) && Array.isArray(points[0])) {
+    // Multiple paths
+    pathPoints = points;
+  } else {
+    // Single path fallback
+    pathPoints = [points];
+  }
+
   await loadTrollSprites();
 }
 
@@ -152,7 +159,10 @@ function moveTrollWithCollision(t, dx, dy) {
 export function spawnTroll() {
   if (!pathPoints.length) return;
 
-  const start = pathPoints[0];
+  const myPath = pathPoints[Math.floor(Math.random() * pathPoints.length)];
+  if (!myPath || !myPath.length) return;
+
+  const start = myPath[0];
 
   trolls.push({
     type: "troll",
@@ -178,6 +188,8 @@ export function spawnTroll() {
     flashTimer: 0,
     attacking: false,
     chasing: false,
+    path: myPath,
+    targetIndex: 0,
   });
 
   return trolls[trolls.length - 1];
@@ -319,7 +331,8 @@ export function updateTrolls(delta = 16) {
       // ------------------------------
       // 🛣 PATH FOLLOW
       // ------------------------------
-      const target = pathPoints[t.pathIndex];
+      // ✅ FIXED: Use t.path instead of pathPoints
+      const target = t.path[t.pathIndex];
       if (!target) {
         handleEscape(t);
         continue;
@@ -331,7 +344,8 @@ export function updateTrolls(delta = 16) {
 
       if (dist < 6) {
         t.pathIndex++;
-        if (t.pathIndex >= pathPoints.length) {
+        // ✅ FIXED: Compare against t.path.length instead of pathPoints.length
+        if (t.pathIndex >= t.path.length) {
           handleEscape(t);
         }
       } else {
@@ -363,7 +377,7 @@ export function updateTrolls(delta = 16) {
     // ------------------------------
     // Player ↔ Troll pushback
     // (only when not invincible — bravery handles aura instead)
-// ------------------------------
+    // ------------------------------
     if (!player.invincible && distP < 50 && distP > 0) {
       const overlap = (50 - distP) / 3;
       const nx = dxp / distP;

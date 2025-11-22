@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="60" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="7">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="60" tilewidth="32" tileheight="32" infinite="0" nextlayerid="9" nextobjectid="11">
  <editorsettings>
   <export target="../map_one.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" source="../../assets/images/tilesets/master_tileset.tsx"/>
- <layer id="1" name="Ground Layer" width="60" height="60">
+ <layer id="1" name="Ground Layer" width="60" height="60" locked="1">
   <data encoding="csv">
 161,162,161,161,162,163,164,476,477,478,161,317,473,473,475,475,475,161,161,473,474,475,476,477,161,162,476,477,161,476,477,478,317,473,473,475,475,475,161,161,473,474,475,476,478,317,473,474,475,475,476,477,161,162,161,161,162,163,164,165,
 161,162,161,161,162,163,476,477,477,478,317,473,473,474,475,475,161,161,473,474,475,476,477,161,162,163,476,477,161,477,478,161,473,473,474,475,475,161,161,473,474,475,476,477,161,473,473,475,475,475,476,477,161,162,161,161,162,163,164,165,
@@ -132,9 +132,12 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="2" name="path" class="path" locked="1">
+ <objectgroup id="2" name="Paths" class="Paths">
   <object id="6" x="-157.576" y="139.394">
    <polyline points="0,0 1351.52,-3.0303 1331.58,1592.61 2193.58,1634.61"/>
+  </object>
+  <object id="10" x="-193.939" y="327.273">
+   <polyline points="0,0 1218.18,0 1272.73,1521.21 2233.33,1512.12"/>
   </object>
  </objectgroup>
  <layer id="5" name="Props" width="60" height="60" locked="1">
@@ -393,7 +396,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="3" name="CrystalEchos" class="crystal" locked="1">
+ <objectgroup id="3" name="CrystalEchoes" class="crystal" locked="1">
   <object id="1" x="712" y="692">
    <point/>
   </object>
