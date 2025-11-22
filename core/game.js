@@ -135,6 +135,8 @@ import {
   drawFloatingText,
 } from "../fx/floatingText.js";
 
+import { updateAndDrawSpeechBubbles } from "../fx/speechBubble.js";
+
 // ------------------------------------------------------------
 // ðŸª½ PEGASUS (ambient flight only)
 // ------------------------------------------------------------
@@ -175,6 +177,11 @@ import { damageGoblin } from "../entities/goblin.js";
 import { spawnDamageSparkles } from "../fx/sparkles.js";
 
 import { updateHealFX, renderHealFX } from "../combat/heal.js";
+
+import { loadStepEventsForMap } from "../core/eventEngine.js";
+import map1Steps from "../core/events/map1Steps.js";
+import { updateStepEvents } from "../core/eventEngine.js";
+
 
 
 export {
@@ -326,6 +333,11 @@ export async function initGame(mode = "new") {
   initPlayerController(canvas);
   initUI();
 
+  const current = gameState.progress?.currentMap ?? 1;
+  if (current === 1) {
+    loadStepEventsForMap(1, map1Steps);
+  }
+
   // Pegasus + healing + drops
   await loadPegasus();
   initPegasus(ctx);
@@ -359,6 +371,7 @@ export function updateGame(delta) {
   updateFloatingText(delta);
   updatePegasus(delta);
   updateLoot(delta);
+  updateStepEvents();
   updateWaveSystem(delta).catch(err => {
     console.warn("updateWaveSystem failed:", err);
   });
@@ -459,6 +472,7 @@ export function renderGame() {
   drawProjectiles(ctx);
   drawArrows(ctx);
   drawFloatingText(ctx);
+  updateAndDrawSpeechBubbles(ctx, 16);  
   drawLoot(ctx);
   renderSparkleBursts(ctx, 16);
   renderHealFX(ctx);

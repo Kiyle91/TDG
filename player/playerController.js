@@ -76,6 +76,7 @@ const DEFAULT_SPEED = 160;
 const SPRITE_SIZE = 80;
 const WALK_FRAME_INTERVAL = 220;
 const SHADOW_OPACITY = 0.25;
+const STEP_LENGTH_PX = 80; // distance traveled that counts as one story step
 
 // Attack / animation state
 let attackCooldown = 0;
@@ -229,6 +230,8 @@ function ensurePlayerRuntime() {
   }
 
   if (typeof p.invulnTimer !== "number") p.invulnTimer = 0;
+  if (typeof p.steps !== "number") p.steps = 0;
+  if (typeof p.stepDistance !== "number") p.stepDistance = 0;
 }
 
 // ------------------------------------------------------------
@@ -482,6 +485,9 @@ export function updatePlayer(delta) {
 
   // 🚶 Movement + goblin body shunt
   if (!isAttacking) {
+    const prevX = p.pos.x;
+    const prevY = p.pos.y;
+
     let nextX = p.pos.x + dx * speed * dt;
     let nextY = p.pos.y + dy * speed * dt;
     const { bw, bh, ox, oy } = p.body;
@@ -506,6 +512,15 @@ export function updatePlayer(delta) {
 
       p.pos.x = nextX;
       p.pos.y = nextY;
+
+      const moved = Math.hypot(p.pos.x - prevX, p.pos.y - prevY);
+      if (moved > 0) {
+        p.stepDistance += moved;
+        while (p.stepDistance >= STEP_LENGTH_PX) {
+          p.steps += 1;
+          p.stepDistance -= STEP_LENGTH_PX;
+        }
+      }
     }
   }
 
