@@ -197,7 +197,7 @@ function collectCrystalEcho(crystal, index) {
   gameState.exploration.found++;
 
 
-  spawnFloatingText("+5 XP", crystal.x, crystal.y - 10, "#DAB4FF");
+  spawnFloatingText(crystal.x, crystal.y - 10, "+5 XP", "#DAB4FF");
   
   playFairySprinkle();
 
@@ -321,9 +321,9 @@ function awardCrystalBonus(lastCrystal) {
   updateHUD();
 
   spawnFloatingText(
-    "✨ Exploration Complete! ✨",
     lastCrystal.x,
     lastCrystal.y - 40,
+    "Exploration Complete!",
     "#FFFFFF"
   );
 }
@@ -331,3 +331,5 @@ function awardCrystalBonus(lastCrystal) {
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================
+
+

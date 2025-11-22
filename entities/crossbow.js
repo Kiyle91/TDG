@@ -412,7 +412,7 @@ function updateCrossbowBolts(delta) {
         const dmg = ATTACK_DAMAGE;
         player.hp = Math.max(0, player.hp - dmg);
         spawnDamageSparkles(player.pos.x, player.pos.y);
-        spawnFloatingText(`-${dmg}`, player.pos.x, player.pos.y - 40, "#ff8080");
+        spawnFloatingText(player.pos.x, player.pos.y - 40, `-${dmg}`, "#ff8080");
         playGoblinDamage();
         updateHUD();
 
@@ -518,7 +518,7 @@ export function damageCrossbow(c, amount) {
   if (!c || !c.alive) return;
 
   c.hp -= amount;
-  spawnFloatingText(`-${amount}`, c.x, c.y - 40, "#ff8080");
+  spawnFloatingText(c.x, c.y - 40, `-${amount}`, "#ff8080");
   playGoblinDamage();
 
   if (c.hp <= 0) {
@@ -539,7 +539,12 @@ function killCrossbow(c) {
   updateHUD();
   playGoblinDeath();
   spawnLoot("crossbow", c.x, c.y);
-  spawnFloatingText("✝", c.x, c.y - 50, "#ffffff");
+  spawnFloatingText(
+    c.x,
+    c.y - 50,
+    "Crossbow Down!",
+    "#ffffff"
+  );
 }
 
 
@@ -559,3 +564,4 @@ export function clearCrossbows() {
 // ============================================================
 // 🌟 END OF FILE — crossbow.js
 // ============================================================
+
