@@ -76,12 +76,45 @@ export function slideRect(x, y, w, h, dx, dy, opts = {}) {
   let ny = y + dy;
 
   const blockedX = isRectBlocked(nx, y, w, h, opts);
-  if (blockedX) nx = x;
-
   const blockedY = isRectBlocked(x, ny, w, h, opts);
-  if (blockedY) ny = y;
 
-  return { x: nx, y: ny, blocked: blockedX && blockedY };
+  if (!blockedX && !blockedY) {
+    return { x: nx, y: ny, blocked: false };
+  }
+
+  if (!blockedX && blockedY) {
+    return { x: nx, y, blocked: false };
+  }
+
+  if (blockedX && !blockedY) {
+    return { x, y: ny, blocked: false };
+  }
+
+  // Both axes blocked: try progressively smaller steps to "unstick"
+  let stepX = dx;
+  let stepY = dy;
+  for (let i = 0; i < 3; i++) {
+    stepX *= 0.5;
+    stepY *= 0.5;
+
+    const tx = x + stepX;
+    const ty = y + stepY;
+
+    const txBlocked = isRectBlocked(tx, y, w, h, opts);
+    const tyBlocked = isRectBlocked(x, ty, w, h, opts);
+
+    if (!txBlocked && !tyBlocked) {
+      return { x: tx, y: ty, blocked: false };
+    }
+    if (!txBlocked) {
+      return { x: tx, y, blocked: false };
+    }
+    if (!tyBlocked) {
+      return { x, y: ty, blocked: false };
+    }
+  }
+
+  return { x, y, blocked: true };
 }
 
 // ============================================================
