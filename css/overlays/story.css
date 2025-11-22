@@ -72,7 +72,7 @@
   line-height: 1.55;
 
   padding-right: 10px;
-  text-align: left;            /* MUCH better for long story text */
+  text-align: center;            /* MUCH better for long story text */
   color: #ffffff;
 
   text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);

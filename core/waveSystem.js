@@ -196,7 +196,7 @@ for (let i = 1; i <= 20; i++) {
   ogreMilestones[i * 100] = false;
 }
 
-const FIRST_WAVE_DELAY = 30000;
+const FIRST_WAVE_DELAY = 60000;
 const BETWEEN_WAVES_DELAY = 5000;
 const VICTORY_DELAY = 50;
 

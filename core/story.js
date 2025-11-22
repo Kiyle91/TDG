@@ -108,8 +108,8 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
 // ------------------------------------------------------------
 
 export const wave1Text = {
-  1: "Guardian, the goblins test our borders. Stay sharp — this is only the beginning.",
-  2: "These woods hide old magic — and darker creatures. Even the goblins seem wary.",
+  1: "Oh my! That was actually a goblin! It was sooo ugly! Ew Ew Ew Ew! Ok, this is serious now. We need to prepare as quickly we as can. Goblins are not very strong but we they lack in strentgh, they make up for in sheer amounts of numbers. If one thing is sure, if there is one goblin.. there are more nearby. Prepare yourself, this could be trouble. Oh it was sooo ugly.. I think im going to be sick. You need to grab as many Crystal Echos from around the Meadow as you can before the Goblins arrive. We can't let them fall into their hands!",
+  2: "So the goblins have made their way to farmer braggs! oh no, we must do what we can to protect him. its your duty as a guardian of course! get some spires down, and most importantly, get the crstal echos before the goblins overwhelm yhou and take control!",
   3: "A cold breeze sweeps through the frostfields… something stirs beyond the snow.",
   4: "Heat rises from beneath the scorched earth. The goblins fear what sleeps here.",
   5: "The seaside winds whisper warnings… the goblins move strangely near the shore.",
@@ -120,7 +120,7 @@ export const wave1Text = {
 };
 
 export const wave5Text = {
-  1: "They regroup in the shadows… something drives them onward. This was no random attack.",
+  1: "Yuck. Well I think I did fantstically there. Yes.. i mean you did do the work, but i managed to watch you and not throw up! How you can stand to even look at them makes you much braver than me. This was only a scouting party. W'eve spent our whole lives in crystal keep.. the ancient tales say that even small raiding parties of goblins number in the 1000s. We should head to Farmer Braggs farm to make sure hes ok.",
   2: "The forest shakes — an ogre approaches. Brace yourself, Guardian.",
   3: "The blizzard roars… an ancient frostbeast stirs beneath the ice.",
   4: "Molten rumbling echoes below — the magma fields awaken.",
@@ -188,7 +188,8 @@ export async function showOpeningStory() {
     text: `
 <div style="text-align:center; font-size:2rem;"><u><b>PRINCESS ARIANA</b></u></div>
 
-Princess ${guardian}… I can finally reach you through the Crystal Link!  
+Princess ${guardian}… I can finally reach you through the Crystal Link!
+
 Can you hear me??
 
 Fantastic!
@@ -196,7 +197,7 @@ Fantastic!
 I can’t believe these old conduits still work…
 
 We’ve had urgent reports from our scouts near The Whispering Meadows.  
-And—this might sound silly—but they claim to have seen **goblins**.
+And—this might sound silly—but they claim to have seen goblins.
 
 You may still be a recruit, but you are a Princess Guardian…  
 and my best friend!
@@ -230,7 +231,7 @@ but some are far more powerful.
 Some are Crystal Echoes — fragments of magic,  
 shards of the Crystal Heart itself.
 
-The goblins don’t understand the power they play with.  
+The goblins don’t understand the power they play with.  F
 It can be dangerous… very dangerous.
 
 Many years ago, the Goblin King nearly destroyed the entire Unicorn Isles  
@@ -244,7 +245,7 @@ Remember:
 As a Princess Guardian, you can create powerful Spires from crystals  
 to defend our lands.  
 But only with more Crystal Echoes  
-can you unlock their **true** potential.
+can you unlock their true potential.
 
 Go now, Princess ${guardian}.  
 

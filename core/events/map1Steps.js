@@ -21,7 +21,7 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "I can use [W] [A] [S] [D] to move around..",
+        "Well this is the meadows.. I should use WASD to move..",
         p.pos.x, p.pos.y,
         4500
       );
@@ -30,11 +30,11 @@ export default [
 
   {
     id: "step_005",
-    stepsRequired: 5,
+    stepsRequired: 10,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Okay… legs work. Good start, Glitter.",
+        "Left Click to shoot my bow.. that's right..",
         p.pos.x, p.pos.y
       );
     },
@@ -42,11 +42,11 @@ export default [
 
   {
     id: "step_015",
-    stepsRequired: 15,
+    stepsRequired: 20,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Left, right… yep. Walking still feels natural.",
+        "Spacebar.. thats my trusty sword..",
         p.pos.x, p.pos.y
       );
     },
@@ -58,7 +58,7 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "This forest… it feels familiar somehow…",
+        "Spells... We cast them with the F Key..",
         p.pos.x, p.pos.y
       );
     },
@@ -66,11 +66,11 @@ export default [
 
   {
     id: "step_045",
-    stepsRequired: 45,
+    stepsRequired: 40,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Still quiet. Maybe too quiet.",
+        "Now I remember.. We can heal with the R Key..",
         p.pos.x, p.pos.y
       );
     },
@@ -78,11 +78,11 @@ export default [
 
   {
     id: "step_060",
-    stepsRequired: 60,
+    stepsRequired: 50,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Stay focused. Don’t let the nerves creep in.",
+        "Okay lets keep our eye out for any Goblins!",
         p.pos.x, p.pos.y
       );
     },
