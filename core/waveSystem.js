@@ -48,7 +48,7 @@ export const waveConfigs = {
   // 🌿 MAP 1 — Gentle Onboarding
   // ============================================================
   1: [
-    { goblins: 12, worgs: 0, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
+    { goblins: 12, worgs: 3, elites: 3, trolls: 3, ogres: 1, crossbows: 5 },
     { goblins: 16, worgs: 1, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
     { goblins: 20, worgs: 1, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
     { goblins: 24, worgs: 2, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
@@ -70,7 +70,7 @@ export const waveConfigs = {
   // 🏞 MAP 3 — Pattern Mixing + Elite Ambushes
   // ============================================================
   3: [
-    { goblins: 22, worgs: 3, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
+    { goblins: 22, worgs: 3, elites: 3, trolls: 5, ogres: 1, crossbows: 5 },
     { goblins: 26, worgs: 4, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
     { goblins: 22, worgs: 6, elites: 2, trolls: 0, ogres: 0, crossbows: 0 }, // spike
     { goblins: 30, worgs: 4, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },

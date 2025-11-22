@@ -35,6 +35,10 @@
 import { gameState } from "../utils/gameState.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
 import { getGoblins } from "../entities/goblin.js";
+import { getWorg } from "../entities/worg.js";
+import { getElites } from "../entities/elite.js";
+import { getCrossbows } from "../entities/crossbow.js";
+import { getTrolls } from "../entities/troll.js";
 import { updateHUD, getArrowCount, activateBravery } from "../screenManagement/ui.js";
 import { playPlayerDamage, playCancelSound } from "../core/soundtrack.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
@@ -241,6 +245,46 @@ function ensurePlayerRuntime() {
 function notEnoughMana(p) {
   spawnFloatingText(p.pos.x, p.pos.y - 40, "Not enough mana!", "#77aaff");
   if (typeof playCancelSound === "function") playCancelSound();
+}
+
+function applyEnemyBodyCollision(nextX, nextY) {
+  const groups = [
+    { list: getGoblins(), radius: 45 },
+    { list: getWorg(), radius: 45 },
+    { list: getElites(), radius: 45 },
+    { list: getCrossbows(), radius: 45 },
+    { list: getTrolls(), radius: 55 },
+  ];
+
+  let px = nextX;
+  let py = nextY;
+
+  for (const { list, radius } of groups) {
+    if (!list?.length) continue;
+
+    for (const e of list) {
+      if (!e || !e.alive) continue;
+
+      const ex = e.x ?? e.pos?.x;
+      const ey = e.y ?? e.pos?.y;
+      if (typeof ex !== "number" || typeof ey !== "number") continue;
+
+      const dx = px - ex;
+      const dy = py - ey;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > 0 && dist < radius) {
+        const overlap = (radius - dist) / 3;
+        const nx = dx / dist;
+        const ny = dy / dist;
+
+        px += nx * overlap * 0.8;
+        py += ny * overlap * 0.8;
+      }
+    }
+  }
+
+  return { x: px, y: py };
 }
 
 // ------------------------------------------------------------
@@ -495,23 +539,10 @@ export function updatePlayer(delta) {
     const feetY = nextY + oy;
 
     if (!isRectBlocked(feetX, feetY, bw, bh)) {
-      for (const g of getGoblins()) {
-        if (!g.alive) continue;
-        const dxp = nextX - g.x;
-        const dyp = nextY - g.y;
-        const dist = Math.hypot(dxp, dyp);
-        const minDist = 45;
-        if (dist > 0 && dist < minDist) {
-          const overlap = (minDist - dist) / 3;
-          const nx = dxp / dist;
-          const ny = dyp / dist;
-          nextX += nx * overlap * 0.8;
-          nextY += ny * overlap * 0.8;
-        }
-      }
+      const { x: resolvedX, y: resolvedY } = applyEnemyBodyCollision(nextX, nextY);
 
-      p.pos.x = nextX;
-      p.pos.y = nextY;
+      p.pos.x = resolvedX;
+      p.pos.y = resolvedY;
 
       const moved = Math.hypot(p.pos.x - prevX, p.pos.y - prevY);
       if (moved > 0) {
