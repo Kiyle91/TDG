@@ -34,57 +34,49 @@
 .story-box {
   position: relative;
   width: 900px;
-  height: 350px;
+  height: 800px;
 
-  padding: 50px 70px;
+  padding: 60px 80px;
 
   background: rgba(255, 255, 255, 0.15);
   border: 2px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
 
-  font-size: 1.2rem;
   color: #fff;
-  text-align: center;
-  line-height: 1.6;
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;     /* NEW — true vertical centering */
   align-items: center;
 
-  z-index: 1000;
-
-  animation: overlayPop 0.5s ease;
-
+  text-align: center;
   box-shadow:
     0 0 25px rgba(181, 226, 255, 0.8),
     inset 0 0 20px rgba(255, 255, 255, 0.4);
-}
 
+  animation: overlayPop 0.5s ease;
+}
 
 
 /* ============================================================
    ✒️ STORY TEXT BLOCK
 ============================================================ */
 .story-text {
-  width: 100%;
-  height: 200px;
+  flex: 1;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  max-height: 500px;           /* NEW — uses the big box properly */
+  overflow-y: auto;            /* scroll only if text is huge */
 
-  margin-bottom: 15px;
+  white-space: pre-line;
+  font-size: 1.25rem;
+  line-height: 1.55;
 
-  overflow: hidden;
-  white-space: pre-wrap;
-  line-height: 1.6;
-
-  font-family: "Comic Sans MS", cursive;
-  font-size: 1.1rem;
+  padding-right: 10px;
+  text-align: left;            /* MUCH better for long story text */
   color: #ffffff;
 
   text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
+  font-family: "Comic Sans MS", cursive;
 }
 
 
@@ -137,19 +129,23 @@
 ============================================================ */
 .story-content {
   display: flex;
-  align-items: center;
-  gap: 30px;
-  height: 260px;
+  align-items: flex-start;
+  justify-content: center;
+
+  gap: 40px;
+  margin-bottom: 40px;
+
+  width: 100%;
+  max-width: 780px;
 }
 
 /* Portrait image */
 .story-portrait {
-  width: 180px;
-  height: 220px;
+  width: 200px;        /* slightly bigger */
+  height: auto;        /* keeps proper ratio */
+  margin-top: 20px;    /* visually aligned with text start */
 
   border-radius: 12px;
-  object-fit: cover;
-
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(181, 226, 255, 0.6);
 
@@ -203,6 +199,36 @@
   pointer-events: none;
 }
 
+/* ============================================================
+   ✨ SOFT PASTEL SCROLLBAR FOR STORY TEXT
+   (Matches Hub News, but lighter and more ethereal)
+============================================================ */
+.story-text::-webkit-scrollbar {
+  width: 6px;
+}
+
+.story-text::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.story-text::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(91, 139, 230, 0.5),
+    rgba(224, 187, 255, 0.6)
+  );
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(224, 187, 255, 0.6);
+}
+
+.story-text::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(91, 139, 230, 0.7),
+    rgba(224, 187, 255, 0.8)
+  );
+}
 
 
 /* ============================================================

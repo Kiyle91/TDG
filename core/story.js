@@ -152,7 +152,7 @@ export async function triggerEndOfWave1Story(mapId) {
 
   await showStory({
     text: wave1Text[mapId] || "The battle continues...",
-    useAriana: false,
+    useAriana: true,
   });
 
   gameState.paused = false;
@@ -181,13 +181,38 @@ export async function triggerEndOfWave5Story(mapId) {
 // ------------------------------------------------------------
 
 export async function showOpeningStory() {
+  const guardian = gameState?.player?.name || "Guardian";
+
   // PAGE 1
   await showStory({
     text: `
-  Princess Ariana:  
-The Crystal Isles are trembling.  
-Darkness stirs beneath the goblin hordes,  
-and our ancient defenses are weakening.
+<div style="text-align:center; font-size:2rem;"><u><b>PRINCESS ARIANA</b></u></div>
+
+Princess ${guardian}… I can finally reach you through the Crystal Link!  
+Can you hear me??
+
+Fantastic!
+
+I can’t believe these old conduits still work…
+
+We’ve had urgent reports from our scouts near The Whispering Meadows.  
+And—this might sound silly—but they claim to have seen **goblins**.
+
+You may still be a recruit, but you are a Princess Guardian…  
+and my best friend!
+
+I need you to head over there as soon as you can and investigate.  
+I’m sure it’s just Farmer Bragg and his wild imagination,  
+but we can never be too careful when goblins are involved!
+
+…
+
+Don’t worry—I'm here to help you.  
+What could go wrong?
+
+…  
+So much.  
+So, so much could go wrong…
     `.trim(),
     useAriana: true
   });
@@ -195,11 +220,39 @@ and our ancient defenses are weakening.
   // PAGE 2
   await showStory({
     text: `
-  The Crystal Heart — our light in the Isles — has begun to fade.  
-Only you can reignite its power.
+Before you go, Princess ${guardian}… there’s something you must know.
 
-Seek out the Crystal Echoes.  
-And protect our home, Guardian.
+You’ve heard the tales—goblins, ogres, and their terrible king.  
+They crave the crystals that dot our islands.  
+Most crystals are harmless and pretty…  
+but some are far more powerful.
+
+Some are Crystal Echoes — fragments of magic,  
+shards of the Crystal Heart itself.
+
+The goblins don’t understand the power they play with.  
+It can be dangerous… very dangerous.
+
+Many years ago, the Goblin King nearly destroyed the entire Unicorn Isles  
+with one of his schemes.  
+He is not to be underestimated!
+
+If there truly are goblins in The Whispering Meadows,  
+you must collect as many Crystal Echoes as you can.
+
+Remember:  
+As a Princess Guardian, you can create powerful Spires from crystals  
+to defend our lands.  
+But only with more Crystal Echoes  
+can you unlock their **true** potential.
+
+Go now, Princess ${guardian}.  
+
+I’ll contact you again once you arrive at The Whispering Meadows!
+
+Good Luck!!
+
+
     `.trim(),
     useAriana: true
   });
