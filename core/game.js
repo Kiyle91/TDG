@@ -472,7 +472,6 @@ export function renderGame() {
   drawProjectiles(ctx);
   drawArrows(ctx);
   drawFloatingText(ctx);
-  updateAndDrawSpeechBubbles(ctx, 16);  
   drawLoot(ctx);
   renderSparkleBursts(ctx, 16);
   renderHealFX(ctx);
@@ -537,6 +536,12 @@ export function renderGame() {
   } catch {
     // non-fatal
   }
+
+  // Speech bubbles above all layers (including trees/pegasus)
+  ctx.save();
+  ctx.translate(-cameraX, -cameraY);
+  updateAndDrawSpeechBubbles(ctx, 16);
+  ctx.restore();
 }
 
 // ============================================================
