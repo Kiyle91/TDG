@@ -71,8 +71,8 @@ const ATTACK_WINDUP = 120;
 
 const FADE_OUT = 900;
 
-const EXP_REWARD = 10;
-const GOLD_REWARD = 10;
+const EXP_REWARD = 5;
+const GOLD_REWARD = 3;
 
 
 // ============================================================

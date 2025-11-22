@@ -195,9 +195,6 @@ function collectCrystalEcho(crystal, index) {
   echoes.splice(index, 1);
 
   gameState.exploration.found++;
-
-
-  spawnFloatingText(crystal.x, crystal.y - 10, "+5 XP", "#DAB4FF");
   
   playFairySprinkle();
 

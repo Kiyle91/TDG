@@ -78,7 +78,7 @@ function claimReward() {
 
   const profile = gameState.profile;
 
-  addDiamonds(10000);
+  addDiamonds(50);
   updateHUD();
   updateHubCurrencies();
 

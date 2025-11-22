@@ -42,6 +42,7 @@ import { playGoblinDeath, playGoblinDamage } from "../core/soundtrack.js";
 import { spawnDamageSparkles } from "../fx/sparkles.js";
 import { spawnLoot } from "./loot.js";
 import { slideRect } from "../utils/mapCollision.js";
+import { addBravery } from "../screenManagement/ui.js";
 
 
 // ============================================================
@@ -67,8 +68,8 @@ const CROSSBOW_SPEED = 80;
 const CROSSBOW_SIZE = 80;
 const CROSSBOW_HITBOX = CROSSBOW_SIZE * 0.55;
 
-const ATTACK_RANGE = 500;
-const IDEAL_MIN_RANGE = 260;
+const ATTACK_RANGE = 380;
+const IDEAL_MIN_RANGE = 220;
 
 const ATTACK_COOLDOWN = 1600;
 const ATTACK_DAMAGE = 8;
@@ -549,8 +550,9 @@ function killCrossbow(c) {
   c.fade = 1;
   c.fading = true;
 
-  awardXP(35);
-  addGold(8);
+  awardXP(5);
+  addGold(4);
+  addBravery(1);
   updateHUD();
   playGoblinDeath();
   spawnLoot("crossbow", c.x, c.y);

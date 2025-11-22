@@ -48,11 +48,11 @@ export const waveConfigs = {
   // 🌿 MAP 1 — Gentle Onboarding
   // ============================================================
   1: [
-    { goblins: 12, worgs: 3, elites: 3, trolls: 3, ogres: 1, crossbows: 5 },
-    { goblins: 16, worgs: 1, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 20, worgs: 1, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 24, worgs: 2, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 28, worgs: 2, elites: 2, trolls: 0, ogres: 0, crossbows: 0 },
+    { goblins: 1, worgs: 0, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
+    { goblins: 5, worgs: 0, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
+    { goblins: 20, worgs: 5, elites: 3, trolls: 0, ogres: 0, crossbows: 0 },
+    { goblins: 24, worgs: 10, elites: 15, trolls: 0, ogres: 0, crossbows: 0 },
+    { goblins: 28, worgs: 20, elites: 25, trolls: 0, ogres: 0, crossbows: 0 },
   ],
 
   // ============================================================
@@ -81,7 +81,7 @@ export const waveConfigs = {
   // ❄ MAP 4 — Everything Tightens
   // ============================================================
   4: [
-    { goblins: 26, worgs: 5, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
+    { goblins: 4, worgs: 0, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
     { goblins: 28, worgs: 6, elites: 2, trolls: 0, ogres: 0, crossbows: 0 },
     { goblins: 32, worgs: 7, elites: 2, trolls: 0, ogres: 0, crossbows: 0 },
     { goblins: 34, worgs: 7, elites: 3, trolls: 0, ogres: 0, crossbows: 1 },
@@ -196,7 +196,7 @@ for (let i = 1; i <= 20; i++) {
   ogreMilestones[i * 100] = false;
 }
 
-const FIRST_WAVE_DELAY = 5000;
+const FIRST_WAVE_DELAY = 30000;
 const BETWEEN_WAVES_DELAY = 5000;
 const VICTORY_DELAY = 50;
 
@@ -235,7 +235,11 @@ export function resetWaveSystem() {
   firstWaveStarted = false;
   window.firstWaveStarted = false;
 
-  betweenWaveTimer = FIRST_WAVE_DELAY;
+  if (mapId === 1) {
+    betweenWaveTimer = 30000; // 30 seconds intro delay for Map 1
+  } else {
+    betweenWaveTimer = 5000;  // default 5 seconds for other maps
+  }
 }
 
 export function getWaveSnapshotState() {

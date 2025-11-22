@@ -65,7 +65,7 @@ const FADE_OUT = 900;
 const WORG_HITBOX = WORG_SIZE * 0.55;
 
 const WORG_XP_REWARD = 5;
-const WORG_GOLD_REWARD = 5;
+const WORG_GOLD_REWARD = 2;
 
 
 // ============================================================

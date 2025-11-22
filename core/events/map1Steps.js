@@ -21,7 +21,7 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "PRESS WASD OR ARROW KEYS TO MOVE",
+        "I can use [W] [A] [S] [D] to move around..",
         p.pos.x, p.pos.y,
         4500
       );
