@@ -30,6 +30,8 @@ import { updateHUD, updateBraveryBar } from "../screenManagement/ui.js";
 import { getTrolls } from "../entities/troll.js";
 import { getCrossbows } from "../entities/crossbow.js";
 import { restoreWaveFromSnapshot, getWaveSnapshotState } from "../core/game.js";
+import { clearSpeechBubbles } from "../fx/speechBubble.js";
+import { syncStepEventsToSteps } from "../core/eventEngine.js";
 
 
 // ------------------------------------------------------------
@@ -237,6 +239,7 @@ export function applySnapshot(snapshot) {
   gameState.isPaused = false;
   window.gameOver = false;
   window.betweenWaveTimerActive = false;
+  clearSpeechBubbles();
 
   // ----------------------------------------------------------
   // 3) Preserve cosmetics BEFORE overwrite
@@ -273,6 +276,7 @@ export function applySnapshot(snapshot) {
   // Restore cosmetics
   gameState.player.skin = currentSkin;
   gameState.player.unlockedSkins = currentUnlocked;
+  syncStepEventsToSteps(gameState.player?.steps ?? 0);
 
   // ----------------------------------------------------------
   // 7) HUD metadata

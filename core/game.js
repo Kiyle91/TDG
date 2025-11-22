@@ -135,7 +135,7 @@ import {
   drawFloatingText,
 } from "../fx/floatingText.js";
 
-import { updateAndDrawSpeechBubbles } from "../fx/speechBubble.js";
+import { updateAndDrawSpeechBubbles, clearSpeechBubbles } from "../fx/speechBubble.js";
 
 // ------------------------------------------------------------
 // ðŸª½ PEGASUS (ambient flight only)
@@ -255,6 +255,7 @@ export async function initGame(mode = "new") {
   gameState.paused = false;
   gameState.isPaused = false;
   gameState.echoPowerActive = false;
+  clearSpeechBubbles();
 
   // Exploration reset ONLY for "new"
   if (mode === "new") {
@@ -323,6 +324,11 @@ export async function initGame(mode = "new") {
       lives: 10,
       facing: "right",
     };
+  }
+
+  if (mode !== "load") {
+    gameState.player.steps = 0;
+    gameState.player.stepDistance = 0;
   }
 
   // NEW: Only apply map spawn on NEW game
@@ -558,6 +564,7 @@ function checkVictoryDefeat() {
   if (hp <= 0) {
     p.dead = true;
     gameState.paused = true;
+    clearSpeechBubbles();
     setTimeout(() => stopGameplay("defeat"), 1500);
     return;
   }
@@ -565,6 +572,7 @@ function checkVictoryDefeat() {
   if (lives <= 0) {
     p.dead = true;
     gameState.paused = true;
+    clearSpeechBubbles();
     setTimeout(() => stopGameplay("lives"), 1500);
     return;
   }
@@ -601,6 +609,8 @@ export function resetCombatState() {
     p.lives = 10;
     p.dead = false;
     p.facing = "right";
+    p.steps = 0;
+    p.stepDistance = 0;
   }
 
   if (gameState.bravery) {
@@ -624,6 +634,7 @@ export function resetCombatState() {
   initGoblins();
   initSpires();
   initProjectiles();
+  clearSpeechBubbles();
 
   updateHUD();
 }
@@ -642,6 +653,8 @@ export function resetPlayerState() {
   p.dead = false;
   p.lives = 10;
   p.facing = "right";
+  p.steps = 0;
+  p.stepDistance = 0;
 
   if (gameState.profile?.currencies) {
     gameState.profile.currencies.gold = 0;

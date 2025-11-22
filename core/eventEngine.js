@@ -11,7 +11,7 @@ let activeEvents = [];
  * Loads a step-event script for the current map.
  * events = [ { id, stepsRequired, action }, ... ]
  */
-export function loadStepEventsForMap(mapNumber, events) {
+export function loadStepEventsForMap(mapNumber, events, options = {}) {
   const currentMap = gameState.progress?.currentMap ?? gameState.currentMap ?? 1;
 
   if (currentMap !== mapNumber) {
@@ -24,6 +24,24 @@ export function loadStepEventsForMap(mapNumber, events) {
     ...ev,
     done: false
   }));
+
+  const markUpTo = options.markCompletedUpTo;
+  if (markUpTo !== undefined && markUpTo !== null) {
+    syncStepEventsToSteps(markUpTo);
+  }
+}
+
+export function syncStepEventsToSteps(steps = 0) {
+  if (!activeEvents.length) return;
+
+  const s = Math.max(0, Number(steps) || 0);
+
+  for (const ev of activeEvents) {
+    const threshold = Number(ev.stepsRequired) || 0;
+    const alreadyPassed = s > threshold;
+    const reachedNonZero = s === threshold && threshold > 0;
+    ev.done = alreadyPassed || reachedNonZero;
+  }
 }
 
 /**

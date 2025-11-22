@@ -6,6 +6,10 @@ import { gameState } from "../utils/gameState.js";
 
 export const speechBubbles = [];
 
+export function clearSpeechBubbles() {
+  speechBubbles.length = 0;
+}
+
 export function spawnSpeechBubble(text, x, y, duration = 5000, anchor = null) {
   const resolvedAnchor = anchor ?? gameState?.player ?? null;
 
