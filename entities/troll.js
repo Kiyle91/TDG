@@ -41,6 +41,7 @@ import { spawnDamageSparkles } from "../fx/sparkles.js"
 import { spawnLoot } from "./loot.js";
 import { awardXP } from "../player/levelSystem.js";
 import { incrementGoblinDefeated } from "../core/game.js";
+import { slideRect } from "../utils/mapCollision.js";
 
 
 // ------------------------------------------------------------
@@ -59,6 +60,7 @@ let trollSprites = null;
 const SIZE = 96;
 const SPEED = 55;
 const HP = 170;
+const HITBOX = SIZE * 0.55;
 
 const ATTACK_RANGE = 80;
 const AGGRO_RANGE = 150;
@@ -129,6 +131,17 @@ export async function initTrolls(points) {
   trolls = [];
   pathPoints = points || [];
   await loadTrollSprites();
+}
+
+function moveTrollWithCollision(t, dx, dy) {
+  const w = HITBOX;
+  const h = HITBOX;
+  const rectX = t.x - w / 2;
+  const rectY = t.y - h / 2;
+  const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
+  t.x = moved.x + w / 2;
+  t.y = moved.y + h / 2;
+  return moved;
 }
 
 
@@ -270,8 +283,9 @@ export function updateTrolls(delta = 16) {
 
       // Move toward player
       const dist = distP || 1;
-      t.x += (dxp / dist) * SPEED * dt;
-      t.y += (dyp / dist) * SPEED * dt;
+      const stepX = (dxp / dist) * SPEED * dt;
+      const stepY = (dyp / dist) * SPEED * dt;
+      moveTrollWithCollision(t, stepX, stepY);
 
       // Bravery aura knockback (push troll away from player)
       if (player.invincible === true) {
@@ -321,8 +335,9 @@ export function updateTrolls(delta = 16) {
           handleEscape(t);
         }
       } else {
-        t.x += (dx / dist) * SPEED * dt;
-        t.y += (dy / dist) * SPEED * dt;
+        const stepX = (dx / dist) * SPEED * dt;
+        const stepY = (dy / dist) * SPEED * dt;
+        moveTrollWithCollision(t, stepX, stepY);
 
         t.dir =
           Math.abs(dx) > Math.abs(dy)

@@ -42,6 +42,7 @@ import { awardXP } from "../player/levelSystem.js";
 import { updateHUD } from "../screenManagement/ui.js";
 import { playGoblinDamage, playGoblinDeath } from "../core/soundtrack.js";
 import { getGoblins } from "../entities/goblin.js";
+import { slideRect } from "../utils/mapCollision.js";
 
 
 // ============================================================
@@ -59,6 +60,7 @@ let eliteSprites = null;
 const ELITE_HP = 100;
 const ELITE_SPEED = 90;
 const ELITE_SIZE = 80;
+const ELITE_HITBOX = ELITE_SIZE * 0.55;
 
 const FRAME_INTERVAL = 220;
 
@@ -136,6 +138,17 @@ async function loadEliteSprites() {
 export async function initElites() {
   eliteList = [];
   await loadEliteSprites();
+}
+
+function moveEliteWithCollision(e, dx, dy) {
+  const w = ELITE_HITBOX;
+  const h = ELITE_HITBOX;
+  const rectX = e.x - w / 2;
+  const rectY = e.y - h / 2;
+  const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
+  e.x = moved.x + w / 2;
+  e.y = moved.y + h / 2;
+  return moved;
 }
 
 
@@ -301,8 +314,9 @@ export function updateElites(delta = 16) {
       const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
 
       if (dist > 5) {
-        e.x += (dx / dist) * moveSpeed * dt;
-        e.y += (dy / dist) * moveSpeed * dt;
+        const stepX = (dx / dist) * moveSpeed * dt;
+        const stepY = (dy / dist) * moveSpeed * dt;
+        moveEliteWithCollision(e, stepX, stepY);
                 if (p.invincible === true) {
             const aura = 130; // matches glow radius
             const dxp = e.x - p.pos.x;

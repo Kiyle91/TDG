@@ -49,6 +49,7 @@ import { spawnDamageSparkles } from "../fx/sparkles.js";
 import { awardXP } from "../player/levelSystem.js";
 import { spawnLoot } from "./loot.js";
 import { addBravery } from "../screenManagement/ui.js";
+import { slideRect } from "../utils/mapCollision.js";
 
 
 // ============================================================
@@ -88,6 +89,15 @@ function getChaseSpread() {
   if (chasing < 10) return 20;
   if (chasing < 20) return 32;
   return 48;
+}
+
+function moveGoblinWithCollision(e, dx, dy) {
+  const rectX = e.x - e.width / 2;
+  const rectY = e.y - e.height / 2;
+  const moved = slideRect(rectX, rectY, e.width, e.height, dx, dy, { ignoreBounds: true });
+  e.x = moved.x + e.width / 2;
+  e.y = moved.y + e.height / 2;
+  return moved;
 }
 
 
@@ -288,8 +298,9 @@ export function updateGoblins(delta) {
       }
 
       if (distToPlayer > attackRange) {
-        e.x += (dxp / distToPlayer) * moveSpeed * dt;
-        e.y += (dyp / distToPlayer) * moveSpeed * dt;
+        const stepX = (dxp / distToPlayer) * moveSpeed * dt;
+        const stepY = (dyp / distToPlayer) * moveSpeed * dt;
+        moveGoblinWithCollision(e, stepX, stepY);
 
         if (player.invincible === true) {
         const dx = e.x - px;
@@ -367,8 +378,9 @@ export function updateGoblins(delta) {
       }
 
       const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
-      e.x += (dx / dist) * moveSpeed * dt;
-      e.y += (dy / dist) * moveSpeed * dt;
+      const stepX = (dx / dist) * moveSpeed * dt;
+      const stepY = (dy / dist) * moveSpeed * dt;
+      moveGoblinWithCollision(e, stepX, stepY);
 
       if (Math.abs(dx) > Math.abs(dy))
         e.dir = dx > 0 ? "right" : "left";
@@ -400,8 +412,9 @@ export function updateGoblins(delta) {
           }
         } else {
           const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
-          e.x += (dx / dist) * moveSpeed * dt;
-          e.y += (dy / dist) * moveSpeed * dt;
+          const stepX = (dx / dist) * moveSpeed * dt;
+          const stepY = (dy / dist) * moveSpeed * dt;
+          moveGoblinWithCollision(e, stepX, stepY);
 
           if (Math.abs(dx) > Math.abs(dy))
             e.dir = dx > 0 ? "right" : "left";

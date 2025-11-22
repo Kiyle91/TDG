@@ -45,6 +45,7 @@ import { spawnDamageSparkles } from "../fx/sparkles.js";
 import { awardXP } from "../player/levelSystem.js";
 import { updateHUD } from "../screenManagement/ui.js";
 import { spawnLoot } from "./loot.js";
+import { slideRect } from "../utils/mapCollision.js";
 
 
 // ------------------------------------------------------------
@@ -71,6 +72,7 @@ const ATTACK_COOLDOWN = 1500;
 const FADE_OUT        = 900;
 
 export const OGRE_HIT_RADIUS = 85;
+const OGRE_HITBOX = OGRE_HIT_RADIUS * 1.4;
 
 // Attack animation timings
 const PHASE_SWITCH_TIME = 140;
@@ -135,6 +137,17 @@ async function loadOgreSprites() {
 export async function initOgres() {
   ogres = [];
   await loadOgreSprites();
+}
+
+function moveOgreWithCollision(o, dx, dy) {
+  const w = OGRE_HITBOX;
+  const h = OGRE_HITBOX;
+  const rectX = o.x - w / 2;
+  const rectY = o.y - h / 2;
+  const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
+  o.x = moved.x + w / 2;
+  o.y = moved.y + h / 2;
+  return moved;
 }
 
 
@@ -315,8 +328,9 @@ export function updateOgres(delta = 16) {
     if (distSq > ATTACK_RANGE_SQ) {
       // Chase
       const dist = Math.sqrt(distSq);
-      o.x += (dx / dist) * OGRE_SPEED * dt;
-      o.y += (dy / dist) * OGRE_SPEED * dt;
+      const stepX = (dx / dist) * OGRE_SPEED * dt;
+      const stepY = (dy / dist) * OGRE_SPEED * dt;
+      moveOgreWithCollision(o, stepX, stepY);
             
       if (p.invincible === true) {
         const aura = 130; // same radius as bravery glow

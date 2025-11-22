@@ -40,6 +40,7 @@ import { spawnFloatingText } from "../fx/floatingText.js";
 import { awardXP } from "../player/levelSystem.js";
 import { updateHUD } from "../screenManagement/ui.js";
 import { playGoblinDeath, playGoblinDamage } from "../core/soundtrack.js";
+import { slideRect } from "../utils/mapCollision.js";
 
 
 // ============================================================
@@ -60,6 +61,8 @@ const WORG_SPEED = 150;
 const WORG_SIZE = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT = 900;
+
+const WORG_HITBOX = WORG_SIZE * 0.55;
 
 const WORG_XP_REWARD = 5;
 const WORG_GOLD_REWARD = 5;
@@ -134,6 +137,16 @@ export async function initWorg(path) {
   pathPoints = Array.isArray(path) ? path : [];
   worgList = [];
   await loadWorgSprites();
+}
+
+function moveWorgWithCollision(w, dx, dy) {
+  const rectSize = WORG_HITBOX;
+  const rectX = w.x - rectSize / 2;
+  const rectY = w.y - rectSize / 2;
+  const moved = slideRect(rectX, rectY, rectSize, rectSize, dx, dy, { ignoreBounds: true });
+  w.x = moved.x + rectSize / 2;
+  w.y = moved.y + rectSize / 2;
+  return moved;
 }
 
 
@@ -230,8 +243,9 @@ export function updateWorg(delta = 16) {
         w.fade = 0;
       }
     } else {
-      w.x += (dx / dist) * step;
-      w.y += (dy / dist) * step;
+      const stepX = (dx / dist) * step;
+      const stepY = (dy / dist) * step;
+      moveWorgWithCollision(w, stepX, stepY);
 
       w.dir =
         Math.abs(dx) > Math.abs(dy)

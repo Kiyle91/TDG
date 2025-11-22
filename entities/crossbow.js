@@ -41,6 +41,7 @@ import { updateHUD } from "../screenManagement/ui.js";
 import { playGoblinDeath, playGoblinDamage } from "../core/soundtrack.js";
 import { spawnDamageSparkles } from "../fx/sparkles.js";
 import { spawnLoot } from "./loot.js";
+import { slideRect } from "../utils/mapCollision.js";
 
 
 // ============================================================
@@ -64,6 +65,7 @@ const GLOBAL_CROSSBOW_COOLDOWN_MS = 900;
 const CROSSBOW_HP = 80;
 const CROSSBOW_SPEED = 80;
 const CROSSBOW_SIZE = 80;
+const CROSSBOW_HITBOX = CROSSBOW_SIZE * 0.55;
 
 const ATTACK_RANGE = 500;
 const IDEAL_MIN_RANGE = 260;
@@ -152,6 +154,17 @@ export async function initCrossbows(path) {
   if (!crossbowSprites) {
     await loadCrossbowSprites();
   }
+}
+
+function moveCrossbowWithCollision(c, dx, dy) {
+  const w = CROSSBOW_HITBOX;
+  const h = CROSSBOW_HITBOX;
+  const rectX = c.x - w / 2;
+  const rectY = c.y - h / 2;
+  const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
+  c.x = moved.x + w / 2;
+  c.y = moved.y + h / 2;
+  return moved;
 }
 
 
@@ -295,13 +308,15 @@ export function updateCrossbows(delta) {
     // MOVEMENT / KITE AI
     if (!c.attacking) {
       if (dist > ATTACK_RANGE * 1.05) {
-        c.x += (dx / dist) * CROSSBOW_SPEED * dt;
-        c.y += (dy / dist) * CROSSBOW_SPEED * dt;
+        const stepX = (dx / dist) * CROSSBOW_SPEED * dt;
+        const stepY = (dy / dist) * CROSSBOW_SPEED * dt;
+        moveCrossbowWithCollision(c, stepX, stepY);
       }
       else if (dist < IDEAL_MIN_RANGE) {
         const backSpeed = CROSSBOW_SPEED * 0.7;
-        c.x -= (dx / dist) * backSpeed * dt;
-        c.y -= (dy / dist) * backSpeed * dt;
+        const stepX = -(dx / dist) * backSpeed * dt;
+        const stepY = -(dy / dist) * backSpeed * dt;
+        moveCrossbowWithCollision(c, stepX, stepY);
 
         if (player.invincible === true) {
         const aura = 130; // same glow radius
