@@ -60,22 +60,38 @@ async function loadTSX(tsxUrl) {
 function getLayersForGroup(group = "all") {
   if (!Array.isArray(layers)) return [];
 
-  if (group === "ground") {
-    return layers.filter((l) => {
-      const n = l.name?.toLowerCase?.() || "";
-      return n.includes("ground") || n.includes("base") || n.includes("floor");
-    });
+  // Only ever care about tile layers, keep original order from Tiled
+  const tileLayers = layers.filter((l) => l && l.type === "tilelayer");
+
+  const isTreeLayer = (l) => {
+    const n = l.name?.toLowerCase?.() || "";
+    return n.includes("tree") || n.includes("foliage") || n.includes("above");
+  };
+
+  const isCollisionLayer = (l) => {
+    const n = l.name?.toLowerCase?.() || "";
+    return n === "collision";
+  };
+
+  // 🔹 All = every visible tile layer in order
+  if (group === "all") {
+    return tileLayers;
   }
 
+  // 🔹 Trees group = specifically named canopy / above layers
   if (group === "trees") {
-    return layers.filter((l) => {
-      const n = l.name?.toLowerCase?.() || "";
-      return n.includes("tree") || n.includes("foliage") || n.includes("above");
-    });
+    return tileLayers.filter(isTreeLayer);
   }
 
-  return layers;
+  // 🔹 Ground group = everything *except* trees + collision
+  if (group === "ground") {
+    return tileLayers.filter((l) => !isTreeLayer(l) && !isCollisionLayer(l));
+  }
+
+  // Fallback: just give all tile layers
+  return tileLayers;
 }
+
 
 function drawFromPreRendered(ctx, group, cameraX, cameraY, viewportWidth, viewportHeight) {
   const pre = ensurePreRendered(group);
