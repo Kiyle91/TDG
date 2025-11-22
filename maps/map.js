@@ -324,7 +324,7 @@ export function drawMapLayered(
 // ------------------------------------------------------------
 // 💎 EXTRACT CRYSTAL ECHO POSITIONS (object layer "CrystalEchoes")
 // ------------------------------------------------------------
-
+   
 export function extractCrystalEchoes() {
   if (!mapData) return [];
 

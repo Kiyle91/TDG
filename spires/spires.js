@@ -412,9 +412,30 @@ export function drawSpires(ctx) {
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(img, drawX, drawY, size, size);
 
+    // Shots remaining counter (pastel, outlined)
+    const shotsRemaining = Math.max(0, MAX_ATTACKS - (spire.attacksDone ?? 0));
+    if (Number.isFinite(shotsRemaining)) {
+      ctx.save();
+      ctx.font = "18px Poppins";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      // Outline for readability
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(0,0,0,0.7)";
+      ctx.strokeText(shotsRemaining, spire.x, drawY - 14);
+
+      // Main text
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.fillText(shotsRemaining, spire.x, drawY - 14);
+
+      ctx.restore();
+    }
+
     ctx.restore();
   }
 }
+
 
 // ------------------------------------------------------------
 // GETTER
