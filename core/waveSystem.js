@@ -50,8 +50,8 @@ export const waveConfigs = {
   1: [
     { goblins: 1, worgs: 0, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
     { goblins: 5, worgs: 0, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 20, worgs: 5, elites: 3, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 24, worgs: 10, elites: 15, trolls: 0, ogres: 0, crossbows: 0 },
+    { goblins: 10, worgs: 5, elites: 3, trolls: 0, ogres: 0, crossbows: 0 },
+    { goblins: 20, worgs: 10, elites: 15, trolls: 0, ogres: 0, crossbows: 0 },
     { goblins: 28, worgs: 20, elites: 25, trolls: 0, ogres: 0, crossbows: 0 },
   ],
 
