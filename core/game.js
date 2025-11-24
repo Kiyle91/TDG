@@ -235,7 +235,7 @@ function applyMapSpawn() {
       p.pos = { x: 1000, y: 500 };
       break;
     case 2:
-      p.pos = { x: 250, y: 1650 };
+      p.pos = { x: 250, y: 350 };
       break;
     case 3:
     case 4:

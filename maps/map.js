@@ -30,6 +30,9 @@ const EMPTY_PRE_RENDER = {
 };
 let preRenderedLayers = { ...EMPTY_PRE_RENDER };
 const mapCache = new Map();
+let cloudScrollX = 0;
+let lastCloudTime = null;
+const CLOUD_SPEED_PX_PER_SEC = 6;
 
 // ------------------------------------------------------------
 // Helpers
@@ -124,6 +127,10 @@ function getLayersForGroup(group = "all") {
 }
 
 function drawFromPreRendered(ctx, group, cameraX, cameraY, viewportWidth, viewportHeight) {
+  if (group === "clouds") {
+    return drawCloudsFromPreRendered(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+  }
+
   const pre = ensurePreRendered(group);
   if (!pre || !ctx) return false;
 
@@ -433,17 +440,59 @@ function getTilesetForGid(gid) {
 }
 
 // ------------------------------------------------------------
+// Clouds parallax (drifting right -> left)
+// ------------------------------------------------------------
+
+function updateCloudScroll() {
+  const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+  if (lastCloudTime === null) {
+    lastCloudTime = now;
+    return;
+  }
+  const dt = (now - lastCloudTime) / 1000;
+  lastCloudTime = now;
+  cloudScrollX -= CLOUD_SPEED_PX_PER_SEC * dt;
+  if (cloudScrollX <= -mapPixelWidth) {
+    cloudScrollX += mapPixelWidth;
+  }
+}
+
+function drawCloudsFromPreRendered(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
+  const pre = ensurePreRendered("clouds");
+  if (!pre || !ctx) return false;
+
+  updateCloudScroll();
+
+  const offset = ((cloudScrollX % mapPixelWidth) + mapPixelWidth) % mapPixelWidth;
+
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+
+  // Clip to the viewport to avoid drawing huge off-screen regions
+  ctx.beginPath();
+  ctx.rect(0, 0, viewportWidth, viewportHeight);
+  ctx.clip();
+
+  // First copy
+  ctx.drawImage(pre, -offset - cameraX, -cameraY);
+  // Wrapped copy to cover the gap when offset pushes the image left
+  ctx.drawImage(pre, -offset - cameraX + mapPixelWidth, -cameraY);
+
+  ctx.restore();
+  return true;
+}
+
+// ------------------------------------------------------------
 // Draw map (all layers)
 // ------------------------------------------------------------
 
 export function drawMap(ctx, cameraX, cameraY, viewportWidth, viewportHeight) {
   if (!mapData || !ctx) return;
   
-  if (drawFromPreRendered(ctx, "all", cameraX, cameraY, viewportWidth, viewportHeight)) {
-    return;
-  }
-
-  drawLayersDirect(ctx, getLayersForGroup("all"), cameraX, cameraY, viewportWidth, viewportHeight);
+  // Draw base layers (ground/props/trees) statically, clouds drift
+  drawFromPreRendered(ctx, "ground", cameraX, cameraY, viewportWidth, viewportHeight);
+  drawFromPreRendered(ctx, "trees", cameraX, cameraY, viewportWidth, viewportHeight);
+  drawCloudsFromPreRendered(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
 }
 
 // ------------------------------------------------------------
@@ -460,12 +509,18 @@ export function drawMapLayered(
 ) {
   if (!mapData || !ctx) return;
 
-  if (drawFromPreRendered(ctx, group, cameraX, cameraY, viewportWidth, viewportHeight)) {
-    return;
+  if (group === "all") {
+    drawFromPreRendered(ctx, "ground", cameraX, cameraY, viewportWidth, viewportHeight);
+    drawFromPreRendered(ctx, "trees", cameraX, cameraY, viewportWidth, viewportHeight);
+    drawCloudsFromPreRendered(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+  } else if (group === "clouds") {
+    drawCloudsFromPreRendered(ctx, cameraX, cameraY, viewportWidth, viewportHeight);
+  } else if (drawFromPreRendered(ctx, group, cameraX, cameraY, viewportWidth, viewportHeight)) {
+    // handled in drawFromPreRendered
+  } else {
+    const targetLayers = getLayersForGroup(group);
+    drawLayersDirect(ctx, targetLayers, cameraX, cameraY, viewportWidth, viewportHeight);
   }
-
-  const targetLayers = getLayersForGroup(group);
-  drawLayersDirect(ctx, targetLayers, cameraX, cameraY, viewportWidth, viewportHeight);
 }
 
 // ------------------------------------------------------------
