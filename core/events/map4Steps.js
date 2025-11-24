@@ -15,7 +15,7 @@ export default [
 
   {
     id: "t_000",
-    timeRequired: 0,
+    timeRequired: 3,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(

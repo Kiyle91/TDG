@@ -186,6 +186,14 @@ import { updateHealFX, renderHealFX } from "../combat/heal.js";
 
 import { loadStepEventsForMap } from "../core/eventEngine.js";
 import map1Steps from "../core/events/map1Steps.js";
+import map2Steps from "../core/events/map2Steps.js";
+import map3Steps from "../core/events/map3Steps.js";
+import map4Steps from "../core/events/map4Steps.js";
+import map5steps from "./events/map5steps.js";
+import map6Steps from "../core/events/map6Steps.js";
+import map7Steps from "../core/events/map7Steps.js";
+import map8Steps from "../core/events/map8Steps.js";
+import map9Steps from "../core/events/map9Steps.js";
 import { updateStepEvents } from "../core/eventEngine.js";
 
 
@@ -359,8 +367,18 @@ export async function initGame(mode = "new") {
   initUI();
 
   const current = gameState.progress?.currentMap ?? 1;
-  if (current === 1) {
-    loadStepEventsForMap(1, map1Steps);
+
+  switch (current) {
+    case 1: loadStepEventsForMap(1, map1Steps); break;
+    case 2: loadStepEventsForMap(2, map2Steps); break;
+    case 3: loadStepEventsForMap(3, map3Steps); break;
+    case 4: loadStepEventsForMap(4, map4Steps); break;
+    case 5: loadStepEventsForMap(5, map5Steps); break;
+    case 6: loadStepEventsForMap(6, map6Steps); break;
+    case 7: loadStepEventsForMap(7, map7Steps); break;
+    case 8: loadStepEventsForMap(8, map8Steps); break;
+    case 9: loadStepEventsForMap(9, map9Steps); break;
+    default: break;
   }
 
   // Pegasus + healing + drops
@@ -612,9 +630,19 @@ export function resetCombatState() {
   resetWaveKillTracking();
   gameState.victoryPending = false;
 
-  const current = gameState.progress?.currentMap ?? 1;
-  if (current === 1) {
-      loadStepEventsForMap(1, map1Steps);
+  const cur = gameState.progress?.currentMap ?? 1;
+
+  switch (cur) {
+    case 1: loadStepEventsForMap(1, map1Steps); break;
+    case 2: loadStepEventsForMap(2, map2Steps); break;
+    case 3: loadStepEventsForMap(3, map3Steps); break;
+    case 4: loadStepEventsForMap(4, map4Steps); break;
+    case 5: loadStepEventsForMap(5, map5Steps); break;
+    case 6: loadStepEventsForMap(6, map6Steps); break;
+    case 7: loadStepEventsForMap(7, map7Steps); break;
+    case 8: loadStepEventsForMap(8, map8Steps); break;
+    case 9: loadStepEventsForMap(9, map9Steps); break;
+    default: break;
   }
 
   if (gameState.profile?.currencies) {
