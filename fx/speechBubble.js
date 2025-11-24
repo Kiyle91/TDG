@@ -50,19 +50,50 @@ export function updateAndDrawSpeechBubbles(ctx, delta) {
   }
 }
 
+function wrapText(ctx, text, maxWidth) {
+  const words = text.split(" ");
+  const lines = [];
+  let current = "";
+
+  for (const w of words) {
+    const test = current ? current + " " + w : w;
+    const width = ctx.measureText(test).width;
+
+    if (width > maxWidth) {
+      lines.push(current);
+      current = w;
+    } else {
+      current = test;
+    }
+  }
+
+  if (current) lines.push(current);
+  return lines;
+}
+
+
 function drawSpeechBubble(ctx, bubble, x, y) {
   ctx.font = "20px Poppins";
   const padding = 14;
-  if (!bubble.cachedWidth) {
-    bubble.cachedWidth = ctx.measureText(bubble.text).width;
-  }
-  const metricsWidth = bubble.cachedWidth;
-  const w = metricsWidth + padding * 2;
-  const h = 40;
+  const maxWidth = 280; // maximum bubble width before wrapping
 
-  // Background bubble
+  // --- WORD WRAP ---
+  const lines = wrapText(ctx, bubble.text, maxWidth);
+
+  // Measure width of longest line
+  let longest = 0;
+  for (const line of lines) {
+    const w = ctx.measureText(line).width;
+    if (w > longest) longest = w;
+  }
+
+  const w = longest + padding * 2;
+  const lineHeight = 22;
+  const h = lines.length * lineHeight + padding * 2;
+
+  // Bubble background
   const radius = 12;
-  ctx.fillStyle = "rgba(255,255,255,0.7)";
+  ctx.fillStyle = "rgba(255,255,255,0.75)";
   ctx.strokeStyle = "rgba(255,255,255,0.9)";
   ctx.lineWidth = 2;
 
@@ -79,12 +110,18 @@ function drawSpeechBubble(ctx, bubble, x, y) {
   ctx.fill();
   ctx.stroke();
 
-  // Text
+  // Draw each line
   ctx.fillStyle = "#444";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(bubble.text, x, y - h/2);
+
+  let startY = y - h + padding + lineHeight / 2;
+  for (const line of lines) {
+    ctx.fillText(line, x, startY);
+    startY += lineHeight;
+  }
 }
+
 
 // Rounded rectangle helper
 function roundRect(ctx, x, y, w, h, r) {
