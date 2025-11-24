@@ -18,7 +18,17 @@ let mapPixelWidth = GRID_COLS * TILE_SIZE;
 let mapPixelHeight = GRID_ROWS * TILE_SIZE;
 let pathPoints = [];
 let tilesetCache = new Map();
-let preRenderedLayers = { all: null, ground: null, trees: null };
+const EMPTY_PRE_RENDER = {
+  all: null,
+  ground: null,
+  groundLayer: null,
+  road: null,
+  props: null,
+  propsTwo: null,
+  trees: null,
+  clouds: null,
+};
+let preRenderedLayers = { ...EMPTY_PRE_RENDER };
 const mapCache = new Map();
 
 // ------------------------------------------------------------
@@ -57,46 +67,60 @@ async function loadTSX(tsxUrl) {
   return { columns, image, imageWidth: iw, imageHeight: ih };
 }
 
-// 🔧 COMPLETE REWRITE: Proper layer categorization
+// Layer grouping driven by explicit Tiled layer names so we can
+// render each layer independently and preserve the authored order.
+const LAYER_GROUPS = {
+  groundLayer: ["ground layer"],
+  road: ["road"],
+  props: ["props"],
+  propsTwo: ["props two"],
+  ground: ["ground layer", "road", "props", "props two"],
+  trees: ["trees"],
+  clouds: ["clouds"],
+};
+
+// Ordered draw list matching the Tiled stack (bottom -> top) for tile layers
+const LAYER_DRAW_SEQUENCE = [
+  "groundLayer",
+  "road",
+  "props",
+  "propsTwo",
+  "trees",
+  "clouds",
+];
+
+const FLIP_H = 0x80000000;
+const FLIP_V = 0x40000000;
+const FLIP_D = 0x20000000;
+const FLIP_R = 0x10000000; // reserved/hex flag, still mask out
+const FLIP_MASK = FLIP_H | FLIP_V | FLIP_D | FLIP_R;
+
+function isCollisionLayer(layer) {
+  const n = layer?.name?.toLowerCase?.() || "";
+  return n === "collision";
+}
+
 function getLayersForGroup(group = "all") {
   if (!Array.isArray(layers)) return [];
 
-  // Get ALL visible tile layers
-  const allVisibleLayers = layers.filter((l) => {
-    return l && 
-           l.type === "tilelayer" && 
-           l.visible === true;
-  });
+  const allVisibleLayers = layers.filter(
+    (l) => l && l.type === "tilelayer" && l.visible === true
+  );
 
-  // Helper functions for categorization
-  const isTreeLayer = (l) => {
-    const n = l.name?.toLowerCase?.() || "";
-    return n.includes("tree") || n.includes("foliage") || n.includes("above");
-  };
-
-  const isCollisionLayer = (l) => {
-    const n = l.name?.toLowerCase?.() || "";
-    return n === "collision";
-  };
-
-  // 🔹 "all" = every visible layer (except collision)
+  // "all" = every visible layer except collision, honoring map order
   if (group === "all") {
-    return allVisibleLayers.filter(l => !isCollisionLayer(l));
+    return allVisibleLayers.filter((l) => !isCollisionLayer(l));
   }
 
-  // 🔹 "trees" = only tree/foliage/above layers
-  if (group === "trees") {
-    return allVisibleLayers.filter(isTreeLayer);
+  const targets = LAYER_GROUPS[group];
+  if (!targets) {
+    return allVisibleLayers.filter((l) => !isCollisionLayer(l));
   }
 
-  // 🔹 "ground" = everything except trees and collision
-  // This includes: road, props, props two, ground layer, etc.
-  if (group === "ground") {
-    return allVisibleLayers.filter((l) => !isTreeLayer(l) && !isCollisionLayer(l));
-  }
+  const wanted = new Set(targets.map((n) => n.toLowerCase()));
 
-  // Fallback
-  return allVisibleLayers.filter(l => !isCollisionLayer(l));
+  // Preserve map draw order while picking only the requested layers
+  return allVisibleLayers.filter((l) => wanted.has(l.name?.toLowerCase?.() || ""));
 }
 
 function drawFromPreRendered(ctx, group, cameraX, cameraY, viewportWidth, viewportHeight) {
@@ -116,6 +140,49 @@ function drawFromPreRendered(ctx, group, cameraX, cameraY, viewportWidth, viewpo
     viewportHeight
   );
   return true;
+}
+
+function decodeGid(rawGid) {
+  return {
+    gid: rawGid & ~FLIP_MASK,
+    flipH: (rawGid & FLIP_H) !== 0,
+    flipV: (rawGid & FLIP_V) !== 0,
+    flipD: (rawGid & FLIP_D) !== 0,
+  };
+}
+
+// Canvas transform that matches Tiled's flip/diagonal flags
+// Matrix approach mirrors Tiled documentation for orthogonal maps
+function drawTile(ctx, ts, sx, sy, dx, dy, flipFlags) {
+  const { flipH, flipV, flipD } = flipFlags;
+
+  let a = 1, b = 0, c = 0, d = 1;
+  let tx = dx;
+  let ty = dy;
+
+  // Diagonal flag swaps axes (90deg CW) before H/V are applied
+  if (flipD) {
+    a = 0; b = 1;
+    c = 1; d = 0;
+    ty += TILE_SIZE;
+  }
+
+  // Horizontal flip
+  if (flipH) {
+    a = -a; c = -c;
+    tx += TILE_SIZE;
+  }
+
+  // Vertical flip
+  if (flipV) {
+    b = -b; d = -d;
+    ty += TILE_SIZE;
+  }
+
+  ctx.save();
+  ctx.setTransform(a, b, c, d, tx, ty);
+  ctx.drawImage(ts.image, sx, sy, TILE_SIZE, TILE_SIZE, 0, 0, TILE_SIZE, TILE_SIZE);
+  ctx.restore();
 }
 
 function drawLayersDirect(ctx, targetLayers, cameraX, cameraY, viewportWidth, viewportHeight) {
@@ -152,7 +219,10 @@ function drawLayersDirect(ctx, targetLayers, cameraX, cameraY, viewportWidth, vi
         
         if (idx < 0 || idx >= data.length) continue;
         
-        const gid = data[idx];
+        const rawGid = data[idx];
+        if (!rawGid || rawGid === 0) continue;
+
+        const { gid, flipH, flipV, flipD } = decodeGid(rawGid);
         if (!gid || gid === 0) continue;
 
         const ts = getTilesetForGid(gid);
@@ -165,7 +235,7 @@ function drawLayersDirect(ctx, targetLayers, cameraX, cameraY, viewportWidth, vi
         const dx = col * TILE_SIZE - cameraX;
         const dy = row * TILE_SIZE - cameraY;
 
-        ctx.drawImage(ts.image, sx, sy, TILE_SIZE, TILE_SIZE, dx, dy, TILE_SIZE, TILE_SIZE);
+        drawTile(ctx, ts, sx, sy, dx, dy, { flipH, flipV, flipD });
       }
     }
   }
@@ -202,7 +272,10 @@ function ensurePreRendered(group = "all") {
         
         if (idx < 0 || idx >= data.length) continue;
         
-        const gid = data[idx];
+        const rawGid = data[idx];
+        if (!rawGid || rawGid === 0) continue;
+
+        const { gid, flipH, flipV, flipD } = decodeGid(rawGid);
         if (!gid || gid === 0) continue;
 
         const ts = getTilesetForGid(gid);
@@ -218,7 +291,7 @@ function ensurePreRendered(group = "all") {
         const dx = col * TILE_SIZE;
         const dy = row * TILE_SIZE;
 
-        ctx.drawImage(ts.image, sx, sy, TILE_SIZE, TILE_SIZE, dx, dy, TILE_SIZE, TILE_SIZE);
+        drawTile(ctx, ts, sx, sy, dx, dy, { flipH, flipV, flipD });
         tilesDrawn++;
       }
     }
@@ -245,14 +318,14 @@ export async function loadMap(mode = "runtime") {
     mapPixelWidth = cached.mapPixelWidth;
     mapPixelHeight = cached.mapPixelHeight;
     tilesetCache = cached.tilesetCache;
-    preRenderedLayers = cached.preRenderedLayers;
+    preRenderedLayers = { ...EMPTY_PRE_RENDER, ...cached.preRenderedLayers };
     pathPoints = [];
     return;
   }
 
   // Clear caches on new map
   tilesetCache.clear();
-  preRenderedLayers = { all: null, ground: null, trees: null };
+  preRenderedLayers = { ...EMPTY_PRE_RENDER };
   pathPoints = [];
 
   const fileMap = {
@@ -287,6 +360,7 @@ export async function loadMap(mode = "runtime") {
 
   console.log("\n🌿 Ground layers:", getLayersForGroup("ground").map(l => l.name));
   console.log("🌲 Tree layers:", getLayersForGroup("trees").map(l => l.name));
+  console.log("☁️ Cloud layers:", getLayersForGroup("clouds").map(l => l.name));
 
   initCollision(mapData, TILE_SIZE);
 
@@ -321,11 +395,10 @@ export async function loadMap(mode = "runtime") {
 
   initCrystalEchoes(mapData);
 
-  // Pre-render all layer groups
+  // Pre-render each named layer plus the legacy combined groups
   console.log("🎨 Pre-rendering layers...");
-  ensurePreRendered("ground");
-  ensurePreRendered("trees");
-  ensurePreRendered("all");
+  const groupsToPreRender = [...LAYER_DRAW_SEQUENCE, "ground", "all"];
+  groupsToPreRender.forEach((g) => ensurePreRendered(g));
   console.log("✅ Pre-rendering complete!");
 
   mapCache.set(id, {
@@ -344,16 +417,18 @@ export async function loadMap(mode = "runtime") {
 // ------------------------------------------------------------
 
 function getTilesetForGid(gid) {
-  if (tilesetCache.has(gid)) {
-    return tilesetCache.get(gid);
+  const normalized = gid & ~FLIP_MASK;
+
+  if (tilesetCache.has(normalized)) {
+    return tilesetCache.get(normalized);
   }
 
   let chosen = null;
   for (const ts of tilesets) {
-    if (gid >= ts.firstgid) chosen = ts;
+    if (normalized >= ts.firstgid) chosen = ts;
   }
 
-  tilesetCache.set(gid, chosen);
+  tilesetCache.set(normalized, chosen);
   return chosen;
 }
 

@@ -35,6 +35,9 @@ import {
   getMapPixelSize,
   extractCrystalEchoes,
 } from "../maps/map.js";
+
+const MAP_LAYERS_BELOW_ENTITIES = ["groundLayer", "road", "props", "propsTwo"];
+const MAP_LAYERS_ABOVE_ENTITIES = ["trees", "clouds"];
 // ------------------------------------------------------------
 // ðŸ‘¹ ENEMIES (Goblin / Troll / Ogre / Worg / Elite / Crossbow)
 // ------------------------------------------------------------
@@ -476,8 +479,9 @@ export function updateGame(delta) {
 export function renderGame() {
   if (!ctx || !canvas) return;
 
-  // Ground
-  drawMapLayered(ctx, "ground", cameraX, cameraY, canvas.width, canvas.height);
+  for (const layer of MAP_LAYERS_BELOW_ENTITIES) {
+    drawMapLayered(ctx, layer, cameraX, cameraY, canvas.width, canvas.height);
+  }
 
   // Entities
   ctx.save();
@@ -549,8 +553,9 @@ export function renderGame() {
 
   ctx.restore();
 
-  // Foreground
-  drawMapLayered(ctx, "trees", cameraX, cameraY, canvas.width, canvas.height);
+  for (const layer of MAP_LAYERS_ABOVE_ENTITIES) {
+    drawMapLayered(ctx, layer, cameraX, cameraY, canvas.width, canvas.height);
+  }
 
   // Pegasus
   try {
