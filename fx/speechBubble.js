@@ -44,7 +44,7 @@ export function updateAndDrawSpeechBubbles(ctx, delta) {
     const anchorX = b.anchor?.pos?.x ?? b.x;
     const anchorY = b.anchor?.pos?.y ?? b.y;
 
-    drawSpeechBubble(ctx, b, anchorX, anchorY - 50); // adjust offset for head height
+    drawSpeechBubble(ctx, b, anchorX, anchorY - 70); // adjust offset for head height
 
     ctx.globalAlpha = 1;
   }
