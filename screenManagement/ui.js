@@ -501,7 +501,7 @@ function braveryFlashEffect() {
   Object.assign(fx.style, {
     position: "fixed",
     inset: 0,
-    background: "rgba(255, 140, 255, 0.35)",
+    background: "radial-gradient(circle at center, rgba(255,140,255,0.45) 0%, rgba(80,0,80,0.65) 80%)",
     pointerEvents: "none",
     zIndex: "9999999",
     opacity: "0",
@@ -509,10 +509,41 @@ function braveryFlashEffect() {
 
   document.body.appendChild(fx);
 
+  // ⭐ Initial flash-in animation
   fx.animate(
-    [{ opacity: 0 }, { opacity: 1 }, { opacity: 0 }],
-    { duration: 600, easing: "ease-out" }
-  ).finished.then(() => fx.remove());
+    [{ opacity: 0 }, { opacity: 1 }],
+    { duration: 300, easing: "ease-out", fill: "forwards" }
+  );
+
+  // ⭐ Pulse animation that loops while bravery is active
+  const pulse = fx.animate(
+    [
+      { opacity: 0.25 },
+      { opacity: 0.45 },
+      { opacity: 0.25 },
+    ],
+    {
+      duration: 1500,
+      easing: "ease-in-out",
+      iterations: Infinity,
+    }
+  );
+
+  // ⭐ Watch for bravery ending
+  function watchEnd() {
+    if (!gameState.bravery.draining) {
+      // Fade-out when bravery ends
+      pulse.cancel();
+      fx.animate(
+        [{ opacity: fx.style.opacity || 0.3 }, { opacity: 0 }],
+        { duration: 400, easing: "ease-out" }
+      ).finished.then(() => fx.remove());
+    } else {
+      requestAnimationFrame(watchEnd);
+    }
+  }
+
+  requestAnimationFrame(watchEnd);
 }
 
 export function getArrowCount() {

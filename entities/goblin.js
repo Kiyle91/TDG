@@ -570,7 +570,7 @@ export function damageGoblin(goblin, amount) {
     incrementGoblinDefeated();
     awardXP(5);
     addGold(3);
-    addBravery(1);
+    addBravery(100);
     updateHUD();
     spawnLoot("goblin", goblin.x, goblin.y);
   }
