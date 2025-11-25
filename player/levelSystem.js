@@ -44,6 +44,7 @@ import { updateHUD, pauseGame, resumeGame } from "../screenManagement/ui.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { saveProfiles } from "../utils/gameState.js";
 import { saveToSlot } from "../save/saveSystem.js";
+import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 // ------------------------------------------------------------
 // 🗺️ MODULE-LEVEL VARIABLES
@@ -92,6 +93,8 @@ async function checkLevelUp() {
     p.maxMana = (p.maxMana || 50) + 10;
     p.hp = p.maxHp;
     p.mana = p.maxMana;
+
+    Events.emit(E.playerLevelUp, { level: p.level });
 
     spawnFloatingText(
       p.pos.x,

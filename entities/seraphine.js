@@ -645,9 +645,23 @@ export function drawSeraphine(ctx) {
       img = runSet[b.frame] || sprites.idle;
     }
 
-    const size = SERAPHINE_SIZE;
-    const drawX = b.x - size / 2;
-    const drawY = b.y - size / 2;
+    let scale = 1.0;
+
+    // 🟣 1. Melee + Attack animations (biggest)
+    if (b.attacking) {
+      scale = 1.7;   // 70% bigger
+
+    // 🟣 2. Idle, walking, spell, escape (general)
+    } else {
+      scale = 1.5;   // 50% bigger
+    }
+
+    // Final draw size
+    const drawSize = SERAPHINE_SIZE * scale;
+
+    // Center offsets
+    const drawX = b.x - drawSize / 2;
+    const drawY = b.y - drawSize / 2;
 
     ctx.save();
 
@@ -674,14 +688,12 @@ export function drawSeraphine(ctx) {
 
     ctx.drawImage(
       img,
-      0,
-      0,
-      1024,
-      1024,
+      0, 0,
+      1024, 1024,
       drawX,
       drawY,
-      size,
-      size
+      drawSize,
+      drawSize
     );
 
     if (b.alive && !b.defeated) {

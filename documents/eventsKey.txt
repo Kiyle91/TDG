@@ -1,0 +1,60 @@
+⭐ GLOBAL EVENT TYPES (from EVENT_NAMES)
+
+These are the events available for:
+
+bosses
+
+waves
+
+enemies
+
+player
+
+story
+
+collectibles
+
+bravery system
+
+level system
+
+map completion
+
+🟣 WAVE SYSTEM EVENTS
+Event	When It Fires
+waveStart	A new wave begins (after countdown).
+waveEnd	A wave finishes (all enemies cleared).
+mapComplete	Last wave complete, map victory triggers.
+💀 ENEMY EVENTS
+Event	When It Fires
+enemySpawn	Any enemy spawns (goblin, troll, worg, etc.).
+enemyKilled	An enemy is killed (not bosses).
+👑 BOSS EVENTS
+Event	When It Fires
+bossSpawn	A boss appears (Seraphine etc.).
+bossHpThreshold	Boss HP drops past 75%, 50%, 25%.
+bossDefeated	Boss hits 0 HP (defeat / escape animation).
+bossKilled	Legacy event — not currently used.
+
+Your Seraphine fight already emits:
+
+bossSpawn
+
+bossHpThreshold
+
+bossDefeated
+
+🔮 BRAVERY EVENTS
+Event	Meaning
+braveryFull	Bravery bar reached 100%
+braveryActivated	Bravery activated (player invulnerability aura)
+❤️ PLAYER EVENTS
+Event	Meaning
+playerLowHP	Player HP falls below threshold (20%)
+playerLevelUp	Player XP reaches next level
+💎 CRYSTAL ECHO EVENTS
+Event	Meaning
+echoHalf	Player collected half of echoes on map
+echoComplete	Player collected all echoes
+
+These tie into your collectible “Echo Power” system.

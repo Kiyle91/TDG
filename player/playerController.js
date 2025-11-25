@@ -638,7 +638,14 @@ export function updatePlayer(delta) {
   gameState.player.x = p.pos.x;
   gameState.player.y = p.pos.y;
 
-
+  // Low HP alert (fires once until healed past reset threshold)
+  const hpPct = Math.max(0, Math.min(1, (p.hp || 0) / (p.maxHp || 1)));
+  if (!lowHpAlerted && hpPct <= LOW_HP_THRESHOLD) {
+    lowHpAlerted = true;
+    Events.emit(E.playerLowHP, { hp: p.hp, maxHp: p.maxHp });
+  } else if (lowHpAlerted && hpPct >= LOW_HP_RESET) {
+    lowHpAlerted = false;
+  }
 }
 
 // ============================================================
