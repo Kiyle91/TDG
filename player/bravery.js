@@ -22,6 +22,14 @@ import { damageWorg } from "../entities/worg.js";
 import { damageCrossbow } from "../entities/crossbow.js";
 import { damageSeraphine } from "../entities/seraphine.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
+import { getGoblins } from "../entities/goblin.js";
+import { getOgres } from "../entities/ogre.js";
+import { getElites } from "../entities/elite.js";
+import { getTrolls } from "../entities/troll.js";
+import { getWorg } from "../entities/worg.js";
+import { getCrossbows } from "../entities/crossbow.js";
+import { getSeraphines } from "../entities/seraphine.js";
+
 
 // ------------------------------------------------------------
 // 🟪 ADD BRAVERY
@@ -54,6 +62,7 @@ export function activateBravery() {
 
   updateBraveryBar();
   Events.emit(E.braveryActivated);
+  braveryActivationBlast();   
   triggerBraveryPower();
   drainBraveryBar(8000);
 }
@@ -219,4 +228,54 @@ function braveryFlashEffect() {
   }
 
   requestAnimationFrame(watchEnd);
+}
+
+
+function braveryActivationBlast() {
+  const p = gameState.player;
+  if (!p) return;
+
+  const enemies = [
+    ...getGoblins(),
+    ...getOgres(),
+    ...getElites(),
+    ...getTrolls(),
+    ...getWorg(),
+    ...getCrossbows(),
+    ...(getSeraphines ? getSeraphines() : [])
+  ];
+
+  for (const enemy of enemies) {
+    if (!enemy.alive) continue;
+
+    const dx = enemy.x - p.pos.x;
+    const dy = enemy.y - p.pos.y;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist > AURA_RADIUS) continue;
+
+    // PUSHBACK
+    if (dist > 0) {
+      const push = (AURA_RADIUS - dist) * 0.9;   // stronger initial blast
+      const nx = dx / dist;
+      const ny = dy / dist;
+
+      enemy.x += nx * push;
+      enemy.y += ny * push;
+    }
+
+    // ONE-TIME DAMAGE
+    switch (enemy.type) {
+      case "goblin":      damageGoblin(enemy, AURA_DAMAGE); break;
+      case "ogre":        damageOgre(enemy, AURA_DAMAGE); break;
+      case "elite":       damageElite(enemy, AURA_DAMAGE); break;
+      case "troll":       damageTroll(enemy, AURA_DAMAGE); break;
+      case "worg":        damageWorg(enemy, AURA_DAMAGE); break;
+      case "crossbow":    damageCrossbow(enemy, AURA_DAMAGE); break;
+      case "seraphine":   damageSeraphine(enemy, AURA_DAMAGE); break;
+    }
+
+    spawnFloatingText(enemy.x, enemy.y - 40, `-${AURA_DAMAGE}`, "#ff55ff");
+    enemy.flashTimer = 150;
+  }
 }

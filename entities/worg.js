@@ -18,6 +18,7 @@ import { awardXP } from "../player/levelSystem.js";
 import { updateHUD } from "../screenManagement/ui.js";
 import { playGoblinDeath, playGoblinDamage } from "../core/soundtrack.js";
 import { slideRect } from "../utils/mapCollision.js";
+import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 
 // ============================================================
