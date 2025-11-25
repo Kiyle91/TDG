@@ -21,6 +21,7 @@ import { damageTroll } from "../entities/troll.js";
 import { damageWorg } from "../entities/worg.js";
 import { damageCrossbow } from "../entities/crossbow.js";
 import { damageSeraphine } from "../entities/seraphine.js";
+import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 // ------------------------------------------------------------
 // 🟪 ADD BRAVERY
@@ -35,6 +36,7 @@ export function addBravery(amount) {
     b.current = b.max;
     b.charged = true;
     b.draining = false;
+    Events.emit(E.braveryFull);
   }
 
   updateBraveryBar();
@@ -51,6 +53,7 @@ export function activateBravery() {
   b.draining = true;
 
   updateBraveryBar();
+  Events.emit(E.braveryActivated);
   triggerBraveryPower();
   drainBraveryBar(8000);
 }

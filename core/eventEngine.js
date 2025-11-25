@@ -91,6 +91,8 @@ export const EVENT_NAMES = {
   enemyKilled: "enemyKilled",
   bossSpawn: "bossSpawn",
   bossKilled: "bossKilled",
+  bossHpThreshold: "bossHpThreshold",
+  bossDefeated: "bossDefeated",
   braveryFull: "braveryFull",
   braveryActivated: "braveryActivated",
   playerLowHP: "playerLowHP",
