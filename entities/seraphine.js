@@ -38,7 +38,7 @@ import { updateHUD } from "../screenManagement/ui.js";
 import { awardXP } from "../player/levelSystem.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { playGoblinDamage, playGoblinDeath } from "../core/soundtrack.js";
-import { addBravery } from "../player/bravery.js";
+import { addBravery, applyBraveryAuraEffects } from "../player/bravery.js";
 // ------------------------------------------------------------
 // 🧩 INTERNAL STATE
 // ------------------------------------------------------------
@@ -443,6 +443,10 @@ export function updateSeraphine(delta = 16) {
         const stepX = (dx / dist) * moveSpeed * dt;
         const stepY = (dy / dist) * moveSpeed * dt;
         moveWithCollision(b, stepX, stepY);
+      }
+
+      if (gameState.player.invincible === true && b.alive && !b.defeated) {
+          applyBraveryAuraEffects(b);
       }
 
       // Simple collision push vs goblins so she doesn't overlap hordes

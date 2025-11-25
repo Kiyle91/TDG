@@ -20,6 +20,7 @@ import { damageElite } from "../entities/elite.js";
 import { damageTroll } from "../entities/troll.js";
 import { damageWorg } from "../entities/worg.js";
 import { damageCrossbow } from "../entities/crossbow.js";
+import { damageSeraphine } from "../entities/seraphine.js";
 
 // ------------------------------------------------------------
 // 🟪 ADD BRAVERY
@@ -123,6 +124,7 @@ export function applyBraveryAuraEffects(enemy) {
     case "troll":       damageTroll(enemy, AURA_DAMAGE); break;
     case "worg":        damageWorg(enemy, AURA_DAMAGE); break;
     case "crossbow":    damageCrossbow(enemy, AURA_DAMAGE); break;
+    case "seraphine":   damageSeraphine(enemy, AURA_DAMAGE); break;
     }
 
     spawnFloatingText(enemy.x, enemy.y - 40, `-${AURA_DAMAGE}`, "#ff55ff");
