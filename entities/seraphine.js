@@ -633,7 +633,7 @@ export function drawSeraphine(ctx) {
   for (const b of seraphines) {
     let img = sprites.idle;
 
-    if (!b.alive && b.defeated) {
+    if (b.defeated) {
       img = sprites.slain[b.slainFrame] || sprites.slain[0];
     } else if (b.castingSpell) {
       img = b.spellFrame === 0 ? sprites.spell.charge : sprites.spell.explode;
