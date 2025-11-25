@@ -11,6 +11,9 @@ export function clearSpeechBubbles() {
 }
 
 export function spawnSpeechBubble(text, x, y, duration = 10000, anchor = null) {
+  // Enforce a single active bubble on screen
+  clearSpeechBubbles();
+
   const resolvedAnchor = anchor ?? gameState?.player ?? null;
 
   speechBubbles.push({

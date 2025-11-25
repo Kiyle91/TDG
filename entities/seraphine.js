@@ -593,7 +593,7 @@ export function damageSeraphine(boss, amount) {
 function drawBossHpBar(ctx, b) {
   const barWidth = 80;
   const barHeight = 7;
-  const offsetY = SERAPHINE_SIZE * 0.55;
+  const offsetY = SERAPHINE_SIZE * 1.01;
   const pct = Math.max(0, Math.min(1, b.hp / b.maxHp));
 
   ctx.fillStyle = "rgba(0,0,0,0.55)";
@@ -649,7 +649,7 @@ export function drawSeraphine(ctx) {
 
     // 🟣 1. Melee + Attack animations (biggest)
     if (b.attacking) {
-      scale = 1.7;   // 70% bigger
+      scale = 2.3;   // 70% bigger
 
     // 🟣 2. Idle, walking, spell, escape (general)
     } else {
@@ -660,20 +660,35 @@ export function drawSeraphine(ctx) {
     const drawSize = SERAPHINE_SIZE * scale;
 
     // Center offsets
-    const drawX = b.x - drawSize / 2;
-    const drawY = b.y - drawSize / 2;
+    let drawX = b.x - drawSize / 2;
+    let drawY = b.y - drawSize / 2;
+
+    // Offset attack/melee frames upward (tweak as needed)
+    if (b.attacking) {
+      drawY -= 20;  // ← raise by 20px (adjust to look perfect)
+    };
 
     ctx.save();
 
-    // Shadow
-    ctx.globalAlpha = 0.25;
+    // ==================================================
+    // SHADOW (scaled independently of sprite)
+    // ==================================================
+    const shadowScale = b.attacking ? 1.2 : 1.0;      // attack = slightly bigger shadow
+
+    const shadowW = SERAPHINE_SIZE * 0.45 * shadowScale;   // width
+    const shadowH = SERAPHINE_SIZE * 0.18 * shadowScale;   // height
+
+    // Raise shadow up a bit so it's closer to her feet
+    const shadowY = b.y + (SERAPHINE_SIZE * (scale * 0.30));
+
+    ctx.globalAlpha = 0.28;
     ctx.fillStyle = "#000";
     ctx.beginPath();
     ctx.ellipse(
       b.x,
-      b.y + size * 0.45,
-      size * 0.35,
-      size * 0.14,
+      shadowY,
+      shadowW,
+      shadowH,
       0,
       0,
       Math.PI * 2
