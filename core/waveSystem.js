@@ -21,6 +21,7 @@ import { spawnElite, getElites } from "../entities/elite.js";
 import { spawnTroll, getTrolls } from "../entities/troll.js";
 import { spawnOgre, getOgres } from "../entities/ogre.js";
 import { spawnCrossbow, getCrossbows } from "../entities/crossbow.js";
+import { spawnSeraphineBoss, getSeraphines } from "../entities/seraphine.js";
 import { Events, EVENT_NAMES as E } from "./eventEngine.js";
 
 // ============================================================
@@ -48,16 +49,16 @@ export const waveConfigs = {
   // ============================================================
   // 🌿 MAP 1 — Gentle Onboarding
   // ============================================================
-  1: [
-    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 1, crossbows: 0 },
-    { goblins: 12, worgs: 3, ogres: 0, elites: 1, trolls: 1, crossbows: 1 },
-    { goblins: 14, worgs: 4, ogres: 0, elites: 2, trolls: 1, crossbows: 1 },
-    { goblins: 15, worgs: 5, ogres: 0, elites: 2, trolls: 2, crossbows: 1 },
-    { goblins: 16, worgs: 6, ogres: 0, elites: 2, trolls: 2, crossbows: 2 },
-    { goblins: 20, worgs: 7, ogres: 1, elites: 3, trolls: 3, crossbows: 1 },
-    { goblins: 24, worgs: 8, ogres: 1, elites: 3, trolls: 3, crossbows: 1 },
-    { goblins: 30, worgs: 9, ogres: 2, elites: 4, trolls: 4, crossbows: 2 },
-  ],
+1: [
+  { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+  { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+  { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+  { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+  { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+
+  // ⭐ NEW WAVE 9 — Seraphine appears for the first time
+  { boss: "seraphine", phase: 1, goblins: 6 }
+],
 
 
   // ============================================================
@@ -355,6 +356,8 @@ function startNextWave() {
   const wave = waves[currentWaveIndex];
   if (!wave) return;
 
+  
+
   spawnQueue.length = 0;
 
   waveActive = true;
@@ -382,6 +385,29 @@ function startNextWave() {
     }
     return enemy;
   };
+
+  if (wave.boss === "seraphine") {
+
+  // spawn boss immediately
+  spawnSeraphineBoss(wave.phase || 1);
+
+  // goblin escorts
+  const escorts = wave.goblins || 0;
+  for (let i = 0; i < escorts; i++) {
+    spawnQueue.push(() => spawnAndEmit("goblin", spawnGoblin));
+  }
+
+  waveActive = true;
+  waveCleared = false;
+  justStartedWave = true;
+
+  gameState.wave = currentWaveIndex + 1;
+  gameState.totalWaves = waves.length;
+  updateHUD();
+  Events.emit(E.waveStart, { wave: gameState.wave });
+
+  return; // IMPORTANT so normal enemies don’t spawn
+}
 
   for (let i = 0; i < wave.goblins; i++) {
     spawnQueue.push(() => {
@@ -421,6 +447,7 @@ function noEnemiesAlive() {
   const e = getElites();
   const t = getTrolls();
   const x = getCrossbows();
+  const s = getSeraphines();
 
   const aliveG = g.filter(e => e.alive).length;
   const aliveW = w.filter(e => e.alive).length;
@@ -428,8 +455,9 @@ function noEnemiesAlive() {
   const aliveE = e.filter(e => e.alive).length;
   const aliveT = t.filter(e => e.alive).length;
   const aliveX = x.filter(e => e.alive).length;
+  const aliveS = s.filter(e => e.alive).length;
 
-  const totalAlive = aliveG + aliveW + aliveO + aliveE + aliveT + aliveX;
+  const totalAlive = aliveG + aliveW + aliveO + aliveE + aliveT + aliveX + aliveS;
   const totalSpawnedSoFar = g.length + w.length + o.length + e.length + t.length + x.length;
 
   if (spawnQueue.length > 0) return false;
