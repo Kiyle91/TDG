@@ -60,7 +60,7 @@ const FRAME_INTERVAL = 220;
 
 // Melee (copied from player timing: 0 → 1 → idle)
 const MELEE_RANGE = 65;
-const MELEE_DAMAGE = 16;
+const MELEE_DAMAGE = 1;
 const MELEE_TOTAL_TIME = 400;   // ms
 const MELEE_WINDUP = 180;       // ms (frame 0 → frame 1)
 
@@ -69,7 +69,7 @@ const SPELL_COOLDOWN = 3200;    // ms
 const SPELL_MIN_RANGE = 200;    // only cast if player this far away
 const SPELL_ORB_SPEED = 120;    // px/sec (deliberately not super fast)
 const SPELL_ORB_RADIUS = 26;
-const SPELL_DAMAGE = 20;
+const SPELL_DAMAGE = 1;
 const SPELL_LIFETIME = 7000;    // ms
 
 // Death / defeat

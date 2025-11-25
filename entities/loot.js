@@ -40,7 +40,7 @@
 import { gameState, addGold, addDiamonds } from "../utils/gameState.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { playFairySprinkle } from "../core/soundtrack.js";
-import { updateHUD } from "../screenManagement/ui.js";
+import { addBravery, updateHUD } from "../screenManagement/ui.js";
 
 // ------------------------------------------------------------
 // 🖼️ ASSETS (loaded once)
@@ -50,6 +50,7 @@ let lootImg = null;
 let diamondImg = null;
 let heartImg = null;
 let manaPotionImg = null;
+let braveryImg = null;
 
 const lootImages = {};
 
@@ -68,9 +69,10 @@ function loadImage(src) {
 
 const LOOT_ITEMS = [
   { type: "chest",   amount: 20,  weight: 6 },
-  { type: "diamond", amount: 25,  weight: 2 },
+  { type: "diamond", amount: 20,  weight: 2 },
   { type: "heart",   amount: 100, weight: 2 },
   { type: "mana",    amount: 100, weight: 2 },
+  { type: "bravery", amount: 25, weight: 2 },
 ];
 
 // ------------------------------------------------------------
@@ -78,7 +80,7 @@ const LOOT_ITEMS = [
 // ------------------------------------------------------------
 
 const LOOT_TABLE = {
-  goblin:   { chance: 0.1, rolls: 1 },
+  goblin:   { chance: 1, rolls: 1 },
   troll:    { chance: 0.1, rolls: 1 },
   worg:     { chance: 0.8, rolls: 1 },
   elite:    { chance: 0.12, rolls: 1 },
@@ -109,7 +111,9 @@ export async function loadLootImages() {
     diamondImg = await loadImage("./assets/images/characters/gem_diamond.png");
     manaPotionImg = await loadImage("./assets/images/characters/mana_potion.png");
     heartImg = await loadImage("./assets/images/characters/gem_heart.png");
+    braveryImg = await loadImage ("./assets/images/characters/bravery.png");
 
+    lootImages.bravery = braveryImg;
     lootImages.chest = lootImg;
     lootImages.diamond = diamondImg;
     lootImages.heart = heartImg;
@@ -272,6 +276,14 @@ function applyLootReward(d) {
       }
       break;
     }
+
+    case "bravery": {
+      const amount = Number(d.amount) || 0;
+      addBravery(amount);  
+      spawnFloatingText(d.x, d.y - 40, `+${amount} Bravery`, "#ff99ff");
+      break;
+    }
+
   }
 
   updateHUD();

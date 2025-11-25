@@ -48,12 +48,16 @@ export const waveConfigs = {
   // 🌿 MAP 1 — Gentle Onboarding
   // ============================================================
   1: [
-    { goblins: 1, worgs: 0, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 5, worgs: 0, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 10, worgs: 5, elites: 3, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 20, worgs: 10, elites: 15, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 28, worgs: 20, elites: 25, trolls: 0, ogres: 0, crossbows: 0 },
+    { goblins: 100, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 12, worgs: 3, ogres: 0, elites: 1, trolls: 1, crossbows: 1 },
+    { goblins: 14, worgs: 4, ogres: 0, elites: 2, trolls: 1, crossbows: 1 },
+    { goblins: 15, worgs: 5, ogres: 0, elites: 2, trolls: 2, crossbows: 1 },
+    { goblins: 16, worgs: 6, ogres: 0, elites: 2, trolls: 2, crossbows: 2 },
+    { goblins: 20, worgs: 7, ogres: 1, elites: 3, trolls: 3, crossbows: 1 },
+    { goblins: 24, worgs: 8, ogres: 1, elites: 3, trolls: 3, crossbows: 1 },
+    { goblins: 30, worgs: 9, ogres: 2, elites: 4, trolls: 4, crossbows: 2 },
   ],
+
 
   // ============================================================
   // 🌲 MAP 2 — Early Worg Pressure (Introduced Mid-Map)
