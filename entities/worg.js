@@ -249,6 +249,7 @@ export function updateWorg(delta = 16) {
         }
 
         w.alive = false;
+        Events.emit(E.enemyKilled, { type: "worg", x: w.x, y: w.y });
         w.fade = 0;
       }
     } else {

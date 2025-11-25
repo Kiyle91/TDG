@@ -21,6 +21,7 @@ import { spawnElite, getElites } from "../entities/elite.js";
 import { spawnTroll, getTrolls } from "../entities/troll.js";
 import { spawnOgre, getOgres } from "../entities/ogre.js";
 import { spawnCrossbow, getCrossbows } from "../entities/crossbow.js";
+import { Events, EVENT_NAMES as E } from "./eventEngine.js";
 
 // ============================================================
 // WAVE CONFIGS
@@ -363,6 +364,7 @@ function startNextWave() {
   gameState.wave = currentWaveIndex + 1;
   gameState.totalWaves = waves.length;
   updateHUD();
+  Events.emit(E.waveStart, { wave: gameState.wave });
 
   const hpMult = getDifficultyHpMultiplier();
   const spawnScaled = (fn) => {
@@ -376,12 +378,14 @@ function startNextWave() {
 
   for (let i = 0; i < wave.goblins; i++) {
     spawnQueue.push(() => {
-      spawnScaled(spawnGoblin);
+      const g = spawnScaled(spawnGoblin);
+      if (g) Events.emit(E.enemySpawn, { type: "goblin", wave: gameState.wave });
 
       if (i < wave.worgs) spawnScaled(spawnWorg);
       if (i < wave.elites) spawnScaled(spawnElite);
       if (i < wave.trolls) spawnScaled(spawnTroll);
-      if (i < wave.ogres) spawnScaled(() => spawnOgre({ skipDifficultyScaling: true }));
+      const o = spawnScaled(() => spawnOgre({ skipDifficultyScaling: true }));
+      if (o) Events.emit(E.enemySpawn, { type: "ogre", wave: gameState.wave });
       if (i < wave.crossbows) spawnScaled(spawnCrossbow);
     });
   }
@@ -501,6 +505,8 @@ export async function updateWaveSystem(delta) {
     gameState.profile.progress.currentMap = 9;
   }
 
+  Events.emit(E.mapComplete, { map: mapId });
+
   if (mapId < 9) {
     unlockMap(nextMap);
     saveProfiles();
@@ -520,6 +526,8 @@ export async function updateWaveSystem(delta) {
 }
 
 async function handleWaveCleared(waveNumber, mapId) {
+  Events.emit(E.waveEnd, { wave: waveNumber });
+
   try {
     if (waveNumber === 1) {
       await triggerEndOfWave1Story(mapId);

@@ -52,6 +52,7 @@ import { addBravery } from "../player/bravery.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { getAllPaths } from "../maps/map.js";
 import { applyBraveryAuraEffects } from "../player/bravery.js";
+import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 // ============================================================
 // ⚙️ CONFIG & STATE
@@ -551,6 +552,7 @@ export function damageGoblin(goblin, amount) {
   if (goblin.hp <= 0) {
     goblin.hp = 0;
     goblin.alive = false;
+    Events.emit(E.enemyKilled, { type: "goblin", x: goblin.x, y: goblin.y });
     goblin.deathTimer = 0;
     goblin.fading = false;
     goblin.fadeTimer = 0;

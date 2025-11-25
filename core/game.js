@@ -184,7 +184,7 @@ import { spawnDamageSparkles } from "../fx/sparkles.js";
 
 import { updateHealFX, renderHealFX } from "../combat/heal.js";
 
-import { loadStepEventsForMap } from "../core/eventEngine.js";
+import { loadStepEventsForMap } from "./eventEngine.js";
 import map1Timed from "../core/events/map1Timed.js";
 import map2Timed from "../core/events/map2Timed.js";
 import map3Timed from "../core/events/map3Timed.js";
@@ -193,9 +193,10 @@ import map5Timed from "./events/map5Timed.js";
 import map6Timed from "./events/map6Timed.js";
 import map7Timed from "../core/events/map7Timed.js";
 import map8Timed from "../core/events/map8Timed.js";
-import map9Timed from "../core/events/map9Timed.js";
-import { updateStepEvents } from "../core/eventEngine.js";
+import map9Timed from "./events/map9Steps.js";
+import { updateStepEvents } from "./eventEngine.js";
 import { spawnSeraphineBoss, clearSeraphines, drawSeraphine, updateSeraphine, initSeraphine } from "../entities/seraphine.js";
+import { initMap1Events } from "./events/map1Events.js";
 
 
 
@@ -371,7 +372,10 @@ export async function initGame(mode = "new") {
   const current = gameState.progress?.currentMap ?? 1;
 
   switch (current) {
-    case 1: loadStepEventsForMap(1, map1Timed); break;
+    case 1: loadStepEventsForMap(1, map1Timed);
+            initMap1Events()
+            break;
+            
     case 2: loadStepEventsForMap(2, map2Timed); break;
     case 3: loadStepEventsForMap(3, map3Timed); break;
     case 4: loadStepEventsForMap(4, map4Timed); break;
@@ -382,6 +386,8 @@ export async function initGame(mode = "new") {
     case 9: loadStepEventsForMap(9, map9Timed); break;
     default: break;
   }
+
+  
 
   // Pegasus + healing + drops
   await loadPegasus();

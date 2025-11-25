@@ -39,6 +39,7 @@ import { awardXP } from "../player/levelSystem.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { playGoblinDamage, playGoblinDeath } from "../core/soundtrack.js";
 import { addBravery, applyBraveryAuraEffects } from "../player/bravery.js";
+import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 // ------------------------------------------------------------
 // 🧩 INTERNAL STATE
 // ------------------------------------------------------------
@@ -215,6 +216,14 @@ export function spawnSeraphineBoss(phase = 1, x, y) {
 
     // Movement
     speed: SERAPHINE_SPEED,
+
+    hpEvents: {
+      "75": false,
+      "50": false,
+      "25": false
+    },
+
+    
   };
 
   seraphines.push(boss);
@@ -488,11 +497,52 @@ export function updateSeraphine(delta = 16) {
 export function damageSeraphine(boss, amount) {
   if (!boss || !boss.alive || boss.defeated) return;
 
+  const prevHP = boss.hp;
   boss.hp -= amount;
 
   spawnFloatingText(boss.x, boss.y - 50, `-${amount}`, "#ff88dd");
   playGoblinDamage();
 
+  // 🔮 💥 HP Threshold Event Emission
+  const pct = (boss.hp / boss.maxHp) * 100;
+
+  if (!boss.hpEvents["75"] && pct <= 75) {
+    boss.hpEvents["75"] = true;
+    Events.emit(E.bossHpThreshold, {
+      boss: "seraphine",
+      phase: boss.phase,
+      threshold: 75,
+      x: boss.x,
+      y: boss.y
+    });
+  }
+
+  if (!boss.hpEvents["50"] && pct <= 50) {
+    boss.hpEvents["50"] = true;
+    Events.emit(E.bossHpThreshold, {
+      boss: "seraphine",
+      phase: boss.phase,
+      threshold: 50,
+      x: boss.x,
+      y: boss.y
+    });
+  }
+
+  if (!boss.hpEvents["25"] && pct <= 25) {
+    boss.hpEvents["25"] = true;
+    Events.emit(E.bossHpThreshold, {
+      boss: "seraphine",
+      phase: boss.phase,
+      threshold: 25,
+      x: boss.x,
+      y: boss.y
+    });
+  }
+
+
+  // ============================================================
+  // 🖤 DEFEAT LOGIC (unchanged except we add a defeat event)
+  // ============================================================
   if (boss.hp <= 0) {
     boss.hp = 0;
     boss.defeated = true;
@@ -500,6 +550,14 @@ export function damageSeraphine(boss, amount) {
     boss.castingSpell = false;
     boss.meleeFrame = 0;
     boss.spellFrame = 0;
+
+    // ⭐ Trigger defeat event for EventEngine
+    Events.emit(E.bossDefeated, {
+      boss: "seraphine",
+      phase: boss.phase,
+      x: boss.x,
+      y: boss.y
+    });
 
     // Rewards
     awardXP(EXP_REWARD);
@@ -509,19 +567,17 @@ export function damageSeraphine(boss, amount) {
 
     playGoblinDeath();
 
-    // Transition into non-violent defeat pose then fade
+    // Death animation flow
     boss.slainFrame = 0;
-    setTimeout(() => {
-      boss.slainFrame = 1;
-    }, 400);
+    setTimeout(() => { boss.slainFrame = 1; }, 400);
 
-    // After some time start fade-out
     setTimeout(() => {
       boss.alive = false;
       boss.fadeTimer = 0;
     }, 900);
   }
 }
+
 
 // ------------------------------------------------------------
 // ❤️ HP BAR (Boss-style)

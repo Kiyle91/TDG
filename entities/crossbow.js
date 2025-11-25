@@ -43,6 +43,7 @@ import { spawnDamageSparkles } from "../fx/sparkles.js";
 import { spawnLoot } from "./loot.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { addBravery } from "../player/bravery.js"
+import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 
 // ============================================================
@@ -535,6 +536,7 @@ function killCrossbow(c) {
   c.dead = true;
   c.fade = 1;
   c.fading = true;
+  Events.emit(E.enemyKilled, { type: "crossbow", x: c.x, y: c.y });
 
   awardXP(5);
   addGold(4);

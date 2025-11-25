@@ -43,6 +43,7 @@ import { awardXP } from "../player/levelSystem.js";
 import { incrementGoblinDefeated } from "../core/game.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { addBravery } from "../player/bravery.js";
+import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 // ------------------------------------------------------------
 // 🗺️ INTERNAL STATE
@@ -450,6 +451,7 @@ export function damageTroll(t, amount) {
 
   if (t.hp <= 0) {
     t.hp = 0;
+    Events.emit(E.enemyKilled, { type: "troll", x: t.x, y: t.y });
     t.alive = false;
     t.fadeTimer = 0;
 

@@ -43,7 +43,7 @@ import { updateHUD } from "../screenManagement/ui.js";
 import { playGoblinDamage, playGoblinDeath } from "../core/soundtrack.js";
 import { getGoblins } from "../entities/goblin.js";
 import { slideRect } from "../utils/mapCollision.js";
-
+import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 // ============================================================
 // 🧩 INTERNAL STATE
@@ -401,7 +401,10 @@ export function damageElite(e, amount) {
   if (e.hp <= 0) {
     e.hp = 0;
     e.alive = false;
-    e.fade = 0;
+    e.fade = 0;    
+    Events.emit(E.enemyKilled, { type: "elite", x: e.x, y: e.y });
+
+    
 
     playGoblinDeath();
     awardXP(EXP_REWARD);
