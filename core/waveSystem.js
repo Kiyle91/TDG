@@ -52,9 +52,6 @@ export const waveConfigs = {
 1: [
   { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-  { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-  { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-  { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
 
   // ⭐ NEW WAVE 9 — Seraphine appears for the first time
   { boss: "seraphine", phase: 1, goblins: 6 }

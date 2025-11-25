@@ -144,8 +144,8 @@ async function loadSeraphineSprites() {
     },
 
     slain: [
-      await loadImage(`${base}_slain_one.png`),
-      await loadImage(`${base}_slain_two.png`),
+      await loadImage(`${base}_escape_charge.png`),
+      await loadImage(`${base}_escape_explode.png`)
     ],
   };
 }
@@ -576,12 +576,12 @@ export function damageSeraphine(boss, amount) {
 
     // Death animation flow
     boss.slainFrame = 0;
-    setTimeout(() => { boss.slainFrame = 1; }, 400);
+    setTimeout(() => { boss.slainFrame = 1; }, 1000);
 
     setTimeout(() => {
       boss.alive = false;
       boss.fadeTimer = 0;
-    }, 900);
+    }, 1600);
   }
 }
 
