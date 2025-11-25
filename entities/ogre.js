@@ -47,6 +47,8 @@ import { updateHUD } from "../screenManagement/ui.js";
 import { spawnLoot } from "./loot.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { addBravery } from "../player/bravery.js";
+import { applyBraveryAuraEffects } from "../player/bravery.js";
+import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 
 // ------------------------------------------------------------
@@ -266,7 +268,7 @@ export function updateOgres(delta = 16) {
     // ----------------------------------------------------
 
     if (p.invincible === true) {
-        applyBraveryAuraEffects(enemyObject);
+        applyBraveryAuraEffects(o);
     }
 
     

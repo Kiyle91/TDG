@@ -42,7 +42,7 @@ import { playGoblinDeath, playGoblinDamage } from "../core/soundtrack.js";
 import { spawnDamageSparkles } from "../fx/sparkles.js";
 import { spawnLoot } from "./loot.js";
 import { slideRect } from "../utils/mapCollision.js";
-import { addBravery } from "../player/bravery.js"
+import { addBravery, applyBraveryAuraEffects } from "../player/bravery.js"
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 
@@ -321,7 +321,7 @@ export function updateCrossbows(delta) {
         moveCrossbowWithCollision(c, stepX, stepY);
 
         if (player.invincible === true) {
-            applyBraveryAuraEffects(e);
+            applyBraveryAuraEffects(c);
         }   
       }
 

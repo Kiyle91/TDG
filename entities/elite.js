@@ -36,7 +36,6 @@
 // ------------------------------------------------------------
 
 import { gameState, addGold } from "../utils/gameState.js";
-import { addBravery } from "../player/bravery.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { awardXP } from "../player/levelSystem.js";
 import { updateHUD } from "../screenManagement/ui.js";
@@ -44,6 +43,8 @@ import { playGoblinDamage, playGoblinDeath } from "../core/soundtrack.js";
 import { getGoblins } from "../entities/goblin.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
+import { addBravery } from "../player/bravery.js";
+import { applyBraveryAuraEffects } from "../player/bravery.js";
 
 // ============================================================
 // 🧩 INTERNAL STATE
@@ -319,7 +320,7 @@ export function updateElites(delta = 16) {
         moveEliteWithCollision(e, stepX, stepY);
 
         if (p.invincible === true) {
-            applyBraveryAuraEffects(enemyObject);
+            applyBraveryAuraEffects(e);
         }
       
       }

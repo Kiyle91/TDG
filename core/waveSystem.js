@@ -49,7 +49,7 @@ export const waveConfigs = {
   // 🌿 MAP 1 — Gentle Onboarding
   // ============================================================
   1: [
-    { goblins: 100, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 1, crossbows: 0 },
     { goblins: 12, worgs: 3, ogres: 0, elites: 1, trolls: 1, crossbows: 1 },
     { goblins: 14, worgs: 4, ogres: 0, elites: 2, trolls: 1, crossbows: 1 },
     { goblins: 15, worgs: 5, ogres: 0, elites: 2, trolls: 2, crossbows: 1 },
@@ -384,8 +384,10 @@ function startNextWave() {
       if (i < wave.worgs) spawnScaled(spawnWorg);
       if (i < wave.elites) spawnScaled(spawnElite);
       if (i < wave.trolls) spawnScaled(spawnTroll);
-      const o = spawnScaled(() => spawnOgre({ skipDifficultyScaling: true }));
-      if (o) Events.emit(E.enemySpawn, { type: "ogre", wave: gameState.wave });
+      if (i < wave.ogres) {
+        const o = spawnScaled(() => spawnOgre({ skipDifficultyScaling: true }));
+        if (o) Events.emit(E.enemySpawn, { type: "ogre", wave: gameState.wave });
+      }
       if (i < wave.crossbows) spawnScaled(spawnCrossbow);
     });
   }
