@@ -51,7 +51,7 @@ import { spawnLoot } from "./loot.js";
 import { addBravery } from "../player/bravery.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { getAllPaths } from "../maps/map.js";
-
+import { applyBraveryAuraEffects } from "../player/bravery.js";
 
 // ============================================================
 // ⚙️ CONFIG & STATE
@@ -318,21 +318,9 @@ export function updateGoblins(delta) {
         moveGoblinWithCollision(e, stepX, stepY);
 
         if (player.invincible === true) {
-        const dx = e.x - px;
-        const dy = e.y - py;
-        const dist = Math.hypot(dx, dy);
-
-        const BRAVERY_AURA_RADIUS = 130; // Matches your glow radius
-
-        if (dist < BRAVERY_AURA_RADIUS && dist > 0) {
-            const pushForce = (BRAVERY_AURA_RADIUS - dist) * 0.35;
-            const nx = dx / dist;
-            const ny = dy / dist;
-
-            e.x += nx * pushForce;
-            e.y += ny * pushForce;
+          applyBraveryAuraEffects(e);
         }
-      }
+
 
         if (Math.abs(dxp) > Math.abs(dyp))
           e.dir = dxp > 0 ? "right" : "left";

@@ -317,21 +317,11 @@ export function updateElites(delta = 16) {
         const stepX = (dx / dist) * moveSpeed * dt;
         const stepY = (dy / dist) * moveSpeed * dt;
         moveEliteWithCollision(e, stepX, stepY);
-                if (p.invincible === true) {
-            const aura = 130; // matches glow radius
-            const dxp = e.x - p.pos.x;
-            const dyp = e.y - p.pos.y;
-            const dp = Math.hypot(dxp, dyp);
 
-            if (dp < aura && dp > 0) {
-                const push = (aura - dp) * 0.35;
-                const nx = dxp / dp;
-                const ny = dyp / dp;
-
-                e.x += nx * push;
-                e.y += ny * push;
-            }
+        if (p.invincible === true) {
+            applyBraveryAuraEffects(enemyObject);
         }
+      
       }
 
       e.dir =

@@ -14,6 +14,12 @@
 import { gameState } from "../utils/gameState.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { updateBraveryBar } from "../screenManagement/ui.js";    // UI-display ONLY
+import { damageGoblin } from "../entities/goblin.js";
+import { damageOgre } from "../entities/ogre.js";
+import { damageElite } from "../entities/elite.js";
+import { damageTroll } from "../entities/troll.js";
+import { damageWorg } from "../entities/worg.js";
+import { damageCrossbow } from "../entities/crossbow.js";
 
 // ------------------------------------------------------------
 // 🟪 ADD BRAVERY
@@ -72,6 +78,60 @@ function drainBraveryBar(duration) {
 
   requestAnimationFrame(tick);
 }
+
+// ============================================================
+// 🟣 Bravery Aura — Pushback + Contact Damage
+// ============================================================
+
+let auraTickNext = 0;    // per-player global tick throttler
+const AURA_RADIUS = 130;
+const AURA_DAMAGE = 4;   // tweakable
+const AURA_TICK_MS = 150; // damage every 150ms
+
+export function applyBraveryAuraEffects(enemy) {
+  const p = gameState.player;
+  const b = gameState.bravery;
+  if (!p || !b.draining) return;
+  if (!enemy || !enemy.alive) return;
+
+  const dx = enemy.x - p.pos.x;
+  const dy = enemy.y - p.pos.y;
+  const dist = Math.hypot(dx, dy);
+
+  if (dist > AURA_RADIUS) return;
+
+  // -------- PUSHBACK --------
+  if (dist > 0) {
+    const push = (AURA_RADIUS - dist) * 0.35;
+    const nx = dx / dist;
+    const ny = dy / dist;
+
+    enemy.x += nx * push;
+    enemy.y += ny * push;
+  }
+
+
+    // -------- CONTACT DAMAGE (tick-limited) --------
+    const now = performance.now();
+    if (now < auraTickNext) return;
+
+    // Route to correct damage handler
+    switch (enemy.type) {
+    case "goblin":      damageGoblin(enemy, AURA_DAMAGE); break;
+    case "ogre":        damageOgre(enemy, AURA_DAMAGE); break;
+    case "elite":       damageElite(enemy, AURA_DAMAGE); break;
+    case "troll":       damageTroll(enemy, AURA_DAMAGE); break;
+    case "worg":        damageWorg(enemy, AURA_DAMAGE); break;
+    case "crossbow":    damageCrossbow(enemy, AURA_DAMAGE); break;
+    }
+
+    spawnFloatingText(enemy.x, enemy.y - 40, `-${AURA_DAMAGE}`, "#ff55ff");
+    enemy.flashTimer = 150;
+
+    auraTickNext = now + AURA_TICK_MS;
+
+}
+
 
 // ------------------------------------------------------------
 // 🟥 BRAVERY POWER (INVINCIBLE MODE + STATS)

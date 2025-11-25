@@ -301,18 +301,7 @@ export function updateTrolls(delta = 16) {
 
       // Bravery aura knockback (push troll away from player)
       if (player.invincible === true) {
-        const ax = t.x - px;  // vector from player to troll
-        const ay = t.y - py;
-        const distA = Math.hypot(ax, ay);
-
-        if (distA < BRAVERY_AURA_RADIUS && distA > 0) {
-          const push = (BRAVERY_AURA_RADIUS - distA) * 0.35;
-          const nx = ax / distA;
-          const ny = ay / distA;
-
-          t.x += nx * push;
-          t.y += ny * push;
-        }
+          applyBraveryAuraEffects(e);
       }
 
       // Direction & walk animation

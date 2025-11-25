@@ -42,7 +42,7 @@ import { playGoblinDeath, playGoblinDamage } from "../core/soundtrack.js";
 import { spawnDamageSparkles } from "../fx/sparkles.js";
 import { spawnLoot } from "./loot.js";
 import { slideRect } from "../utils/mapCollision.js";
-import { addBravery } from "../player/bravery.js";
+import { addBravery } from "../player/bravery.js"
 
 
 // ============================================================
@@ -320,22 +320,8 @@ export function updateCrossbows(delta) {
         moveCrossbowWithCollision(c, stepX, stepY);
 
         if (player.invincible === true) {
-        const aura = 130; // same glow radius
-
-        const dxp = c.x - px;
-        const dyp = c.y - py;
-        const distToPlayer = Math.hypot(dxp, dyp);
-
-        if (distToPlayer < aura && distToPlayer > 0) {
-            const push = (aura - distToPlayer) * 0.35;
-            const nx = dxp / distToPlayer;
-            const ny = dyp / distToPlayer;
-
-            c.x += nx * push;
-            c.y += ny * push;
-          }
-    
-        }
+            applyBraveryAuraEffects(e);
+        }   
       }
 
       // Collision with other crossbows

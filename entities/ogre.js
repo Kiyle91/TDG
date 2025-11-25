@@ -264,20 +264,9 @@ export function updateOgres(delta = 16) {
     // ----------------------------------------------------
     // ⭐ BRAVERY AURA PUSHBACK (works in ALL states)
     // ----------------------------------------------------
+
     if (p.invincible === true) {
-        const aura = 130; // same radius as goblins/crossbows
-        const dxp = o.x - px;
-        const dyp = o.y - py;
-        const dp = Math.hypot(dxp, dyp);
-
-        if (dp < aura && dp > 0) {
-            const push = (aura - dp) * 0.35;
-            const nx = dxp / dp;
-            const ny = dyp / dp;
-
-            o.x += nx * push;
-            o.y += ny * push;
-        }
+        applyBraveryAuraEffects(enemyObject);
     }
 
     
