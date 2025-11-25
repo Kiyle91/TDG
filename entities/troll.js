@@ -30,7 +30,7 @@
 
 import { gameState, addGold } from "../utils/gameState.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
-import { updateHUD, addBravery } from "../screenManagement/ui.js";
+import { updateHUD } from "../screenManagement/ui.js";
 import {
   playGoblinDamage,
   playGoblinDeath,
@@ -42,7 +42,7 @@ import { spawnLoot } from "./loot.js";
 import { awardXP } from "../player/levelSystem.js";
 import { incrementGoblinDefeated } from "../core/game.js";
 import { slideRect } from "../utils/mapCollision.js";
-
+import { addBravery } from "../player/bravery.js";
 
 // ------------------------------------------------------------
 // 🗺️ INTERNAL STATE

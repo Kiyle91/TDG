@@ -42,7 +42,7 @@ import { playGoblinDeath, playGoblinDamage } from "../core/soundtrack.js";
 import { spawnDamageSparkles } from "../fx/sparkles.js";
 import { spawnLoot } from "./loot.js";
 import { slideRect } from "../utils/mapCollision.js";
-import { addBravery } from "../screenManagement/ui.js";
+import { addBravery } from "../player/bravery.js";
 
 
 // ============================================================

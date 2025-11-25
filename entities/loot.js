@@ -40,7 +40,8 @@
 import { gameState, addGold, addDiamonds } from "../utils/gameState.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { playFairySprinkle } from "../core/soundtrack.js";
-import { addBravery, updateHUD } from "../screenManagement/ui.js";
+import { updateHUD } from "../screenManagement/ui.js";
+import { addBravery } from "../player/bravery.js";
 
 // ------------------------------------------------------------
 // 🖼️ ASSETS (loaded once)

@@ -39,13 +39,14 @@ import { getWorg } from "../entities/worg.js";
 import { getElites } from "../entities/elite.js";
 import { getCrossbows } from "../entities/crossbow.js";
 import { getTrolls } from "../entities/troll.js";
-import { updateHUD, getArrowCount, activateBravery } from "../screenManagement/ui.js";
+import { updateHUD, getArrowCount } from "../screenManagement/ui.js";
 import { playPlayerDamage, playCancelSound } from "../core/soundtrack.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { handleSpireKey } from "../spires/spirePlacement.js";
 import { getOgres } from "../entities/ogre.js";
 import { getMapPixelSize } from "../maps/map.js";
 import { SKINS } from "../screenManagement/skins.js";
+import { activateBravery } from "./bravery.js";
 
 import {
   updateAndDrawSparkles,

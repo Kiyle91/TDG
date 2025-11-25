@@ -48,7 +48,7 @@ import {
 import { spawnDamageSparkles } from "../fx/sparkles.js";
 import { awardXP } from "../player/levelSystem.js";
 import { spawnLoot } from "./loot.js";
-import { addBravery } from "../screenManagement/ui.js";
+import { addBravery } from "../player/bravery.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { getAllPaths } from "../maps/map.js";
 

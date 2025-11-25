@@ -46,7 +46,7 @@ import { awardXP } from "../player/levelSystem.js";
 import { updateHUD } from "../screenManagement/ui.js";
 import { spawnLoot } from "./loot.js";
 import { slideRect } from "../utils/mapCollision.js";
-import { addBravery } from "../screenManagement/ui.js";
+import { addBravery } from "../player/bravery.js";
 
 
 // ------------------------------------------------------------

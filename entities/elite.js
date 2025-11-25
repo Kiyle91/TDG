@@ -36,7 +36,7 @@
 // ------------------------------------------------------------
 
 import { gameState, addGold } from "../utils/gameState.js";
-import { addBravery } from "../screenManagement/ui.js";
+import { addBravery } from "../player/bravery.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { awardXP } from "../player/levelSystem.js";
 import { updateHUD } from "../screenManagement/ui.js";

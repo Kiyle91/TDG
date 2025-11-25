@@ -1,46 +1,32 @@
 ﻿// ============================================================
-// ­ ui.js ÔÇö OliviaÔÇÖs World: Crystal Keep
+// ui.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// Ô£ª Core HUD manager for in-game and Hub UI
-// Ô£ª Updates wave, gold, diamonds, lives, HP/Mana, arrows
-// Ô£ª Manages stats overlays, settings menu, sparkles, bravery bar
-// Ô£ª Provides pause/resume helpers for all overlays
+// • Core HUD manager for in-game and Hub UI
+// • Updates wave, gold, diamonds, lives, HP/Mana, arrows
+// • Manages overlays, settings menu, sparkles, bravery bar
+// • Provides pause/resume helpers for all overlays
+// • Contains ONLY the visual side of the Bravery system:
+//     - bar fill
+//     - glow
+//     - screen flash
 // ============================================================
-/* ------------------------------------------------------------
- * MODULE: ui.js
- * PURPOSE:
- *   Controls all user interface elements for gameplay and hub.
- *
- * SUMMARY:
- *   Handles HUD refreshes, overlay transitions, settings menu,
- *   portraits, stats overlays, HP/mana bars, wave display,
- *   crystal echoes, arrow counter, and the full bravery bar
- *   system. This is the main UI integration layer between
- *   gameplay state and on-screen visuals.
- *
- * FEATURES:
- *   ÔÇó initUI(), updateHUD() ÔÇö main HUD loop
- *   ÔÇó showOverlay(), closeOverlay() ÔÇö overlay navigation
- *   ÔÇó initSettingsMenu() ÔÇö visuals toggle + persistence
- *   ÔÇó updateStatsOverlay(), updatePlayerStatsOverlay()
- *   ÔÇó Full Bravery Bar system (charge, activate, drain)
- *   ÔÇó toggleMagicSparkles() ÔÇö global effect toggle
- * ------------------------------------------------------------ */
 
 // ------------------------------------------------------------
-//  Imports
+// Imports
 // ------------------------------------------------------------
 
-import { gameState, getCurrencies, saveProfiles } from "../utils/gameState.js";
+import { gameState, getCurrencies } from "../utils/gameState.js";
 import { playCancelSound } from "../core/soundtrack.js";
 import { initSpireBar, updateSpireBar } from "../spires/spireBar.js";
 import { SKINS, ensureSkin } from "./skins.js";
 import { getSettings, setVisualsEnabled } from "./settings.js";
 
+// Bravery gameplay is no longer here — moved to player/bravery.js
+// ui.js will ONLY handle bar visuals and the DOM flash.
 
-// ============================================================
-//  GAME PAUSE / RESUME
-// ============================================================
+// ------------------------------------------------------------
+// GAME PAUSE / RESUME
+// ------------------------------------------------------------
 
 export function pauseGame() {
   gameState.paused = true;
@@ -50,9 +36,8 @@ export function resumeGame() {
   gameState.paused = false;
 }
 
-
 // ------------------------------------------------------------
-//  LOCAL STATE
+// LOCAL STATE
 // ------------------------------------------------------------
 
 let waveDisplay, goldDisplay, diamondDisplay, livesDisplay;
@@ -66,9 +51,8 @@ let lastCrystalFound = -1;
 let lastCrystalTotal = -1;
 let lastArrowCount = -1;
 
-
 // ============================================================
-// ­ INITIALIZATION
+// INITIALIZATION
 // ============================================================
 
 export function initUI() {
@@ -81,9 +65,8 @@ export function initUI() {
   initSpireBar();
 }
 
-
 // ============================================================
-// ­ UPDATE HUD
+// UPDATE HUD
 // ============================================================
 
 export function updateHUD() {
@@ -92,11 +75,8 @@ export function updateHUD() {
   const { gold, diamonds } = getCurrencies();
   const p = gameState.player || {};
 
-  // ------------------------------------------------------------
-  // ­ WAVE DISPLAY
-  // ------------------------------------------------------------
-
-  const wave  = gameState.wave ?? 1;
+  // Wave UI
+  const wave = gameState.wave ?? 1;
   const total = gameState.totalWaves ?? 1;
 
   if (window.firstWaveStarted === false || window.betweenWaveTimerActive === true) {
@@ -114,10 +94,7 @@ export function updateHUD() {
   const playerLives = p.lives ?? gameStats.lives;
   livesDisplay.textContent = `Lives: ${playerLives}`;
 
-  // ------------------------------------------------------------
-  //  HP &  MANA BARS
-  // ------------------------------------------------------------
-
+  // HP & Mana
   const hpBar = document.getElementById("hp-bar");
   const manaBar = document.getElementById("mana-bar");
   const hpText = document.getElementById("hp-text");
@@ -136,12 +113,8 @@ export function updateHUD() {
     if (manaText) manaText.textContent = `${Math.round(mana)} / ${Math.round(maxMana)}`;
   }
 
-  // ------------------------------------------------------------
-  // ­ ARROW COUNTER (Mana-based)
-  // ------------------------------------------------------------
-
+  // Arrow counter (mana-based)
   const arrowCircle = document.getElementById("hud-arrows-circle");
-  // Support both legacy id (hud-arrows) and current markup (hud-arrows-value)
   const arrowsEl =
     document.getElementById("hud-arrows") ||
     document.getElementById("hud-arrows-value");
@@ -152,23 +125,17 @@ export function updateHUD() {
 
     if (arrows !== lastArrowCount) {
       if (arrowCircle) {
-
-        // Flash ONLY when arrows are spent (count decreases)
         if (lastArrowCount !== -1 && arrows < lastArrowCount) {
           arrowCircle.classList.remove("hud-circle-flash");
           void arrowCircle.offsetWidth;
           arrowCircle.classList.add("hud-circle-flash");
         }
       }
-
       lastArrowCount = arrows;
     }
   }
 
-  // ------------------------------------------------------------
-  //  CRYSTAL ECHOES
-  // ------------------------------------------------------------
-
+  // Crystal Echoes
   if (gameState.exploration) {
     const foundEl = document.getElementById("hud-crystals-found");
     const totalEl = document.getElementById("hud-crystals-total");
@@ -195,18 +162,16 @@ export function updateHUD() {
   updateSpireBar();
 }
 
-
 // ============================================================
-// ­GAME STATS ACCESSOR
+// GAME STATS ACCESSOR
 // ============================================================
 
 export function getStats() {
   return gameStats;
 }
 
-
 // ============================================================
-// ­ OVERLAY HELPERS
+// OVERLAY HELPERS
 // ============================================================
 
 export function showOverlay(id) {
@@ -224,9 +189,7 @@ export function showOverlay(id) {
   requestAnimationFrame(() => overlay.classList.add("active"));
 
   const closeBtn = overlay.querySelector(".overlay-close");
-  if (closeBtn) {
-    closeBtn.onclick = () => closeOverlay(overlay);
-  }
+  if (closeBtn) closeBtn.onclick = () => closeOverlay(overlay);
 }
 
 export function closeOverlay(overlay) {
@@ -238,9 +201,8 @@ export function closeOverlay(overlay) {
   }, 600);
 }
 
-
 // ============================================================
-//  SETTINGS MENU
+// SETTINGS MENU
 // ============================================================
 
 export function initSettingsMenu() {
@@ -250,6 +212,7 @@ export function initSettingsMenu() {
 
   const currentSettings = getSettings();
   visualsToggle.checked = currentSettings.visualsEnabled;
+
   if (visualsLabel) {
     visualsLabel.textContent = visualsToggle.checked ? "Enabled" : "Disabled";
   }
@@ -268,9 +231,8 @@ export function initSettingsMenu() {
   });
 }
 
-
 // ============================================================
-// Ô£¿ MAGIC SPARKLES VISIBILITY
+// MAGIC SPARKLES VISIBILITY
 // ============================================================
 
 export function toggleMagicSparkles(enabled) {
@@ -280,9 +242,8 @@ export function toggleMagicSparkles(enabled) {
   });
 }
 
-
 // ============================================================
-// ­ƒææ HUB & IN-GAME STATS OVERLAYS
+// HUB & PLAYER STATS OVERLAYS
 // ============================================================
 
 function setText(id, value) {
@@ -373,7 +334,9 @@ export function updateStatsOverlay() {
   });
 
   const titleEl = document.getElementById("stats-title");
-  if (titleEl) titleEl.textContent = p.name ? `Princess ${p.name}` : "Princess";
+  if (titleEl) {
+    titleEl.textContent = p.name ? `Princess ${p.name}` : "Princess";
+  }
 }
 
 export function updatePlayerStatsOverlay() {
@@ -395,9 +358,8 @@ export function updatePlayerStatsOverlay() {
   );
 }
 
-
 // ============================================================
-// ­ƒÆû BRAVERY BAR SYSTEM
+// BRAVERY BAR VISUAL SYSTEM (UI ONLY)
 // ============================================================
 
 export function updateBraveryBar() {
@@ -416,92 +378,18 @@ export function updateBraveryBar() {
   }
 }
 
-export function addBravery(amount) {
-  const b = gameState.bravery;
-  if (b.charged || b.draining) return;
+// ============================================================
+// BRAVERY SCREEN FLASH — UI ONLY
+// (Gameplay system triggers this by calling ui.braveryFlash())
+// ============================================================
 
-  b.current = Math.min(b.max, b.current + amount);
-
-  if (b.current >= b.max) {
-    b.current = b.max;
-    b.charged = true;
-    b.draining = false;
-  }
-
-  updateBraveryBar();
-}
-
-export function activateBravery() {
-  const b = gameState.bravery;
-  if (!b.charged) return;
-
-  b.charged = false;
-  b.draining = true;
-
-  updateBraveryBar();
-  triggerBraveryPower();
-  drainBraveryBar(8000);
-}
-
-function drainBraveryBar(duration) {
-  const b = gameState.bravery;
-  const start = b.current;
-  const startTime = performance.now();
-
-  function tick(now) {
-    const pct = Math.min(1, (now - startTime) / duration);
-    b.current = start * (1 - pct);
-    updateBraveryBar();
-
-    if (pct < 1 && b.draining) {
-      requestAnimationFrame(tick);
-    } else {
-      b.current = 0;
-      b.draining = false;
-      updateBraveryBar();
-    }
-  }
-
-  requestAnimationFrame(tick);
-}
-
-export function triggerBraveryPower() {
-  const p = gameState.player;
-  if (!p) return;
-
-  const original = {
-    speed: p.speed,
-    attack: p.attack,
-    defense: p.defense,
-  };
-
-  p.speed *= 1.8;
-  p.attack *= 1.6;
-  p.defense *= 1.4;
-  p.invincible = true;
-
-  braveryFlashEffect();
-
-  const watchEnd = () => {
-    if (!gameState.bravery.draining) {
-      p.speed = original.speed;
-      p.attack = original.attack;
-      p.defense = original.defense;
-      p.invincible = false;
-    } else {
-      requestAnimationFrame(watchEnd);
-    }
-  };
-
-  requestAnimationFrame(watchEnd);
-}
-
-function braveryFlashEffect() {
+export function braveryFlash() {
   const fx = document.createElement("div");
   Object.assign(fx.style, {
     position: "fixed",
     inset: 0,
-    background: "radial-gradient(circle at center, rgba(255,140,255,0.45) 0%, rgba(80,0,80,0.65) 80%)",
+    background:
+      "radial-gradient(circle at center, rgba(255,140,255,0.45) 0%, rgba(80,0,80,0.65) 80%)",
     pointerEvents: "none",
     zIndex: "9999999",
     opacity: "0",
@@ -509,13 +397,10 @@ function braveryFlashEffect() {
 
   document.body.appendChild(fx);
 
-  // ⭐ Initial flash-in animation
-  fx.animate(
-    [{ opacity: 0 }, { opacity: 1 }],
+  fx.animate([{ opacity: 0 }, { opacity: 1 }],
     { duration: 300, easing: "ease-out", fill: "forwards" }
   );
 
-  // ⭐ Pulse animation that loops while bravery is active
   const pulse = fx.animate(
     [
       { opacity: 0.25 },
@@ -529,13 +414,10 @@ function braveryFlashEffect() {
     }
   );
 
-  // ⭐ Watch for bravery ending
   function watchEnd() {
     if (!gameState.bravery.draining) {
-      // Fade-out when bravery ends
       pulse.cancel();
-      fx.animate(
-        [{ opacity: fx.style.opacity || 0.3 }, { opacity: 0 }],
+      fx.animate([{ opacity: 0.3 }, { opacity: 0 }],
         { duration: 400, easing: "ease-out" }
       ).finished.then(() => fx.remove());
     } else {
@@ -551,7 +433,6 @@ export function getArrowCount() {
   return p ? Math.floor((p.mana || 0) / 2) : 0;
 }
 
-
 // ============================================================
-// ­ƒîƒ END OF FILE ÔÇö ui.js
+// END OF FILE — ui.js
 // ============================================================

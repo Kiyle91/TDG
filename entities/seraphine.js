@@ -34,11 +34,11 @@
 import { gameState, addGold } from "../utils/gameState.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { getGoblins } from "../entities/goblin.js";
-import { addBravery, updateHUD } from "../screenManagement/ui.js";
+import { updateHUD } from "../screenManagement/ui.js";
 import { awardXP } from "../player/levelSystem.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { playGoblinDamage, playGoblinDeath } from "../core/soundtrack.js";
-
+import { addBravery } from "../player/bravery.js";
 // ------------------------------------------------------------
 // 🧩 INTERNAL STATE
 // ------------------------------------------------------------
