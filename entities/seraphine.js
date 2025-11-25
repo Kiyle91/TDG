@@ -40,6 +40,7 @@ import { spawnFloatingText } from "../fx/floatingText.js";
 import { playGoblinDamage, playGoblinDeath } from "../core/soundtrack.js";
 import { addBravery, applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
+
 // ------------------------------------------------------------
 // 🧩 INTERNAL STATE
 // ------------------------------------------------------------
@@ -56,22 +57,22 @@ let darkOrbs = [];
 const SERAPHINE_BASE_HP = 420;
 const SERAPHINE_SIZE = 80;
 const SERAPHINE_HITBOX = SERAPHINE_SIZE * 0.55;
-const SERAPHINE_SPEED = 95;     // slightly faster than elite
+const SERAPHINE_SPEED = 95; // slightly faster than elite
 const FRAME_INTERVAL = 220;
 
 // Melee (copied from player timing: 0 → 1 → idle)
-const MELEE_RANGE = 65;
+const MELEE_RANGE = 95; // increased so she connects more reliably
 const MELEE_DAMAGE = 1;
-const MELEE_TOTAL_TIME = 400;   // ms
-const MELEE_WINDUP = 180;       // ms (frame 0 → frame 1)
+const MELEE_TOTAL_TIME = 400; // ms
+const MELEE_WINDUP = 180;     // ms (frame 0 → frame 1)
 
 // Spell (giant homing orb)
-const SPELL_COOLDOWN = 3200;    // ms
-const SPELL_MIN_RANGE = 200;    // only cast if player this far away
-const SPELL_ORB_SPEED = 120;    // px/sec (deliberately not super fast)
+const SPELL_COOLDOWN = 3200; // ms
+const SPELL_MIN_RANGE = 200; // only cast if player this far away
+const SPELL_ORB_SPEED = 120; // px/sec (deliberately not super fast)
 const SPELL_ORB_RADIUS = 26;
 const SPELL_DAMAGE = 1;
-const SPELL_LIFETIME = 7000;    // ms
+const SPELL_LIFETIME = 7000; // ms
 
 // Death / defeat
 const FADE_OUT = 1200;
@@ -145,7 +146,7 @@ async function loadSeraphineSprites() {
 
     slain: [
       await loadImage(`${base}_escape_charge.png`),
-      await loadImage(`${base}_escape_explode.png`)
+      await loadImage(`${base}_escape_explode.png`),
     ],
   };
 }
@@ -189,19 +190,19 @@ export function spawnSeraphineBoss(phase = 1, x, y) {
     maxHp: SERAPHINE_BASE_HP * (1 + 0.4 * (phase - 1)),
 
     alive: true,
-    defeated: false,     // reached 0 HP and plays defeat anim
+    defeated: false, // reached 0 HP and plays defeat anim
     dir: "down",
     frame: 0,
     frameTimer: 0,
 
     // Melee
     attacking: false,
-    meleeFrame: 0,       // 0 = attack_*, 1 = melee_*
+    meleeFrame: 0, // 0 = attack_*, 1 = melee_*
     meleeTimer: 0,
 
     // Spell
     castingSpell: false,
-    spellFrame: 0,       // 0 = charge, 1 = explode
+    spellFrame: 0, // 0 = charge, 1 = explode
     spellTimer: 0,
     spellCooldown: 1500, // short delay before first cast
 
@@ -220,10 +221,8 @@ export function spawnSeraphineBoss(phase = 1, x, y) {
     hpEvents: {
       "75": false,
       "50": false,
-      "25": false
+      "25": false,
     },
-
-    
   };
 
   seraphines.push(boss);
@@ -232,7 +231,7 @@ export function spawnSeraphineBoss(phase = 1, x, y) {
     boss: "seraphine",
     phase: boss.phase,
     x: boss.x,
-    y: boss.y
+    y: boss.y,
   });
   return boss;
 }
@@ -462,7 +461,7 @@ export function updateSeraphine(delta = 16) {
       }
 
       if (gameState.player.invincible === true && b.alive && !b.defeated) {
-          applyBraveryAuraEffects(b);
+        applyBraveryAuraEffects(b);
       }
 
       // Simple collision push vs goblins so she doesn't overlap hordes
@@ -487,6 +486,34 @@ export function updateSeraphine(delta = 16) {
         }
       }
 
+      // ============================================================
+      // PLAYER ↔ SERAPHINE PUSH-BACK COLLISION (Elite-style)
+      // ============================================================
+      {
+        const px = p.pos.x;
+        const py = p.pos.y;
+
+        const dx2 = b.x - px;
+        const dy2 = b.y - py;
+        const d2 = Math.hypot(dx2, dy2);
+
+        const minDist = 72;
+
+        if (d2 > 0 && d2 < minDist) {
+          const push = (minDist - d2) / 2;
+          const nx = dx2 / d2;
+          const ny = dy2 / d2;
+
+          // Push Seraphine
+          b.x += nx * push;
+          b.y += ny * push;
+
+          // Push player
+          p.pos.x -= nx * push;
+          p.pos.y -= ny * push;
+        }
+      }
+
       // Run animation
       b.frameTimer += delta;
       if (b.frameTimer >= FRAME_INTERVAL) {
@@ -504,7 +531,7 @@ export function updateSeraphine(delta = 16) {
 export function damageSeraphine(boss, amount) {
   if (!boss || !boss.alive || boss.defeated) return;
 
-  const prevHP = boss.hp;
+  const prevHP = boss.hp; // (kept for future if you want effects based on lost HP)
   boss.hp -= amount;
 
   spawnFloatingText(boss.x, boss.y - 50, `-${amount}`, "#ff88dd");
@@ -520,7 +547,7 @@ export function damageSeraphine(boss, amount) {
       phase: boss.phase,
       threshold: 75,
       x: boss.x,
-      y: boss.y
+      y: boss.y,
     });
   }
 
@@ -531,7 +558,7 @@ export function damageSeraphine(boss, amount) {
       phase: boss.phase,
       threshold: 50,
       x: boss.x,
-      y: boss.y
+      y: boss.y,
     });
   }
 
@@ -542,13 +569,12 @@ export function damageSeraphine(boss, amount) {
       phase: boss.phase,
       threshold: 25,
       x: boss.x,
-      y: boss.y
+      y: boss.y,
     });
   }
 
-
   // ============================================================
-  // 🖤 DEFEAT LOGIC (unchanged except we add a defeat event)
+  // 🖤 DEFEAT LOGIC (non-violent collapse + events)
   // ============================================================
   if (boss.hp <= 0) {
     boss.hp = 0;
@@ -563,7 +589,7 @@ export function damageSeraphine(boss, amount) {
       boss: "seraphine",
       phase: boss.phase,
       x: boss.x,
-      y: boss.y
+      y: boss.y,
     });
 
     // Rewards
@@ -576,7 +602,9 @@ export function damageSeraphine(boss, amount) {
 
     // Death animation flow
     boss.slainFrame = 0;
-    setTimeout(() => { boss.slainFrame = 1; }, 1000);
+    setTimeout(() => {
+      boss.slainFrame = 1;
+    }, 1000);
 
     setTimeout(() => {
       boss.alive = false;
@@ -585,7 +613,6 @@ export function damageSeraphine(boss, amount) {
   }
 }
 
-
 // ------------------------------------------------------------
 // ❤️ HP BAR (Boss-style)
 // ------------------------------------------------------------
@@ -593,7 +620,10 @@ export function damageSeraphine(boss, amount) {
 function drawBossHpBar(ctx, b) {
   const barWidth = 80;
   const barHeight = 7;
+
+  // Use base size so bar doesn't jump with scale
   const offsetY = SERAPHINE_SIZE * 1.01;
+
   const pct = Math.max(0, Math.min(1, b.hp / b.maxHp));
 
   ctx.fillStyle = "rgba(0,0,0,0.55)";
@@ -645,15 +675,18 @@ export function drawSeraphine(ctx) {
       img = runSet[b.frame] || sprites.idle;
     }
 
+    // ==================================================
+    // SCALE LOGIC (big attack, large idle)
+    // ==================================================
     let scale = 1.0;
 
-    // 🟣 1. Melee + Attack animations (biggest)
+    // 1. Melee + Attack animations (biggest)
     if (b.attacking) {
-      scale = 2.3;   // 70% bigger
+      scale = 2.3; // ~130% bigger than 1.0
 
-    // 🟣 2. Idle, walking, spell, escape (general)
+      // 2. Idle, walking, spell, escape (general)
     } else {
-      scale = 1.5;   // 50% bigger
+      scale = 1.5; // 50% bigger
     }
 
     // Final draw size
@@ -663,36 +696,28 @@ export function drawSeraphine(ctx) {
     let drawX = b.x - drawSize / 2;
     let drawY = b.y - drawSize / 2;
 
-    // Offset attack/melee frames upward (tweak as needed)
+    // Offset attack/melee frames upward
     if (b.attacking) {
-      drawY -= 20;  // ← raise by 20px (adjust to look perfect)
-    };
+      drawY -= 20; // tweak position
+    }
 
     ctx.save();
 
     // ==================================================
     // SHADOW (scaled independently of sprite)
     // ==================================================
-    const shadowScale = b.attacking ? 1.2 : 1.0;      // attack = slightly bigger shadow
+    const shadowScale = b.attacking ? 1.2 : 1.0; // attack = slightly bigger shadow
 
-    const shadowW = SERAPHINE_SIZE * 0.45 * shadowScale;   // width
-    const shadowH = SERAPHINE_SIZE * 0.18 * shadowScale;   // height
+    const shadowW = SERAPHINE_SIZE * 0.45 * shadowScale; // width
+    const shadowH = SERAPHINE_SIZE * 0.18 * shadowScale; // height
 
     // Raise shadow up a bit so it's closer to her feet
-    const shadowY = b.y + (SERAPHINE_SIZE * (scale * 0.30));
+    const shadowY = b.y + SERAPHINE_SIZE * (scale * 0.30);
 
     ctx.globalAlpha = 0.28;
     ctx.fillStyle = "#000";
     ctx.beginPath();
-    ctx.ellipse(
-      b.x,
-      shadowY,
-      shadowW,
-      shadowH,
-      0,
-      0,
-      Math.PI * 2
-    );
+    ctx.ellipse(b.x, shadowY, shadowW, shadowH, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.globalAlpha = 1;
 
@@ -703,8 +728,10 @@ export function drawSeraphine(ctx) {
 
     ctx.drawImage(
       img,
-      0, 0,
-      1024, 1024,
+      0,
+      0,
+      1024,
+      1024,
       drawX,
       drawY,
       drawSize,
@@ -740,5 +767,3 @@ export function clearSeraphines() {
 // ============================================================
 // 🌟 END OF FILE — seraphine.js
 // ============================================================
-
-

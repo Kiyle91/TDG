@@ -39,6 +39,7 @@ import { getWorg } from "../entities/worg.js";
 import { getElites } from "../entities/elite.js";
 import { getCrossbows } from "../entities/crossbow.js";
 import { getTrolls } from "../entities/troll.js";
+import { getSeraphines } from "../entities/seraphine.js";
 import { updateHUD, getArrowCount } from "../screenManagement/ui.js";
 import { playPlayerDamage, playCancelSound } from "../core/soundtrack.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
@@ -260,6 +261,7 @@ function applyEnemyBodyCollision(nextX, nextY) {
     { list: getElites(), radius: 45 },
     { list: getCrossbows(), radius: 45 },
     { list: getTrolls(), radius: 55 },
+    { list: getSeraphines(), radius: 72 },
   ];
 
   let px = nextX;
