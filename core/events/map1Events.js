@@ -1,102 +1,115 @@
 // ============================================================
-// �YO� map1Events.js �?" Example Story + Event Hooks for Map 1
+// 🌸 map1Events.js — Unified Story + Timed + Gameplay Events
 // ------------------------------------------------------------
-// Demonstrates how to use:
-//   �o" time-based triggers
-//   �o" wave-based triggers
-//   �o" enemy spawn triggers
-//   �o" enemy kill triggers
-//   �o" Seraphine triggers
-//   �o" bravery triggers
-//   �o" low HP triggers
-//
-// NOTE:
-//   All speech/UI functions live OUTSIDE the engine.
-//   This file only *reacts* to engine events.
+// • ALL Map 1 story logic now lives in this file
+// • Time-based tutorial events
+// • Wave start/end dialogue
+// • Enemy spawn/kill commentary
+// • Seraphine / boss reactions
+// • Bravery triggers
+// • Low HP warnings
 // ============================================================
 
-import { Events, EVENT_NAMES as E } from "../eventEngine.js";
+import { Events, EVENT_NAMES as E, loadTimedEventsForMap } from "../eventEngine.js";
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
 import { gameState } from "../../utils/gameState.js";
 
+// ============================================================
+// 🌟 TIME-BASED TUTORIAL EVENTS
+// ============================================================
+
+const TIMED_EVENTS = [
+
+  // ⭐ 3 seconds — Wake up tutorial
+  {
+    id: "t_003",
+    timeRequired: 3,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Okay Glitter… deep breath. The Whispering Meadows. WASD to move… I remember this part.",
+        p.pos.x, p.pos.y,
+        4500
+      );
+    }
+  },
+
+  // ⭐ 10 seconds — Crystal comment
+  {
+    id: "t_010",
+    timeRequired: 10,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Those crystals… I should collect any I see.",
+        p.pos.x, p.pos.y,
+        3500
+      );
+    }
+  },
+
+  // ⭐ Add more timed events here…
+];
+
+// ============================================================
+// 🌟 MAIN HOOK — Called by initGame() when Map 1 loads
+// ============================================================
+
 export function initMap1Events() {
+
+  // Load time-based story beats
+  loadTimedEventsForMap(1, TIMED_EVENTS);
+
   const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 
   // ============================================================
-  // �?� 1. TIME-BASED EVENTS
-  // ------------------------------------------------------------
-
-  Events.once("time:3s", () => {
-    const pos = p();
-    spawnSpeechBubble(
-      "Okay�?� stay calm Guardian�?� The meadows are quiet but dangerous.",
-      pos.x, pos.y, 4500
-    );
-  });
-
-  Events.once("time:10s", () => {
-    const pos = p();
-    spawnSpeechBubble(
-      "Those crystals�?� I should collect any I see.",
-      pos.x, pos.y, 3500
-    );
-  });
-
-
+  // 1. WAVE START EVENTS
   // ============================================================
-  // �YOS 2. WAVE-BASED EVENTS
-  // ------------------------------------------------------------
-
   Events.on(E.waveStart, ({ wave }) => {
     const pos = p();
 
     if (wave === 1) {
-      spawnSpeechBubble("Here they come�?�", pos.x, pos.y, 3000);
+      spawnSpeechBubble("Here they come…", pos.x, pos.y, 3000);
     }
-
     if (wave === 2) {
-      spawnSpeechBubble("More goblins�?� I can handle this.", pos.x, pos.y, 3000);
+      spawnSpeechBubble("More goblins… I can handle this.", pos.x, pos.y, 3000);
     }
-
     if (wave === 3) {
-      spawnSpeechBubble("Something feels�?� wrong�?�", pos.x, pos.y, 4000);
+      spawnSpeechBubble("Something feels… wrong…", pos.x, pos.y, 4000);
     }
   });
 
+  // ============================================================
+  // 2. WAVE END EVENTS
+  // ============================================================
   Events.on(E.waveEnd, ({ wave }) => {
     const pos = p();
 
     if (wave === 1) {
-      spawnSpeechBubble("Nice�?� I'm getting the hang of this.", pos.x, pos.y, 3000);
+      spawnSpeechBubble("Nice… I'm getting the hang of this.", pos.x, pos.y, 3000);
     }
-
     if (wave === 3) {
-      spawnSpeechBubble("Is it finally over�?�?", pos.x, pos.y, 3000);
+      spawnSpeechBubble("Is it finally over…?", pos.x, pos.y, 3000);
     }
   });
 
-
   // ============================================================
-  // �Y'� 3. ENEMY SPAWN EVENTS
-  // ------------------------------------------------------------
-
+  // 3. ENEMY SPAWN EVENTS
+  // ============================================================
   Events.on(E.enemySpawn, ({ type }) => {
     const pos = p();
 
     if (type === "ogre") {
-      spawnSpeechBubble("An ogre!? Focus�?� stay mobile!", pos.x, pos.y, 4000);
+      spawnSpeechBubble("An ogre!? Focus… stay mobile!", pos.x, pos.y, 4000);
     }
-
     if (type === "elite") {
-      spawnSpeechBubble("That one looks stronger�?� ", pos.x, pos.y, 3500);
+      spawnSpeechBubble("That one looks stronger…", pos.x, pos.y, 3500);
     }
   });
 
-
   // ============================================================
-  // �Y'? 4. ENEMY KILL EVENTS
-  // ------------------------------------------------------------
-
+  // 4. ENEMY KILL EVENTS
+  // ============================================================
   let firstKill = false;
 
   Events.on(E.enemyKilled, ({ type }) => {
@@ -105,66 +118,50 @@ export function initMap1Events() {
     if (!firstKill) {
       firstKill = true;
       spawnSpeechBubble(
-        "That wasn�?Tt too bad�?� I think I can do this.",
+        "That wasn’t too bad… I think I can do this.",
         pos.x, pos.y, 3500
       );
     }
 
     if (type === "ogre") {
-      spawnSpeechBubble("And stay down�?�", pos.x, pos.y, 3000);
+      spawnSpeechBubble("And stay down…", pos.x, pos.y, 3000);
     }
   });
 
-
   // ============================================================
-  // �YY� 5. SERAPHINE EVENTS
-  // ------------------------------------------------------------
-
-  Events.on(E.bossSpawn, ({ phase }) => {
+  // 5. BOSS / SERAPHINE EVENTS
+  // ============================================================
+  Events.on(E.bossSpawn, () => {
     const pos = p();
-    spawnSpeechBubble(
-      "What is that�?�? Something powerful is here�?�",
-      pos.x, pos.y, 4500
-    );
+    spawnSpeechBubble("What is that…? Something powerful is here…", pos.x, pos.y, 4500);
   });
 
   Events.on(E.bossHpThreshold, ({ threshold }) => {
     const pos = p();
 
     if (threshold === 75) {
-      spawnSpeechBubble(
-        "I can hurt it�?� keep pushing!",
-        pos.x, pos.y, 3500
-      );
+      spawnSpeechBubble("I can hurt it… keep pushing!", pos.x, pos.y, 3500);
     }
     if (threshold === 50) {
-      spawnSpeechBubble(
-        "Halfway there�?� don�?Tt lose focus!",
-        pos.x, pos.y, 3500
-      );
+      spawnSpeechBubble("Halfway there… don’t lose focus!", pos.x, pos.y, 3500);
     }
     if (threshold === 25) {
-      spawnSpeechBubble(
-        "It�?Ts weakening! Finish this!",
-        pos.x, pos.y, 3500
-      );
+      spawnSpeechBubble("It’s weakening! Finish this!", pos.x, pos.y, 3500);
     }
   });
 
-  Events.on(E.bossDefeated, ({ phase }) => {
+  Events.on(E.bossDefeated, () => {
     const pos = p();
-    spawnSpeechBubble("It�?Ts over�?� for now.", pos.x, pos.y, 4000);
+    spawnSpeechBubble("It’s over… for now.", pos.x, pos.y, 4000);
   });
 
-
   // ============================================================
-  // �Y"� 6. BRAVERY EVENTS
-  // ------------------------------------------------------------
-
+  // 6. BRAVERY EVENTS
+  // ============================================================
   Events.on(E.braveryFull, () => {
     const pos = p();
     spawnSpeechBubble(
-      "My Bravery is charged�?� I feel unstoppable.",
+      "My Bravery is charged… I feel unstoppable.",
       pos.x, pos.y, 3500
     );
   });
@@ -177,48 +174,21 @@ export function initMap1Events() {
     );
   });
 
-
   // ============================================================
-  // �?ϋ�? 7. PLAYER LOW HP EVENTS
-  // ------------------------------------------------------------
-
-  Events.on(E.playerLowHP, ({ hp, maxHp }) => {
+  // 7. LOW HP WARNING
+  // ============================================================
+  Events.on(E.playerLowHP, () => {
     const pos = p();
     spawnSpeechBubble(
-      "I�?� need�?� healing�?�",
-      pos.x, pos.y, 3500
+      "I… need… healing…",
+      pos.x, pos.y,
+      3500
     );
   });
 
-
   // ============================================================
-  // �Y"O 8. EXTRA: CUSTOM EVENT EXAMPLE
-  // ------------------------------------------------------------
-  // You can fire your own events from ANY file:
-  //   Events.emit("myCustomEvent", { ... });
-  // And listen here:
-  //
-  // Events.on("myCustomEvent", (data) => { ... });
+  // 8. CUSTOM EVENT EXAMPLE
+  // ============================================================
+  // Events.on("myEvent", (data) => { ... });
 
 }
-
-
-// ============================================================
-// 💜 6. BRAVERY EVENTS
-// ------------------------------------------------------------
-
-Events.on(E.braveryFull, () => {
-  const pos = p();
-  spawnSpeechBubble(
-    "My Bravery is charged… I feel unstoppable.",
-    pos.x, pos.y, 3500
-  );
-});
-
-Events.on(E.braveryActivated, () => {
-  const pos = p();
-  spawnSpeechBubble(
-    "Here we go!",
-    pos.x, pos.y, 3000
-  );
-});

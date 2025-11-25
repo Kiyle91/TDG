@@ -185,7 +185,6 @@ import { spawnDamageSparkles } from "../fx/sparkles.js";
 import { updateHealFX, renderHealFX } from "../combat/heal.js";
 
 import { loadStepEventsForMap } from "./eventEngine.js";
-import map1Timed from "../core/events/map1Timed.js";
 import map2Timed from "../core/events/map2Timed.js";
 import map3Timed from "../core/events/map3Timed.js";
 import map4Timed from "../core/events/map4Timed.js";
@@ -372,10 +371,9 @@ export async function initGame(mode = "new") {
   const current = gameState.progress?.currentMap ?? 1;
 
   switch (current) {
-    case 1: loadStepEventsForMap(1, map1Timed);
-            initMap1Events()
+    case 1: initMap1Events()
             break;
-            
+
     case 2: loadStepEventsForMap(2, map2Timed); break;
     case 3: loadStepEventsForMap(3, map3Timed); break;
     case 4: loadStepEventsForMap(4, map4Timed); break;
@@ -643,7 +641,6 @@ export function resetCombatState() {
   const cur = gameState.progress?.currentMap ?? 1;
 
   switch (cur) {
-    case 1: loadStepEventsForMap(1, map1Timed); break;
     case 2: loadStepEventsForMap(2, map2Timed); break;
     case 3: loadStepEventsForMap(3, map3Timed); break;
     case 4: loadStepEventsForMap(4, map4Timed); break;

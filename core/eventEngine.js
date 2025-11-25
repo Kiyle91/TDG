@@ -15,7 +15,7 @@
 //    • updateTimedEvents()  // call once per frame from game.js
 //
 // NOTE: This module is ENGINE-ONLY. It never touches UI directly.
-// Map scripts (map1Timed.js, bosses, waves, etc.) use this engine
+// Map scripts ( bosses, waves, etc.) use this engine
 // to plug in their own behaviours (speech bubbles, overlays, SFX).
 // ============================================================
 
