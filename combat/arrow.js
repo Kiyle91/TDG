@@ -15,6 +15,7 @@ import { getTrolls } from "../entities/troll.js";
 import { getCrossbows } from "../entities/crossbow.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
 import { gameState } from "../utils/gameState.js";
+import { getSeraphines, damageSeraphine } from "../entities/seraphine.js";
 
 // ------------------------------------------------------------
 // 🗂 Projectile State
@@ -50,6 +51,7 @@ function getAllTargets() {
     ...getElites(),
     ...getTrolls(),
     ...getCrossbows(),
+    ...getSeraphines()
   ];
 }
 
@@ -151,6 +153,7 @@ export function updateArrows(delta) {
 
       if (dist < hitR) {
         if (t.type === "elite") damageElite(t, a.dmg);
+        else if (t.type === "seraphine") damageSeraphine(t, a.dmg);
         else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, a.dmg, "player");
         else damageGoblin(t, a.dmg);
 

@@ -1,8 +1,9 @@
 // ============================================================
-// 🔥 Map 4 — Glitter’s Ember Realm Script
+// 🔥 Map 4 — Glitter’s Ember Realm Extended Script
 // ------------------------------------------------------------
-// No tutorials. Pure humour, sass, confidence.
-// Flame castle theme with dramatic Glitter commentary.
+// • ~10–12 minute pacing (up to ~700s)
+// • Pure humour, sass, confidence — no tutorials
+// • Ember Realm theme with drama + Fire Crystal plot tie-ins
 // ============================================================
 
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
@@ -10,72 +11,48 @@ import { spawnSpeechBubble } from "../../fx/speechBubble.js";
 export default [
 
   // ============================================================
-  // ⭐ PHASE 0 — ARRIVAL (0–20s)
+  // ⭐ PHASE 0 — ARRIVAL (3–40s)
   // ============================================================
 
   {
-    id: "t_000",
+    id: "t_003",
     timeRequired: 3,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Oh GREAT. Everything’s on fire. Love that for me.",
+        "Oh GREAT. Everything’s on fire. Love that for me. Really sets the mood.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_010",
-    timeRequired: 10,
+    id: "t_018",
+    timeRequired: 18,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Seriously though… who decorates with lava? It’s not a vibe.",
+        "Seriously… who decorates with lava? It’s not a vibe. It’s a hazard.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_020",
-    timeRequired: 20,
+    id: "t_040",
+    timeRequired: 40,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "If a goblin pushes me into lava, I’m filing a complaint.",
+        "If a goblin pushes me into lava, I’m filing an official Glitter Complaint.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   // ============================================================
-  // ⭐ PHASE 1 — FIRE REALM GOBLINS (30–60s)
+  // ⭐ PHASE 1 — FIRE REALM GOBLINS (60–130s)
   // ============================================================
-
-  {
-    id: "t_030",
-    timeRequired: 30,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Fire goblins… hotter, angrier, and still deeply unfashionable.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_045",
-    timeRequired: 45,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If one of them catches my hair, I’m SCREAMING.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
 
   {
     id: "t_060",
@@ -83,67 +60,39 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Reminder: Glitter beats goblins AND fire. I’m unstoppable.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 2 — EMBER REALM FLAVOUR (70–120s)
-  // ============================================================
-
-  {
-    id: "t_070",
-    timeRequired: 70,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Everything here smells like burnt marshmallows and rage.",
+        "Fire goblins… hotter, angrier, and still dressed like they lost a bet.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_090",
-    timeRequired: 90,
+    id: "t_095",
+    timeRequired: 95,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "These rocks are literally glowing… glitter, but make it dangerous.",
+        "If one of them sets my hair on fire, I’m SCREAMING and they’re BURNED.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_120",
-    timeRequired: 120,
+    id: "t_130",
+    timeRequired: 130,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Imagine living in a place that’s just… fire, forever. Couldn’t be me.",
+        "Reminder: Glitter beats goblins *and* fire. I’m practically unstoppable.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   // ============================================================
-  // ⭐ PHASE 3 — FIERY COMEDY (135–180s)
+  // ⭐ PHASE 2 — EMBER REALM FLAVOUR (155–240s)
   // ============================================================
-
-  {
-    id: "t_135",
-    timeRequired: 135,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "I bet the goblins here think they’re SO tough. Bless.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
 
   {
     id: "t_155",
@@ -151,66 +100,38 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Okay but why do they run like their feet are hot? Oh wait.",
+        "Everything smells like burnt marshmallows and rage. Gorgeous.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_180",
-    timeRequired: 180,
+    id: "t_190",
+    timeRequired: 190,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "If one more goblin screams at me, I’m throwing it INTO the lava.",
+        "These glowing rocks are pretty… in a ‘touch me and die’ sort of way.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_240",
+    timeRequired: 240,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Living in a place that’s just fire forever? No thanks. My shoes would melt.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   // ============================================================
-  // ⭐ PHASE 4 — GLITTER GETS DRAMATIC (195–250s)
-  // ============================================================
-
-  {
-    id: "t_195",
-    timeRequired: 195,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "I feel like a fire princess. A sweaty, irritated fire princess.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_220",
-    timeRequired: 220,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Do goblins even moisturise? Their skin looks… crunchy.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_250",
-    timeRequired: 250,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Note to self: Ember Realm is a great place to roast marshmallows… and goblins.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 5 — ENDGAME FIRE ENERGY (270–330s)
+  // ⭐ PHASE 3 — FIERY COMEDY (270–350s)
   // ============================================================
 
   {
@@ -219,7 +140,7 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Still alive. Still fabulous. Flame-proof at this point.",
+        "The goblins here think they’re SO tough. Bless their crispy hearts.",
         p.pos.x, p.pos.y
       );
     },
@@ -231,19 +152,139 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Honestly? I’m kinda slaying this entire volcano.",
+        "Why do they run like their feet are hot? Oh wait. THEY ARE.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_330",
-    timeRequired: 330,
+    id: "t_350",
+    timeRequired: 350,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Ariana’s going to freak out when she hears I beat the FIRE map. Big bragging moment.",
+        "One more goblin screams at me and I’m tossing it straight into the magma.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  // ============================================================
+  // ⭐ PHASE 4 — PLOT: FIRE CRYSTAL IMBALANCE (380–470s)
+  // ============================================================
+
+  {
+    id: "t_380",
+    timeRequired: 380,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "This heat isn’t natural… the Fire Crystal must be freaking out again.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_425",
+    timeRequired: 425,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "If goblins are collecting Fire Echoes, they’re powering something BAD.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_470",
+    timeRequired: 470,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Ariana said the Fire General might be awake… I hope he’s ugly. Easier to punch.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  // ============================================================
+  // ⭐ PHASE 5 — GLITTER GETS DRAMATIC (500–580s)
+  // ============================================================
+
+  {
+    id: "t_500",
+    timeRequired: 500,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "I feel like a fire princess… a sweaty, irritated, dramatic fire princess.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_540",
+    timeRequired: 540,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Do fire goblins moisturise? Their skin looks like burnt cereal.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_580",
+    timeRequired: 580,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "This realm is perfect for roasting marshmallows… AND goblins.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  // ============================================================
+  // ⭐ PHASE 6 — LATE MAP / FIRE QUEEN ENERGY (610–700s)
+  // ============================================================
+
+  {
+    id: "t_610",
+    timeRequired: 610,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Still alive. Still fabulous. Basically lava-proof at this point.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_655",
+    timeRequired: 655,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Honestly? I’m slaying this entire volcano. It should thank me.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_700",
+    timeRequired: 700,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Wait till Ariana hears I beat the FIRE Realm. Massive bragging rights.",
         p.pos.x, p.pos.y
       );
     },

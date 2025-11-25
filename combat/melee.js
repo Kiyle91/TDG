@@ -18,6 +18,7 @@ import { getTrolls } from "../entities/troll.js";
 import { getCrossbows } from "../entities/crossbow.js";
 import { playMeleeSwing } from "../core/soundtrack.js";
 import { gameState } from "../utils/gameState.js";
+import { getSeraphines, damageSeraphine } from "../entities/seraphine.js";
 
 // ------------------------------------------------------------
 // 🔥 Power Tier Calculation (based on Player Attack stat)
@@ -87,6 +88,7 @@ export function performMelee(player) {
     ...getElites(),
     ...getTrolls(),
     ...getCrossbows(),
+    ...getSeraphines()
   ];
 
   let hitSomething = false;
@@ -102,6 +104,7 @@ export function performMelee(player) {
 
     // Damage routing
     if (t.type === "elite") damageElite(t, dmg, "player");
+    else if (t.type === "seraphine") damageSeraphine(t, dmg);
     else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "player");
     else damageGoblin(t, dmg);
 

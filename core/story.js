@@ -108,27 +108,28 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
 // ------------------------------------------------------------
 
 export const wave1Text = {
-  1: "Oh my! That was actually a goblin! It was sooo ugly! Ew Ew Ew Ew! Ok, this is serious now. We need to prepare as quickly we as can. Goblins are not very strong but we they lack in strentgh, they make up for in sheer amounts of numbers. If one thing is sure, if there is one goblin.. there are more nearby. Prepare yourself, this could be trouble. Oh it was sooo ugly.. I think im going to be sick. You need to grab as many Crystal Echos from around the Meadow as you can before the Goblins arrive. We can't let them fall into their hands!",
-  2: "So the goblins have made their way to farmer braggs! oh no, we must do what we can to protect him. its your duty as a guardian of course! get some spires down, and most importantly, get the crstal echos before the goblins overwhelm yhou and take control!",
-  3: "A cold breeze sweeps through the frostfields… something stirs beyond the snow.",
-  4: "Heat rises from beneath the scorched earth. The goblins fear what sleeps here.",
-  5: "The seaside winds whisper warnings… the goblins move strangely near the shore.",
-  6: "The caverns hum with ancient echoes — and the goblins follow those whispers.",
-  7: "The cliffs tremble slightly… the storm ahead feels alive.",
-  8: "The crystal gardens react to your presence — and the corruption of the goblins.",
-  9: "We are close to the Crystal Heart. Each battle here shifts the balance of the Isles.",
+  1: "Princess Guardian… this confirms it. Goblins have returned to the Meadows. They’re searching for Crystal Echoes — and where there are goblins, corruption follows. Stop them before they spread across the Isles.",
+  2: "Farmer Bragg’s fields are in chaos! The goblins are collecting crops and Echo shards for some twisted experiment. Protect the farm — and keep those Echoes out of their grubby claws!",
+  3: "The Drylands feel weakened… drained. The goblins must be disrupting the Life magic holding this region together. Recover the Echoes here or the land may crumble.",
+  4: "The Fire Realm is unstable — flames roar without heat, and magma flows strangely. Goblins are gathering Fire Echoes for their ‘Fire General’. This is dangerous.",
+  5: "The Ice Kingdom trembles… the Frost Crystal is overreacting to imbalance. Goblins are harvesting shards to amplify the freeze. They have no idea what they’re risking.",
+  6: "Light surges wildly across the realm. Even holy barriers flicker. Goblins don’t belong here — something is pulling them closer to the Light Crystal’s power.",
+  7: "These mushroom growths… they shouldn’t exist. Wild magic blooms only when the balance is collapsing. Goblins are gathering spores mixed with Echo energy.",
+  8: "Shadow currents swirl everywhere. The Void is waking… I feel it. Goblins here are being manipulated — shaped by something far greater. Be cautious.",
+  9: "You’ve made it to the Keep — but something is deeply wrong. Goblins INSIDE the Crystal Keep means the Shadow Architect is close. Prepare for the worst.",
 };
 
+
 export const wave5Text = {
-  1: "Yuck. Well I think I did fantstically there. Yes.. i mean you did do the work, but i managed to watch you and not throw up! How you can stand to even look at them makes you much braver than me. This was only a scouting party. W'eve spent our whole lives in crystal keep.. the ancient tales say that even small raiding parties of goblins number in the 1000s. We should head to Farmer Braggs farm to make sure hes ok.",
-  2: "The forest shakes — an ogre approaches. Brace yourself, Guardian.",
-  3: "The blizzard roars… an ancient frostbeast stirs beneath the ice.",
-  4: "Molten rumbling echoes below — the magma fields awaken.",
-  5: "The tides twist unnaturally… the ocean itself recoils from the coming threat.",
-  6: "Stone cracks deep below… the caverns shift as something massive moves.",
-  7: "Lightning gathers above — the storm prepares a champion.",
-  8: "Constellations shimmer violently… an astral guardian descends.",
-  9: "This is it, Guardian. The final wave before the heart of the Isles reveals itself.",
+  1: "Excellent work, Princess. But this was only a scouting party. The goblins are searching desperately for the Life Echoes… someone is driving them. We must head deeper into the Isles.",
+  2: "Brace yourself — the ground trembles. An ogre approaches Bragg’s farm, empowered by stolen Echo fragments. If it reaches the fields, the corruption will spread.",
+  3: "Something ancient stirs beneath the sand… a creature infused with stolen Life Echoes. Defeating it may stabilize the Drylands — for now.",
+  4: "Molten rumbling… the Fire General draws near. He seeks to corrupt the entire Fire Crystal. If he succeeds, the Isles will burn.",
+  5: "The blizzard intensifies — an ancient frostbeast awakens, twisted by Void-tainted Ice Echoes. This may be your coldest battle yet.",
+  6: "The Light Realm gathers itself… a holy champion descends, confused and corrupted. Its power must be restored before it tears the realm apart.",
+  7: "The storm intensifies… a creature grown from pure wild magic is forming. Stop it before the Mushroom Bloom spreads to every island.",
+  8: "Void constellations shift… the Architect’s avatar approaches. This fight will decide whether the Crystal Keep still stands.",
+  9: "This is it, Princess. The final wave. The Crystal Heart weakens by the second — defeat the corruption or the Isles will fall.",
 };
 
 // ------------------------------------------------------------
@@ -186,77 +187,71 @@ export async function showOpeningStory() {
   // PAGE 1
   await showStory({
     text: `
-<div style="text-align:center; font-size:2rem;"><u><b>PRINCESS ARIANA</b></u></div>
+  <div style="text-align:center; font-size:2rem;"><u><b>PRINCESS ARIANA</b></u></div>
 
-Princess ${guardian}… I can finally reach you through the Crystal Link!
+  Princess ${guardian}! Thank the Crystals… the Crystal Link still works!
 
-Can you hear me??
+  Listen carefully — something is terribly wrong across the Isles.
 
-Fantastic!
+  Our scouts reported strange tremors coming from the Whispering Meadows…  
+  and sightings of goblins.
 
-I can’t believe these old conduits still work…
+  I KNOW. Goblins haven’t dared approach the Crystal Isles in generations.  
+  Not since the old tales of the Goblin King…
 
-We’ve had urgent reports from our scouts near The Whispering Meadows.  
-And—this might sound silly—but they claim to have seen goblins.
+  This can only mean one thing:  
+  someone — or something — is stirring up trouble again.
 
-You may still be a recruit, but you are a Princess Guardian…  
-and my best friend!
+  You may still be a trainee Guardian…  
+  but you are the only one close enough to investigate.
 
-I need you to head over there as soon as you can and investigate.  
-I’m sure it’s just Farmer Bragg and his wild imagination,  
-but we can never be too careful when goblins are involved!
+  And… well… you’re my best friend.  
+  So please be careful. Very careful.
 
-…
+  The Meadows might look peaceful…  
+  but when goblins appear, disasters follow.
 
-Don’t worry—I'm here to help you.  
-What could go wrong?
+  Go now — find out what’s happening there.  
+  I’ll contact you again once you arrive.
 
-…  
-So much.  
-So, so much could go wrong…
+  The Crystals guide you, Princess ${guardian}.
     `.trim(),
     useAriana: true
   });
+
 
   // PAGE 2
   await showStory({
     text: `
-Before you go, Princess ${guardian}… there’s something you must know.
+  Before you go… there’s something I must tell you.
 
-You’ve heard the tales—goblins, ogres, and their terrible king.  
-They crave the crystals that dot our islands.  
-Most crystals are harmless and pretty…  
-but some are far more powerful.
+  The goblins aren’t after food or mischief this time.  
+  They’re after **Crystal Echoes** — fragments of the Crystal Heart.
 
-Some are Crystal Echoes — fragments of magic,  
-shards of the Crystal Heart itself.
+  Each Echo holds ancient elemental magic.  
+  Life. Fire. Ice. Light. Void.
 
-The goblins don’t understand the power they play with.  F
-It can be dangerous… very dangerous.
+  If the goblins gather enough Echoes…  
+  they could awaken forces far worse than their own king.
 
-Many years ago, the Goblin King nearly destroyed the entire Unicorn Isles  
-with one of his schemes.  
-He is not to be underestimated!
+  Long ago, a Void entity known as the *Shadow Architect*  
+  nearly twisted the Crystal Heart into a weapon.  
+  If he returns…
 
-If there truly are goblins in The Whispering Meadows,  
-you must collect as many Crystal Echoes as you can.
+  No. We cannot allow that.
 
-Remember:  
-As a Princess Guardian, you can create powerful Spires from crystals  
-to defend our lands.  
-But only with more Crystal Echoes  
-can you unlock their true potential.
+  Collect every Echo you can.  
+  Use them to grow stronger.  
+  Use them to fuel the Spires only a true Guardian can command.
 
-Go now, Princess ${guardian}.  
+  I will guide you through the Crystal Link when you reach the Meadows.
 
-I’ll contact you again once you arrive at The Whispering Meadows!
-
-Good Luck!!
-
-
+  Go, Princess ${guardian}…  
+  and may the Crystals protect you.
     `.trim(),
     useAriana: true
   });
+
 }
 
 // ------------------------------------------------------------

@@ -5,6 +5,7 @@
 // • Smooth pacing, no reliance on movement distance
 // • Glitter talks to herself as she explores & fights
 // • Covers: movement, melee, ranged, heal, spell, bravery, spires
+// • Now spaced for ~10–15 minute waves with added plot ties
 // ============================================================
 
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
@@ -12,16 +13,16 @@ import { spawnSpeechBubble } from "../../fx/speechBubble.js";
 export default [
 
   // ============================================================
-  // ⭐ PHASE 0 — WAKE UP & BASIC MOVEMENT (0–6s)
+  // ⭐ PHASE 0 — WAKE UP & BASIC MOVEMENT (3–30s)
   // ============================================================
 
   {
-    id: "t_000",
+    id: "t_003",
     timeRequired: 3,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Well this is the meadows.. I should use WASD to move..",
+        "Okay Glitter… deep breath. The Whispering Meadows. WASD to move… I remember this part.",
         p.pos.x, p.pos.y,
         4500
       );
@@ -29,48 +30,36 @@ export default [
   },
 
   {
-    id: "t_006",
-    timeRequired: 6,
+    id: "t_008",
+    timeRequired: 8,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Left Click to shoot my bow.. that's right..",
+        "Left click to shoot my bow. Easy. Point, click, glittery doom.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_012",
-    timeRequired: 12,
+    id: "t_014",
+    timeRequired: 14,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Spacebar.. thats my trusty sword..",
+        "Spacebar… that’s my trusty sword slash. Very princess, very dangerous.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_018",
-    timeRequired: 18,
+    id: "t_022",
+    timeRequired: 22,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Spells... We cast them with the F Key..",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_024",
-    timeRequired: 24,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Now I remember.. We can heal with the R Key..",
+        "Spells are on F. Big, shiny, mana-hungry ‘go away’ buttons.",
         p.pos.x, p.pos.y
       );
     },
@@ -82,47 +71,23 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Okay lets keep our eye out for any Goblins!",
+        "And R lets me heal… if I’ve actually got mana. Note to self: don’t spam it.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   // ============================================================
-  // ⭐ PHASE 1 — BASIC COMBAT HINTS (36–60s)
+  // ⭐ PHASE 1 — FIRST GOBLIN & BASIC COMBAT (45–90s)
   // ============================================================
 
   {
-    id: "t_036",
-    timeRequired: 36,
+    id: "t_045",
+    timeRequired: 45,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "If something attacks… I swing my blade. SPACE to slash.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_044",
-    timeRequired: 44,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "And if they’re further away… LEFT CLICK to fire a shot.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_052",
-    timeRequired: 52,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Blade up close, arrows at range. Easy… right?",
+        "Ariana was right… if there’s even one goblin here, there’ll be more nearby.",
         p.pos.x, p.pos.y
       );
     },
@@ -134,47 +99,19 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Okay Glitter… if it moves and looks mean, hit it first.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 2 — CRYSTAL ECHOES & EXPLORATION (65–90s)
-  // ============================================================
-
-  {
-    id: "t_065",
-    timeRequired: 65,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Those glowing Echoes… I should grab every one I see.",
+        "If something ugly runs at me… SPACE for slash, LEFT CLICK for arrows. Sorted.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_075",
-    timeRequired: 75,
+    id: "t_080",
+    timeRequired: 80,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Crystal Echoes make me stronger. Sparkly power-ups—yes, please.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_085",
-    timeRequired: 85,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana said some Echoes even give diamonds… imagine the shine.",
+        "Up close, they get the sword. Far away, they get the bow. Glitter has RANGE.",
         p.pos.x, p.pos.y
       );
     },
@@ -186,75 +123,35 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Note to self: if it glows, touch it. Probably safe. Probably.",
+        "If it moves, screams, and looks like a mouldy potato… probably a goblin. Hit it.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   // ============================================================
-  // ⭐ PHASE 3 — SPIRES & HOTKEYS (1–6) (105–135s)
+  // ⭐ PHASE 2 — CRYSTAL ECHOES & THE MISSION (110–180s)
   // ============================================================
 
   {
-    id: "t_105",
-    timeRequired: 105,
+    id: "t_110",
+    timeRequired: 110,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Hmm… I can place a Spire with the number keys.",
+        "Those glowing Crystal Echoes… Ariana said they’re pieces of the Crystal Heart.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_115",
-    timeRequired: 115,
+    id: "t_130",
+    timeRequired: 130,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Basic Spire on 1… More fancy ones unlock later.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_125",
-    timeRequired: 125,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Gold in, Spires out. I just need to remember where I put them.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_135",
-    timeRequired: 135,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Spires don’t judge. They just blast things. Love that for them.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 4 — HEAL (R), SPELL (F), BRAVERY (Q) (140–170s)
-  // ============================================================
-
-  {
-    id: "t_140",
-    timeRequired: 140,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If I get hurt, I can press R to heal… if I’ve got the mana.",
+        "If goblins grab Echoes, bad things happen. Shadowy, void-y, explode-y things.",
         p.pos.x, p.pos.y
       );
     },
@@ -266,39 +163,11 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Healing isn’t free, Glitter—don’t spam R… save it for trouble.",
+        "So rule number one: if it glows, I pick it up before the goblins do.",
         p.pos.x, p.pos.y
       );
     },
   },
-
-  {
-    id: "t_160",
-    timeRequired: 160,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "F for spells. Big, shiny, mana-hungry spells.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_170",
-    timeRequired: 170,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "And Q… Q is my bravery aura. My ‘absolutely not today’ button.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 5 — LEVELS, POWER & SELF-ENCOURAGEMENT (175–230s)
-  // ============================================================
 
   {
     id: "t_175",
@@ -306,19 +175,23 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "If I feel stronger all of a sudden… that’s a level up.",
+        "Ariana mentioned some old Void thing… the ‘Shadow Architect’. Yeah, that sounds bad.",
         p.pos.x, p.pos.y
       );
     },
   },
 
+  // ============================================================
+  // ⭐ PHASE 3 — SPIRES & HOTKEYS (190–260s)
+  // ============================================================
+
   {
-    id: "t_195",
-    timeRequired: 195,
+    id: "t_190",
+    timeRequired: 190,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "More power, more choices. Attack, spells, ranged…",
+        "I can place Spires with the number keys… little crystal guardians helping me out.",
         p.pos.x, p.pos.y
       );
     },
@@ -330,27 +203,11 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "I should build into what feels right. Glitter knows best.",
+        "Basic Spire on 1 for now. Fancier ones unlock when I prove I’m extra amazing.",
         p.pos.x, p.pos.y
       );
     },
   },
-
-  {
-    id: "t_230",
-    timeRequired: 230,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If things get rough, it just means I need more Echoes and more levels.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 6 — MID/LATE MAP FLAVOUR (240–300s)
-  // ============================================================
 
   {
     id: "t_240",
@@ -358,7 +215,7 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Still standing. Still swinging. Not bad, Glitter.",
+        "Gold turns into more Spires. More Spires turns into less goblins. Perfect.",
         p.pos.x, p.pos.y
       );
     },
@@ -370,31 +227,35 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "They keep coming… but so do I.",
+        "Spires don’t complain, don’t scream, they just blast goblins. I respect that.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  // ============================================================
+  // ⭐ PHASE 4 — POWERS: HEAL, SPELL, BRAVERY (280–360s)
+  // ============================================================
+
+  {
+    id: "t_280",
+    timeRequired: 280,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "If I get hurt, R lets me heal… but only if I’ve got mana. Don’t panic-tap it.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_285",
-    timeRequired: 285,
+    id: "t_305",
+    timeRequired: 305,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Note to the goblins: this is MY forest today.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_300",
-    timeRequired: 300,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If I can survive this, Ariana’s going to be SO proud.",
+        "F is for spells. Big, flashy, crystal-powered drama. My favourite kind.",
         p.pos.x, p.pos.y
       );
     },
@@ -406,7 +267,147 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Glitter Guardian of the Crystal Keep… yeah, that still sounds right.",
+        "And Q charges my bravery aura. When it’s ready… goblins should be scared.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_360",
+    timeRequired: 360,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Note to self: Don’t waste bravery on one goblin. Wait until they arrive in, like… a crowd.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  // ============================================================
+  // ⭐ PHASE 5 — LEVELS, POWER & SELF-BELIEF (390–480s)
+  // ============================================================
+
+  {
+    id: "t_390",
+    timeRequired: 390,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "When I suddenly feel stronger, faster, sparklier… that’s a level up kicking in.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_420",
+    timeRequired: 420,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "More levels means better choices. Stronger sword, stronger spells, stronger me.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_450",
+    timeRequired: 450,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "I should build into what feels right. Glitter’s instincts are never wrong.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_480",
+    timeRequired: 480,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "If things get rough, I just need more Echoes, more levels, and maybe fewer goblins screaming.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  // ============================================================
+  // ⭐ PHASE 6 — MID/LATE MAP FLAVOUR + PLOT (510–660s)
+  // ============================================================
+
+  {
+    id: "t_510",
+    timeRequired: 510,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "The Meadows feel… different. Like the land itself is holding its breath.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_540",
+    timeRequired: 540,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "If the goblins are this bold here, what are they doing in the other realms?",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_600",
+    timeRequired: 600,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Ariana mentioned the Shadow Architect once… some Void thing that almost broke the Isles.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_630",
+    timeRequired: 630,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "If he’s really behind this… he picked the wrong princess to mess with.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_660",
+    timeRequired: 660,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Survive the Meadows, check on Farmer Bragg, save the Isles. Easy. Probably.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_690",
+    timeRequired: 690,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Glitter Guardian of the Crystal Keep… yeah. I’m starting to really like how that sounds.",
         p.pos.x, p.pos.y
       );
     },

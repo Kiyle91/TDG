@@ -17,6 +17,7 @@ import { getCrossbows } from "../entities/crossbow.js";
 
 import { gameState } from "../utils/gameState.js";
 import { playSpellCast } from "../core/soundtrack.js";
+import { getSeraphines, damageSeraphine } from "../entities/seraphine.js";
 
 // ------------------------------------------------------------
 // ⭐ Tier calculation (based on player LEVEL)
@@ -59,7 +60,8 @@ function getRandomAliveTarget() {
     ...getWorg(),
     ...getElites(),
     ...getTrolls(),
-    ...getCrossbows()
+    ...getCrossbows(),
+    ...getSeraphines()
   ].filter(e => e.alive);
 
   if (all.length === 0) return null;
@@ -102,6 +104,7 @@ function getAllTargets() {
     ...getWorg(),
     ...getElites(),
     ...getTrolls(),
+    ...getSeraphines(),
     ...getCrossbows()
   ];
 }
@@ -148,6 +151,7 @@ export function performSpell(player) {
 
       if (dist < radius) {
         if (t.type === "elite") damageElite(t, dmg, "spell");
+        if (t.type === "seraphine") damageSeraphine(t, dmg);
         else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "spell");
         else damageGoblin(t, dmg);
       }

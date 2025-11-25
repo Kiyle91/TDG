@@ -1,8 +1,8 @@
 // ============================================================
-// 👑 Map 9 — Glitter’s Crystal Keep Interior Script
+// 👑 Map 9 — Glitter’s Crystal Keep Interior EXTENDED Script
 // ------------------------------------------------------------
-// Final map. No tutorials, pure heroic comedy.
-// Glitter is home, done with everyone’s nonsense, and unstoppable.
+// FINAL MAP. Peak heroic comedy, emotional payoff,
+// Glitter defending her home and the Crystal Heart.
 // ============================================================
 
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
@@ -10,28 +10,16 @@ import { spawnSpeechBubble } from "../../fx/speechBubble.js";
 export default [
 
   // ============================================================
-  // ⭐ PHASE 0 — ENTERING THE KEEP (0–20s)
+  // ⭐ PHASE 0 — RETURNING HOME (3–40s)
   // ============================================================
 
   {
-    id: "t_000",
+    id: "t_003",
     timeRequired: 3,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Home sweet home… and of COURSE goblins broke in.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_010",
-    timeRequired: 10,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Look at my floors! My beautiful shiny floors! Goblins have muddy FEET.",
+        "Home sweet home… and OF COURSE goblins broke in.",
         p.pos.x, p.pos.y
       );
     },
@@ -43,39 +31,27 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "I’m cleaning NONE of this. They can pay for a maid.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 1 — TRESPASSING GOBLINS (30–60s)
-  // ============================================================
-
-  {
-    id: "t_030",
-    timeRequired: 30,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Eww, they’re touching the royal carpets. THE ROYAL CARPETS.",
+        "MY FLOORS! My shiny beautiful floors! Covered in goblin footprints!",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_045",
-    timeRequired: 45,
+    id: "t_040",
+    timeRequired: 40,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Why are they always screaming? You’re in a palace, show some manners!",
+        "I am cleaning NONE of this. Someone call a maid. Or a wizard.",
         p.pos.x, p.pos.y
       );
     },
   },
+
+  // ============================================================
+  // ⭐ PHASE 1 — PALACE INTRUDERS (60–130s)
+  // ============================================================
 
   {
     id: "t_060",
@@ -83,23 +59,7 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "I’m putting up a giant ‘NO GOBLINS ALLOWED’ sign after this.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 2 — INTERIOR FLAVOUR (75–120s)
-  // ============================================================
-
-  {
-    id: "t_075",
-    timeRequired: 75,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "I love this room. The chandeliers, the crystals, the ambience…",
+        "Eww, they’re TOUCHING the royal carpets. THEIR FEET. ON MY CARPETS.",
         p.pos.x, p.pos.y
       );
     },
@@ -111,75 +71,47 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "If a goblin knocks over my crystal vase, I will become UNHINGED.",
+        "Why are they screaming?! This is a palace. USE YOUR INSIDE GOBLIN VOICES!",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_120",
-    timeRequired: 120,
+    id: "t_130",
+    timeRequired: 130,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "This is the FINAL map. The FINAL stand. And they’re STILL screaming.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 3 — KEEP CHAOS (135–180s)
-  // ============================================================
-
-  {
-    id: "t_135",
-    timeRequired: 135,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Stop running! You’re tracking dirt everywhere! DIRTY goblins!",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_160",
-    timeRequired: 160,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Who let them in? Seriously. Who. Let. Them. In.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_185",
-    timeRequired: 185,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If these goblins touch the throne I’m throwing all of them out the window.",
+        "After this, I'm putting up a giant ‘NO GOBLINS ALLOWED EVER’ sign.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   // ============================================================
-  // ⭐ PHASE 4 — HEROIC GLITTER (200–250s)
+  // ⭐ PHASE 2 — CRYSTAL HEART LORE (155–260s)
   // ============================================================
 
   {
-    id: "t_200",
-    timeRequired: 200,
+    id: "t_155",
+    timeRequired: 155,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Ariana trusted me to guard the Keep. And I’m doing AMAZING.",
+        "The Crystal Heart is close… I can feel it glowing stronger.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_190",
+    timeRequired: 190,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Ariana said the Architect wants the Heart for his weird shadow plans… nope.",
         p.pos.x, p.pos.y
       );
     },
@@ -191,47 +123,35 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Honestly I should get a crown upgrade after this. A SPARKLY one.",
+        "NOT TODAY MISTER ARCHITECT! Glitter is home and ready to throw hands.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   {
-    id: "t_250",
-    timeRequired: 250,
+    id: "t_260",
+    timeRequired: 260,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "This Keep is MINE. These crystals are MINE. These goblins? NOT mine.",
+        "These halls held every memory I have… no goblin is taking them.",
         p.pos.x, p.pos.y
       );
     },
   },
 
   // ============================================================
-  // ⭐ PHASE 5 — FINAL CONFIDENCE (270–330s)
+  // ⭐ PHASE 3 — KEEP CHAOS (290–380s)
   // ============================================================
 
   {
-    id: "t_270",
-    timeRequired: 270,
+    id: "t_290",
+    timeRequired: 290,
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Still standing. Still sparkling. Still undefeated.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_300",
-    timeRequired: 300,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "I can’t wait to brag about this. This is PRIME brag material.",
+        "STOP RUNNING! You’re making the mess WORSE!",
         p.pos.x, p.pos.y
       );
     },
@@ -243,7 +163,139 @@ export default [
     action: (gs) => {
       const p = gs.player;
       spawnSpeechBubble(
-        "Ariana… your Keep is safe. Glitter saved the day. Again.",
+        "Who opened the side doors? WHO LET THEM IN?!",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_380",
+    timeRequired: 380,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "If any goblin touches the throne… they’re going out the WINDOW.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  // ============================================================
+  // ⭐ PHASE 4 — HEROIC GLITTER (410–520s)
+  // ============================================================
+
+  {
+    id: "t_410",
+    timeRequired: 410,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Ariana trusted me to protect the Keep… and I am SLAYING THIS.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_455",
+    timeRequired: 455,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Honestly, I deserve a crown upgrade. With sparkles. Many sparkles.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_520",
+    timeRequired: 520,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "The Keep is MINE. The crystals are MINE. These goblins? NOT MINE.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  // ============================================================
+  // ⭐ PHASE 5 — FINAL BATTLE ENERGY (550–650s)
+  // ============================================================
+
+  {
+    id: "t_550",
+    timeRequired: 550,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "The Crystal Heart is pulsing… it knows I’m close.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_600",
+    timeRequired: 600,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Architect, if you can hear this: YOU’RE NOT GETTING MY HEART. OR THE CRYSTAL ONE.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_650",
+    timeRequired: 650,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "This is it. Glitter vs EVERY goblin EVER. Spoiler: I win.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  // ============================================================
+  // ⭐ PHASE 6 — THE FINAL TRIUMPH (670–710s)
+  // ============================================================
+
+  {
+    id: "t_670",
+    timeRequired: 670,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Still shining. Still slaying. Still Sparkle Guardian Number One.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_690",
+    timeRequired: 690,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Ariana… your Keep is safe. Glitter saved the day. AGAIN.",
+        p.pos.x, p.pos.y
+      );
+    },
+  },
+
+  {
+    id: "t_710",
+    timeRequired: 710,
+    action: (gs) => {
+      const p = gs.player;
+      spawnSpeechBubble(
+        "Now someone please fetch me a cupcake. I have earned twelve.",
         p.pos.x, p.pos.y
       );
     },

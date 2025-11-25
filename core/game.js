@@ -195,6 +195,7 @@ import map7Steps from "../core/events/map7Steps.js";
 import map8Steps from "../core/events/map8Steps.js";
 import map9Steps from "../core/events/map9Steps.js";
 import { updateStepEvents } from "../core/eventEngine.js";
+import { spawnSeraphineBoss, clearSeraphines, drawSeraphine, updateSeraphine, initSeraphine } from "../entities/seraphine.js";
 
 
 
@@ -333,6 +334,7 @@ export async function initGame(mode = "new") {
 
   await initElites();     // No paths needed
   await initCrossbows();  // No paths needed
+  await initSeraphine();  // Preload boss sprites for debug + map events
 
   initSpires();
   initOgres();
@@ -409,6 +411,7 @@ export function updateGame(delta) {
   updateTrolls(delta);
   updateSpires(delta);
   updateOgres(delta);
+  updateSeraphine(delta);
   updateProjectiles(delta);
   updateArrows(delta);
   updateHealFX(delta);
@@ -514,6 +517,7 @@ export function renderGame() {
   drawElites(ctx);
   drawTrolls(ctx);
   drawOgres(ctx);
+  drawSeraphine(ctx);
   drawPlayer(ctx);
   drawProjectiles(ctx);
   drawArrows(ctx);
@@ -687,6 +691,7 @@ export function resetCombatState() {
   clearElites();
   clearCrossbows();
   clearTrolls();
+  clearSeraphines();
 
   initGoblins();
   initSpires();
@@ -748,4 +753,14 @@ window.debugVictory = function () {
   } catch (err) {
     console.warn("âš ï¸ debugVictory failed:", err);
   }
+};
+
+
+window.spawnSeraphine = (phase = 3, x, y) => {
+  const p = gameState.player;
+  const px = x ?? p?.pos.x ?? 0;
+  const py = y ?? p?.pos.y ?? 0;
+
+  console.log("⚡ Spawning Seraphine (phase:", phase, ") at", px, py);
+  spawnSeraphineBoss(phase, px, py);
 };
