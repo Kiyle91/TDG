@@ -45,6 +45,7 @@ import { awardXP } from "../player/levelSystem.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { playFairySprinkle } from "./soundtrack.js";
 import { updateHUD } from "../screenManagement/ui.js";
+import { Events, EVENT_NAMES as E } from "./eventEngine.js";
 
 
 // ------------------------------------------------------------
@@ -195,7 +196,18 @@ function collectCrystalEcho(crystal, index) {
   echoes.splice(index, 1);
 
   gameState.exploration.found++;
-  
+
+  const found = gameState.exploration.found;
+  const total = gameState.exploration.total;
+
+  // Per-collect hook for any listeners
+  Events.emit("echoCollected", { found, total });
+
+  // Halfway milestone (matches listener expectation)
+  if (found === Math.floor(total / 2) && total > 0) {
+    Events.emit(E.echoHalf, { found, total });
+  }
+
   playFairySprinkle();
 
   addGold (5);
@@ -212,7 +224,13 @@ function collectCrystalEcho(crystal, index) {
     !gameState.exploration.bonusGiven
   ) {
     awardCrystalBonus(crystal);
+
+    Events.emit(E.echoComplete, {
+      found: gameState.exploration.found,
+      total: totalEchoes
+    });
   }
+  
 }
 
 // ------------------------------------------------------------

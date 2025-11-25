@@ -219,6 +219,9 @@ let ctx = null;
 let cameraX = 0;
 let cameraY = 0;
 
+// Track last render time to make speech bubble lifetime framerate-independent
+let lastSpeechBubbleTime = 0;
+
 // Cache expensive DOM queries
 let cachedCanvasRect = null;
 let rectCacheTimer = 0;
@@ -595,7 +598,11 @@ export function renderGame() {
   // Speech bubbles above all layers (including trees/pegasus)
   ctx.save();
   ctx.translate(-cameraX, -cameraY);
-  updateAndDrawSpeechBubbles(ctx, 16);
+  const now = performance.now();
+  if (!lastSpeechBubbleTime) lastSpeechBubbleTime = now;
+  const bubbleDelta = Math.min(now - lastSpeechBubbleTime, 100);
+  lastSpeechBubbleTime = now;
+  updateAndDrawSpeechBubbles(ctx, bubbleDelta);
   ctx.restore();
 }
 

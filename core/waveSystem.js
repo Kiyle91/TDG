@@ -375,37 +375,42 @@ function startNextWave() {
     }
     return enemy;
   };
+  const spawnAndEmit = (type, fn) => {
+    const enemy = spawnScaled(fn);
+    if (enemy) {
+      Events.emit(E.enemySpawn, { type, wave: gameState.wave });
+    }
+    return enemy;
+  };
 
   for (let i = 0; i < wave.goblins; i++) {
     spawnQueue.push(() => {
-      const g = spawnScaled(spawnGoblin);
-      if (g) Events.emit(E.enemySpawn, { type: "goblin", wave: gameState.wave });
+      spawnAndEmit("goblin", spawnGoblin);
 
-      if (i < wave.worgs) spawnScaled(spawnWorg);
-      if (i < wave.elites) spawnScaled(spawnElite);
-      if (i < wave.trolls) spawnScaled(spawnTroll);
+      if (i < wave.worgs) spawnAndEmit("worg", spawnWorg);
+      if (i < wave.elites) spawnAndEmit("elite", spawnElite);
+      if (i < wave.trolls) spawnAndEmit("troll", spawnTroll);
       if (i < wave.ogres) {
-        const o = spawnScaled(() => spawnOgre({ skipDifficultyScaling: true }));
-        if (o) Events.emit(E.enemySpawn, { type: "ogre", wave: gameState.wave });
+        spawnAndEmit("ogre", () => spawnOgre({ skipDifficultyScaling: true }));
       }
-      if (i < wave.crossbows) spawnScaled(spawnCrossbow);
+      if (i < wave.crossbows) spawnAndEmit("crossbow", spawnCrossbow);
     });
   }
 
   for (let i = wave.goblins; i < wave.worgs; i++) {
-    spawnQueue.push(() => spawnScaled(spawnWorg));
+    spawnQueue.push(() => spawnAndEmit("worg", spawnWorg));
   }
 
   for (let i = wave.goblins; i < wave.elites; i++) {
-    spawnQueue.push(() => spawnScaled(spawnElite));
+    spawnQueue.push(() => spawnAndEmit("elite", spawnElite));
   }
 
   for (let i = wave.goblins; i < wave.trolls; i++) {
-    spawnQueue.push(() => spawnScaled(spawnTroll));
+    spawnQueue.push(() => spawnAndEmit("troll", spawnTroll));
   }
 
   for (let i = wave.goblins; i < wave.crossbows; i++) {
-    spawnQueue.push(() => spawnScaled(spawnCrossbow));
+    spawnQueue.push(() => spawnAndEmit("crossbow", spawnCrossbow));
   }
 }
 

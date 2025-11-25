@@ -47,6 +47,7 @@ import { getOgres } from "../entities/ogre.js";
 import { getMapPixelSize } from "../maps/map.js";
 import { SKINS } from "../screenManagement/skins.js";
 import { activateBravery } from "./bravery.js";
+import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 import {
   updateAndDrawSparkles,
@@ -83,6 +84,8 @@ const SPRITE_SIZE = 80;
 const WALK_FRAME_INTERVAL = 220;
 const SHADOW_OPACITY = 0.25;
 const STEP_LENGTH_PX = 80; // distance traveled that counts as one story step
+const LOW_HP_THRESHOLD = 0.3;
+const LOW_HP_RESET = 0.36;
 
 // Attack / animation state
 let attackCooldown = 0;
@@ -91,6 +94,7 @@ let attackType = null;
 let currentFrame = 0;
 let currentDir = "down";
 let isMoving = false;
+let lowHpAlerted = false;
 
 // Walk anim timer
 let frameTimer = 0;

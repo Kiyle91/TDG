@@ -10,7 +10,7 @@ export function clearSpeechBubbles() {
   speechBubbles.length = 0;
 }
 
-export function spawnSpeechBubble(text, x, y, duration = 5000, anchor = null) {
+export function spawnSpeechBubble(text, x, y, duration = 10000, anchor = null) {
   const resolvedAnchor = anchor ?? gameState?.player ?? null;
 
   speechBubbles.push({
@@ -35,7 +35,7 @@ export function updateAndDrawSpeechBubbles(ctx, delta) {
     }
 
     const t = b.age / b.life;
-    const fadeStart = 0.65; // show fully for most of life
+    const fadeStart = 0.9; // show fully for most of life
     const fadeProgress = Math.max(0, (t - fadeStart) / (1 - fadeStart));
     const alpha = Math.max(0, 1 - fadeProgress); // gentle fade near the end
 

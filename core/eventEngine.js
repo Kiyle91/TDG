@@ -93,10 +93,13 @@ export const EVENT_NAMES = {
   bossKilled: "bossKilled",
   bossHpThreshold: "bossHpThreshold",
   bossDefeated: "bossDefeated",
+  mapComplete: "mapComplete",
   braveryFull: "braveryFull",
   braveryActivated: "braveryActivated",
   playerLowHP: "playerLowHP",
-  playerLevelUp: "playerLevelUp"
+  playerLevelUp: "playerLevelUp",
+  echoHalf: "echoHalf",
+  echoComplete: "echoComplete"
 };
 
 // ============================================================

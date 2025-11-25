@@ -227,6 +227,13 @@ export function spawnSeraphineBoss(phase = 1, x, y) {
   };
 
   seraphines.push(boss);
+
+  Events.emit(E.bossSpawn, {
+    boss: "seraphine",
+    phase: boss.phase,
+    x: boss.x,
+    y: boss.y
+  });
   return boss;
 }
 
