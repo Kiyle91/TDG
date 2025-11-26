@@ -29,6 +29,10 @@
 import { gameState } from "../utils/gameState.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { damageGoblin } from "../entities/goblin.js";
+import { damageGoblin as damageIceGoblin } from "../entities/iceGoblin.js";
+import { damageGoblin as damageEmberGoblin } from "../entities/emberGoblin.js";
+import { damageGoblin as damageAshGoblin } from "../entities/ashGoblin.js";
+import { damageGoblin as damageVoidGoblin } from "../entities/voidGoblin.js";
 import { damageWorg } from "../entities/worg.js";
 import { damageElite } from "../entities/elite.js";
 import { damageTroll } from "../entities/troll.js";
@@ -106,12 +110,16 @@ function damageFromProjectile(target, amount) {
   }
 
   switch (target.type) {
-    case "goblin":   damageGoblin(target, amount); break;
-    case "worg":     damageWorg(target, amount); break;
-    case "elite":    damageElite(target, amount); break;
-    case "troll":    damageTroll(target, amount); break;
-    case "crossbow": damageCrossbow(target, amount); break;
-    default:         damageGoblin(target, amount); break;
+    case "goblin":       damageGoblin(target, amount); break;
+    case "iceGoblin":    damageIceGoblin(target, amount); break;
+    case "emberGoblin":  damageEmberGoblin(target, amount); break;
+    case "ashGoblin":    damageAshGoblin(target, amount); break;
+    case "voidGoblin":   damageVoidGoblin(target, amount); break;
+    case "worg":         damageWorg(target, amount); break;
+    case "elite":        damageElite(target, amount); break;
+    case "troll":        damageTroll(target, amount); break;
+    case "crossbow":     damageCrossbow(target, amount); break;
+    default:             damageGoblin(target, amount); break;
   }
 }
 

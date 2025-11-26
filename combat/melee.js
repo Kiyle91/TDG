@@ -11,6 +11,10 @@
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { spawnDamageSparkles, spawnCanvasSparkleBurst } from "../fx/sparkles.js";
 import { getGoblins, damageGoblin } from "../entities/goblin.js";
+import { getGoblins as getIceGoblins, damageGoblin as damageIceGoblin } from "../entities/iceGoblin.js";
+import { getGoblins as getEmberGoblins, damageGoblin as damageEmberGoblin } from "../entities/emberGoblin.js";
+import { getGoblins as getAshGoblins, damageGoblin as damageAshGoblin } from "../entities/ashGoblin.js";
+import { getGoblins as getVoidGoblins, damageGoblin as damageVoidGoblin } from "../entities/voidGoblin.js";
 import { getOgres, damageOgre } from "../entities/ogre.js";
 import { getWorg } from "../entities/worg.js";
 import { getElites, damageElite } from "../entities/elite.js";
@@ -19,6 +23,36 @@ import { getCrossbows } from "../entities/crossbow.js";
 import { playMeleeSwing } from "../core/soundtrack.js";
 import { gameState } from "../utils/gameState.js";
 import { getSeraphines, damageSeraphine } from "../entities/seraphine.js";
+
+const goblinSources = [
+  { get: getGoblins, damage: damageGoblin },
+  { get: getIceGoblins, damage: damageIceGoblin },
+  { get: getEmberGoblins, damage: damageEmberGoblin },
+  { get: getAshGoblins, damage: damageAshGoblin },
+  { get: getVoidGoblins, damage: damageVoidGoblin },
+];
+
+function getAllGoblinTargets() {
+  const result = [];
+  for (const src of goblinSources) {
+    const list = src.get?.();
+    if (Array.isArray(list) && list.length) {
+      result.push(...list);
+    }
+  }
+  return result;
+}
+
+function damageGoblinVariant(target, dmg) {
+  for (const src of goblinSources) {
+    const list = src.get?.();
+    if (list?.includes(target)) {
+      src.damage(target, dmg);
+      return;
+    }
+  }
+  damageGoblin(target, dmg);
+}
 
 // ------------------------------------------------------------
 // 🔥 Power Tier Calculation (based on Player Attack stat)
@@ -82,7 +116,7 @@ export function performMelee(player) {
   const oy = p.pos.y;
 
   const targets = [
-    ...getGoblins(),
+    ...getAllGoblinTargets(),
     ...getOgres(),
     ...getWorg(),
     ...getElites(),
@@ -106,7 +140,7 @@ export function performMelee(player) {
     if (t.type === "elite") damageElite(t, dmg, "player");
     else if (t.type === "seraphine") damageSeraphine(t, dmg);
     else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "player");
-    else damageGoblin(t, dmg);
+    else damageGoblinVariant(t, dmg);
 
     hitSomething = true;
 

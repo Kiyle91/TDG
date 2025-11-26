@@ -35,6 +35,10 @@
 import { gameState } from "../utils/gameState.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
 import { getGoblins } from "../entities/goblin.js";
+import { getGoblins as getIceGoblins } from "../entities/iceGoblin.js";
+import { getGoblins as getEmberGoblins } from "../entities/emberGoblin.js";
+import { getGoblins as getAshGoblins } from "../entities/ashGoblin.js";
+import { getGoblins as getVoidGoblins } from "../entities/voidGoblin.js";
 import { getWorg } from "../entities/worg.js";
 import { getElites } from "../entities/elite.js";
 import { getCrossbows } from "../entities/crossbow.js";
@@ -254,9 +258,19 @@ function notEnoughMana(p) {
   if (typeof playCancelSound === "function") playCancelSound();
 }
 
+function getAllGoblinVariants() {
+  return [
+    ...getGoblins(),
+    ...getIceGoblins(),
+    ...getEmberGoblins(),
+    ...getAshGoblins(),
+    ...getVoidGoblins(),
+  ];
+}
+
 function applyEnemyBodyCollision(nextX, nextY) {
   const groups = [
-    { list: getGoblins(), radius: 45 },
+    { list: getAllGoblinVariants(), radius: 45 },
     { list: getWorg(), radius: 45 },
     { list: getElites(), radius: 45 },
     { list: getCrossbows(), radius: 45 },
@@ -582,7 +596,8 @@ export function updatePlayer(delta) {
     if (p.invulnTimer > 0) {
       p.invulnTimer -= delta;
     } else {
-      for (const g of getGoblins()) {
+      const goblinTargets = getAllGoblinVariants();
+      for (const g of goblinTargets) {
         if (!g.alive) continue;
 
         const dxg = g.x - p.pos.x;

@@ -23,6 +23,10 @@
 import { SPIRE_RANGE } from "../utils/constants.js";
 import { spawnProjectile } from "./projectiles.js";
 import { getGoblins } from "../entities/goblin.js";
+import { getGoblins as getIceGoblins } from "../entities/iceGoblin.js";
+import { getGoblins as getEmberGoblins } from "../entities/emberGoblin.js";
+import { getGoblins as getAshGoblins } from "../entities/ashGoblin.js";
+import { getGoblins as getVoidGoblins } from "../entities/voidGoblin.js";
 import { getWorg } from "../entities/worg.js";
 import { getTrolls } from "../entities/troll.js";
 import { getCrossbows } from "../entities/crossbow.js";
@@ -337,6 +341,10 @@ function refreshEnemyCache(delta) {
 
   combinedEnemiesCache.push(
     ...getGoblins(),
+    ...getIceGoblins(),
+    ...getEmberGoblins(),
+    ...getAshGoblins(),
+    ...getVoidGoblins(),
     ...getWorg(),
     ...getElites(),
     ...getTrolls(),
