@@ -29,37 +29,33 @@ import { Events, EVENT_NAMES as E } from "./eventEngine.js";
 // ============================================================
 
 // ============================================================
-// 🌊 waveConfigs — Olivia’s World: Crystal Keep
+// waveConfigs - Olivia's World: Crystal Keep
 // ------------------------------------------------------------
-// Fully rebalanced 1–9 campaign waves
-// ✓ Map 1 gentle & forgiving
-// ✓ Map 2 introduces Worgs mid-way
-// ✓ Map 3 patterned mixes + elite surprises
-// ✓ Map 4 escalates everything
-// ✓ Map 5 introduces Trolls
-// ✓ Map 6 introduces Ogres
-// ✓ Map 7 introduces Crossbows (1–2 MAX)
-// ✓ Map 8 Penultimate chaos
-// ✓ Map 9 Final all-out showdown
+// Fully rebalanced 1-9 campaign waves
+// - Map 1 gentle & forgiving
+// - Map 2 introduces Worgs mid-way
+// - Map 3 patterned mixes + elite surprises
+// - Map 4 escalates everything
+// - Map 5 introduces Trolls
+// - Map 6 introduces Ogres
+// - Map 7 introduces Crossbows (1-2 MAX)
+// - Map 8 Penultimate chaos
+// - Map 9 Final all-out showdown
 // All enemy counts doubled from baseline design
 // ============================================================
 
 export const waveConfigs = {
 
   // ============================================================
-  // 🌿 MAP 1 — Gentle Onboarding
+  // MAP 1 - Gentle Onboarding
   // ============================================================
-1: [
-  { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-  { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-
-  // ⭐ NEW WAVE 9 — Seraphine appears for the first time
-  
-],
-
+  1: [
+    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+  ],
 
   // ============================================================
-  // 🌲 MAP 2 — Early Worg Pressure (Introduced Mid-Map)
+  // MAP 2 - Early Worg Pressure (Introduced Mid-Map)
   // ============================================================
   2: [
     { goblins: 18, worgs: 0, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
@@ -70,7 +66,7 @@ export const waveConfigs = {
   ],
 
   // ============================================================
-  // 🏞 MAP 3 — Pattern Mixing + Elite Ambushes
+  // MAP 3 - Pattern Mixing + Elite Ambushes
   // ============================================================
   3: [
     { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
@@ -79,7 +75,7 @@ export const waveConfigs = {
   ],
 
   // ============================================================
-  // ❄ MAP 4 — Everything Tightens
+  // MAP 4 - Everything Tightens
   // ============================================================
   4: [
     { goblins: 4, worgs: 0, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
@@ -90,7 +86,7 @@ export const waveConfigs = {
   ],
 
   // ============================================================
-  // 🔥 MAP 5 — Trolls Arrive (High HP Disruptors)
+  // MAP 5 - Trolls Arrive (High HP Disruptors)
   // ============================================================
   5: [
     { goblins: 28, worgs: 6, elites: 1, trolls: 1, ogres: 0, crossbows: 0 },
@@ -101,16 +97,16 @@ export const waveConfigs = {
   ],
 
   // ============================================================
-  // 🜂 MAP 6 — Ogre Introduction (Slow, Heavy Hitters)
+  // MAP 6 - Ogre Introduction (Slow, Heavy Hitters)
   // ============================================================
   6: [
     { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { boss: "seraphine", phase: 1, goblins: 6 }
+    { goblins: 14, worgs: 3, ogres: 1, elites: 1, trolls: 0, crossbows: 0 },
+    { boss: "seraphine", phase: 2, goblins: 10, worgs: 4, elites: 2 }
   ],
 
   // ============================================================
-  // ⚔ MAP 7 — Crossbows Introduced (1–2 MAX)
+  // MAP 7 - Crossbows Introduced (1-2 MAX)
   // ============================================================
   7: [
     { goblins: 32, worgs: 8, elites: 2, trolls: 2, ogres: 1, crossbows: 1 },
@@ -121,7 +117,7 @@ export const waveConfigs = {
   ],
 
   // ============================================================
-  // ⚡ MAP 8 — Penultimate Chaos
+  // MAP 8 - Penultimate Chaos
   // ============================================================
   8: [
     { goblins: 36, worgs: 10, elites: 3, trolls: 3, ogres: 2, crossbows: 1 },
@@ -132,14 +128,14 @@ export const waveConfigs = {
   ],
 
   // ============================================================
-  // 👑 MAP 9 — Ultimate Final Showdown
+  // MAP 9 - Ultimate Final Showdown
   // ============================================================
   9: [
     { goblins: 40, worgs: 12, elites: 3, trolls: 3, ogres: 2, crossbows: 1 },
     { goblins: 44, worgs: 12, elites: 4, trolls: 4, ogres: 2, crossbows: 1 },
     { goblins: 48, worgs: 13, elites: 4, trolls: 4, ogres: 3, crossbows: 1 },
     { goblins: 52, worgs: 14, elites: 5, trolls: 5, ogres: 3, crossbows: 2 },
-    { goblins: 56, worgs: 15, elites: 6, trolls: 6, ogres: 4, crossbows: 2 }, // **BOSS WAVE**
+    { boss: "seraphine", phase: 3, goblins: 56, worgs: 15, elites: 6, trolls: 6, ogres: 4, crossbows: 2 }, // **BOSS WAVE**
   ],
 };
 
@@ -149,15 +145,15 @@ export const waveConfigs = {
 // ============================================================
 
 export const VICTORY_MESSAGES = {
-  1: "�o� Map One Complete! The goblins scatter before your growing power!",
-  2: "�YO� Map Two Cleared! The Hollow Woods fall silent once more.",
-  3: "�Y\"� Map Three Victorious! The Ember Plains glow in your honour.",
-  4: "�YOT Map Four Defeated! Shadows tremble at your presence.",
-  5: "�?\"��? Map Five Purified! Even the frost bows to the Princess.",
-  6: "�s� Map Six Triumphed! The Arcane Crystals resonate with power.",
-  7: "�Y'Z Map Seven Won! You stand unmatched in the Crystal Isles!",
-  8: "�YO^ Map Eight Cleared! Magic ripples through the realm!",
-  9: "�Y'' Final Map Conquered! The Crystal Keep is safe once more!"
+  1: "Map One Complete! The goblins scatter before your growing power!",
+  2: "Map Two Cleared! The Hollow Woods fall silent once more.",
+  3: "Map Three Victorious! The Ember Plains glow in your honour.",
+  4: "Map Four Defeated! Shadows tremble at your presence.",
+  5: "Map Five Purified! Even the frost bows to the Princess.",
+  6: "Map Six Triumphed! The Arcane Crystals resonate with power.",
+  7: "Map Seven Won! You stand unmatched in the Crystal Isles!",
+  8: "Map Eight Cleared! Magic ripples through the realm!",
+  9: "Final Map Conquered! The Crystal Keep is safe once more!"
 };
 
 export const VICTORY_SUBTITLES = {
@@ -169,7 +165,7 @@ export const VICTORY_SUBTITLES = {
   6: "Arcane storms settle in your wake.",
   7: "Crystal Isles shimmer with renewed hope.",
   8: "Magic ripples across the realm in harmony.",
-  9: "The Crystal Keep stands protected �?\" your legend complete.",
+  9: "The Crystal Keep stands protected - your legend complete."
 };
 
 // ============================================================
@@ -390,16 +386,7 @@ function startNextWave() {
     spawnQueue.push(() => spawnAndEmit("goblin", spawnGoblin));
   }
 
-  waveActive = true;
-  waveCleared = false;
-  justStartedWave = true;
-
-  gameState.wave = currentWaveIndex + 1;
-  gameState.totalWaves = waves.length;
-  updateHUD();
-  Events.emit(E.waveStart, { wave: gameState.wave });
-
-  return; // IMPORTANT so normal enemies don’t spawn
+  return; // IMPORTANT so normal enemies don't spawn
 }
 
   for (let i = 0; i < wave.goblins; i++) {
@@ -451,7 +438,7 @@ function noEnemiesAlive() {
   const aliveS = s.filter(e => e.alive).length;
 
   const totalAlive = aliveG + aliveW + aliveO + aliveE + aliveT + aliveX + aliveS;
-  const totalSpawnedSoFar = g.length + w.length + o.length + e.length + t.length + x.length;
+  const totalSpawnedSoFar = g.length + w.length + o.length + e.length + t.length + x.length + s.length;
 
   if (spawnQueue.length > 0) return false;
   if (totalSpawnedSoFar === 0) return false;
@@ -572,7 +559,7 @@ async function handleWaveCleared(waveNumber, mapId) {
           await saveToSlot(slot);
           profile.lastSave = slot;
           saveProfiles();
-          console.log(`�Y'� Autosaved after Wave ${waveNumber}`);
+          console.log(`Autosaved after Wave ${waveNumber}`);
         } catch (err) {
           console.warn("Autosave failed:", err);
         }
@@ -607,3 +594,4 @@ export function resetWaveKillTracking() {
     ogreMilestones[key] = false;
   }
 }
+

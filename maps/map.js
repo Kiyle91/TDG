@@ -315,6 +315,7 @@ function ensurePreRendered(group = "all") {
 // ------------------------------------------------------------
 
 export async function loadMap(mode = "runtime") {
+  initCollision(null);
   const id = gameState.progress?.currentMap || 1;
 
   const cached = mapCache.get(id);
@@ -327,6 +328,7 @@ export async function loadMap(mode = "runtime") {
     tilesetCache = cached.tilesetCache;
     preRenderedLayers = { ...EMPTY_PRE_RENDER, ...cached.preRenderedLayers };
     pathPoints = [];
+    initCollision(mapData, TILE_SIZE);
     return;
   }
 
