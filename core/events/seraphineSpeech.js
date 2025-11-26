@@ -56,3 +56,27 @@ Events.on(E.bossHpThreshold, ({ boss, phase, threshold, x, y, instance }) => {
   const anchor = instance || { x, y };
   spawnSpeechBubble(line, x, y, 4500, anchor);
 });
+
+// ------------------------------------------------------------
+// 💀 DEFEAT / ESCAPE LINE (Phase 1 & 2 only)
+// ------------------------------------------------------------
+
+Events.on(E.bossDefeated, ({ boss, phase, x, y, instance }) => {
+  if (boss !== "seraphine") return;
+
+  // Final form (phase 3) should NOT speak on defeat
+  if (phase === 3) return;
+
+  const lines = {
+    1: "This isn’t over… Princess…",
+    2: "You can’t stop what’s coming…",
+  };
+
+  const line = lines[phase];
+  if (!line) return;
+
+  const anchor = instance || { x, y };
+  spawnSpeechBubble(line, x, y, 4300, anchor);
+});
+
+
