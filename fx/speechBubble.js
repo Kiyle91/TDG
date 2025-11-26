@@ -10,11 +10,12 @@ export function clearSpeechBubbles() {
   speechBubbles.length = 0;
 }
 
-export function spawnSpeechBubble(text, x, y, duration = 10000, anchor = null) {
+export function spawnSpeechBubble(text, x, y, duration = 10000, anchor) {
   // Enforce a single active bubble on screen
   clearSpeechBubbles();
 
-  const resolvedAnchor = anchor ?? gameState?.player ?? null;
+  // If an anchor is explicitly provided, use it; otherwise default to player
+  const resolvedAnchor = anchor !== undefined ? anchor : gameState?.player ?? null;
 
   speechBubbles.push({
     text,
@@ -44,8 +45,9 @@ export function updateAndDrawSpeechBubbles(ctx, delta) {
 
     ctx.globalAlpha = alpha;
 
-    const anchorX = b.anchor?.pos?.x ?? b.x;
-    const anchorY = b.anchor?.pos?.y ?? b.y;
+    // Support anchors that expose either pos.x/pos.y or plain x/y
+    const anchorX = b.anchor?.pos?.x ?? b.anchor?.x ?? b.x;
+    const anchorY = b.anchor?.pos?.y ?? b.anchor?.y ?? b.y;
 
     drawSpeechBubble(ctx, b, anchorX, anchorY - 70); // adjust offset for head height
 

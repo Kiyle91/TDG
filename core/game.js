@@ -196,8 +196,7 @@ import map9Timed from "./events/map9Steps.js";
 import { updateStepEvents } from "./eventEngine.js";
 import { spawnSeraphineBoss, clearSeraphines, drawSeraphine, updateSeraphine, initSeraphine } from "../entities/seraphine.js";
 import { initMap1Events } from "./events/map1Events.js";
-
-
+import "../core/events/seraphineSpeech.js";
 
 export {
   waveConfigs,

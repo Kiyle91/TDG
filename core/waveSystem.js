@@ -54,7 +54,7 @@ export const waveConfigs = {
   { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
 
   // ⭐ NEW WAVE 9 — Seraphine appears for the first time
-  { boss: "seraphine", phase: 1, goblins: 6 }
+  
 ],
 
 
@@ -73,11 +73,9 @@ export const waveConfigs = {
   // 🏞 MAP 3 — Pattern Mixing + Elite Ambushes
   // ============================================================
   3: [
-    { goblins: 22, worgs: 3, elites: 3, trolls: 5, ogres: 1, crossbows: 5 },
-    { goblins: 26, worgs: 4, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 22, worgs: 6, elites: 2, trolls: 0, ogres: 0, crossbows: 0 }, // spike
-    { goblins: 30, worgs: 4, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 34, worgs: 6, elites: 2, trolls: 0, ogres: 0, crossbows: 1 },
+    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { boss: "seraphine", phase: 1, goblins: 6 }
   ],
 
   // ============================================================
@@ -106,11 +104,9 @@ export const waveConfigs = {
   // 🜂 MAP 6 — Ogre Introduction (Slow, Heavy Hitters)
   // ============================================================
   6: [
-    { goblins: 30, worgs: 7, elites: 1, trolls: 2, ogres: 1, crossbows: 0 },
-    { goblins: 32, worgs: 8, elites: 2, trolls: 2, ogres: 1, crossbows: 0 },
-    { goblins: 34, worgs: 8, elites: 2, trolls: 3, ogres: 1, crossbows: 1 },
-    { goblins: 36, worgs: 9, elites: 3, trolls: 3, ogres: 2, crossbows: 1 },
-    { goblins: 40, worgs: 10, elites: 3, trolls: 3, ogres: 2, crossbows: 1 },
+    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { boss: "seraphine", phase: 1, goblins: 6 }
   ],
 
   // ============================================================

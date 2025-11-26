@@ -232,6 +232,7 @@ export function spawnSeraphineBoss(phase = 1, x, y) {
     phase: boss.phase,
     x: boss.x,
     y: boss.y,
+    instance: boss,
   });
   return boss;
 }
@@ -548,6 +549,7 @@ export function damageSeraphine(boss, amount) {
       threshold: 75,
       x: boss.x,
       y: boss.y,
+      instance: boss,
     });
   }
 
@@ -559,6 +561,19 @@ export function damageSeraphine(boss, amount) {
       threshold: 50,
       x: boss.x,
       y: boss.y,
+      instance: boss,
+    });
+  }
+
+  if (!boss.hpEvents["40"] && pct <= 40) {
+    boss.hpEvents["40"] = true;
+    Events.emit(E.bossHpThreshold, {
+      boss: "seraphine",
+      phase: boss.phase,
+      threshold: 40,
+      x: boss.x,
+      y: boss.y,
+      instance: boss,
     });
   }
 
@@ -570,6 +585,7 @@ export function damageSeraphine(boss, amount) {
       threshold: 25,
       x: boss.x,
       y: boss.y,
+      instance: boss,
     });
   }
 
