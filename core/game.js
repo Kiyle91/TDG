@@ -198,6 +198,44 @@ import { spawnSeraphineBoss, clearSeraphines, drawSeraphine, updateSeraphine, in
 import { initMap1Events } from "./events/map1Events.js";
 import "../core/events/seraphineSpeech.js";
 
+
+// ❄ Ice goblin
+import {
+  initGoblins as initIceGoblins,
+  spawnGoblin as spawnIceGoblin,
+  updateGoblins as updateIceGoblins,
+  drawGoblins as drawIceGoblins,
+  getGoblins as getIceGoblins,
+} from "../entities/iceGoblin.js";
+
+// 🔥 Ember goblin
+import {
+  initGoblins as initEmberGoblins,
+  spawnGoblin as spawnEmberGoblin,
+  updateGoblins as updateEmberGoblins,
+  drawGoblins as drawEmberGoblins,
+  getGoblins as getEmberGoblins,
+} from "../entities/emberGoblin.js";
+
+// 🌫 Ash goblin
+import {
+  initGoblins as initAshGoblins,
+  spawnGoblin as spawnAshGoblin,
+  updateGoblins as updateAshGoblins,
+  drawGoblins as drawAshGoblins,
+  getGoblins as getAshGoblins,
+} from "../entities/ashGoblin.js";
+
+// 🌑 Void goblin
+import {
+  initGoblins as initVoidGoblins,
+  spawnGoblin as spawnVoidGoblin,
+  updateGoblins as updateVoidGoblins,
+  drawGoblins as drawVoidGoblins,
+  getGoblins as getVoidGoblins,
+} from "../entities/voidGoblin.js";
+
+
 export {
   waveConfigs,
   VICTORY_MESSAGES,
@@ -207,6 +245,8 @@ export {
   resetWaveSystem,
   incrementGoblinDefeated,
 } from "./waveSystem.js";
+
+
 
 // ------------------------------------------------------------
 // ðŸŽ¥ LOCAL CAMERA STATE
@@ -329,6 +369,10 @@ export async function initGame(mode = "new") {
   // ENEMY INITIALIZATION (multi-path for all walkers)
   // ------------------------------------------------------------
   await initGoblins();
+  await initIceGoblins();
+  await initEmberGoblins();
+  await initAshGoblins();
+  await initVoidGoblins();
 
   // Worg & Trolls MUST receive allPaths or they will break waves
   await initWorg(allPaths);
@@ -411,6 +455,11 @@ export function updateGame(delta) {
   delta = Math.min(delta, 100);
 
   updateGoblins(delta);
+  updateIceGoblins(delta);
+  updateEmberGoblins(delta);
+  updateAshGoblins(delta);
+  updateVoidGoblins(delta);
+
   updateWorg(delta);
   updateCrossbows(delta);
   updateElites(delta);
@@ -520,6 +569,10 @@ export function renderGame() {
   drawWorg(ctx);
   drawCrossbows(ctx);
   drawGoblins(ctx);
+  drawIceGoblins(ctx);
+  drawEmberGoblins(ctx);
+  drawAshGoblins(ctx);
+  drawVoidGoblins(ctx);
   drawElites(ctx);
   drawTrolls(ctx);
   drawOgres(ctx);

@@ -16,6 +16,28 @@ import { saveToSlot } from "../save/saveSystem.js";
 import { updateHUD } from "../screenManagement/ui.js";
 
 import { spawnGoblin, getGoblins } from "../entities/goblin.js";
+
+// NEW: elemental goblins
+import {
+  spawnGoblin as spawnIceGoblin,
+  getGoblins as getIceGoblins,
+} from "../entities/iceGoblin.js";
+
+import {
+  spawnGoblin as spawnEmberGoblin,
+  getGoblins as getEmberGoblins,
+} from "../entities/emberGoblin.js";
+
+import {
+  spawnGoblin as spawnAshGoblin,
+  getGoblins as getAshGoblins,
+} from "../entities/ashGoblin.js";
+
+import {
+  spawnGoblin as spawnVoidGoblin,
+  getGoblins as getVoidGoblins,
+} from "../entities/voidGoblin.js";
+
 import { spawnWorg, getWorg } from "../entities/worg.js";
 import { spawnElite, getElites } from "../entities/elite.js";
 import { spawnTroll, getTrolls } from "../entities/troll.js";
@@ -32,7 +54,7 @@ import { Events, EVENT_NAMES as E } from "./eventEngine.js";
 // waveConfigs - Olivia's World: Crystal Keep
 // ------------------------------------------------------------
 // Fully rebalanced 1-9 campaign waves
-// - Map 1 gentle & forgiving
+// - Map 1 gentle & forgiving + elemental goblin test
 // - Map 2 introduces Worgs mid-way
 // - Map 3 patterned mixes + elite surprises
 // - Map 4 escalates everything
@@ -47,11 +69,20 @@ import { Events, EVENT_NAMES as E } from "./eventEngine.js";
 export const waveConfigs = {
 
   // ============================================================
-  // MAP 1 - Gentle Onboarding
+  // MAP 1 - Gentle Onboarding + Elemental Goblin Test
+  // ------------------------------------------------------------
+  // Wave 1: base goblins only
+  // Wave 2: + 1 iceGoblin
+  // Wave 3: + 1 emberGoblin
+  // Wave 4: + 1 ashGoblin
+  // Wave 5: + 1 voidGoblin
   // ============================================================
   1: [
     { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 5, iceGoblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 5, emberGoblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 5, ashGoblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 5, voidGoblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // ============================================================
@@ -346,8 +377,6 @@ function startNextWave() {
   const wave = waves[currentWaveIndex];
   if (!wave) return;
 
-  
-
   spawnQueue.length = 0;
 
   waveActive = true;
@@ -378,30 +407,58 @@ function startNextWave() {
 
   if (wave.boss === "seraphine") {
 
-  // spawn boss immediately
-  spawnSeraphineBoss(wave.phase || 1);
+    // spawn boss immediately
+    spawnSeraphineBoss(wave.phase || 1);
 
-  // goblin escorts
-  const escorts = wave.goblins || 0;
-  for (let i = 0; i < escorts; i++) {
-    spawnQueue.push(() => spawnAndEmit("goblin", spawnGoblin));
+    // goblin escorts
+    const escorts = wave.goblins || 0;
+    for (let i = 0; i < escorts; i++) {
+      spawnQueue.push(() => spawnAndEmit("goblin", spawnGoblin));
+    }
+
+    return; // IMPORTANT so normal enemies don't spawn
   }
 
-  return; // IMPORTANT so normal enemies don't spawn
-}
+  const iceCount   = wave.iceGoblins   || 0;
+  const emberCount = wave.emberGoblins || 0;
+  const ashCount   = wave.ashGoblins   || 0;
+  const voidCount  = wave.voidGoblins  || 0;
 
   for (let i = 0; i < wave.goblins; i++) {
     spawnQueue.push(() => {
       spawnAndEmit("goblin", spawnGoblin);
 
-      if (i < wave.worgs) spawnAndEmit("worg", spawnWorg);
-      if (i < wave.elites) spawnAndEmit("elite", spawnElite);
-      if (i < wave.trolls) spawnAndEmit("troll", spawnTroll);
+      if (i < iceCount)   spawnAndEmit("iceGoblin",   spawnIceGoblin);
+      if (i < emberCount) spawnAndEmit("emberGoblin", spawnEmberGoblin);
+      if (i < ashCount)   spawnAndEmit("ashGoblin",   spawnAshGoblin);
+      if (i < voidCount)  spawnAndEmit("voidGoblin",  spawnVoidGoblin);
+
+      if (i < wave.worgs)      spawnAndEmit("worg",      spawnWorg);
+      if (i < wave.elites)     spawnAndEmit("elite",     spawnElite);
+      if (i < wave.trolls)     spawnAndEmit("troll",     spawnTroll);
       if (i < wave.ogres) {
         spawnAndEmit("ogre", () => spawnOgre({ skipDifficultyScaling: true }));
       }
-      if (i < wave.crossbows) spawnAndEmit("crossbow", spawnCrossbow);
+      if (i < wave.crossbows)  spawnAndEmit("crossbow",  spawnCrossbow);
     });
+  }
+
+  // In case any counts exceed goblins, top up the queue with the extras:
+
+  for (let i = wave.goblins; i < iceCount; i++) {
+    spawnQueue.push(() => spawnAndEmit("iceGoblin", spawnIceGoblin));
+  }
+
+  for (let i = wave.goblins; i < emberCount; i++) {
+    spawnQueue.push(() => spawnAndEmit("emberGoblin", spawnEmberGoblin));
+  }
+
+  for (let i = wave.goblins; i < ashCount; i++) {
+    spawnQueue.push(() => spawnAndEmit("ashGoblin", spawnAshGoblin));
+  }
+
+  for (let i = wave.goblins; i < voidCount; i++) {
+    spawnQueue.push(() => spawnAndEmit("voidGoblin", spawnVoidGoblin));
   }
 
   for (let i = wave.goblins; i < wave.worgs; i++) {
@@ -422,24 +479,37 @@ function startNextWave() {
 }
 
 function noEnemiesAlive() {
-  const g = getGoblins();
-  const w = getWorg();
-  const o = getOgres();
-  const e = getElites();
-  const t = getTrolls();
-  const x = getCrossbows();
-  const s = getSeraphines();
+  const g  = getGoblins();
+  const gi = getIceGoblins();
+  const ge = getEmberGoblins();
+  const ga = getAshGoblins();
+  const gv = getVoidGoblins();
+  const w  = getWorg();
+  const o  = getOgres();
+  const e  = getElites();
+  const t  = getTrolls();
+  const x  = getCrossbows();
+  const s  = getSeraphines();
 
-  const aliveG = g.filter(e => e.alive).length;
-  const aliveW = w.filter(e => e.alive).length;
-  const aliveO = o.filter(e => e.alive).length;
-  const aliveE = e.filter(e => e.alive).length;
-  const aliveT = t.filter(e => e.alive).length;
-  const aliveX = x.filter(e => e.alive).length;
-  const aliveS = s.filter(e => e.alive).length;
+  const aliveG  = g.filter(e => e.alive).length;
+  const aliveGi = gi.filter(e => e.alive).length;
+  const aliveGe = ge.filter(e => e.alive).length;
+  const aliveGa = ga.filter(e => e.alive).length;
+  const aliveGv = gv.filter(e => e.alive).length;
+  const aliveW  = w.filter(e => e.alive).length;
+  const aliveO  = o.filter(e => e.alive).length;
+  const aliveE  = e.filter(e => e.alive).length;
+  const aliveT  = t.filter(e => e.alive).length;
+  const aliveX  = x.filter(e => e.alive).length;
+  const aliveS  = s.filter(e => e.alive).length;
 
-  const totalAlive = aliveG + aliveW + aliveO + aliveE + aliveT + aliveX + aliveS;
-  const totalSpawnedSoFar = g.length + w.length + o.length + e.length + t.length + x.length + s.length;
+  const totalAlive =
+    aliveG + aliveGi + aliveGe + aliveGa + aliveGv +
+    aliveW + aliveO + aliveE + aliveT + aliveX + aliveS;
+
+  const totalSpawnedSoFar =
+    g.length + gi.length + ge.length + ga.length + gv.length +
+    w.length + o.length + e.length + t.length + x.length + s.length;
 
   if (spawnQueue.length > 0) return false;
   if (totalSpawnedSoFar === 0) return false;
@@ -595,4 +665,3 @@ export function resetWaveKillTracking() {
     ogreMilestones[key] = false;
   }
 }
-
