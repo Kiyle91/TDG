@@ -78,11 +78,11 @@ export const waveConfigs = {
   // Wave 5: + 1 voidGoblin
   // ============================================================
   1: [
-    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 5, iceGoblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 5, emberGoblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 5, ashGoblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 5, voidGoblins: 1, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 0, worgs: 1, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 0, iceGoblins: 20, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 0, emberGoblins: 20, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 0, ashGoblins: 20, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 0, voidGoblins: 20, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // ============================================================
@@ -295,10 +295,6 @@ export function restoreWaveFromSnapshot(meta, snapshot) {
   const hasSavedEnemies = snapshot
     ? [
         snapshot.goblins,
-        snapshot.iceGoblins,
-        snapshot.emberGoblins,
-        snapshot.ashGoblins,
-        snapshot.voidGoblins,
         snapshot.worgs,
         snapshot.elites,
         snapshot.ogres,

@@ -15,6 +15,10 @@ import { gameState } from "../utils/gameState.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { updateBraveryBar } from "../screenManagement/ui.js";    // UI-display ONLY
 import { damageGoblin } from "../entities/goblin.js";
+import { damageGoblin as damageIceGoblin } from "../entities/iceGoblin.js";
+import { damageGoblin as damageEmberGoblin } from "../entities/emberGoblin.js";
+import { damageGoblin as damageAshGoblin } from "../entities/ashGoblin.js";
+import { damageGoblin as damageVoidGoblin } from "../entities/voidGoblin.js";
 import { damageOgre } from "../entities/ogre.js";
 import { damageElite } from "../entities/elite.js";
 import { damageTroll } from "../entities/troll.js";
@@ -131,6 +135,10 @@ export function applyBraveryAuraEffects(enemy) {
     // Route to correct damage handler
     switch (enemy.type) {
     case "goblin":      damageGoblin(enemy, AURA_DAMAGE); break;
+    case "iceGoblin":   damageIceGoblin(enemy, AURA_DAMAGE); break;
+    case "emberGoblin": damageEmberGoblin(enemy, AURA_DAMAGE); break;
+    case "ashGoblin":   damageAshGoblin(enemy, AURA_DAMAGE); break;
+    case "voidGoblin":  damageVoidGoblin(enemy, AURA_DAMAGE); break;
     case "ogre":        damageOgre(enemy, AURA_DAMAGE); break;
     case "elite":       damageElite(enemy, AURA_DAMAGE); break;
     case "troll":       damageTroll(enemy, AURA_DAMAGE); break;
