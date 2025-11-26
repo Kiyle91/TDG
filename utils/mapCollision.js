@@ -90,27 +90,17 @@ export function slideRect(x, y, w, h, dx, dy, opts = {}) {
     return { x, y: ny, blocked: false };
   }
 
-  // Both axes blocked: try progressively smaller steps to "unstick"
-  let stepX = dx;
-  let stepY = dy;
-  for (let i = 0; i < 3; i++) {
-    stepX *= 0.5;
-    stepY *= 0.5;
+  // Both axes blocked: attempt small lateral sidestep to escape tight corners
+  const sidestep = [
+    { x: x + dx, y },      // try X only
+    { x, y: y + dy },      // try Y only
+    { x: x + Math.sign(dx) * w * 0.3, y }, // small nudge along X
+    { x, y: y + Math.sign(dy) * h * 0.3 }, // small nudge along Y
+  ];
 
-    const tx = x + stepX;
-    const ty = y + stepY;
-
-    const txBlocked = isRectBlocked(tx, y, w, h, opts);
-    const tyBlocked = isRectBlocked(x, ty, w, h, opts);
-
-    if (!txBlocked && !tyBlocked) {
-      return { x: tx, y: ty, blocked: false };
-    }
-    if (!txBlocked) {
-      return { x: tx, y, blocked: false };
-    }
-    if (!tyBlocked) {
-      return { x, y: ty, blocked: false };
+  for (const p of sidestep) {
+    if (!isRectBlocked(p.x, p.y, w, h, opts)) {
+      return { x: p.x, y: p.y, blocked: false };
     }
   }
 

@@ -276,6 +276,45 @@ const RECT_CACHE_DURATION = 1000;
 let hudUpdateTimer = 0;
 const HUD_UPDATE_INTERVAL = 100;
 
+// Track stuck enemies to temporarily bypass collision
+const stuckState = new WeakMap();
+const STUCK_DISTANCE_EPS = 3;
+const STUCK_TIME_MS = 2000;
+const UNSTUCK_WINDOW_MS = 3000;
+const LATERAL_STUCK_NUDGE = 6; // px
+
+function trackEnemyMotion(delta) {
+  const enemies = collectAllEnemies();
+  const now = performance.now();
+
+  for (const e of enemies) {
+    let state = stuckState.get(e);
+    if (!state) {
+      state = { x: e.x, y: e.y, still: 0, noCollideUntil: 0 };
+    }
+
+    const moved = Math.hypot(e.x - state.x, e.y - state.y) > STUCK_DISTANCE_EPS;
+    if (moved) {
+      state.x = e.x;
+      state.y = e.y;
+      state.still = 0;
+    } else {
+      state.still += delta;
+      if (state.still >= STUCK_TIME_MS) {
+        state.noCollideUntil = now + UNSTUCK_WINDOW_MS;
+        // Apply a quick lateral nudge to break gridlock
+        const angle = Math.random() * Math.PI * 2;
+        e.x += Math.cos(angle) * LATERAL_STUCK_NUDGE;
+        e.y += Math.sin(angle) * LATERAL_STUCK_NUDGE;
+        state.still = 0;
+      }
+    }
+
+    stuckState.set(e, state);
+    e.__noCollideUntil = state.noCollideUntil;
+  }
+}
+
 function getEnemyRadius(enemy) {
   switch (enemy?.type) {
     case "ogre": return 60;
@@ -294,6 +333,14 @@ function getEnemyRadius(enemy) {
   }
 }
 
+function getPathFollowerInfo(e) {
+  if (!Array.isArray(e?.path)) return { isPathFollower: false, distToWaypoint: Infinity };
+  const next = e.path[e.targetIndex] || e.path[e.path.length - 1];
+  if (!next) return { isPathFollower: true, distToWaypoint: Infinity };
+  const dist = Math.hypot((next.x ?? 0) - (e.x ?? 0), (next.y ?? 0) - (e.y ?? 0));
+  return { isPathFollower: true, distToWaypoint: dist };
+}
+
 function collectAllEnemies() {
   return [
     ...getGoblins(),
@@ -310,6 +357,7 @@ function collectAllEnemies() {
 function resolveEnemyCollisions() {
   const enemies = collectAllEnemies();
   const count = enemies.length;
+  const now = performance.now();
 
   // Fisher-Yates shuffle to avoid directional bias
   for (let i = count - 1; i > 0; i--) {
@@ -322,16 +370,26 @@ function resolveEnemyCollisions() {
   for (let i = 0; i < count; i++) {
     const a = enemies[i];
     let ra = getEnemyRadius(a);
-    const aPathFollower = Array.isArray(a?.path);
+    const aInfo = getPathFollowerInfo(a);
 
     for (let j = i + 1; j < count; j++) {
       const b = enemies[j];
       let rb = getEnemyRadius(b);
-      const bPathFollower = Array.isArray(b?.path);
+      const bInfo = getPathFollowerInfo(b);
+
+      if ((a.__noCollideUntil ?? 0) > now || (b.__noCollideUntil ?? 0) > now) {
+        continue;
+      }
+
+      if (aInfo.isPathFollower && bInfo.isPathFollower) {
+        if (aInfo.distToWaypoint < 90 || bInfo.distToWaypoint < 90) {
+          continue;
+        }
+      }
 
       // Allow path-followers to squeeze closer at corners
-      if (aPathFollower) ra *= 0.75;
-      if (bPathFollower) rb *= 0.75;
+      if (aInfo.isPathFollower) ra *= 0.75;
+      if (bInfo.isPathFollower) rb *= 0.75;
 
       const dx = a.x - b.x;
       const dy = a.y - b.y;
@@ -349,14 +407,28 @@ function resolveEnemyCollisions() {
       }
 
       let overlap = Math.min((minDist - dist) * 0.5, MAX_PUSH);
-      if (aPathFollower && bPathFollower) overlap *= 0.6; // softer push for path walkers
+      if (aInfo.isPathFollower && bInfo.isPathFollower) overlap *= 0.6; // softer push for path walkers
+      // If head-on (dot product near -1), add stronger lateral shove to clear lane
+      const adirX = a.vx ?? 0;
+      const adirY = a.vy ?? 0;
+      const bdirX = b.vx ?? 0;
+      const bdirY = b.vy ?? 0;
+      const lenA = Math.hypot(adirX, adirY) || 1;
+      const lenB = Math.hypot(bdirX, bdirY) || 1;
+      const dot = (adirX * bdirX + adirY * bdirY) / (lenA * lenB);
+      let lateralBoost = 0;
+      if (dot < -0.5) {
+        lateralBoost = 3;
+      } else if (dot < 0) {
+        lateralBoost = 1.5;
+      }
       const nx = dx / (dist || 1);
       const ny = dy / (dist || 1);
 
-      // slight perpendicular jitter to prevent long snake lines
-      const jitter = 0.2 * (Math.random() - 0.5);
-      const jx = -ny * jitter;
-      const jy = nx * jitter;
+      // slight perpendicular jitter to prevent long snake lines, amplified if head-on
+      const jitter = (0.2 + lateralBoost * 0.1) * (Math.random() - 0.5);
+      const jx = -ny * (jitter + lateralBoost * 0.15);
+      const jy = nx * (jitter + lateralBoost * 0.15);
 
       a.x += nx * overlap + jx;
       a.y += ny * overlap + jy;
@@ -369,6 +441,7 @@ function resolveEnemyCollisions() {
 function resolveTrollCrossbowCollisions() {
   const list = [...(getTrolls() || []), ...(getCrossbows() || [])].filter(e => e && e.alive);
   const count = list.length;
+  const now = performance.now();
 
   for (let i = 0; i < count; i++) {
     const a = list[i];
@@ -377,6 +450,10 @@ function resolveTrollCrossbowCollisions() {
     for (let j = i + 1; j < count; j++) {
       const b = list[j];
       const rb = getEnemyRadius(b);
+
+      if ((a.__noCollideUntil ?? 0) > now || (b.__noCollideUntil ?? 0) > now) {
+        continue;
+      }
 
       const dx = a.x - b.x;
       const dy = a.y - b.y;
@@ -608,6 +685,7 @@ export function updateGame(delta) {
   updatePegasus(delta);
   updateLoot(delta);
   updateStepEvents();
+  trackEnemyMotion(delta);
   resolveEnemyCollisions();
   resolveTrollCrossbowCollisions();
   updateWaveSystem(delta).catch(err => {

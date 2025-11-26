@@ -64,7 +64,7 @@ let ogreSprites = null;
 // ------------------------------------------------------------
 
 const OGRE_SIZE   = 160;
-const OGRE_SPEED  = 30;
+const OGRE_SPEED  = 38;
 const BASE_HP     = 600;
 const OGRE_DAMAGE = 25;
 
