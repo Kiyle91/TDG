@@ -269,6 +269,7 @@ export function restoreWaveFromSnapshot(meta, snapshot) {
         snapshot.ogres,
         snapshot.trolls,
         snapshot.crossbows,
+        snapshot.seraphines,
       ].some(arr => Array.isArray(arr) && arr.length > 0)
     : false;
 

@@ -1,17 +1,17 @@
-// ============================================================
-// 🌟 levelSystem.js — Olivia’s World: Crystal Keep
+﻿// ============================================================
+// ðŸŒŸ levelSystem.js â€” Oliviaâ€™s World: Crystal Keep
 //   (Static Overlay + 3 Choices: Attack / Spell / Ranged)
 // ------------------------------------------------------------
-// ✦ Handles XP gain, level-ups, and stat upgrades
-// ✦ HP & Mana auto-increase each level (+10)
-// ✦ Player allocates: Attack, Spell Power, or Ranged
-// ✦ Pauses gameplay during allocation
-// ✦ Fully stable, save-safe, UI integrated
+// âœ¦ Handles XP gain, level-ups, and stat upgrades
+// âœ¦ HP & Mana auto-increase each level (+10)
+// âœ¦ Player allocates: Attack, Spell Power, or Ranged
+// âœ¦ Pauses gameplay during allocation
+// âœ¦ Fully stable, save-safe, UI integrated
 // ============================================================
 /* ------------------------------------------------------------
  * MODULE: levelSystem.js
  * PURPOSE:
- *   Manages the player’s experience system including XP gain,
+ *   Manages the playerâ€™s experience system including XP gain,
  *   level thresholds, stat point allocation, level-up rewards,
  *   and presentation of the Level-Up overlay.
  *
@@ -22,20 +22,20 @@
  *   stat upgrade (Attack, Spell Power, or Ranged Attack).
  *
  * FEATURES:
- *   • awardXP() — grants XP and triggers level-up checks
- *   • Automatic HP/Mana increases on level up
- *   • Stat allocation overlay with 3 upgrade choices
- *   • pauseGame() + resumeGame() integration preserved
- *   • Floating text feedback for XP + upgrades
+ *   â€¢ awardXP() â€” grants XP and triggers level-up checks
+ *   â€¢ Automatic HP/Mana increases on level up
+ *   â€¢ Stat allocation overlay with 3 upgrade choices
+ *   â€¢ pauseGame() + resumeGame() integration preserved
+ *   â€¢ Floating text feedback for XP + upgrades
  *
  * TECHNICAL NOTES:
- *   • XP thresholds scale by exponential growth
- *   • Overlay is fully static DOM for reliability
- *   • Compatible with game’s spire unlock system
+ *   â€¢ XP thresholds scale by exponential growth
+ *   â€¢ Overlay is fully static DOM for reliability
+ *   â€¢ Compatible with gameâ€™s spire unlock system
  * ------------------------------------------------------------ */
 
 // ------------------------------------------------------------
-// ↪️ Imports
+// â†ªï¸ Imports
 // ------------------------------------------------------------
 
 
@@ -47,7 +47,7 @@ import { saveToSlot } from "../save/saveSystem.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 // ------------------------------------------------------------
-// 🗺️ MODULE-LEVEL VARIABLES
+// ðŸ—ºï¸ MODULE-LEVEL VARIABLES
 // ------------------------------------------------------------
 
 const XP_PER_LEVEL_BASE = 100;
@@ -55,7 +55,7 @@ const XP_SCALING = 1.25;
 const POINTS_PER_LEVEL = 1;
 
 // ------------------------------------------------------------
-// 🧠 XP GAIN
+// ðŸ§  XP GAIN
 // ------------------------------------------------------------
 
 export function awardXP(amount = 25) {
@@ -73,7 +73,7 @@ export function awardXP(amount = 25) {
 }
 
 // ------------------------------------------------------------
-// 🎯 LEVEL-UP CHECK
+// ðŸŽ¯ LEVEL-UP CHECK
 // ------------------------------------------------------------
 
 async function checkLevelUp() {
@@ -99,12 +99,12 @@ async function checkLevelUp() {
     spawnFloatingText(
       p.pos.x,
       p.pos.y - 60,
-      `⭐ Level ${p.level}!`,
+      `Level ${p.level}!`,
       "#fff2b3",
       22
     );
 
-    // ⭐ AUTOSAVE ON LEVEL UP
+    // â­ AUTOSAVE ON LEVEL UP
     const profile = gameState.profile;
     if (profile) {
       const slot = typeof profile.lastSave === "number" ? profile.lastSave : 0;
@@ -113,7 +113,7 @@ async function checkLevelUp() {
         await Promise.resolve(savePromise);
         profile.lastSave = slot;
         saveProfiles();
-        console.log(`💾 Autosaved after reaching Level ${p.level}`);
+        console.log(`Autosaved after reaching Level ${p.level}`);
       } catch (err) {
         console.warn("Autosave (level-up) failed:", err);
       }
@@ -122,7 +122,7 @@ async function checkLevelUp() {
     // Pause gameplay for allocation
     pauseGame();
 
-    // Show overlay → resume when done
+    // Show overlay â†’ resume when done
     showLevelUpOverlay(p, () => {
       updateSummaryPanel(p);
       resumeGame();
@@ -131,7 +131,7 @@ async function checkLevelUp() {
 }
 
 // ------------------------------------------------------------
-// 📈 XP THRESHOLD CURVE
+// ðŸ“ˆ XP THRESHOLD CURVE
 // ------------------------------------------------------------
 
 function getXpForLevel(level) {
@@ -139,7 +139,7 @@ function getXpForLevel(level) {
 }
 
 // ------------------------------------------------------------
-// 💫 LEVEL-UP OVERLAY
+// ðŸ’« LEVEL-UP OVERLAY
 // ------------------------------------------------------------
 
 function showLevelUpOverlay(p, onClose) {
@@ -174,7 +174,7 @@ function showLevelUpOverlay(p, onClose) {
 }
 
 // ------------------------------------------------------------
-// 🧮 STAT UPGRADE HANDLER
+// ðŸ§® STAT UPGRADE HANDLER
 // ------------------------------------------------------------
 
 function handleStatUpgrade(p, key, overlay, onClose) {
@@ -240,7 +240,7 @@ function updateSummaryPanel(p) {
 }
 
 // ------------------------------------------------------------
-// 🧹 CLOSE LEVEL-UP OVERLAY
+// ðŸ§¹ CLOSE LEVEL-UP OVERLAY
 // ------------------------------------------------------------
 
 function closeLevelUpOverlay(overlay, onClose) {
@@ -257,5 +257,5 @@ function closeLevelUpOverlay(overlay, onClose) {
 }
 
 // ============================================================
-// 🌟 END OF FILE
+// ðŸŒŸ END OF FILE
 // ============================================================

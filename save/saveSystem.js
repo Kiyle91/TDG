@@ -30,6 +30,7 @@ import { updateHUD, updateBraveryBar } from "../screenManagement/ui.js";
 import { getTrolls } from "../entities/troll.js";
 import { getCrossbows } from "../entities/crossbow.js";
 import { restoreWaveFromSnapshot, getWaveSnapshotState } from "../core/game.js";
+import { getSeraphines, clearSeraphines } from "../entities/seraphine.js";
 import { clearSpeechBubbles } from "../fx/speechBubble.js";
 import { syncStepEventsToSteps } from "../core/eventEngine.js";
 
@@ -210,6 +211,7 @@ export function snapshotGame() {
     ogres: safeClone(getOgres() || []),
     trolls: safeClone(getTrolls?.() || []),
     crossbows: safeClone(getCrossbows?.() || []),
+    seraphines: safeClone(getSeraphines?.() || []),
   };
 }
 
@@ -340,6 +342,14 @@ export function applySnapshot(snapshot) {
   if (Array.isArray(cArr)) {
     cArr.length = 0;
     (snapshot.crossbows || []).forEach(c => cArr.push(clone(c)));
+  }
+
+  // SERAPHINE (boss)
+  const sArr = getSeraphines?.();
+  if (Array.isArray(sArr)) {
+    clearSeraphines?.();
+    sArr.length = 0;
+    (snapshot.seraphines || []).forEach(s => sArr.push(clone(s)));
   }
 
   // ----------------------------------------------------------
