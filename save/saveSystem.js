@@ -22,6 +22,10 @@
 
 import { gameState, getCurrencies, saveProfiles } from "../utils/gameState.js";
 import { getGoblins } from "../entities/goblin.js";
+import { getGoblins as getIceGoblins } from "../entities/iceGoblin.js";
+import { getGoblins as getEmberGoblins } from "../entities/emberGoblin.js";
+import { getGoblins as getAshGoblins } from "../entities/ashGoblin.js";
+import { getGoblins as getVoidGoblins } from "../entities/voidGoblin.js";
 import { getWorg } from "../entities/worg.js";
 import { getElites, clearElites } from "../entities/elite.js";
 import { getOgres, clearOgres } from "../entities/ogre.js";
@@ -206,6 +210,10 @@ export function snapshotGame() {
 
     spires: safeClone(getSpires() || []),
     goblins: safeClone(getGoblins() || []),
+    iceGoblins: safeClone(getIceGoblins?.() || []),
+    emberGoblins: safeClone(getEmberGoblins?.() || []),
+    ashGoblins: safeClone(getAshGoblins?.() || []),
+    voidGoblins: safeClone(getVoidGoblins?.() || []),
     worgs: safeClone(getWorg() || []),
     elites: safeClone(getElites() || []),
     ogres: safeClone(getOgres() || []),
@@ -312,6 +320,34 @@ export function applySnapshot(snapshot) {
   const gArr = getGoblins();
   gArr.length = 0;
   (snapshot.goblins || []).forEach(g => gArr.push(clone(g)));
+
+  // ICE GOBLINS
+  const giArr = getIceGoblins?.();
+  if (Array.isArray(giArr)) {
+    giArr.length = 0;
+    (snapshot.iceGoblins || []).forEach(g => giArr.push(clone(g)));
+  }
+
+  // EMBER GOBLINS
+  const geArr = getEmberGoblins?.();
+  if (Array.isArray(geArr)) {
+    geArr.length = 0;
+    (snapshot.emberGoblins || []).forEach(g => geArr.push(clone(g)));
+  }
+
+  // ASH GOBLINS
+  const gaArr = getAshGoblins?.();
+  if (Array.isArray(gaArr)) {
+    gaArr.length = 0;
+    (snapshot.ashGoblins || []).forEach(g => gaArr.push(clone(g)));
+  }
+
+  // VOID GOBLINS
+  const gvArr = getVoidGoblins?.();
+  if (Array.isArray(gvArr)) {
+    gvArr.length = 0;
+    (snapshot.voidGoblins || []).forEach(g => gvArr.push(clone(g)));
+  }
 
   // WORG
   const wArr = getWorg();

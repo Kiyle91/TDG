@@ -295,6 +295,10 @@ export function restoreWaveFromSnapshot(meta, snapshot) {
   const hasSavedEnemies = snapshot
     ? [
         snapshot.goblins,
+        snapshot.iceGoblins,
+        snapshot.emberGoblins,
+        snapshot.ashGoblins,
+        snapshot.voidGoblins,
         snapshot.worgs,
         snapshot.elites,
         snapshot.ogres,
