@@ -78,7 +78,7 @@ export const waveConfigs = {
   // Wave 5: + 1 voidGoblin
   // ============================================================
   1: [
-    { goblins: 0, worgs: 1, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 20, iceGoblins: 20, emberGoblins: 20, ashGoblins: 20, voidGoblins: 20, worgs: 12, ogres: 1, elites: 20, trolls: 20, crossbows: 0 },
     { goblins: 0, iceGoblins: 20, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 0, emberGoblins: 20, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 0, ashGoblins: 20, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
@@ -400,6 +400,7 @@ function startNextWave() {
   const spawnAndEmit = (type, fn) => {
     const enemy = spawnScaled(fn);
     if (enemy) {
+      applySpawnSeparation(enemy);
       Events.emit(E.enemySpawn, { type, wave: gameState.wave });
     }
     return enemy;
@@ -475,6 +476,75 @@ function startNextWave() {
 
   for (let i = wave.goblins; i < wave.crossbows; i++) {
     spawnQueue.push(() => spawnAndEmit("crossbow", spawnCrossbow));
+  }
+}
+
+function getSpawnRadiusByType(type) {
+  switch (type) {
+    case "ogre": return 60;
+    case "troll": return 52;
+    case "elite": return 46;
+    case "worg": return 46;
+    case "crossbow": return 42;
+    case "seraphine": return 72;
+    case "goblin":
+    case "iceGoblin":
+    case "emberGoblin":
+    case "ashGoblin":
+    case "voidGoblin":
+    default:
+      return 40;
+  }
+}
+
+function applySpawnSeparation(enemy) {
+  if (!enemy || typeof enemy.x !== "number" || typeof enemy.y !== "number") return;
+
+  const groups = [
+    getGoblins(),
+    getIceGoblins(),
+    getEmberGoblins(),
+    getAshGoblins(),
+    getVoidGoblins(),
+    getWorg(),
+    getElites(),
+    getTrolls(),
+    getOgres(),
+    getCrossbows(),
+    getSeraphines(),
+  ];
+
+  const radius = getSpawnRadiusByType(enemy.type);
+
+  for (let attempts = 0; attempts < 8; attempts++) {
+    let overlapped = false;
+
+    for (const group of groups) {
+      if (!Array.isArray(group)) continue;
+
+      for (const other of group) {
+        if (!other || other === enemy) continue;
+        const dx = enemy.x - other.x;
+        const dy = enemy.y - other.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist === 0) {
+          overlapped = true;
+          enemy.x += (Math.random() - 0.5) * 12;
+          enemy.y += (Math.random() - 0.5) * 12;
+          continue;
+        }
+
+        const minDist = radius + getSpawnRadiusByType(other.type);
+        if (dist < minDist) {
+          overlapped = true;
+          const push = (minDist - dist) * 0.6;
+          enemy.x += (dx / dist) * push;
+          enemy.y += (dy / dist) * push;
+        }
+      }
+    }
+
+    if (!overlapped) break;
   }
 }
 

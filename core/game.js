@@ -47,6 +47,7 @@ import {
   updateGoblins,
   drawGoblins,
   setGoblinPath,
+  getGoblins,
 } from "../entities/goblin.js";
 
 import {
@@ -55,6 +56,7 @@ import {
   drawOgres,
   clearOgres,
   damageOgre,
+  getOgres,
 } from "../entities/ogre.js";
 
 import {
@@ -62,12 +64,14 @@ import {
   updateTrolls,
   drawTrolls,
   clearTrolls,
+  getTrolls,
 } from "../entities/troll.js";
 
 import {
   initWorg,
   updateWorg,
   drawWorg,
+  getWorg,
 } from "../entities/worg.js";
 
 import {
@@ -76,6 +80,7 @@ import {
   drawElites,
   clearElites,
   damageElite,
+  getElites,
 } from "../entities/elite.js";
 
 import {
@@ -83,6 +88,7 @@ import {
   updateCrossbows,
   drawCrossbows,
   clearCrossbows,
+  getCrossbows,
 } from "../entities/crossbow.js";
 
 // ------------------------------------------------------------
@@ -194,7 +200,7 @@ import map7Timed from "../core/events/map7Timed.js";
 import map8Timed from "../core/events/map8Timed.js";
 import map9Timed from "./events/map9Steps.js";
 import { updateStepEvents } from "./eventEngine.js";
-import { spawnSeraphineBoss, clearSeraphines, drawSeraphine, updateSeraphine, initSeraphine } from "../entities/seraphine.js";
+import { spawnSeraphineBoss, clearSeraphines, drawSeraphine, updateSeraphine, initSeraphine, getSeraphines } from "../entities/seraphine.js";
 import { initMap1Events } from "./events/map1Events.js";
 import "../core/events/seraphineSpeech.js";
 
@@ -270,6 +276,133 @@ const RECT_CACHE_DURATION = 1000;
 let hudUpdateTimer = 0;
 const HUD_UPDATE_INTERVAL = 100;
 
+function getEnemyRadius(enemy) {
+  switch (enemy?.type) {
+    case "ogre": return 60;
+    case "troll": return 52;
+    case "elite": return 46;
+    case "worg": return 46;
+    case "crossbow": return 36;
+    case "seraphine": return 72;
+    case "goblin":
+    case "iceGoblin":
+    case "emberGoblin":
+    case "ashGoblin":
+    case "voidGoblin":
+    default:
+      return 34;
+  }
+}
+
+function collectAllEnemies() {
+  return [
+    ...getGoblins(),
+    ...getIceGoblins(),
+    ...getEmberGoblins(),
+    ...getAshGoblins(),
+    ...getVoidGoblins(),
+    ...getElites(),
+    ...getOgres(),
+    ...getSeraphines()
+  ].filter(e => e && e.alive);
+}
+
+function resolveEnemyCollisions() {
+  const enemies = collectAllEnemies();
+  const count = enemies.length;
+
+  // Fisher-Yates shuffle to avoid directional bias
+  for (let i = count - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [enemies[i], enemies[j]] = [enemies[j], enemies[i]];
+  }
+
+  const MAX_PUSH = 5; // cap push per pair to reduce clumping chains
+
+  for (let i = 0; i < count; i++) {
+    const a = enemies[i];
+    let ra = getEnemyRadius(a);
+    const aPathFollower = Array.isArray(a?.path);
+
+    for (let j = i + 1; j < count; j++) {
+      const b = enemies[j];
+      let rb = getEnemyRadius(b);
+      const bPathFollower = Array.isArray(b?.path);
+
+      // Allow path-followers to squeeze closer at corners
+      if (aPathFollower) ra *= 0.75;
+      if (bPathFollower) rb *= 0.75;
+
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      let dist = Math.hypot(dx, dy);
+      const minDist = ra + rb;
+
+      if (dist >= minDist || !Number.isFinite(dist)) continue;
+
+      if (dist === 0) {
+        // random small nudge to break perfect overlap
+        const angle = Math.random() * Math.PI * 2;
+        dist = 0.01;
+        a.x += Math.cos(angle) * 0.5;
+        a.y += Math.sin(angle) * 0.5;
+      }
+
+      let overlap = Math.min((minDist - dist) * 0.5, MAX_PUSH);
+      if (aPathFollower && bPathFollower) overlap *= 0.6; // softer push for path walkers
+      const nx = dx / (dist || 1);
+      const ny = dy / (dist || 1);
+
+      // slight perpendicular jitter to prevent long snake lines
+      const jitter = 0.2 * (Math.random() - 0.5);
+      const jx = -ny * jitter;
+      const jy = nx * jitter;
+
+      a.x += nx * overlap + jx;
+      a.y += ny * overlap + jy;
+      b.x -= nx * overlap + jx;
+      b.y -= ny * overlap + jy;
+    }
+  }
+}
+
+function resolveTrollCrossbowCollisions() {
+  const list = [...(getTrolls() || []), ...(getCrossbows() || [])].filter(e => e && e.alive);
+  const count = list.length;
+
+  for (let i = 0; i < count; i++) {
+    const a = list[i];
+    const ra = getEnemyRadius(a);
+
+    for (let j = i + 1; j < count; j++) {
+      const b = list[j];
+      const rb = getEnemyRadius(b);
+
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      let dist = Math.hypot(dx, dy);
+      const minDist = ra + rb;
+
+      if (dist >= minDist || !Number.isFinite(dist)) continue;
+
+      if (dist === 0) {
+        const angle = Math.random() * Math.PI * 2;
+        dist = 0.01;
+        a.x += Math.cos(angle) * 0.5;
+        a.y += Math.sin(angle) * 0.5;
+      }
+
+      const overlap = (minDist - dist) * 0.5;
+      const nx = dx / (dist || 1);
+      const ny = dy / (dist || 1);
+
+      a.x += nx * overlap;
+      a.y += ny * overlap;
+      b.x -= nx * overlap;
+      b.y -= ny * overlap;
+    }
+  }
+}
 
 // ------------------------------------------------------------
 // ðŸ§­ MAP-AWARE PLAYER SPAWN (Maps 1â€“9)
@@ -475,6 +608,8 @@ export function updateGame(delta) {
   updatePegasus(delta);
   updateLoot(delta);
   updateStepEvents();
+  resolveEnemyCollisions();
+  resolveTrollCrossbowCollisions();
   updateWaveSystem(delta).catch(err => {
     console.warn("updateWaveSystem failed:", err);
   });
