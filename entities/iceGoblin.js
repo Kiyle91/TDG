@@ -625,16 +625,25 @@ export function drawGoblins(context) {
       ctx.globalAlpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
     }
 
+    // ⭐ Scale walk frames by 20%
+    let size = GOBLIN_SIZE;
+    if (e.alive && !e.attacking) {
+      const isWalkFrame =
+        (e.dir === "left"  && (e.frame === 0 || e.frame === 1)) ||
+        (e.dir === "right" && (e.frame === 0 || e.frame === 1));
+
+      if (isWalkFrame) {
+        size = GOBLIN_SIZE * 1.1;  // +20% size
+      }
+    }
+
     ctx.drawImage(
       img,
-      0,
-      0,
-      1024,
-      1024,
-      drawX,
-      drawY,
-      GOBLIN_SIZE,
-      GOBLIN_SIZE
+      0, 0, 1024, 1024,
+      e.x - size / 2,
+      e.y - size / 2,
+      size,
+      size
     );
 
     if (e.isBurning && e.alive) {

@@ -608,8 +608,14 @@ export function drawGoblins(context) {
     const img = getGoblinSprite(e);
     if (!img) continue;
 
-    const drawX = e.x - GOBLIN_SIZE / 2;
-    const drawY = e.y - GOBLIN_SIZE / 2;
+    const spriteRatio = img && img.width ? (img.height / img.width) : 1;
+    const downScale = 0.85; // walk down S1/S2 should be 15% smaller
+    const baseScale = (!e.attacking && e.dir === "down") ? downScale : 1;
+    const renderWidth = GOBLIN_SIZE * (e.attacking ? 1.1 : baseScale); // attack/melee frames are 10% larger
+    const renderHeight = renderWidth * spriteRatio;
+    const downOffset = (!e.attacking && e.dir === "down") ? GOBLIN_SIZE * 0.08 : 0;
+    let drawX = e.x - renderWidth / 2;
+    let drawY = e.y + GOBLIN_SIZE / 2 - renderHeight + downOffset; // nudge S frames down to sit on shadow
 
     ctx.save();
 
@@ -642,12 +648,12 @@ export function drawGoblins(context) {
       img,
       0,
       0,
-      1024,
-      1024,
+      img.width,
+      img.height,
       drawX,
       drawY,
-      GOBLIN_SIZE,
-      GOBLIN_SIZE
+      renderWidth,
+      renderHeight
     );
 
     // 🔥 Ember Glow (same visual as burn, optional)
