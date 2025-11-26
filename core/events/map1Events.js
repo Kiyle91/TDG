@@ -148,7 +148,8 @@ export function initMap1Events() {
     }
   });
 
-  Events.on(E.bossDefeated, () => {
+  Events.on(E.bossDefeated, ({ boss }) => {
+    if (boss === "seraphine") return; // let Seraphine-specific handler own the moment
     const pos = p();
     spawnSpeechBubble("It's over... for now.", pos.x, pos.y, 4000);
   });

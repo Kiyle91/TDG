@@ -80,3 +80,75 @@ Events.on(E.bossDefeated, ({ boss, phase, x, y, instance }) => {
 });
 
 
+// ------------------------------------------------------------
+// ⏱️ TIMED TAUNTS (Max 2 per encounter)
+// ------------------------------------------------------------
+
+const TAUNTS = {
+  1: [
+    "Run, little Princess… run…",
+    "You don’t even understand what you’re walking into…",
+  ],
+  2: [
+    "You're persistent... I'll give you that.",
+    "Your light… it stings...",
+  ],
+  3: [
+    "I will break your destiny myself.",
+    "This world bends to *me*.",
+  ],
+};
+
+// tracks active taunt timers per instance
+const activeTauntHandles = new WeakMap();
+
+function scheduleTaunts(instance, phase) {
+  // Prevent double scheduling for same boss
+  if (activeTauntHandles.has(instance)) return;
+
+  let tauntCount = 0;
+  const maxTaunts = 2;
+  
+  function fireTaunt() {
+    if (!instance?.alive || instance?.defeated) return;
+    if (tauntCount >= maxTaunts) return;
+
+    const pool = TAUNTS[phase] || [];
+    if (!pool.length) return;
+
+    const line = pool[Math.floor(Math.random() * pool.length)];
+    spawnSpeechBubble(line, instance.x, instance.y, 4200, instance);
+
+    tauntCount++;
+
+    if (tauntCount < maxTaunts) {
+      const delay = 8000 + Math.random() * 10000; // 8–18 sec
+      const handle = setTimeout(fireTaunt, delay);
+      activeTauntHandles.set(instance, handle);
+    }
+  }
+
+  // first delay before first taunt
+  const startDelay = 6000 + Math.random() * 6000; // 6–12 sec
+  const handle = setTimeout(fireTaunt, startDelay);
+  activeTauntHandles.set(instance, handle);
+}
+
+// Start taunts when boss spawns
+Events.on(E.bossSpawn, ({ boss, phase, instance }) => {
+  if (boss !== "seraphine") return;
+  if (!instance) return;
+
+  scheduleTaunts(instance, phase);
+});
+
+// Cleanup on defeat
+Events.on(E.bossDefeated, ({ boss, instance }) => {
+  if (boss !== "seraphine") return;
+  if (!instance) return;
+
+  const handle = activeTauntHandles.get(instance);
+  if (handle) clearTimeout(handle);
+
+  activeTauntHandles.delete(instance);
+});

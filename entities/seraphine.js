@@ -180,60 +180,75 @@ export function spawnSeraphineBoss(phase = 1, x, y) {
   const mapW = gameState.mapWidth ?? 3000;
   const mapH = gameState.mapHeight ?? 3000;
 
+  const spawnOffset = 40;
+  let sx = x;
+  let sy = y;
+
+  // If no manual coordinates provided → spawn off-screen like elites
+  if (typeof x !== "number" || typeof y !== "number") {
+    const side = Math.floor(Math.random() * 4);
+
+    if (side === 0) {            // Top
+      sx = Math.random() * mapW;
+      sy = -spawnOffset;
+    } else if (side === 1) {     // Bottom
+      sx = Math.random() * mapW;
+      sy = mapH + spawnOffset;
+    } else if (side === 2) {     // Left
+      sx = -spawnOffset;
+      sy = Math.random() * mapH;
+    } else {                     // Right
+      sx = mapW + spawnOffset;
+      sy = Math.random() * mapH;
+    }
+  }
+
   const boss = {
     type: "seraphine",
     phase,
-    x: typeof x === "number" ? x : mapW / 2,
-    y: typeof y === "number" ? y : mapH / 2,
+    x: sx,
+    y: sy,
 
     hp: SERAPHINE_BASE_HP * (1 + 0.4 * (phase - 1)),
     maxHp: SERAPHINE_BASE_HP * (1 + 0.4 * (phase - 1)),
 
     alive: true,
-    defeated: false, // reached 0 HP and plays defeat anim
+    defeated: false,
     dir: "down",
     frame: 0,
     frameTimer: 0,
 
-    // Melee
     attacking: false,
-    meleeFrame: 0, // 0 = attack_*, 1 = melee_*
+    meleeFrame: 0,
     meleeTimer: 0,
 
-    // Spell
     castingSpell: false,
-    spellFrame: 0, // 0 = charge, 1 = explode
+    spellFrame: 0,
     spellTimer: 0,
-    spellCooldown: 1500, // short delay before first cast
+    spellCooldown: 1500,
 
-    // Death / fade
     fading: false,
     fadeTimer: 0,
     slainFrame: 0,
 
-    // Elemental stubs (for future: frost, stun etc.)
     slowTimer: 0,
     stunTimer: 0,
 
-    // Movement
     speed: SERAPHINE_SPEED,
 
-    hpEvents: {
-      "75": false,
-      "50": false,
-      "25": false,
-    },
+    hpEvents: { "75": false, "50": false, "40": false, "25": false },
   };
 
   seraphines.push(boss);
 
   Events.emit(E.bossSpawn, {
     boss: "seraphine",
-    phase: boss.phase,
+    phase,
     x: boss.x,
     y: boss.y,
     instance: boss,
   });
+
   return boss;
 }
 
@@ -600,12 +615,12 @@ export function damageSeraphine(boss, amount) {
     boss.meleeFrame = 0;
     boss.spellFrame = 0;
 
-    // ⭐ Trigger defeat event for EventEngine
     Events.emit(E.bossDefeated, {
       boss: "seraphine",
       phase: boss.phase,
       x: boss.x,
       y: boss.y,
+      instance: boss,   // ⭐ REQUIRED FOR SPEECH BUBBLE ANCHORING
     });
 
     // Rewards
