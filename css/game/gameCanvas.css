@@ -28,8 +28,8 @@
 ============================================================ */
 #game-container {
   position: relative;
-  width: 95vw;
-  height: 95vh;
+  width: 100vw;
+  height: 100vh;
 
   border-radius: 20px;
   overflow: hidden;
