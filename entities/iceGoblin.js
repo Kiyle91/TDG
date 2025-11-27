@@ -588,34 +588,51 @@ function handleGoblinEscape(goblin) {
 // 🎨 DRAW
 // ============================================================
 
-function drawIceAura(ctx, e) {
-  const auraRadius = GOBLIN_AURA_RADIUS.iceGoblin;
-  const pulse = 0.82 + Math.sin(Date.now() / 250) * 0.18;
-  const inner = auraRadius * 0.35;
 
+function drawAuraParticles(ctx, e, color, count = 6, spread = 25) {
+  for (let i = 0; i < count; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const dist = spread + Math.random() * spread;
+    const px = e.x + Math.cos(ang) * dist;
+    const py = e.y + Math.sin(ang) * dist;
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = 0.7 * Math.random();
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(px, py, 2 + Math.random() * 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+
+function drawIceAura(ctx, e) {
+  const t = Date.now() * 0.002;
+  const maxR = 55;
+  const r = (Math.sin(t) * 0.5 + 0.5) * maxR;
+
+  // 🌟 Soft expanding frost pulse
   ctx.save();
   ctx.globalCompositeOperation = "lighter";
+  ctx.globalAlpha = 0.32;
 
-  ctx.globalAlpha = 0.32 * pulse;
-  const gradient = ctx.createRadialGradient(e.x, e.y, inner, e.x, e.y, auraRadius);
-  gradient.addColorStop(0.0, "rgba(200,230,255,0.6)");
-  gradient.addColorStop(0.5, "rgba(150,190,255,0.28)");
-  gradient.addColorStop(1.0, "rgba(120,170,255,0)");
+  const gradient = ctx.createRadialGradient(e.x, e.y, r * 0.25, e.x, e.y, r);
+  gradient.addColorStop(0.0, "rgba(180,240,255,0.6)");
+  gradient.addColorStop(0.6, "rgba(180,240,255,0.25)");
+  gradient.addColorStop(1.0, "rgba(180,240,255,0)");
+
   ctx.beginPath();
-  ctx.arc(e.x, e.y, auraRadius, 0, Math.PI * 2);
+  ctx.arc(e.x, e.y, r, 0, Math.PI * 2);
   ctx.fillStyle = gradient;
   ctx.fill();
-
-  ctx.globalAlpha = 0.35 * pulse;
-  ctx.strokeStyle = "rgba(180,220,255,0.9)";
-  ctx.lineWidth = 3;
-  ctx.setLineDash([6, 10]);
-  ctx.beginPath();
-  ctx.arc(e.x, e.y, auraRadius, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
   ctx.restore();
+
+  // ❄ Sparkle particles
+  drawAuraParticles(ctx, e, "rgba(210,240,255,0.9)", 4, 35);
 }
 
 export function drawGoblins(context) {

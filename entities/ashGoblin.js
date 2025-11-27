@@ -584,34 +584,56 @@ function handleGoblinEscape(goblin) {
   goblin.fadeTimer = FADE_OUT_TIME;
 }
 
-function drawAshAura(ctx, e) {
-  const auraRadius = GOBLIN_AURA_RADIUS.ashGoblin;
-  const pulse = 0.78 + Math.sin(Date.now() / 300) * 0.2;
 
+
+
+function drawAuraParticles(ctx, e, color, count = 6, spread = 25) {
+  for (let i = 0; i < count; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const dist = spread + Math.random() * spread;
+    const px = e.x + Math.cos(ang) * dist;
+    const py = e.y + Math.sin(ang) * dist;
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = 0.7 * Math.random();
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(px, py, 2 + Math.random() * 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+
+
+function drawAshAura(ctx, e) {
+  const t = Date.now() * 0.002;
+  const maxR = 50;
+  const r = (Math.sin(t) * 0.5 + 0.5) * maxR;
+
+  // 🌫 Soft healing mist pulse
   ctx.save();
   ctx.globalCompositeOperation = "lighter";
+  ctx.globalAlpha = 0.30;
 
-  ctx.globalAlpha = 0.28 * pulse;
-  const gradient = ctx.createRadialGradient(e.x, e.y, auraRadius * 0.25, e.x, e.y, auraRadius);
-  gradient.addColorStop(0.0, "rgba(210,210,210,0.55)");
-  gradient.addColorStop(0.5, "rgba(180,200,170,0.3)");
-  gradient.addColorStop(1.0, "rgba(120,140,120,0)");
+  const gradient = ctx.createRadialGradient(e.x, e.y, r * 0.25, e.x, e.y, r);
+  gradient.addColorStop(0.0, "rgba(230,230,230,0.6)");
+  gradient.addColorStop(0.6, "rgba(200,200,200,0.25)");
+  gradient.addColorStop(1.0, "rgba(200,200,200,0)");
+
   ctx.beginPath();
-  ctx.arc(e.x, e.y, auraRadius, 0, Math.PI * 2);
+  ctx.arc(e.x, e.y, r, 0, Math.PI * 2);
   ctx.fillStyle = gradient;
   ctx.fill();
-
-  ctx.globalAlpha = 0.24 + 0.08 * pulse;
-  ctx.strokeStyle = "rgba(190,220,180,0.85)";
-  ctx.lineWidth = 3;
-  ctx.setLineDash([5, 12]);
-  ctx.beginPath();
-  ctx.arc(e.x, e.y, auraRadius, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
   ctx.restore();
+
+  // 🌫 drifting healing ash particles
+  drawAuraParticles(ctx, e, "rgba(240,240,240,0.9)", 5, 30);
 }
+
 
 
 // ============================================================
@@ -642,7 +664,7 @@ export function drawGoblins(context) {
       0, 0, Math.PI * 2
     );
     ctx.fillStyle = "rgba(0,0,0,0.25)";
-    ctx.fill();
+    if (e.alive) drawAshAura(ctx, e);
 
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
@@ -657,8 +679,6 @@ export function drawGoblins(context) {
     if (!e.alive && e.fading) {
       ctx.globalAlpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
     }
-
-    if (e.alive) drawAshAura(ctx, e);
 
 
     ctx.drawImage(
@@ -722,46 +742,8 @@ export function drawGoblins(context) {
       ctx.restore();
     }
 
-    // ❄ Frost FX (if slowed)
-    if (e.slowTimer > 0 && e.alive) {
-      ctx.save();
 
-      const frostPulse = 0.8 + Math.sin(Date.now() / 200) * 0.15;
-
-      ctx.globalCompositeOperation = "screen";
-      ctx.globalAlpha = 0.25 * frostPulse;
-      ctx.fillStyle = "rgba(160,200,255,0.5)";
-      ctx.beginPath();
-      ctx.ellipse(e.x, e.y, GOBLIN_SIZE * 0.38, GOBLIN_SIZE * 0.48, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.globalCompositeOperation = "lighter";
-      ctx.globalAlpha = 0.18 * frostPulse;
-      ctx.fillStyle = "rgba(120,170,255,0.5)";
-      ctx.beginPath();
-      ctx.ellipse(
-        e.x,
-        e.y - GOBLIN_SIZE * 0.1,
-        GOBLIN_SIZE * 0.6,
-        GOBLIN_SIZE * 0.75,
-        0, 0,
-        Math.PI * 2
-      );
-      ctx.fill();
-
-      for (let i = 0; i < 2; i++) {
-        const ox = (Math.random() - 0.5) * GOBLIN_SIZE * 0.3;
-        const oy = -Math.random() * GOBLIN_SIZE * 0.3;
-
-        ctx.globalAlpha = 0.12 * Math.random();
-        ctx.fillStyle = "rgba(210,240,255,0.8)";
-        ctx.beginPath();
-        ctx.arc(e.x + ox, e.y + oy, 2 + Math.random(), 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      ctx.restore();
-    }
+    
 
     ctx.filter = "none";
     ctx.globalAlpha = 1;

@@ -586,34 +586,94 @@ function handleGoblinEscape(goblin) {
 // 🎨 DRAW — identical, auto-assigns Void Goblin sprites
 // ============================================================
 
-function drawVoidAura(ctx, e) {
-  const auraRadius = GOBLIN_AURA_RADIUS.voidGoblin;
-  const pulse = 0.8 + Math.sin(Date.now() / 150) * 0.18;
-  const ripple = 0.85 + Math.sin(Date.now() / 260 + e.x * 0.02) * 0.05;
 
+
+function drawAuraParticles(ctx, e, color, count = 6, spread = 25) {
+  for (let i = 0; i < count; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const dist = spread + Math.random() * spread;
+    const px = e.x + Math.cos(ang) * dist;
+    const py = e.y + Math.sin(ang) * dist;
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = 0.7 * Math.random();
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(px, py, 2 + Math.random() * 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+
+
+
+function drawVoidAura(ctx, e) {
+  const t = Date.now() * 0.003;
+
+  // 🟣 Pulse radius (breathing)
+  const maxR = 60;
+  const r = (Math.sin(t * 2) * 0.4 + 0.6) * maxR;
+
+  // 🟣 Main pulse
   ctx.save();
   ctx.globalCompositeOperation = "lighter";
+  ctx.globalAlpha = 0.35;
 
-  // Outer distortion aura
-  ctx.globalAlpha = 0.3 * pulse;
-  const gradient = ctx.createRadialGradient(e.x, e.y, auraRadius * 0.18, e.x, e.y, auraRadius);
-  gradient.addColorStop(0.0, "rgba(170,90,255,0.65)");
-  gradient.addColorStop(0.5, "rgba(120,50,210,0.35)");
-  gradient.addColorStop(1.0, "rgba(70,0,140,0)");
+  const grad = ctx.createRadialGradient(
+    e.x, e.y,
+    r * 0.2,
+    e.x, e.y,
+    r
+  );
+
+  grad.addColorStop(0.0, "rgba(180,130,255,0.55)");
+  grad.addColorStop(0.4, "rgba(120,70,200,0.35)");
+  grad.addColorStop(1.0, "rgba(80,30,160,0)");
+
   ctx.beginPath();
-  ctx.arc(e.x, e.y, auraRadius, 0, Math.PI * 2);
-  ctx.fillStyle = gradient;
+  ctx.arc(e.x, e.y, r, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
   ctx.fill();
+  ctx.restore();
 
-  // Pulse ring that shows the true radius
-  ctx.globalAlpha = 0.22 + 0.1 * pulse;
-  ctx.strokeStyle = "rgba(200,160,255,0.85)";
-  ctx.lineWidth = 3;
-  ctx.setLineDash([7, 9]);
+
+  // 🟪 Glitch Sparks (sharp, flickering)
+  for (let i = 0; i < 5; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const dist = 25 + Math.random() * 35;
+    const px = e.x + Math.cos(ang) * dist;
+    const py = e.y + Math.sin(ang) * dist;
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = 0.4 + Math.random() * 0.4;
+
+    const size = 2 + Math.random() * 3;
+    ctx.fillStyle = "rgba(200,150,255,1)";
+
+    ctx.beginPath();
+    ctx.rect(px, py, size, size); // small squares = glitch look
+    ctx.fill();
+    ctx.restore();
+  }
+
+
+  // 🟣 Vortex swirl (subtle)
+  ctx.save();
+  ctx.globalCompositeOperation = "screen";
+  ctx.globalAlpha = 0.15;
+
   ctx.beginPath();
-  ctx.arc(e.x, e.y, auraRadius * ripple, 0, Math.PI * 2);
+  ctx.arc(e.x, e.y, r * 0.7, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(180,130,255,0.25)";
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 8]);
+  ctx.lineDashOffset = t * 50; // animated swirl
   ctx.stroke();
-  ctx.setLineDash([]);
 
   ctx.restore();
 }
@@ -648,7 +708,7 @@ export function drawGoblins(context) {
     ctx.imageSmoothingQuality = "high";
 
     
-      if (e.alive) drawVoidAura(ctx, e);
+    if (e.alive) drawVoidAura(ctx, e);
 
 
     if (e.alive && e.flashTimer > 0) {
