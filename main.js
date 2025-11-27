@@ -437,6 +437,16 @@ function showEndScreen(reason) {
       const subtitles = VICTORY_SUBTITLES || {};
       subtitle.textContent =
           subtitles[mapId] || "You return to the Crystal Keep to regroup.";
+  } else {
+      title.textContent = "Defeat";
+
+      if (reason === "lives") {
+        subtitle.innerHTML = "<strong>Sorry Princess... the goblin horde have overwhelmed your defences.</strong>";
+      } else if (reason === "defeat") {
+        subtitle.innerHTML = "<strong>Sorry Princess... the goblin forces overpowered you.</strong>";
+      } else {
+        subtitle.innerHTML = "<strong>Sorry Princess... the goblins prevailed this time.</strong>";
+      }
   }
 
   const skinKey = gameState?.profile?.cosmetics?.skin || "glitter";
