@@ -588,7 +588,24 @@ function handleGoblinEscape(goblin) {
   goblin.fadeTimer = FADE_OUT_TIME;
 }
 
+function drawPulseRing(ctx, e, color, maxR = 60, speed = 0.003) {
+  const t = Date.now() * speed;
+  const cycle = t % 1;             // 0 → 1 loop
+  const r = cycle * maxR;          // expanding radius
+  const alpha = 1 - cycle;         // fade out
 
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter"; // force overdraw so pulse stays visible
+  ctx.globalAlpha = alpha * 0.55;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 4;
+
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, r, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.restore();
+}
 
 
 function drawAuraParticles(ctx, e, color, count = 6, spread = 25) {
@@ -670,7 +687,7 @@ export function drawGoblins(context) {
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
     if (e.alive) drawAshAura(ctx, e);
-
+    drawPulseRing(ctx, e, "rgba(160,160,160,0.8)");
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 

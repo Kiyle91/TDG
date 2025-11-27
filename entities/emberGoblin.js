@@ -601,7 +601,24 @@ function handleGoblinEscape(goblin) {
   goblin.fadeTimer = FADE_OUT_TIME;
 }
 
+function drawPulseRing(ctx, e, color, maxR = 60, speed = 0.003) {
+  const t = Date.now() * speed;
+  const cycle = t % 1;             // 0 → 1 loop
+  const r = cycle * maxR;          // expanding radius
+  const alpha = 1 - cycle;         // fade out
 
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter"; // force overdraw so pulse stays visible
+  ctx.globalAlpha = alpha * 0.55;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 4;
+
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, r, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.restore();
+}
 
 
 function drawAuraParticles(ctx, e, color, count = 6, spread = 25) {
@@ -672,6 +689,7 @@ export function drawGoblins(context) {
     let drawY = e.y + GOBLIN_SIZE / 2 - renderHeight + downOffset; // nudge S frames down to sit on shadow
 
     if (e.alive) drawFireAura(ctx, e);
+    drawPulseRing(ctx, e, "rgba(255,120,60,0.85)");
 
     ctx.save();
 
