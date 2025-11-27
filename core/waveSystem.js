@@ -82,11 +82,9 @@ export const waveConfigs = {
     { goblins: 16, worgs: 0 },   // Wave 3
     { goblins: 18, worgs: 1 },   // Wave 4 - first worg
     { goblins: 20, worgs: 2 },   // Wave 5
-    { worgs: 20, delay: 3},
     { goblins: 24, worgs: 2 },   // Wave 6
     { goblins: 26, worgs: 3 },   // Wave 7
     { goblins: 20, worgs: 15 },
-    { goblins: 15, worgs: 20, delay: 3 },
     { goblins: 34, worgs: 20 },   // Wave 9
     { boss: "seraphine", phase: 1, goblins: 20, worgs: 4 } // Wave 10 boss
   ],

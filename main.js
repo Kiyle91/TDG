@@ -305,6 +305,7 @@ export async function startNewGameStory({ resetProgress = true } = {}) {
 
   // 🔥 Build the game world BEFORE story appears
   await startGameWithPreload("new");
+  safeAutoSave();
 
   // The world is now rendered — safe to pause
   gameState.paused = true;

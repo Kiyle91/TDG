@@ -407,3 +407,21 @@ Events.on("tutorialSpeech", line => {
   const pos = p();
   spawnSpeechBubble(line, pos.x, pos.y, 4500);
 });
+
+// ------------------------------------------------------------
+// FIRST TIME A SPIRE IS DESTROYED (ONE TIME)
+// ------------------------------------------------------------
+let firstSpireDestroyed = false;
+
+Events.on("spireDestroyed", ({ x, y }) => {
+  if (firstSpireDestroyed) return;
+  firstSpireDestroyed = true;
+
+  const pos = p();
+  spawnSpeechBubble(
+    "My Spire! They can break them?! I need to keep those safe!",
+    pos.x,
+    pos.y,
+    5000
+  );
+});

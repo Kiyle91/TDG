@@ -33,7 +33,7 @@ import { getCrossbows } from "../entities/crossbow.js";
 import { getElites } from "../entities/elite.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { gameState } from "../utils/gameState.js";
-
+import { Events } from "../core/eventEngine.js";
 // ------------------------------------------------------------
 // INTERNAL STATE
 // ------------------------------------------------------------
@@ -334,6 +334,14 @@ export function updateSpires(delta) {
     // Durability check
     if (spire.attacksDone >= MAX_ATTACKS && spire.fadeOut === 0) {
       spire.fadeOut = 1;
+
+      // 🔥 ADD THIS EMIT HERE
+      Events.emit("spireDestroyed", { 
+        x: spire.x, 
+        y: spire.y, 
+        type: spire.type 
+      });
+
       spawnFloatingText(spire.x, spire.y - 30, "💥 Broken!", "#ff6fb1");
     }
   }
