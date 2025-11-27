@@ -33,7 +33,10 @@ import { getTrolls } from "../entities/troll.js";
 import { getWorg } from "../entities/worg.js";
 import { getCrossbows } from "../entities/crossbow.js";
 import { getSeraphines } from "../entities/seraphine.js";
-
+import { getGoblins as getIceGoblins } from "../entities/iceGoblin.js";
+import { getGoblins as getEmberGoblins } from "../entities/emberGoblin.js";
+import { getGoblins as getAshGoblins } from "../entities/ashGoblin.js";
+import { getGoblins as getVoidGoblins } from "../entities/voidGoblin.js";
 
 // ------------------------------------------------------------
 // 🟪 ADD BRAVERY
@@ -132,27 +135,28 @@ export function applyBraveryAuraEffects(enemy) {
     const now = performance.now();
     if (now < auraTickNext) return;
 
-    // Route to correct damage handler
     switch (enemy.type) {
-    case "goblin":      damageGoblin(enemy, AURA_DAMAGE); break;
-    case "iceGoblin":   damageIceGoblin(enemy, AURA_DAMAGE); break;
-    case "emberGoblin": damageEmberGoblin(enemy, AURA_DAMAGE); break;
-    case "ashGoblin":   damageAshGoblin(enemy, AURA_DAMAGE); break;
-    case "voidGoblin":  damageVoidGoblin(enemy, AURA_DAMAGE); break;
-    case "ogre":        damageOgre(enemy, AURA_DAMAGE); break;
-    case "elite":       damageElite(enemy, AURA_DAMAGE); break;
-    case "troll":       damageTroll(enemy, AURA_DAMAGE); break;
-    case "worg":        damageWorg(enemy, AURA_DAMAGE); break;
-    case "crossbow":    damageCrossbow(enemy, AURA_DAMAGE); break;
-    case "seraphine":   damageSeraphine(enemy, AURA_DAMAGE); break;
+      case "goblin":      damageGoblin(enemy, AURA_DAMAGE); break;
+      case "iceGoblin":   damageIceGoblin(enemy, AURA_DAMAGE); break;
+      case "emberGoblin": damageEmberGoblin(enemy, AURA_DAMAGE); break;
+      case "ashGoblin":   damageAshGoblin(enemy, AURA_DAMAGE); break;
+      case "voidGoblin":  damageVoidGoblin(enemy, AURA_DAMAGE); break;
+
+      case "ogre":        damageOgre(enemy, AURA_DAMAGE); break;
+      case "elite":       damageElite(enemy, AURA_DAMAGE); break;
+      case "troll":       damageTroll(enemy, AURA_DAMAGE); break;
+      case "worg":        damageWorg(enemy, AURA_DAMAGE); break;
+      case "crossbow":    damageCrossbow(enemy, AURA_DAMAGE); break;
+      case "seraphine":   damageSeraphine(enemy, AURA_DAMAGE); break;
     }
 
     spawnFloatingText(enemy.x, enemy.y - 40, `-${AURA_DAMAGE}`, "#ff55ff");
     enemy.flashTimer = 150;
-
     auraTickNext = now + AURA_TICK_MS;
 
 }
+
+
 
 
 // ------------------------------------------------------------
@@ -244,7 +248,12 @@ function braveryActivationBlast() {
   if (!p) return;
 
   const enemies = [
-    ...getGoblins(),
+    ...getGoblins(),        // base goblins
+    ...getIceGoblins?.() || [],
+    ...getEmberGoblins?.() || [],
+    ...getAshGoblins?.() || [],
+    ...getVoidGoblins?.() || [],
+
     ...getOgres(),
     ...getElites(),
     ...getTrolls(),
@@ -275,6 +284,11 @@ function braveryActivationBlast() {
     // ONE-TIME DAMAGE
     switch (enemy.type) {
       case "goblin":      damageGoblin(enemy, AURA_DAMAGE); break;
+      case "iceGoblin":   damageIceGoblin(enemy, AURA_DAMAGE); break;
+      case "emberGoblin": damageEmberGoblin(enemy, AURA_DAMAGE); break;
+      case "ashGoblin":   damageAshGoblin(enemy, AURA_DAMAGE); break;
+      case "voidGoblin":  damageVoidGoblin(enemy, AURA_DAMAGE); break;
+
       case "ogre":        damageOgre(enemy, AURA_DAMAGE); break;
       case "elite":       damageElite(enemy, AURA_DAMAGE); break;
       case "troll":       damageTroll(enemy, AURA_DAMAGE); break;

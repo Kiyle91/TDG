@@ -82,7 +82,10 @@ export const waveConfigs = {
     { goblins: 0, iceGoblins:10, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 0, emberGoblins: 10, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
     { goblins: 0, ashGoblins: 10, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 0, voidGoblins: 10, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 0, voidGoblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 10, crossbows: 0 },
+    { goblins: 0, voidGoblins: 0, worgs: 0, ogres: 0, elites: 10, trolls: 0, crossbows: 0 },
+    { goblins: 0, voidGoblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 10 },
+    { goblins: 0, voidGoblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // ============================================================

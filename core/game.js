@@ -350,6 +350,9 @@ function collectAllEnemies() {
     ...getEmberGoblins(),
     ...getAshGoblins(),
     ...getVoidGoblins(),
+    ...getWorg(),
+    ...getTrolls(),
+    ...getCrossbows(),
     ...getElites(),
     ...getOgres(),
     ...getSeraphines()
@@ -690,7 +693,6 @@ export function updateGame(delta) {
   updateStepEvents();
   trackEnemyMotion(delta);
   resolveEnemyCollisions();
-  resolveTrollCrossbowCollisions();
   updateWaveSystem(delta).catch(err => {
     console.warn("updateWaveSystem failed:", err);
   });
@@ -916,6 +918,7 @@ export function resetCombatState() {
   const cur = gameState.progress?.currentMap ?? 1;
 
   switch (cur) {
+    case 1: initMap1Events(); break;
     case 2: loadStepEventsForMap(2, map2Events); break;
     case 3: loadStepEventsForMap(3, map3Events); break;
     case 4: loadStepEventsForMap(4, map4Events); break;
@@ -971,6 +974,11 @@ export function resetCombatState() {
   clearTrolls();
   clearSeraphines();
 
+  initIceGoblins();
+  initEmberGoblins();
+  initAshGoblins();
+  initVoidGoblins();
+  initWorg(getAllPaths());
   initGoblins();
   initSpires();
   initProjectiles();

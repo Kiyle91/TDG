@@ -45,7 +45,7 @@ import { slideRect } from "../utils/mapCollision.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 import { addBravery } from "../player/bravery.js";
 import { applyBraveryAuraEffects } from "../player/bravery.js";
-
+import { tryEnemySpeech } from "../core/events/enemySpeech.js";
 // ============================================================
 // 🧩 INTERNAL STATE
 // ============================================================
@@ -454,6 +454,7 @@ export function drawElites(ctx) {
 
   for (const e of eliteList) {
     let img;
+    tryEnemySpeech(e);
 
     if (!e.alive) {
       img = eliteSprites.slain;

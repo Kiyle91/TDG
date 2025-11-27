@@ -44,7 +44,7 @@ import { incrementGoblinDefeated } from "../core/game.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { addBravery, applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
-
+import { tryEnemySpeech } from "../core/events/enemySpeech.js";
 // ------------------------------------------------------------
 // 🗺️ INTERNAL STATE
 // ------------------------------------------------------------
@@ -260,6 +260,9 @@ export function updateTrolls(delta = 16) {
   const py = player.pos.y;
 
   for (const t of trolls) {
+
+    tryEnemySpeech(t);
+
 
     // Death fade
     if (!t.alive) {

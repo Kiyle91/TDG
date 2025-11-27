@@ -44,6 +44,7 @@ import { spawnLoot } from "./loot.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { addBravery, applyBraveryAuraEffects } from "../player/bravery.js"
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
+import { tryEnemySpeech } from "../core/events/enemySpeech.js";
 
 
 // ============================================================
@@ -236,6 +237,7 @@ function spawnCrossbowBolt(c, targetX, targetY) {
 // ============================================================
 
 export function updateCrossbows(delta) {
+  
   delta = Math.min(delta, 100);
   const dt = delta / 1000;
 
@@ -244,6 +246,9 @@ export function updateCrossbows(delta) {
 
   for (let i = crossbowList.length - 1; i >= 0; i--) {
     const c = crossbowList[i];
+
+    tryEnemySpeech(c);
+
 
     // Death fade
     if (!c.alive) {
@@ -255,6 +260,7 @@ export function updateCrossbows(delta) {
       if (c.fade <= 0) crossbowList.splice(i, 1);
       continue;
     }
+    
 
     // Distance + direction
     const px = player.pos?.x ?? 0;

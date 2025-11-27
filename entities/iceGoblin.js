@@ -54,6 +54,7 @@ import { getAllPaths } from "../maps/map.js";
 import { applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 import { GOBLIN_AURA_RADIUS } from "./goblinAuraConstants.js";
+import { tryEnemySpeech } from "../core/events/enemySpeech.js";
 
 
 // ============================================================
@@ -278,6 +279,8 @@ export function updateGoblins(delta) {
   const py = player.pos?.y ?? player.y ?? 0;
 
   for (const e of goblins) {
+    tryEnemySpeech(e);
+
     if (e.stunTimer > 0) {
       e.stunTimer -= delta;
       e.state = "stunned";
