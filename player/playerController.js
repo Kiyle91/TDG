@@ -104,6 +104,9 @@ let lowHpAlerted = false;
 
 // Walk anim timer
 let frameTimer = 0;
+let listenersAttached = false;
+let spritesLoadedPromise = null;
+let spritesLoadedForSkin = null;
 
 // ------------------------------------------------------------
 // 🎨 Sprite Atlas
@@ -394,18 +397,30 @@ function onMouseDown(e) {
 export async function initPlayerController(canvas) {
   canvasRef = canvas;
   ensurePlayerRuntime();
+  const skinKey = gameState.player?.skin || "glitter";
 
-  window.addEventListener("keydown", onKeyDown);
-  window.addEventListener("keyup", onKeyUp);
-  window.addEventListener("mousedown", onMouseDown);
+  if (!listenersAttached) {
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("mousedown", onMouseDown);
+    listenersAttached = true;
+  }
 
-  await loadPlayerSprites();
+  if (!spritesLoadedPromise || spritesLoadedForSkin !== skinKey) {
+    spritesLoadedForSkin = skinKey;
+    spritesLoadedPromise = loadPlayerSprites();
+  }
+  await spritesLoadedPromise;
 }
 
 export function destroyPlayerController() {
-  window.removeEventListener("keydown", onKeyDown);
-  window.removeEventListener("keyup", onKeyUp);
-  window.removeEventListener("mousedown", onMouseDown);
+  if (listenersAttached) {
+    window.removeEventListener("keydown", onKeyDown);
+    window.removeEventListener("keyup", onKeyUp);
+    window.removeEventListener("mousedown", onMouseDown);
+    listenersAttached = false;
+  }
+  canvasRef = null;
 }
 
 // ------------------------------------------------------------

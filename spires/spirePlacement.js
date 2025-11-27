@@ -137,6 +137,8 @@ function tryPlaceSpire(num) {
 // ------------------------------------------------------------
 
 setInterval(() => {
+  if (gameState.paused) return;
+
   if (spirePlaceCooldown > 0) {
     spirePlaceCooldown -= 16;
     if (spirePlaceCooldown < 0) spirePlaceCooldown = 0;

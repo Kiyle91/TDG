@@ -46,6 +46,8 @@ import { playChestOpen } from "../core/soundtrack.js";
 
 const COOLDOWN_MS = 60 * 60 * 1000;
 let chestEl, timerEl, imgEl;
+let chestIntervalId = null;
+let chestInitialized = false;
 
 // ------------------------------------------------------------
 // 🌸 INITIALIZATION
@@ -58,6 +60,12 @@ export function initChest() {
 
   if (!chestEl || !imgEl) return;
 
+  if (chestInitialized) {
+    updateChestState();
+    return;
+  }
+
+  chestInitialized = true;
   updateChestState();
 
   imgEl.addEventListener("click", () => {
@@ -66,7 +74,9 @@ export function initChest() {
     }
   });
 
-  setInterval(updateChestState, 1000);
+  if (!chestIntervalId) {
+    chestIntervalId = setInterval(updateChestState, 1000);
+  }
 }
 
 // ------------------------------------------------------------

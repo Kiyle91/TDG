@@ -59,6 +59,8 @@ import { getSlotSummaries } from "../save/saveSystem.js";
 
 import { initSpireUpgrades, refreshSpireUpgradeFromHub } from "../spires/spireUpgrades.js";
 
+let hubListenersBound = false;
+
 
 // ============================================================
 // 🌷 INIT HUB
@@ -97,6 +99,14 @@ export function initHub() {
   updateHubProfile();
   updateSpireUnlocks();
   initSpireUpgrades();
+  refreshSkinsMenu();
+
+  if (hubListenersBound) {
+    updateContinueButton(continueBtn);
+    return;
+  }
+
+  hubListenersBound = true;
 
   
 
