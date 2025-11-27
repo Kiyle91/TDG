@@ -369,8 +369,18 @@ function tryContinueWithDiamonds() {
     document.getElementById("end-screen")?.remove();
 
     p.hp = p.maxHp;
+    p.mana = p.maxMana;
     p.lives = 10;
     p.dead = false;
+
+    // Fill bravery meter on continue
+    const b = gameState.bravery;
+    if (b && typeof b.max === "number") {
+      b.current = b.max;
+      b.charged = true;
+      b.draining = false;
+      updateBraveryBar();
+    }
 
     updateHUD();
     gameState.paused = false;
