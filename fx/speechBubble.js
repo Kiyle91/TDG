@@ -10,9 +10,21 @@ export function clearSpeechBubbles() {
   speechBubbles.length = 0;
 }
 
-export function spawnSpeechBubble(text, x, y, duration = 10000, anchor) {
-  // Enforce a single active bubble on screen
-  clearSpeechBubbles();
+export function spawnSpeechBubble(text, x, y, duration = 10000, anchor, options = {}) {
+  const opts = options && typeof options === "object" ? options : {};
+  const category = opts.category || "generic";
+  const clearExisting = opts.clearExisting !== undefined ? opts.clearExisting : true;
+
+  // Either clear everything (default) or just clear bubbles in the same category
+  if (clearExisting) {
+    clearSpeechBubbles();
+  } else if (category) {
+    for (let i = speechBubbles.length - 1; i >= 0; i--) {
+      if (speechBubbles[i].category === category) {
+        speechBubbles.splice(i, 1);
+      }
+    }
+  }
 
   // If an anchor is explicitly provided, use it; otherwise default to player
   const resolvedAnchor = anchor !== undefined ? anchor : gameState?.player ?? null;
@@ -24,7 +36,8 @@ export function spawnSpeechBubble(text, x, y, duration = 10000, anchor) {
     anchor: resolvedAnchor,
     life: duration,
     age: 0,
-    cachedWidth: null
+    cachedWidth: null,
+    category
   });
 }
 

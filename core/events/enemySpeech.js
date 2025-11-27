@@ -1,14 +1,14 @@
 // ============================================================
-// 💬 enemySpeech.js — Random Enemy Flavour Dialogue
+// enemySpeech.js - Random Enemy Flavour Dialogue
 // ------------------------------------------------------------
-// • Each enemy type has 5 personality lines
-// • Small chance to speak every few seconds
-// • Uses speechBubble FX for rendering
+// - Each enemy type has 5 personality lines
+// - Small chance to speak every few seconds
+// - Uses speechBubble FX for rendering
 // ============================================================
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
 
 // -------------------------------------------
-// 🧠 Dialogue pools
+// Dialogue pools
 // -------------------------------------------
 
 const ENEMY_LINES = {
@@ -23,7 +23,7 @@ const ENEMY_LINES = {
   emberGoblin: [
     "Feel the burn!",
     "Hot enough for ya!?",
-    "I’ll roast ya alive!",
+    "I'll roast ya alive!",
     "Burn! Burn!",
     "Fire solves everything!"
   ],
@@ -33,7 +33,7 @@ const ENEMY_LINES = {
     "Cold enough?",
     "Shiver for me!",
     "Ice bite incoming!",
-    "Brrr… heh heh heh!"
+    "Brrr... heh heh heh!"
   ],
 
   ashGoblin: [
@@ -79,18 +79,22 @@ const ENEMY_LINES = {
 
 
 // -------------------------------------------
-// ⚙️ CONFIG
+// CONFIG
 // -------------------------------------------
 
 // 1 in 800 chance per update tick (~1.3%/sec at 60fps)
 const SPEECH_CHANCE = 0.01;
 
-// Enemy cooldown so each one doesn’t spam
+// Enemy cooldown so each one doesn't spam
 const COOLDOWN_MS = 8000;
+
+// Keep only one enemy speech alive at a time; others wait their turn
+const SPEECH_DURATION = 5000;
+let enemySpeechActiveUntil = 0;
 
 
 // -------------------------------------------
-// 💬 Attempt speech for one enemy
+// Attempt speech for one enemy
 // -------------------------------------------
 
 export function tryEnemySpeech(e) {
@@ -100,6 +104,7 @@ export function tryEnemySpeech(e) {
   if (!ENEMY_LINES[type]) return;
 
   const now = performance.now();
+  if (now < enemySpeechActiveUntil) return;
   if (e._nextSpeechTime && now < e._nextSpeechTime) return;
 
   // Random trigger
@@ -109,15 +114,18 @@ export function tryEnemySpeech(e) {
   const lines = ENEMY_LINES[type];
   const line = lines[Math.floor(Math.random() * lines.length)];
 
-  // ⭐ Corrected: use e not enemy
   spawnSpeechBubble(
     line,
     e.x,
     e.y - 70,
-    5000,    // fade duration
-    e        // ⭐ anchor to THIS enemy
+    SPEECH_DURATION,    // fade duration
+    e,                  // anchor to THIS enemy
+    { category: "enemy", clearExisting: false } // keep other speakers intact
   );
 
-  // Set cooldown
+  // Block other enemy speech until this one finishes
+  enemySpeechActiveUntil = now + SPEECH_DURATION;
+
+  // Set cooldown on the enemy itself
   e._nextSpeechTime = now + COOLDOWN_MS;
 }
