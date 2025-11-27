@@ -119,36 +119,36 @@ async function loadImage(src) {
 
 async function loadGoblinSprites() {
   goblinSprites = {
-    idle: await loadImage("./assets/images/sprites/icegoblin/goblinIce_idle.png"),
+    idle: await loadImage("./assets/images/sprites/icegoblin/iceGoblin_idle.png"),
     walk: {
       up: [
-        await loadImage("./assets/images/sprites/icegoblin/goblinIce_W1.png"),
-        await loadImage("./assets/images/sprites/icegoblin/goblinIce_W2.png"),
+        await loadImage("./assets/images/sprites/icegoblin/iceGoblin_W1.png"),
+        await loadImage("./assets/images/sprites/icegoblin/iceGoblin_W2.png"),
       ],
       down: [
-        await loadImage("./assets/images/sprites/icegoblin/goblinIce_S1.png"),
-        await loadImage("./assets/images/sprites/icegoblin/goblinIce_S2.png"),
+        await loadImage("./assets/images/sprites/icegoblin/iceGoblin_S1.png"),
+        await loadImage("./assets/images/sprites/icegoblin/iceGoblin_S2.png"),
       ],
       left: [
-        await loadImage("./assets/images/sprites/icegoblin/goblinIce_A1.png"),
-        await loadImage("./assets/images/sprites/icegoblin/goblinIce_A2.png"),
+        await loadImage("./assets/images/sprites/icegoblin/iceGoblin_A1.png"),
+        await loadImage("./assets/images/sprites/icegoblin/iceGoblin_A2.png"),
       ],
       right: [
-        await loadImage("./assets/images/sprites/icegoblin/goblinIce_D1.png"),
-        await loadImage("./assets/images/sprites/icegoblin/goblinIce_D2.png"),
+        await loadImage("./assets/images/sprites/icegoblin/iceGoblin_D1.png"),
+        await loadImage("./assets/images/sprites/icegoblin/iceGoblin_D2.png"),
       ],
     },
     attack: {
       left: [
-        await loadImage("./assets/images/sprites/icegoblin/goblinIce_attack_left.png"),
-        await loadImage("./assets/images/sprites/icegoblin/goblinIce_melee_left.png"),
+        await loadImage("./assets/images/sprites/icegoblin/iceGoblin_attack_left.png"),
+        await loadImage("./assets/images/sprites/icegoblin/iceGoblin_melee_left.png"),
       ],
       right: [
-        await loadImage("./assets/images/sprites/icegoblin/goblinIce_attack_right.png"),
-        await loadImage("./assets/images/sprites/icegoblin/goblinIce_melee_right.png"),
+        await loadImage("./assets/images/sprites/icegoblin/iceGoblin_attack_right.png"),
+        await loadImage("./assets/images/sprites/icegoblin/iceGoblin_melee_right.png"),
       ],
     },
-    slain: await loadImage("./assets/images/sprites/icegoblin/goblinIce_slain.png"),
+    slain: await loadImage("./assets/images/sprites/icegoblin/iceGoblin_slain.png"),
   };
 }
 
