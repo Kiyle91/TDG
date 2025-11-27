@@ -664,6 +664,7 @@ export function drawGoblins(context) {
       0, 0, Math.PI * 2
     );
     ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.fill();
     if (e.alive) drawAshAura(ctx, e);
 
     ctx.imageSmoothingEnabled = true;

@@ -192,7 +192,7 @@ export function spawnGoblin() {
   const start = chosenPath[0];
 
   goblins.push({
-    type: "goblin",
+    type: "iceGoblin",
     x: start.x,
     y: start.y,
     width: 42,
@@ -553,7 +553,7 @@ export function damageGoblin(goblin, amount) {
   if (goblin.hp <= 0) {
     goblin.hp = 0;
     goblin.alive = false;
-    Events.emit(E.enemyKilled, { type: "goblin", x: goblin.x, y: goblin.y });
+    Events.emit(E.enemyKilled, { type: "iceGoblin", x: goblin.x, y: goblin.y });
     goblin.deathTimer = 0;
     goblin.fading = false;
     goblin.fadeTimer = 0;
