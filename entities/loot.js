@@ -96,6 +96,23 @@ const LOOT_TABLE = {
 
 const drops = [];
 
+// ------------------------------------------------------------
+// 🎤 ONE-TIME PICKUP SPEECH FLAGS
+// ------------------------------------------------------------
+let saidDiamond = false;
+let saidGold = false;
+let saidHeart = false;
+let saidMana = false;
+let saidBravery = false;
+
+function pickupSpeech(line) {
+  // We cannot import speechBubble here because loot.js is engine-level.
+  // So we emit a story event instead:
+  import("../core/eventEngine.js").then(({ Events }) => {
+    Events.emit("tutorialSpeech", line);
+  });
+}
+
 const DROP_LIFETIME = 15000;     // 15 seconds
 const FADEOUT_TIME = 3000;       // last 3 seconds fade
 const COLLECT_RADIUS = 80;
@@ -245,6 +262,11 @@ function applyLootReward(d) {
       const amount = Number(d.amount) || 0;
       addGold(amount);
       spawnFloatingText(d.x, d.y - 40, `+${amount} Gold`, "#ffd966");
+
+      if (!saidGold) {
+        saidGold = true;
+        pickupSpeech("Gold! I can spend this on new abilities and upgrades.");
+      }
       break;
     }
 
@@ -252,6 +274,11 @@ function applyLootReward(d) {
       const amount = Number(d.amount) || 0;
       addDiamonds(amount);
       spawnFloatingText(d.x, d.y - 40, `+${amount} 💎`, "#d9b3ff");
+
+      if (!saidDiamond) {
+        saidDiamond = true;
+        pickupSpeech("Diamonds! I can use these to upgrade my Spires!");
+      }
       break;
     }
 
@@ -260,6 +287,11 @@ function applyLootReward(d) {
         const amount = Number(d.amount) || 0;
         player.hp = Math.min(player.maxHp ?? 100, player.hp + amount);
         spawnFloatingText(d.x, d.y - 40, `+${amount} HP`, "#ff99bb");
+
+        if (!saidHeart) {
+          saidHeart = true;
+          pickupSpeech("A Heart! That’ll heal me if I get hurt.");
+        }
       }
       break;
     }
@@ -274,21 +306,31 @@ function applyLootReward(d) {
           player.mana = Math.min(player.maxMana ?? 100, player.mana + amount);
           spawnFloatingText(d.x, d.y - 40, `+${amount} Mana`, "#99ddff");
         }
+
+        if (!saidMana) {
+          saidMana = true;
+          pickupSpeech("Mana essence… this lets me cast my spells more often.");
+        }
       }
       break;
     }
 
     case "bravery": {
       const amount = Number(d.amount) || 0;
-      addBravery(amount);  
+      addBravery(amount);
       spawnFloatingText(d.x, d.y - 40, `+${amount} Bravery`, "#ff99ff");
+
+      if (!saidBravery) {
+        saidBravery = true;
+        pickupSpeech("Bravery shards… these charge my Guardian form!");
+      }
       break;
     }
-
   }
 
   updateHUD();
 }
+
 
 // ------------------------------------------------------------
 // 🎨 DRAW LOOT WITH GLOWS + FLOATS

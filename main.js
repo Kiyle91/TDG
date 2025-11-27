@@ -286,8 +286,19 @@ export function fullNewGameReset() {
 // 🌟 START NEW GAME STORY
 // ============================================================
 
-export async function startNewGameStory() {
-  fullNewGameReset();
+export async function startNewGameStory({ resetProgress = true } = {}) {
+  if (resetProgress) {
+    fullNewGameReset();
+  } else {
+    // If keeping progression, still start the story on Map 1
+    gameState.progress.currentMap = 1;
+    if (gameState.profile?.progress) {
+      gameState.profile.progress.currentMap = 1;
+    }
+  }
+
+  resetCombatState();
+  saveProfiles();
 
   // Switch to game screen first
   showScreen("game-container");

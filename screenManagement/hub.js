@@ -42,7 +42,6 @@ import {
 import { initChest } from "./chest.js";
 import { showConfirm } from "./alert.js";
 import { playFairySprinkle } from "../core/soundtrack.js";
-import { resetCombatState } from "../core/game.js";
 
 import {
   SKINS,
@@ -165,17 +164,25 @@ export function initHub() {
   newStoryBtn.addEventListener("click", () => {
     playFairySprinkle();
     showConfirm("Start a new story from Map 1?", () => {
-      if (gameActive) stopGameplay("restart");
+      const startStory = (resetProgress) => {
+        if (gameActive) stopGameplay("restart");
 
-      document.querySelectorAll("#end-screen, .end-overlay")
-        .forEach(el => el.remove());
+        document.querySelectorAll("#end-screen, .end-overlay")
+          .forEach(el => el.remove());
 
-      fullNewGameReset();
-      ensureSkin(gameState.player);
-      saveProfiles();
+        startNewGameStory({ resetProgress });
+      };
 
-      resetCombatState();
-      startNewGameStory();
+      if (hasExistingProgress()) {
+        showConfirm(
+          "Reset your levels and map unlocks too?",
+          () => startStory(true),
+          () => startStory(false),
+          { variant: "danger" }
+        );
+      } else {
+        startStory(true);
+      }
     });
   });
 
@@ -470,6 +477,34 @@ export function updateContinueButton(
   }
 
   btn.style.display = hasSave ? "block" : "none";
+}
+
+function hasExistingProgress() {
+  const profile = getActiveProfile();
+  if (!profile) return false;
+
+  const playerLevel = profile.player?.level ?? gameState.player?.level ?? 1;
+  const playerXp = profile.player?.xp ?? gameState.player?.xp ?? 0;
+
+  const progress = profile.progress || gameState.progress || {};
+  const currentMap = progress.currentMap ?? 1;
+  const mapsUnlocked = Array.isArray(progress.mapsUnlocked)
+    ? progress.mapsUnlocked
+    : [];
+  const hasUnlockedLater = mapsUnlocked.some((unlocked, idx) => unlocked && idx > 0);
+
+  const summaries = getSlotSummaries() || [];
+  const hasAnySlotSave = summaries.some(s => s);
+  const hasAutoSave = typeof profile.lastSave === "number";
+
+  return (
+    playerLevel > 1 ||
+    playerXp > 0 ||
+    currentMap > 1 ||
+    hasUnlockedLater ||
+    hasAutoSave ||
+    hasAnySlotSave
+  );
 }
 
 

@@ -59,6 +59,13 @@
   box-shadow: none;
 }
 
+#ow-alert-modal.danger {
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.08), transparent 42%),
+    radial-gradient(circle at 22% 20%, rgba(255, 120, 120, 0.12), transparent 30%),
+    rgba(60, 0, 0, 0.82);
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -93,6 +100,14 @@
   animation: popIn 0.25s ease;
 }
 
+.ow-alert-box.confirm-danger {
+  background: linear-gradient(135deg, #521010, #7c1313 55%, #5a0e0e);
+  border-color: rgba(255, 200, 200, 0.75);
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.45),
+    0 0 30px rgba(180, 30, 30, 0.55);
+}
+
 @keyframes popIn {
   from { transform: scale(0.9); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
@@ -109,6 +124,11 @@
 
   color: #ffe6f7;
   text-shadow: 0 0 8px rgba(224, 187, 255, 0.7);
+}
+
+.confirm-danger-text {
+  color: #ffecec;
+  text-shadow: 0 0 10px rgba(255, 140, 140, 0.7);
 }
 
 .ow-alert-input {
@@ -187,6 +207,21 @@
 /* Variants */
 .ow-alert-btn.ok { color: #e7fff9; }
 .ow-alert-btn.cancel { color: #ffe6f7; opacity: 0.9; }
+
+.ow-alert-btn.danger {
+  background: linear-gradient(100deg, #ff4d4d, #b40000 60%, #7a0000);
+  color: #ffecec;
+  box-shadow:
+    0 0 18px rgba(240, 80, 80, 0.9),
+    inset 0 0 12px rgba(255, 255, 255, 0.28);
+}
+
+.ow-alert-btn.danger:hover {
+  box-shadow:
+    0 0 24px rgba(255, 120, 120, 1),
+    inset 0 0 14px rgba(255, 255, 255, 0.34);
+  filter: brightness(1.08);
+}
 
 
 

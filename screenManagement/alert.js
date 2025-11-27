@@ -93,7 +93,7 @@ export function showAlert(message, callback = null) {
 // 🌺 SHOW CONFIRM
 // ------------------------------------------------------------
 
-export function showConfirm(message, onYes, onNo = null) {
+export function showConfirm(message, onYes, onNo = null, options = {}) {
   if (!modal) createModal();
 
   const text = modal.querySelector("#ow-alert-text");
@@ -102,10 +102,27 @@ export function showConfirm(message, onYes, onNo = null) {
   const cancel = modal.querySelector("#ow-alert-cancel");
   const box = modal.querySelector(".ow-alert-box");
 
+  const variant = options.variant || "default";
+
+  // reset variant-specific styling
+  modal.classList.remove("danger");
+  box.classList.remove("confirm-danger");
+  text.classList.remove("confirm-danger-text");
+  ok.classList.remove("danger");
+  cancel.classList.remove("danger");
+
   box.classList.add("confirm-box");
   text.classList.add("confirm-message");
   ok.classList.add("confirm-btn", "yes");
   cancel.classList.add("confirm-btn", "no");
+
+  if (variant === "danger") {
+    modal.classList.add("danger");
+    box.classList.add("confirm-danger");
+    text.classList.add("confirm-danger-text");
+    ok.classList.add("danger");
+    cancel.classList.add("danger");
+  }
 
   text.textContent = message;
   extra.innerHTML = "";
