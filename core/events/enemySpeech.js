@@ -83,10 +83,10 @@ const ENEMY_LINES = {
 // -------------------------------------------
 
 // 1 in 800 chance per update tick (~1.3%/sec at 60fps)
-const SPEECH_CHANCE = 0.1;
+const SPEECH_CHANCE = 0.01;
 
 // Enemy cooldown so each one doesn’t spam
-const COOLDOWN_MS = 4000;
+const COOLDOWN_MS = 8000;
 
 
 // -------------------------------------------
