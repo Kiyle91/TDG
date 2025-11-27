@@ -12,7 +12,6 @@ import { gameState, unlockMap, saveProfiles } from "../utils/gameState.js";
 import { stopGameplay } from "../main.js";
 import { triggerEndOfWave1Story, triggerEndOfWave5Story } from "./story.js";
 import { getDifficultyHpMultiplier } from "../screenManagement/settings.js";
-import { saveToSlot } from "../save/saveSystem.js";
 import { updateHUD } from "../screenManagement/ui.js";
 
 import { spawnGoblin, getGoblins } from "../entities/goblin.js";
@@ -210,7 +209,6 @@ let currentWaveIndex = 0;
 let waveActive = false;
 let waveCleared = false;
 let justStartedWave = false;
-let autosaveDoneForWave = false;
 let waveTransitionInProgress = false;
 
 let firstWaveStarted = false;
@@ -248,7 +246,6 @@ export function resetWaveSystem() {
   waveActive = false;
   waveCleared = false;
   justStartedWave = true;
-  autosaveDoneForWave = false;
   waveTransitionInProgress = false;
 
   window.betweenWaveTimerActive = true;
@@ -370,8 +367,6 @@ function startNextWave() {
   window.firstWaveStarted = true;
   window.betweenWaveTimerActive = false;
   betweenWaveTimer = 0;
-
-  autosaveDoneForWave = false;
 
   const mapId = gameState.progress?.currentMap ?? 1;
   const waves = waveConfigs[mapId];
@@ -693,22 +688,6 @@ async function handleWaveCleared(waveNumber, mapId) {
     }
     if (waveNumber === 5) {
       await triggerEndOfWave5Story(mapId);
-    }
-
-    if (!autosaveDoneForWave) {
-      const profile = gameState.profile;
-      if (profile) {
-        const slot = typeof profile.lastSave === "number" ? profile.lastSave : 0;
-        try {
-          await saveToSlot(slot);
-          profile.lastSave = slot;
-          saveProfiles();
-          console.log(`Autosaved after Wave ${waveNumber}`);
-        } catch (err) {
-          console.warn("Autosave failed:", err);
-        }
-      }
-      autosaveDoneForWave = true;
     }
   } catch (err) {
     console.warn("Wave-end sequence failed:", err);
