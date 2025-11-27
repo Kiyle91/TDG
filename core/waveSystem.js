@@ -411,8 +411,8 @@ function startNextWave() {
 
   if (wave.boss === "seraphine") {
 
-    // spawn boss immediately
-    spawnSeraphineBoss(wave.phase || 1);
+    // spawn boss immediately (apply difficulty scaling)
+    spawnSeraphineBoss(wave.phase || 1, undefined, undefined, { hpMultiplier: hpMult });
 
     // goblin escorts
     const escorts = wave.goblins || 0;

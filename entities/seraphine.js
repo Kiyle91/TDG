@@ -176,9 +176,10 @@ function moveWithCollision(b, dx, dy) {
 // 🟣 SPAWN BOSS
 // ------------------------------------------------------------
 
-export function spawnSeraphineBoss(phase = 1, x, y) {
+export function spawnSeraphineBoss(phase = 1, x, y, options = {}) {
   const mapW = gameState.mapWidth ?? 3000;
   const mapH = gameState.mapHeight ?? 3000;
+  const hpMultiplier = options.hpMultiplier ?? 1;
 
   const spawnOffset = 40;
   let sx = x;
@@ -209,8 +210,8 @@ export function spawnSeraphineBoss(phase = 1, x, y) {
     x: sx,
     y: sy,
 
-    hp: SERAPHINE_BASE_HP * (1 + 0.4 * (phase - 1)),
-    maxHp: SERAPHINE_BASE_HP * (1 + 0.4 * (phase - 1)),
+    hp: SERAPHINE_BASE_HP * (1 + 0.4 * (phase - 1)) * hpMultiplier,
+    maxHp: SERAPHINE_BASE_HP * (1 + 0.4 * (phase - 1)) * hpMultiplier,
 
     alive: true,
     defeated: false,

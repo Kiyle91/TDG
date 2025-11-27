@@ -279,7 +279,7 @@ let hudUpdateTimer = 0;
 const HUD_UPDATE_INTERVAL = 100;
 
 // Track stuck enemies to temporarily bypass collision
-const stuckState = new WeakMap();
+let stuckState = new WeakMap();
 const STUCK_DISTANCE_EPS = 3;
 const STUCK_TIME_MS = 2000;
 const UNSTUCK_WINDOW_MS = 3000;
@@ -439,49 +439,6 @@ function resolveEnemyCollisions() {
       a.y += ny * overlap + jy;
       b.x -= nx * overlap + jx;
       b.y -= ny * overlap + jy;
-    }
-  }
-}
-
-function resolveTrollCrossbowCollisions() {
-  const list = [...(getTrolls() || []), ...(getCrossbows() || [])].filter(e => e && e.alive);
-  const count = list.length;
-  const now = performance.now();
-
-  for (let i = 0; i < count; i++) {
-    const a = list[i];
-    const ra = getEnemyRadius(a);
-
-    for (let j = i + 1; j < count; j++) {
-      const b = list[j];
-      const rb = getEnemyRadius(b);
-
-      if ((a.__noCollideUntil ?? 0) > now || (b.__noCollideUntil ?? 0) > now) {
-        continue;
-      }
-
-      const dx = a.x - b.x;
-      const dy = a.y - b.y;
-      let dist = Math.hypot(dx, dy);
-      const minDist = ra + rb;
-
-      if (dist >= minDist || !Number.isFinite(dist)) continue;
-
-      if (dist === 0) {
-        const angle = Math.random() * Math.PI * 2;
-        dist = 0.01;
-        a.x += Math.cos(angle) * 0.5;
-        a.y += Math.sin(angle) * 0.5;
-      }
-
-      const overlap = (minDist - dist) * 0.5;
-      const nx = dx / (dist || 1);
-      const ny = dy / (dist || 1);
-
-      a.x += nx * overlap;
-      a.y += ny * overlap;
-      b.x -= nx * overlap;
-      b.y -= ny * overlap;
     }
   }
 }
@@ -943,6 +900,7 @@ export function resetCombatState() {
     75: false,
     100: false,
   };
+  stuckState = new WeakMap();
 
   const p = gameState.player;
   if (p) {
