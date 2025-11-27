@@ -191,14 +191,14 @@ import { spawnDamageSparkles } from "../fx/sparkles.js";
 import { updateHealFX, renderHealFX } from "../combat/heal.js";
 
 import { loadStepEventsForMap } from "./eventEngine.js";
-import map2Timed from "../core/events/map2Timed.js";
-import map3Timed from "../core/events/map3Timed.js";
-import map4Timed from "../core/events/map4Timed.js";
-import map5Timed from "./events/map5Timed.js";
-import map6Timed from "./events/map6Timed.js";
-import map7Timed from "../core/events/map7Timed.js";
-import map8Timed from "../core/events/map8Timed.js";
-import map9Timed from "./events/map9Steps.js";
+import map2Events from "../core/events/map2Events.js";
+import map3Events from "../core/events/map3Events.js";
+import map4Events from "../core/events/map4Events.js";
+import map5Events from "./events/map5Events.js";
+import map6Events from "./events/map6Events.js";
+import map7Events from "../core/events/map7Events.js";
+import map8Events from "../core/events/map8Events.js";
+import map9Events from "./events/map9Events.js";
 import { updateStepEvents } from "./eventEngine.js";
 import { spawnSeraphineBoss, clearSeraphines, drawSeraphine, updateSeraphine, initSeraphine, getSeraphines } from "../entities/seraphine.js";
 import { initMap1Events } from "./events/map1Events.js";
@@ -632,14 +632,14 @@ export async function initGame(mode = "new") {
     case 1: initMap1Events()
             break;
 
-    case 2: loadStepEventsForMap(2, map2Timed); break;
-    case 3: loadStepEventsForMap(3, map3Timed); break;
-    case 4: loadStepEventsForMap(4, map4Timed); break;
-    case 5: loadStepEventsForMap(5, map5Timed); break;
-    case 6: loadStepEventsForMap(6, map6Timed); break;
-    case 7: loadStepEventsForMap(7, map7Timed); break;
-    case 8: loadStepEventsForMap(8, map8Timed); break;
-    case 9: loadStepEventsForMap(9, map9Timed); break;
+    case 2: loadStepEventsForMap(2, map2Events); break;
+    case 3: loadStepEventsForMap(3, map3Events); break;
+    case 4: loadStepEventsForMap(4, map4Events); break;
+    case 5: loadStepEventsForMap(5, map5Events); break;
+    case 6: loadStepEventsForMap(6, map6Events); break;
+    case 7: loadStepEventsForMap(7, map7Events); break;
+    case 8: loadStepEventsForMap(8, map8Events); break;
+    case 9: loadStepEventsForMap(9, map9Events); break;
     default: break;
   }
 
@@ -916,14 +916,14 @@ export function resetCombatState() {
   const cur = gameState.progress?.currentMap ?? 1;
 
   switch (cur) {
-    case 2: loadStepEventsForMap(2, map2Timed); break;
-    case 3: loadStepEventsForMap(3, map3Timed); break;
-    case 4: loadStepEventsForMap(4, map4Timed); break;
-    case 5: loadStepEventsForMap(5, map5Timed); break;
-    case 6: loadStepEventsForMap(6, map6Timed); break;
-    case 7: loadStepEventsForMap(7, map7Timed); break;
-    case 8: loadStepEventsForMap(8, map8Timed); break;
-    case 9: loadStepEventsForMap(9, map9Timed); break;
+    case 2: loadStepEventsForMap(2, map2Events); break;
+    case 3: loadStepEventsForMap(3, map3Events); break;
+    case 4: loadStepEventsForMap(4, map4Events); break;
+    case 5: loadStepEventsForMap(5, map5Events); break;
+    case 6: loadStepEventsForMap(6, map6Events); break;
+    case 7: loadStepEventsForMap(7, map7Events); break;
+    case 8: loadStepEventsForMap(8, map8Events); break;
+    case 9: loadStepEventsForMap(9, map9Events); break;
     default: break;
   }
 
