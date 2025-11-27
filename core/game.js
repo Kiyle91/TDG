@@ -286,6 +286,14 @@ const STUCK_TIME_MS = 2000;
 const UNSTUCK_WINDOW_MS = 3000;
 const LATERAL_STUCK_NUDGE = 6; // px
 
+// Perf overlay state
+let perfOverlayEl = null;
+let lastFrameTime = 0;
+let perfAccum = 0;
+let perfFrames = 0;
+let smoothedFps = 60;
+let lastEnemyCount = 0;
+
 function trackEnemyMotion(delta, enemies) {
   if (!Array.isArray(enemies)) return;
   const now = performance.now();
@@ -652,6 +660,7 @@ export async function initGame(mode = "new") {
 
   initPlayerController(canvas);
   initUI();
+  ensurePerfOverlay();
 
   const current = gameState.progress?.currentMap ?? 1;
 
@@ -710,6 +719,7 @@ export function updateGame(delta) {
   updateArrows(delta);
   updateHealFX(delta);
   const enemies = collectAllEnemies();
+  lastEnemyCount = enemies.length;
   const enemySpatial = buildSpatialGrid(enemies, 128);
   updatePlayer(delta, { enemies, spatial: enemySpatial });
   updateFloatingText(delta);
@@ -798,6 +808,20 @@ export function updateGame(delta) {
 
 export function renderGame() {
   if (!ctx || !canvas) return;
+
+  const nowFrame = performance.now();
+  if (!lastFrameTime) lastFrameTime = nowFrame;
+  const frameDt = nowFrame - lastFrameTime;
+  lastFrameTime = nowFrame;
+  perfAccum += frameDt;
+  perfFrames++;
+  if (perfAccum >= 500) {
+    const fps = (perfFrames * 1000) / perfAccum;
+    smoothedFps = Math.round(fps);
+    perfAccum = 0;
+    perfFrames = 0;
+    updatePerfOverlay(smoothedFps, lastEnemyCount);
+  }
 
   for (const layer of MAP_LAYERS_BELOW_ENTITIES) {
     drawMapLayered(ctx, layer, cameraX, cameraY, canvas.width, canvas.height);
@@ -894,10 +918,10 @@ export function renderGame() {
   // Speech bubbles above all layers (including trees/pegasus)
   ctx.save();
   ctx.translate(-cameraX, -cameraY);
-  const now = performance.now();
-  if (!lastSpeechBubbleTime) lastSpeechBubbleTime = now;
-  const bubbleDelta = Math.min(now - lastSpeechBubbleTime, 100);
-  lastSpeechBubbleTime = now;
+  const nowBubble = performance.now();
+  if (!lastSpeechBubbleTime) lastSpeechBubbleTime = nowBubble;
+  const bubbleDelta = Math.min(nowBubble - lastSpeechBubbleTime, 100);
+  lastSpeechBubbleTime = nowBubble;
   updateAndDrawSpeechBubbles(ctx, bubbleDelta);
   ctx.restore();
 }
@@ -1049,6 +1073,32 @@ window.addEventListener("resize", () => {
   cachedCanvasRect = null;
   rectCacheTimer = RECT_CACHE_DURATION;
 });
+
+function ensurePerfOverlay() {
+  if (perfOverlayEl) return;
+  const el = document.createElement("div");
+  el.id = "perf-overlay";
+  Object.assign(el.style, {
+    position: "fixed",
+    top: "8px",
+    right: "10px",
+    padding: "6px 10px",
+    background: "rgba(0,0,0,0.55)",
+    color: "#e0f0ff",
+    fontSize: "12px",
+    fontFamily: "monospace",
+    zIndex: 9999,
+    pointerEvents: "none",
+  });
+  el.textContent = "FPS: -- | Enemies: --";
+  document.body.appendChild(el);
+  perfOverlayEl = el;
+}
+
+function updatePerfOverlay(fps, enemies) {
+  if (!perfOverlayEl) return;
+  perfOverlayEl.textContent = `FPS: ${fps} | Enemies: ${enemies}`;
+}
 
 export { applyMapSpawn };
 

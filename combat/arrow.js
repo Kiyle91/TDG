@@ -14,9 +14,11 @@ import { getGoblins as getAshGoblins, damageGoblin as damageAshGoblin } from "..
 import { getGoblins as getVoidGoblins, damageGoblin as damageVoidGoblin } from "../entities/voidGoblin.js";
 import { getOgres, damageOgre, OGRE_HIT_RADIUS } from "../entities/ogre.js";
 import { getElites, damageElite } from "../entities/elite.js";
-import { getWorg } from "../entities/worg.js";
+import { getWorg, damageWorg } from "../entities/worg.js";
 import { getTrolls } from "../entities/troll.js";
+import { damageTroll } from "../entities/troll.js";
 import { getCrossbows } from "../entities/crossbow.js";
+import { damageCrossbow } from "../entities/crossbow.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
 import { gameState } from "../utils/gameState.js";
 import { getSeraphines, damageSeraphine } from "../entities/seraphine.js";
@@ -186,10 +188,21 @@ export function updateArrows(delta) {
       else hitR = 32;
 
       if (dist < hitR) {
-        if (t.type === "elite") damageElite(t, a.dmg);
-        else if (t.type === "seraphine") damageSeraphine(t, a.dmg);
-        else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, a.dmg, "player");
-        else damageGoblinVariant(t, a.dmg);
+        switch (t.type) {
+          case "elite":     damageElite(t, a.dmg); break;
+          case "seraphine": damageSeraphine(t, a.dmg); break;
+          case "ogre":      damageOgre(t, a.dmg, "player"); break;
+          case "worg":      damageWorg(t, a.dmg); break;
+          case "troll":     damageTroll(t, a.dmg); break;
+          case "crossbow":  damageCrossbow(t, a.dmg); break;
+          default:
+            if (t.maxHp >= 400 && t.type !== "goblin") {
+              damageOgre(t, a.dmg, "player");
+            } else {
+              damageGoblinVariant(t, a.dmg);
+            }
+            break;
+        }
 
         spawnDamageSparkles(t.x, t.y);
         a.alive = false;

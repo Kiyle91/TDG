@@ -44,7 +44,6 @@
 import { addGold, gameState } from "../utils/gameState.js";
 import { awardXP } from "../player/levelSystem.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
-import { playFairySprinkle } from "./soundtrack.js";
 import { updateHUD } from "../screenManagement/ui.js";
 import { Events, EVENT_NAMES as E } from "./eventEngine.js";
 import { playEchoCollect } from "./soundtrack.js";
@@ -109,6 +108,8 @@ export function preloadCrystalImages() {
 // ------------------------------------------------------------
 
 let sparkleBursts = [];
+const MAX_BURSTS = 6;       // cap concurrent bursts to avoid overdraw
+const MAX_PARTICLES = 12;   // reduce per-burst particles for perf
 
 // Small helper: pastel star
 function drawStar(ctx, x, y, size, color) {
@@ -138,30 +139,18 @@ export function initCrystalEchoes(mapData) {
   if (mapData && Array.isArray(mapData.crystalEchoes)) {
     echoes = structuredClone(mapData.crystalEchoes);
 
-    const mapId = gameState.currentMapId; // ensure this is set in your map loader
-    const forcedColors = MAP_ECHO_COLORS[mapId] || null;
+    const mapIdForced = gameState.progress?.currentMap || 1;
+    const forcedColors = MAP_ECHO_COLORS[mapIdForced] || null;
 
     for (const e of echoes) {
-
-      // If this map forces specific colours
-      const mapId = gameState.progress?.currentMap || 1;
-      const forcedColors = MAP_ECHO_COLORS[mapId] || null;
-
-      for (const e of echoes) {
-
-        if (forcedColors) {
-          // choose from allowed colours only
-          const color = forcedColors[Math.floor(Math.random() * forcedColors.length)];
-          const index = COLOR_TO_INDEX[color];
-          e.img = preloadedImages[index];
-        }
-
-        else {
-          // fallback: random full set
-          e.img = preloadedImages[
-            Math.floor(Math.random() * preloadedImages.length)
-          ];
-        }
+      if (forcedColors && forcedColors.length) {
+        const color = forcedColors[Math.floor(Math.random() * forcedColors.length)];
+        const index = COLOR_TO_INDEX[color];
+        e.img = preloadedImages[index];
+      } else {
+        e.img = preloadedImages[
+          Math.floor(Math.random() * preloadedImages.length)
+        ];
       }
     }
   }
@@ -285,10 +274,14 @@ function collectCrystalEcho(crystal, index) {
 // ------------------------------------------------------------
 
 function spawnSparkleBurst(crystal) {
+  if (sparkleBursts.length >= MAX_BURSTS) {
+    return;
+  }
+
   const x = crystal.x;
   const y = crystal.y;
 
-  const count = 16;
+  const count = MAX_PARTICLES;
   const colors = [
     "#FFD8FF",
     "#EAD0FF",
@@ -334,7 +327,7 @@ export function renderSparkleBursts(ctx, delta) {
     burst.age += delta;
 
     const t = burst.age / burst.duration;
-    if (t >= 1) {
+    if (t >= 1 || !burst.particles?.length) {
       sparkleBursts.splice(i, 1);
       continue;
     }

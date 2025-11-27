@@ -66,6 +66,7 @@ let goblinSprites = null;
 let crowdCollisionTimer = 0;
 let goblinsSpawned = 0;
 let storyTriggered = false;
+let fxToggle = 0;
 
 const GOBLIN_SIZE = 80;
 const BASE_SPEED = 80;
@@ -599,6 +600,7 @@ export function drawGoblins(context) {
   ctx = context;
 
   for (const e of goblins) {
+    const doFx = (fxToggle++ & 1) === 0;
     const img = getGoblinSprite(e);
     if (!img) continue;
 
@@ -644,10 +646,10 @@ export function drawGoblins(context) {
       GOBLIN_SIZE
     );
 
-    if (e.isBurning && e.alive) {
+    if (e.isBurning && e.alive && doFx) {
       ctx.save();
 
-      const flicker = 0.85 + Math.random() * 0.3;
+      const flicker = 0.9 + Math.sin(performance.now() * 0.02) * 0.1;
 
       ctx.globalCompositeOperation = "screen";
       ctx.globalAlpha = 0.25 * flicker;
@@ -685,23 +687,25 @@ export function drawGoblins(context) {
       );
       ctx.fill();
 
-      for (let i = 0; i < 2; i++) {
-        const ox = (Math.random() - 0.5) * GOBLIN_SIZE * 0.2;
-        const oy = -Math.random() * GOBLIN_SIZE * 0.3;
+      if (doFx) {
+        for (let i = 0; i < 2; i++) {
+          const ox = (Math.random() - 0.5) * GOBLIN_SIZE * 0.2;
+          const oy = -Math.random() * GOBLIN_SIZE * 0.3;
 
-        ctx.globalAlpha = 0.15 * Math.random();
-        ctx.beginPath();
-        ctx.arc(e.x + ox, e.y + oy, 2 + Math.random() * 2, 0, Math.PI * 2);
-        ctx.fill();
+          ctx.globalAlpha = 0.15 * Math.random();
+          ctx.beginPath();
+          ctx.arc(e.x + ox, e.y + oy, 2 + Math.random() * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
 
       ctx.restore();
     }
 
-    if (e.slowTimer > 0 && e.alive) {
+    if (e.slowTimer > 0 && e.alive && doFx) {
       ctx.save();
 
-      const frostPulse = 0.8 + Math.sin(Date.now() / 200) * 0.15;
+      const frostPulse = 0.85 + Math.sin(performance.now() / 200) * 0.12;
 
       ctx.globalCompositeOperation = "screen";
       ctx.globalAlpha = 0.25 * frostPulse;
@@ -725,15 +729,17 @@ export function drawGoblins(context) {
       );
       ctx.fill();
 
-      for (let i = 0; i < 2; i++) {
-        const ox = (Math.random() - 0.5) * GOBLIN_SIZE * 0.3;
-        const oy = -Math.random() * GOBLIN_SIZE * 0.3;
+      if (doFx) {
+        for (let i = 0; i < 2; i++) {
+          const ox = (Math.random() - 0.5) * GOBLIN_SIZE * 0.3;
+          const oy = -Math.random() * GOBLIN_SIZE * 0.3;
 
-        ctx.globalAlpha = 0.12 * Math.random();
-        ctx.fillStyle = "rgba(210,240,255,0.8)";
-        ctx.beginPath();
-        ctx.arc(e.x + ox, e.y + oy, 2 + Math.random(), 0, Math.PI * 2);
-        ctx.fill();
+          ctx.globalAlpha = 0.12 * Math.random();
+          ctx.fillStyle = "rgba(210,240,255,0.8)";
+          ctx.beginPath();
+          ctx.arc(e.x + ox, e.y + oy, 2 + Math.random(), 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
 
       ctx.restore();

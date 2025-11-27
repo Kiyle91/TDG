@@ -11,9 +11,9 @@ import { spawnCanvasSparkleBurst } from "../fx/sparkles.js";
 import { damageGoblin, getGoblins } from "../entities/goblin.js";
 import { damageElite, getElites } from "../entities/elite.js";
 import { damageOgre, getOgres } from "../entities/ogre.js";
-import { getWorg } from "../entities/worg.js";
-import { getTrolls } from "../entities/troll.js";
-import { getCrossbows } from "../entities/crossbow.js";
+import { getWorg, damageWorg } from "../entities/worg.js";
+import { getTrolls, damageTroll } from "../entities/troll.js";
+import { getCrossbows, damageCrossbow } from "../entities/crossbow.js";
 
 import { gameState } from "../utils/gameState.js";
 import { playSpellCast } from "../core/soundtrack.js";
@@ -150,10 +150,21 @@ export function performSpell(player) {
       const dist = Math.hypot(dx, dy);
 
       if (dist < radius) {
-        if (t.type === "elite") damageElite(t, dmg, "spell");
-        if (t.type === "seraphine") damageSeraphine(t, dmg);
-        else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "spell");
-        else damageGoblin(t, dmg);
+        switch (t.type) {
+          case "elite":     damageElite(t, dmg, "spell"); break;
+          case "seraphine": damageSeraphine(t, dmg); break;
+          case "ogre":      damageOgre(t, dmg, "spell"); break;
+          case "worg":      damageWorg(t, dmg); break;
+          case "troll":     damageTroll(t, dmg); break;
+          case "crossbow":  damageCrossbow(t, dmg); break;
+          default:
+            if (t.maxHp >= 400 && t.type !== "goblin") {
+              damageOgre(t, dmg, "spell");
+            } else {
+              damageGoblin(t, dmg);
+            }
+            break;
+        }
       }
     }
 

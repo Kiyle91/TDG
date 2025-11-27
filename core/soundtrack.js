@@ -188,6 +188,7 @@ export function playSeraphineSpawn() {
 // 🐺 Worg SFX
 // ------------------------------------------------------------
 
+// Use a distinct clip so it doesn't overlap the goblin death sound.
 const worgDeathPath = "./assets/sounds/worg.mp3";
 export function playWorgDeath() {
   playSfx(worgDeathPath);
@@ -202,6 +203,14 @@ export function playEchoCollect() {
   playSfx(echoCollectPath);
 }
 
+// ------------------------------------------------------------
+// 🔥 Bravery Charge SFX
+// ------------------------------------------------------------
+
+const braveryChargePath = "./assets/sounds/bravery.mp3";
+export function playBraveryCharge() {
+  playSfx(braveryChargePath);
+}
 
 // ============================================================
 // 🌟 END OF FILE

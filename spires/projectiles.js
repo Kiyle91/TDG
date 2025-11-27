@@ -119,7 +119,12 @@ function damageFromProjectile(target, amount) {
     case "elite":        damageElite(target, amount); break;
     case "troll":        damageTroll(target, amount); break;
     case "crossbow":     damageCrossbow(target, amount); break;
-    default:             damageGoblin(target, amount); break;
+    default:
+      if ((target.type || "").includes("goblin")) {
+        damageGoblin(target, amount);
+      }
+      // Unknown enemy types are ignored to avoid misrouting sounds/logic.
+      break;
   }
 }
 

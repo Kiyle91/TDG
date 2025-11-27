@@ -37,7 +37,7 @@ import { getGoblins as getIceGoblins } from "../entities/iceGoblin.js";
 import { getGoblins as getEmberGoblins } from "../entities/emberGoblin.js";
 import { getGoblins as getAshGoblins } from "../entities/ashGoblin.js";
 import { getGoblins as getVoidGoblins } from "../entities/voidGoblin.js";
-
+import { playBraveryCharge } from "../core/soundtrack.js";
 // ------------------------------------------------------------
 // 🟪 ADD BRAVERY
 // ------------------------------------------------------------
@@ -178,6 +178,7 @@ function triggerBraveryPower() {
   p.invincible = true;
 
   braveryFlashEffect();
+  playBraveryCharge();
 
   const watchEnd = () => {
     if (!gameState.bravery.draining) {

@@ -37,7 +37,7 @@ import { getGoblins } from "../entities/goblin.js";
 import { updateHUD } from "../screenManagement/ui.js";
 import { awardXP } from "../player/levelSystem.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
-import { playGoblinDamage, playGoblinDeath } from "../core/soundtrack.js";
+import { playGoblinDamage } from "../core/soundtrack.js";
 import { addBravery, applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 import { playSeraphineSpawn } from "../core/soundtrack.js";
@@ -632,7 +632,6 @@ export function damageSeraphine(boss, amount) {
     addBravery(BRAVERY_REWARD);
     updateHUD();
 
-    playGoblinDeath();
 
     // Death animation flow
     boss.slainFrame = 0;

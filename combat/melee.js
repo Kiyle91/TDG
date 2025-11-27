@@ -16,10 +16,10 @@ import { getGoblins as getEmberGoblins, damageGoblin as damageEmberGoblin } from
 import { getGoblins as getAshGoblins, damageGoblin as damageAshGoblin } from "../entities/ashGoblin.js";
 import { getGoblins as getVoidGoblins, damageGoblin as damageVoidGoblin } from "../entities/voidGoblin.js";
 import { getOgres, damageOgre } from "../entities/ogre.js";
-import { getWorg } from "../entities/worg.js";
+import { getWorg, damageWorg } from "../entities/worg.js";
 import { getElites, damageElite } from "../entities/elite.js";
-import { getTrolls } from "../entities/troll.js";
-import { getCrossbows } from "../entities/crossbow.js";
+import { getTrolls, damageTroll } from "../entities/troll.js";
+import { getCrossbows, damageCrossbow } from "../entities/crossbow.js";
 import { playMeleeSwing } from "../core/soundtrack.js";
 import { gameState } from "../utils/gameState.js";
 import { getSeraphines, damageSeraphine } from "../entities/seraphine.js";
@@ -137,10 +137,22 @@ export function performMelee(player) {
     if (dist > range) continue;
 
     // Damage routing
-    if (t.type === "elite") damageElite(t, dmg, "player");
-    else if (t.type === "seraphine") damageSeraphine(t, dmg);
-    else if (t.type === "ogre" || t.maxHp >= 400) damageOgre(t, dmg, "player");
-    else damageGoblinVariant(t, dmg);
+    switch (t.type) {
+      case "elite":      damageElite(t, dmg, "player"); break;
+      case "seraphine":  damageSeraphine(t, dmg); break;
+      case "ogre":       damageOgre(t, dmg, "player"); break;
+      case "worg":       damageWorg(t, dmg); break;
+      case "troll":      damageTroll(t, dmg); break;
+      case "crossbow":   damageCrossbow(t, dmg); break;
+      default:
+        // Ogre clones or high-HP variants
+        if (t.maxHp >= 400 && t.type !== "goblin") {
+          damageOgre(t, dmg, "player");
+        } else {
+          damageGoblinVariant(t, dmg);
+        }
+        break;
+    }
 
     hitSomething = true;
 

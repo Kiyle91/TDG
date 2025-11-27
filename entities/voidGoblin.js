@@ -55,6 +55,7 @@ let goblinSprites = null;
 let crowdCollisionTimer = 0;
 let goblinsSpawned = 0;
 let storyTriggered = false;
+let fxToggle = 0;
 
 const GOBLIN_SIZE = 80;
 const BASE_SPEED = 80;
@@ -613,6 +614,7 @@ export function drawGoblins(context) {
   ctx = context;
 
   for (const e of goblins) {
+    const doFx = (fxToggle++ & 1) === 0;
 
     const img = getGoblinSprite(e);
     if (!img) continue;
@@ -620,7 +622,7 @@ export function drawGoblins(context) {
     const drawX = e.x - GOBLIN_SIZE / 2;
     const drawY = e.y - GOBLIN_SIZE / 2;
 
-    drawRing(ctx, e, "rgba(180,130,255,0.9)");
+    if (doFx) drawRing(ctx, e, "rgba(180,130,255,0.9)");
 
     ctx.save();
 
@@ -661,10 +663,10 @@ export function drawGoblins(context) {
     );
 
     // 🔥 Burning FX
-    if (e.isBurning && e.alive) {
+    if (e.isBurning && e.alive && doFx) {
       ctx.save();
 
-      const flicker = 0.85 + Math.random() * 0.3;
+      const flicker = 0.9 + Math.sin(performance.now() * 0.02) * 0.1;
 
       ctx.globalCompositeOperation = "screen";
       ctx.globalAlpha = 0.25 * flicker;
@@ -712,10 +714,10 @@ export function drawGoblins(context) {
     }
 
     // ❄ Frost slow FX
-    if (e.slowTimer > 0 && e.alive) {
+    if (e.slowTimer > 0 && e.alive && doFx) {
       ctx.save();
 
-      const frostPulse = 0.8 + Math.sin(Date.now() / 200) * 0.15;
+      const frostPulse = 0.85 + Math.sin(performance.now() / 200) * 0.12;
 
       ctx.globalCompositeOperation = "screen";
       ctx.globalAlpha = 0.25 * frostPulse;
