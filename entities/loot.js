@@ -69,10 +69,10 @@ function loadImage(src) {
 // ------------------------------------------------------------
 
 const LOOT_ITEMS = [
-  { type: "chest",   amount: 20,  weight: 6 },
-  { type: "diamond", amount: 20,  weight: 2 },
-  { type: "heart",   amount: 100, weight: 2 },
-  { type: "mana",    amount: 100, weight: 2 },
+  { type: "chest",   amount: 15,  weight: 6 },
+  { type: "diamond", amount: 5,  weight: 2 },
+  { type: "heart",   amount: 500, weight: 2 },
+  { type: "mana",    amount: 500, weight: 2 },
   { type: "bravery", amount: 25, weight: 2 },
 ];
 
