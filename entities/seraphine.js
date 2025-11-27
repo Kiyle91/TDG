@@ -680,6 +680,39 @@ function drawBossHpBar(ctx, b) {
 // ------------------------------------------------------------
 // 🖌️ DRAW
 // ------------------------------------------------------------
+// ============================================================
+// ✨ SERAPHINE PARTICLE SPARKLES (Void-like boss intensity)
+// ============================================================
+
+
+function drawSeraphineSparkles(ctx, b) {
+  const count = 10;        // more intense than goblins
+  const maxSpread = 45;    // large radius around her body
+
+  for (let i = 0; i < count; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const dist = 15 + Math.random() * maxSpread;
+
+    const px = b.x + Math.cos(ang) * dist;
+    const py = b.y + Math.sin(ang) * dist;
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = 0.5 + Math.random() * 0.4;
+
+    const size = 2 + Math.random() * 3;
+
+    // Deep void purple flash
+    ctx.fillStyle = "rgba(180, 90, 255, 1)";
+
+    ctx.beginPath();
+    ctx.arc(px, py, size, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+
 
 export function drawSeraphine(ctx) {
   if (!sprites || !seraphines.length) {
@@ -751,6 +784,10 @@ export function drawSeraphine(ctx) {
     ctx.ellipse(b.x, shadowY, shadowW, shadowH, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.globalAlpha = 1;
+
+    if (b.alive && !b.defeated) {
+      drawSeraphineSparkles(ctx, b);
+    }
 
     // Death fade
     if (!b.alive && b.defeated) {
