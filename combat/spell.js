@@ -9,6 +9,10 @@ import { updateHUD } from "../screenManagement/ui.js";
 import { spawnCanvasSparkleBurst } from "../fx/sparkles.js";
 
 import { damageGoblin, getGoblins } from "../entities/goblin.js";
+import { damageGoblin as damageIceGoblin, getGoblins as getIceGoblins } from "../entities/iceGoblin.js";
+import { damageGoblin as damageEmberGoblin, getGoblins as getEmberGoblins } from "../entities/emberGoblin.js";
+import { damageGoblin as damageAshGoblin, getGoblins as getAshGoblins } from "../entities/ashGoblin.js";
+import { damageGoblin as damageVoidGoblin, getGoblins as getVoidGoblins } from "../entities/voidGoblin.js";
 import { damageElite, getElites } from "../entities/elite.js";
 import { damageOgre, getOgres } from "../entities/ogre.js";
 import { getWorg, damageWorg } from "../entities/worg.js";
@@ -56,6 +60,10 @@ function spawnSeekerOrb(x, y, dmg) {
 function getRandomAliveTarget() {
   const all = [
     ...getGoblins(),
+    ...getIceGoblins(),
+    ...getEmberGoblins(),
+    ...getAshGoblins(),
+    ...getVoidGoblins(),
     ...getOgres(),
     ...getWorg(),
     ...getElites(),
@@ -100,6 +108,10 @@ const ANIM_TOTAL = 900;
 function getAllTargets() {
   return [
     ...getGoblins(),
+    ...getIceGoblins(),
+    ...getEmberGoblins(),
+    ...getAshGoblins(),
+    ...getVoidGoblins(),
     ...getOgres(),
     ...getWorg(),
     ...getElites(),
@@ -152,6 +164,10 @@ export function performSpell(player) {
       if (dist < radius) {
         switch (t.type) {
           case "elite":     damageElite(t, dmg, "spell"); break;
+          case "iceGoblin": damageIceGoblin(t, dmg); break;
+          case "emberGoblin": damageEmberGoblin(t, dmg); break;
+          case "ashGoblin": damageAshGoblin(t, dmg); break;
+          case "voidGoblin": damageVoidGoblin(t, dmg); break;
           case "seraphine": damageSeraphine(t, dmg); break;
           case "ogre":      damageOgre(t, dmg, "spell"); break;
           case "worg":      damageWorg(t, dmg); break;
