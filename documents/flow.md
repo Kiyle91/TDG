@@ -26,7 +26,7 @@ sequenceDiagram
 
 ## Wave System (maps 1-9)
 - Config: `waveConfigs` in `core/game.js` + difficulty HP multiplier from `core/settings.js`.
-- Spawn queue: global array, one spawn every 4s; bonus ogre every 100 goblins via `incrementGoblinDefeated`.
+- Spawn queue: global array, one spawn every 4s.
 - Story hooks on wave 1 and 5 endings (`triggerEndOfWave1Story/5`).
 
 ```mermaid

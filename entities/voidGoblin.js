@@ -24,7 +24,6 @@
 import { TILE_SIZE } from "../utils/constants.js";
 import { addGold, gameState } from "../utils/gameState.js";
 import { updateHUD } from "../screenManagement/ui.js";
-import { incrementGoblinDefeated } from "../core/game.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import {
   playGoblinAttack,
@@ -563,7 +562,6 @@ export function damageGoblin(goblin, amount) {
     goblin.fadeTimer = 0;
 
     playGoblinDeath();
-    incrementGoblinDefeated();
     awardXP(5);
     addGold(2);
     addBravery(1);

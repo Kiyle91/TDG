@@ -381,13 +381,6 @@ window.firstWaveStarted = false;
 
 window.betweenWaveTimerActive = false;
 
-// Bonus ogre spawn tracking
-export let goblinsDefeated = 0;
-const ogreMilestones = {};
-for (let i = 1; i <= 20; i++) {
-  ogreMilestones[i * 100] = false;
-}
-
 const FIRST_WAVE_DELAY = 5000;
 const BETWEEN_WAVES_DELAY = 5000;
 const VICTORY_DELAY = 50;
@@ -427,9 +420,9 @@ export function resetWaveSystem() {
   window.firstWaveStarted = false;
 
   if (mapId === 1) {
-    betweenWaveTimer = 30000; // 30 seconds intro delay for Map 1
+    betweenWaveTimer = 45000; // 30 seconds intro delay for Map 1
   } else {
-    betweenWaveTimer = 5000;  // default 5 seconds for other maps
+    betweenWaveTimer = 30000;  // default 5 seconds for other maps
   }
 }
 
@@ -864,21 +857,3 @@ async function handleWaveCleared(waveNumber, mapId) {
 }
 
 // ============================================================
-// BONUS OGRE TRIGGERS
-// ============================================================
-
-export function incrementGoblinDefeated() {
-  goblinsDefeated++;
-
-  if (ogreMilestones[goblinsDefeated] === false) {
-    ogreMilestones[goblinsDefeated] = true;
-    spawnOgre();
-  }
-}
-
-export function resetWaveKillTracking() {
-  goblinsDefeated = 0;
-  for (let key in ogreMilestones) {
-    ogreMilestones[key] = false;
-  }
-}

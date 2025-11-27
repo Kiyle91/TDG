@@ -180,7 +180,6 @@ import { stopGameplay } from "../main.js";
 import {
   resetWaveSystem,
   updateWaveSystem,
-  resetWaveKillTracking,
 } from "./waveSystem.js";
 
 import { updateArrows, drawArrows } from "../combat/arrow.js";
@@ -252,7 +251,6 @@ export {
   getWaveSnapshotState,
   restoreWaveFromSnapshot,
   resetWaveSystem,
-  incrementGoblinDefeated,
 } from "./waveSystem.js";
 
 
@@ -962,7 +960,6 @@ function checkVictoryDefeat() {
 
 export function resetCombatState() {
   gameState.elapsedTime = 0;
-  resetWaveKillTracking();
   gameState.victoryPending = false;
 
   const cur = gameState.progress?.currentMap ?? 1;
