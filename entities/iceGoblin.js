@@ -591,70 +591,20 @@ function handleGoblinEscape(goblin) {
 // 🎨 DRAW
 // ============================================================
 
-function drawPulseRing(ctx, e, color, maxR = 60, speed = 0.003) {
-  const t = Date.now() * speed;
-  const cycle = t % 1;             // 0 → 1 loop
-  const r = cycle * maxR;          // expanding radius
-  const alpha = 1 - cycle;         // fade out
+function drawRing(ctx, e, color, radius = 48, thickness = 3) {
+  const t = Date.now() * 0.004;
+  const cycle = t % 1; // always expanding, then restart
+  const r = radius * (0.6 + cycle * 0.9);
+  const alpha = 0.5 * (1 - cycle);
 
   ctx.save();
-  ctx.globalCompositeOperation = "lighter"; // force overdraw so pulse stays visible
-  ctx.globalAlpha = alpha * 0.55;
+  ctx.globalAlpha = alpha;
   ctx.strokeStyle = color;
-  ctx.lineWidth = 4;
-
+  ctx.lineWidth = thickness;
   ctx.beginPath();
   ctx.arc(e.x, e.y, r, 0, Math.PI * 2);
   ctx.stroke();
-
   ctx.restore();
-}
-
-
-function drawAuraParticles(ctx, e, color, count = 6, spread = 25) {
-  for (let i = 0; i < count; i++) {
-    const ang = Math.random() * Math.PI * 2;
-    const dist = spread + Math.random() * spread;
-    const px = e.x + Math.cos(ang) * dist;
-    const py = e.y + Math.sin(ang) * dist;
-
-    ctx.save();
-    ctx.globalCompositeOperation = "lighter";
-    ctx.globalAlpha = 0.7 * Math.random();
-
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(px, py, 2 + Math.random() * 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-}
-
-
-function drawIceAura(ctx, e) {
-  const t = Date.now() * 0.002;
-  const maxR = 55;
-  const r = (Math.sin(t) * 0.5 + 0.5) * maxR;
-
-  // 🌟 Soft expanding frost pulse
-  ctx.save();
-  ctx.globalCompositeOperation = "lighter";
-  ctx.globalAlpha = 0.32;
-
-  const gradient = ctx.createRadialGradient(e.x, e.y, r * 0.25, e.x, e.y, r);
-  gradient.addColorStop(0.0, "rgba(180,240,255,0.6)");
-  gradient.addColorStop(0.6, "rgba(180,240,255,0.25)");
-  gradient.addColorStop(1.0, "rgba(180,240,255,0)");
-
-  ctx.beginPath();
-  ctx.arc(e.x, e.y, r, 0, Math.PI * 2);
-  ctx.fillStyle = gradient;
-  ctx.fill();
-  ctx.restore();
-
-  // ❄ Sparkle particles
-  drawAuraParticles(ctx, e, "rgba(210,240,255,0.9)", 4, 35);
 }
 
 export function drawGoblins(context) {
@@ -667,6 +617,8 @@ export function drawGoblins(context) {
 
     const drawX = e.x - GOBLIN_SIZE / 2;
     const drawY = e.y - GOBLIN_SIZE / 2;
+
+    drawRing(ctx, e, "rgba(180,240,255,0.8)");
 
     ctx.save();
 
@@ -683,9 +635,6 @@ export function drawGoblins(context) {
 
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
-
-    if (e.alive) drawIceAura(ctx, e);
-    drawPulseRing(ctx, e, "rgba(180,240,255,0.8)");
 
     if (e.alive && e.flashTimer > 0) {
       const flashAlpha = e.flashTimer / 150;

@@ -589,116 +589,21 @@ function handleGoblinEscape(goblin) {
 // 🎨 DRAW — identical, auto-assigns Void Goblin sprites
 // ============================================================
 
-function drawPulseRing(ctx, e, color, maxR = 60, speed = 0.003) {
-  const t = Date.now() * speed;
-  const cycle = t % 1;             // 0 → 1 loop
-  const r = cycle * maxR;          // expanding radius
-  const alpha = 1 - cycle;         // fade out
+function drawRing(ctx, e, color, radius = 48, thickness = 3) {
+  const t = Date.now() * 0.004;
+  const cycle = t % 1; // always expanding, then restart
+  const r = radius * (0.6 + cycle * 0.9);
+  const alpha = 0.5 * (1 - cycle);
 
   ctx.save();
-  ctx.globalCompositeOperation = "lighter"; // force overdraw so pulse stays visible
-  ctx.globalAlpha = alpha * 0.55;
+  ctx.globalAlpha = alpha;
   ctx.strokeStyle = color;
-  ctx.lineWidth = 4;
-
+  ctx.lineWidth = thickness;
   ctx.beginPath();
   ctx.arc(e.x, e.y, r, 0, Math.PI * 2);
   ctx.stroke();
-
   ctx.restore();
 }
-
-
-function drawAuraParticles(ctx, e, color, count = 6, spread = 25) {
-  for (let i = 0; i < count; i++) {
-    const ang = Math.random() * Math.PI * 2;
-    const dist = spread + Math.random() * spread;
-    const px = e.x + Math.cos(ang) * dist;
-    const py = e.y + Math.sin(ang) * dist;
-
-    ctx.save();
-    ctx.globalCompositeOperation = "lighter";
-    ctx.globalAlpha = 0.7 * Math.random();
-
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(px, py, 2 + Math.random() * 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-}
-
-
-
-
-function drawVoidAura(ctx, e) {
-  const t = Date.now() * 0.003;
-
-  // 🟣 Pulse radius (breathing)
-  const maxR = 60;
-  const r = (Math.sin(t * 2) * 0.4 + 0.6) * maxR;
-
-  // 🟣 Main pulse
-  ctx.save();
-  ctx.globalCompositeOperation = "lighter";
-  ctx.globalAlpha = 0.35;
-
-  const grad = ctx.createRadialGradient(
-    e.x, e.y,
-    r * 0.2,
-    e.x, e.y,
-    r
-  );
-
-  grad.addColorStop(0.0, "rgba(180,130,255,0.55)");
-  grad.addColorStop(0.4, "rgba(120,70,200,0.35)");
-  grad.addColorStop(1.0, "rgba(80,30,160,0)");
-
-  ctx.beginPath();
-  ctx.arc(e.x, e.y, r, 0, Math.PI * 2);
-  ctx.fillStyle = grad;
-  ctx.fill();
-  ctx.restore();
-
-
-  // 🟪 Glitch Sparks (sharp, flickering)
-  for (let i = 0; i < 5; i++) {
-    const ang = Math.random() * Math.PI * 2;
-    const dist = 25 + Math.random() * 35;
-    const px = e.x + Math.cos(ang) * dist;
-    const py = e.y + Math.sin(ang) * dist;
-
-    ctx.save();
-    ctx.globalCompositeOperation = "lighter";
-    ctx.globalAlpha = 0.4 + Math.random() * 0.4;
-
-    const size = 2 + Math.random() * 3;
-    ctx.fillStyle = "rgba(200,150,255,1)";
-
-    ctx.beginPath();
-    ctx.rect(px, py, size, size); // small squares = glitch look
-    ctx.fill();
-    ctx.restore();
-  }
-
-
-  // 🟣 Vortex swirl (subtle)
-  ctx.save();
-  ctx.globalCompositeOperation = "screen";
-  ctx.globalAlpha = 0.15;
-
-  ctx.beginPath();
-  ctx.arc(e.x, e.y, r * 0.7, 0, Math.PI * 2);
-  ctx.strokeStyle = "rgba(180,130,255,0.25)";
-  ctx.lineWidth = 2;
-  ctx.setLineDash([4, 8]);
-  ctx.lineDashOffset = t * 50; // animated swirl
-  ctx.stroke();
-
-  ctx.restore();
-}
-
 
 export function drawGoblins(context) {
   if (!goblinSprites) return;
@@ -711,6 +616,8 @@ export function drawGoblins(context) {
 
     const drawX = e.x - GOBLIN_SIZE / 2;
     const drawY = e.y - GOBLIN_SIZE / 2;
+
+    drawRing(ctx, e, "rgba(180,130,255,0.9)");
 
     ctx.save();
 
@@ -727,10 +634,6 @@ export function drawGoblins(context) {
 
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
-
-    
-    if (e.alive) drawVoidAura(ctx, e);
-    drawPulseRing(ctx, e, "rgba(180,130,255,0.9)");
 
 
     if (e.alive && e.flashTimer > 0) {
