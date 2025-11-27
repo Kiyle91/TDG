@@ -79,7 +79,10 @@ export function updateHUD() {
   const wave = gameState.wave ?? 1;
   const total = gameState.totalWaves ?? 1;
 
-  if (window.firstWaveStarted === false || window.betweenWaveTimerActive === true) {
+  if (gameState.victoryPending === true) {
+    waveDisplay.textContent = "VICTORY";
+    waveDisplay.style.color = "#ff4d4d";
+  } else if (window.firstWaveStarted === false || window.betweenWaveTimerActive === true) {
     waveDisplay.textContent = "Incoming";
     waveDisplay.style.color = "#3cff7a";
   } else {

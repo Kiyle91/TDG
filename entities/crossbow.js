@@ -70,8 +70,8 @@ const CROSSBOW_SPEED = 80;
 const CROSSBOW_SIZE = 80;
 const CROSSBOW_HITBOX = CROSSBOW_SIZE * 0.55;
 
-const ATTACK_RANGE = 380;
-const IDEAL_MIN_RANGE = 220;
+const ATTACK_RANGE = 260;
+const IDEAL_MIN_RANGE = 160;
 
 const ATTACK_COOLDOWN = 1600;
 const ATTACK_DAMAGE = 8;
@@ -113,8 +113,8 @@ async function loadCrossbowSprites() {
   ] = await Promise.all([
     loadImage(`${base}/crossbow_idle.png`),
 
-    loadImage(`${base}/crossbow_W1.png`),
-    loadImage(`${base}/crossbow_W2.png`),
+    loadImage(`${base}/crossbow_D1.png`),
+    loadImage(`${base}/crossbow_D2.png`),
 
     loadImage(`${base}/crossbow_A1.png`),
     loadImage(`${base}/crossbow_A2.png`),
@@ -441,12 +441,29 @@ function updateCrossbowBolts(delta) {
 
 function drawCrossbowBolts(ctx) {
   ctx.save();
-  ctx.fillStyle = "rgba(255, 0, 0, 0.95)";
 
   for (const b of crossbowBolts) {
+    // Arrow-like bolt: small shaft + head oriented to velocity
+    const angle = Math.atan2(b.vy, b.vx);
+    const len = 18;
+    const shaft = 10;
+    const half = 2;
+
+    ctx.translate(b.x, b.y);
+    ctx.rotate(angle);
+
+    ctx.fillStyle = "#d84b1f";
+    ctx.fillRect(-shaft / 2, -half, shaft, half * 2);
+
     ctx.beginPath();
-    ctx.arc(b.x, b.y, 6, 0, Math.PI * 2);
+    ctx.moveTo(len / 2, 0);
+    ctx.lineTo(len / 2 - 6, 4);
+    ctx.lineTo(len / 2 - 6, -4);
+    ctx.closePath();
+    ctx.fillStyle = "#ff9b4c";
     ctx.fill();
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
   ctx.restore();

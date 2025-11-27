@@ -77,14 +77,11 @@ export const waveConfigs = {
   // Wave 5: + 1 voidGoblin
   // ============================================================
   1: [
-    { goblins: 0, iceGoblins: 0, emberGoblins: 0, ashGoblins: 0, voidGoblins: 0, worgs: 10 , ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 0, iceGoblins: 0, emberGoblins: 0, ashGoblins: 0, voidGoblins: 0, worgs: 0 , ogres: 0, elites: 0, trolls: 10, crossbows: 10 },
     { goblins: 0, iceGoblins:10, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 0, emberGoblins: 10, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 0, ashGoblins: 10, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 0, voidGoblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 10, crossbows: 0 },
-    { goblins: 0, voidGoblins: 0, worgs: 0, ogres: 0, elites: 10, trolls: 0, crossbows: 0 },
-    { goblins: 0, voidGoblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 10 },
-    { goblins: 10, voidGoblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 10, emberGoblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 10, emberGoblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 10, emberGoblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
   ],
 
   // ============================================================

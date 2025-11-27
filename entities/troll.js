@@ -93,16 +93,16 @@ async function loadTrollSprites() {
 
     walk: {
       up: [
-        await loadImage("./assets/images/sprites/troll/troll_A1.png"),
-        await loadImage("./assets/images/sprites/troll/troll_A2.png"),
+        await loadImage("./assets/images/sprites/troll/troll_W1.png"),
+        await loadImage("./assets/images/sprites/troll/troll_W2.png"),
       ],
       down: [
         await loadImage("./assets/images/sprites/troll/troll_S1.png"),
         await loadImage("./assets/images/sprites/troll/troll_S2.png"),
       ],
       left: [
-        await loadImage("./assets/images/sprites/troll/troll_W1.png"),
-        await loadImage("./assets/images/sprites/troll/troll_W2.png"),
+        await loadImage("./assets/images/sprites/troll/troll_A1.png"),
+        await loadImage("./assets/images/sprites/troll/troll_A2.png"),
       ],
       right: [
         await loadImage("./assets/images/sprites/troll/troll_D1.png"),
