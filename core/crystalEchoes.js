@@ -49,6 +49,31 @@ import { Events, EVENT_NAMES as E } from "./eventEngine.js";
 
 
 // ------------------------------------------------------------
+// 🌈 PER-MAP CRYSTAL ECHO COLOUR RULES
+// ------------------------------------------------------------
+// Key = map number
+// Value = array of allowed colours for that map
+// If map not here → colours remain fully random
+// ------------------------------------------------------------
+
+const MAP_ECHO_COLORS = {
+  4: ["red"],        // Ember
+  5: ["blue"],       // Ice
+  6: ["yellow"],     // Light
+  8: ["black"],      // Void (purple crystal = black sprite)
+};
+
+// Map colour → index in preloadedImages[]
+const COLOR_TO_INDEX = {
+  black: 0,
+  blue: 1,
+  red: 2,
+  clear: 3,
+  yellow: 4,
+};
+
+
+// ------------------------------------------------------------
 // 🗺️ MODULE-LEVEL VARIABLES
 // ------------------------------------------------------------
 
@@ -112,10 +137,31 @@ export function initCrystalEchoes(mapData) {
   if (mapData && Array.isArray(mapData.crystalEchoes)) {
     echoes = structuredClone(mapData.crystalEchoes);
 
+    const mapId = gameState.currentMapId; // ensure this is set in your map loader
+    const forcedColors = MAP_ECHO_COLORS[mapId] || null;
+
     for (const e of echoes) {
-      e.img = preloadedImages[
-        Math.floor(Math.random() * preloadedImages.length)
-      ];
+
+      // If this map forces specific colours
+      const mapId = gameState.progress?.currentMap || 1;
+      const forcedColors = MAP_ECHO_COLORS[mapId] || null;
+
+      for (const e of echoes) {
+
+        if (forcedColors) {
+          // choose from allowed colours only
+          const color = forcedColors[Math.floor(Math.random() * forcedColors.length)];
+          const index = COLOR_TO_INDEX[color];
+          e.img = preloadedImages[index];
+        }
+
+        else {
+          // fallback: random full set
+          e.img = preloadedImages[
+            Math.floor(Math.random() * preloadedImages.length)
+          ];
+        }
+      }
     }
   }
 
