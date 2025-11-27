@@ -245,6 +245,7 @@ function ensurePlayerRuntime() {
   }
 
   if (typeof p.invulnTimer !== "number") p.invulnTimer = 0;
+  if (typeof p.speedMultiplier !== "number") p.speedMultiplier = 1;
   if (typeof p.steps !== "number") p.steps = 0;
   if (typeof p.stepDistance !== "number") p.stepDistance = 0;
 }
@@ -501,6 +502,13 @@ export function updatePlayer(delta) {
   const dt = Math.max(0, delta) / 1000;
   const speed = p.speed ?? DEFAULT_SPEED;
 
+  if (p.slowAuraTimer > 0) {
+    p.slowAuraTimer -= delta;     // ms count-down
+    p.speedMultiplier = p.slowAuraFactor || 0.5;
+  } else {
+    p.speedMultiplier = 1;
+  }
+
   if (p.hp <= 0 && !p.dead) {
     p.hp = 0;
     p.dead = true;
@@ -554,8 +562,8 @@ export function updatePlayer(delta) {
     const prevX = p.pos.x;
     const prevY = p.pos.y;
 
-    let nextX = p.pos.x + dx * speed * dt;
-    let nextY = p.pos.y + dy * speed * dt;
+    let nextX = p.pos.x + dx * speed * p.speedMultiplier * dt;
+    let nextY = p.pos.y + dy * speed * p.speedMultiplier * dt;
     const { bw, bh, ox, oy } = p.body;
     const feetX = nextX + ox;
     const feetY = nextY + oy;

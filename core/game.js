@@ -241,6 +241,8 @@ import {
   getGoblins as getVoidGoblins,
 } from "../entities/voidGoblin.js";
 
+import { applyGoblinAuras } from "../entities/goblinAuras.js";  
+
 
 export {
   waveConfigs,
@@ -669,6 +671,7 @@ export function updateGame(delta) {
   updateEmberGoblins(delta);
   updateAshGoblins(delta);
   updateVoidGoblins(delta);
+  applyGoblinAuras(delta);
 
   updateWorg(delta);
   updateCrossbows(delta);

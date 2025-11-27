@@ -227,21 +227,34 @@ export function updateSpires(delta) {
       spire.lastTargetUpdate = 0;
 
       switch (spire.type) {
-        case "basic_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemiesCache, SPIRE_RANGE);
-          break;
 
-        case "frost_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemiesCache, SPIRE_RANGE * 0.9);
-          break;
+        // ============================================================
+        // VOID-AURA PATCH: Filter out void-protected enemies
+        // ============================================================
 
-        case "flame_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemiesCache, SPIRE_RANGE * 0.9);
+        case "basic_spire": {
+          const filtered = combinedEnemiesCache.filter(e => !e.insideVoidAura);
+          spire.cachedTarget = findNearestEnemy(spire, filtered, SPIRE_RANGE);
           break;
+        }
 
-        case "arcane_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemiesCache, SPIRE_RANGE * 1.5);
+        case "frost_spire": {
+          const filtered = combinedEnemiesCache.filter(e => !e.insideVoidAura);
+          spire.cachedTarget = findNearestEnemy(spire, filtered, SPIRE_RANGE * 0.9);
           break;
+        }
+
+        case "flame_spire": {
+          const filtered = combinedEnemiesCache.filter(e => !e.insideVoidAura);
+          spire.cachedTarget = findNearestEnemy(spire, filtered, SPIRE_RANGE * 0.9);
+          break;
+        }
+
+        case "arcane_spire": {
+          const filtered = combinedEnemiesCache.filter(e => !e.insideVoidAura);
+          spire.cachedTarget = findNearestEnemy(spire, filtered, SPIRE_RANGE * 1.5);
+          break;
+        }
 
         case "light_spire": {
           const player = gameState.player;
@@ -255,9 +268,11 @@ export function updateSpires(delta) {
           break;
         }
 
-        case "moon_spire":
-          spire.cachedTarget = findNearestEnemy(spire, combinedEnemiesCache, SPIRE_RANGE);
+        case "moon_spire": {
+          const filtered = combinedEnemiesCache.filter(e => !e.insideVoidAura);
+          spire.cachedTarget = findNearestEnemy(spire, filtered, SPIRE_RANGE);
           break;
+        }
       }
     }
 
@@ -266,6 +281,14 @@ export function updateSpires(delta) {
 
     // Target died (for non-player)
     if (target !== gameState.player && !target.alive) {
+      spire.cachedTarget = null;
+      continue;
+    }
+
+    // ============================================================
+    // VOID-AURA PATCH: Spire must NOT fire if target protected
+    // ============================================================
+    if (target.insideVoidAura) {
       spire.cachedTarget = null;
       continue;
     }

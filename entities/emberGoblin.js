@@ -46,6 +46,7 @@ import { slideRect } from "../utils/mapCollision.js";
 import { getAllPaths } from "../maps/map.js";
 import { applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
+import { GOBLIN_AURA_RADIUS } from "./goblinAuraConstants.js";
 
 
 // ============================================================
@@ -595,6 +596,47 @@ function handleGoblinEscape(goblin) {
   goblin.fadeTimer = FADE_OUT_TIME;
 }
 
+function drawFireAura(ctx, e, size) {
+  const auraRadius = GOBLIN_AURA_RADIUS.emberGoblin;
+  const pulse = 0.9 + Math.sin(Date.now() / 180) * 0.18;
+
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+
+  // Hot inner glow
+  ctx.globalAlpha = 0.3 * pulse;
+  const gradient = ctx.createRadialGradient(e.x, e.y, size * 0.2, e.x, e.y, auraRadius);
+  gradient.addColorStop(0.0, "rgba(255,170,90,0.75)");
+  gradient.addColorStop(0.45, "rgba(255,110,60,0.35)");
+  gradient.addColorStop(1.0, "rgba(255,80,30,0)");
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, auraRadius, 0, Math.PI * 2);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  // Outer heat shimmer ring
+  ctx.globalAlpha = 0.25 + 0.12 * Math.sin(Date.now() / 140);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "rgba(255,130,70,0.85)";
+  ctx.setLineDash([8, 10]);
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, auraRadius, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Floating embers give the aura motion
+  for (let i = 0; i < 3; i++) {
+    ctx.globalAlpha = 0.25 + 0.2 * Math.random();
+    const ox = (Math.random() - 0.5) * auraRadius * 0.9;
+    const oy = -Math.random() * auraRadius * 0.7;
+    ctx.beginPath();
+    ctx.arc(e.x + ox, e.y + oy, 2 + Math.random() * 2, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,200,110,0.65)";
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
 
 // ============================================================
 // 🎨 DRAW — unchanged (automatically uses Ember sprites)
@@ -643,6 +685,8 @@ export function drawGoblins(context) {
     if (!e.alive && e.fading) {
       ctx.globalAlpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
     }
+
+    if (e.alive) drawFireAura(ctx, e, GOBLIN_SIZE);
 
     ctx.drawImage(
       img,

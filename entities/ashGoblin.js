@@ -41,6 +41,7 @@ import { slideRect } from "../utils/mapCollision.js";
 import { getAllPaths } from "../maps/map.js";
 import { applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
+import { GOBLIN_AURA_RADIUS } from "./goblinAuraConstants.js";
 
 
 // ============================================================
@@ -583,6 +584,35 @@ function handleGoblinEscape(goblin) {
   goblin.fadeTimer = FADE_OUT_TIME;
 }
 
+function drawAshAura(ctx, e) {
+  const auraRadius = GOBLIN_AURA_RADIUS.ashGoblin;
+  const pulse = 0.78 + Math.sin(Date.now() / 300) * 0.2;
+
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+
+  ctx.globalAlpha = 0.28 * pulse;
+  const gradient = ctx.createRadialGradient(e.x, e.y, auraRadius * 0.25, e.x, e.y, auraRadius);
+  gradient.addColorStop(0.0, "rgba(210,210,210,0.55)");
+  gradient.addColorStop(0.5, "rgba(180,200,170,0.3)");
+  gradient.addColorStop(1.0, "rgba(120,140,120,0)");
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, auraRadius, 0, Math.PI * 2);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  ctx.globalAlpha = 0.24 + 0.08 * pulse;
+  ctx.strokeStyle = "rgba(190,220,180,0.85)";
+  ctx.lineWidth = 3;
+  ctx.setLineDash([5, 12]);
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, auraRadius, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.restore();
+}
+
 
 // ============================================================
 // 🎨 DRAW — unchanged (auto-uses ash sprites)
@@ -627,6 +657,9 @@ export function drawGoblins(context) {
     if (!e.alive && e.fading) {
       ctx.globalAlpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
     }
+
+    if (e.alive) drawAshAura(ctx, e);
+
 
     ctx.drawImage(
       img,

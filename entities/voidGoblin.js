@@ -40,6 +40,7 @@ import { slideRect } from "../utils/mapCollision.js";
 import { getAllPaths } from "../maps/map.js";
 import { applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
+import { GOBLIN_AURA_RADIUS } from "./goblinAuraConstants.js";
 
 
 // ============================================================
@@ -585,6 +586,39 @@ function handleGoblinEscape(goblin) {
 // 🎨 DRAW — identical, auto-assigns Void Goblin sprites
 // ============================================================
 
+function drawVoidAura(ctx, e) {
+  const auraRadius = GOBLIN_AURA_RADIUS.voidGoblin;
+  const pulse = 0.8 + Math.sin(Date.now() / 150) * 0.18;
+  const ripple = 0.85 + Math.sin(Date.now() / 260 + e.x * 0.02) * 0.05;
+
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+
+  // Outer distortion aura
+  ctx.globalAlpha = 0.3 * pulse;
+  const gradient = ctx.createRadialGradient(e.x, e.y, auraRadius * 0.18, e.x, e.y, auraRadius);
+  gradient.addColorStop(0.0, "rgba(170,90,255,0.65)");
+  gradient.addColorStop(0.5, "rgba(120,50,210,0.35)");
+  gradient.addColorStop(1.0, "rgba(70,0,140,0)");
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, auraRadius, 0, Math.PI * 2);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  // Pulse ring that shows the true radius
+  ctx.globalAlpha = 0.22 + 0.1 * pulse;
+  ctx.strokeStyle = "rgba(200,160,255,0.85)";
+  ctx.lineWidth = 3;
+  ctx.setLineDash([7, 9]);
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, auraRadius * ripple, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.restore();
+}
+
+
 export function drawGoblins(context) {
   if (!goblinSprites) return;
   ctx = context;
@@ -612,6 +646,10 @@ export function drawGoblins(context) {
 
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
+
+    
+      if (e.alive) drawVoidAura(ctx, e);
+
 
     if (e.alive && e.flashTimer > 0) {
       const flashAlpha = e.flashTimer / 150;

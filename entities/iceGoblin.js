@@ -53,6 +53,7 @@ import { slideRect } from "../utils/mapCollision.js";
 import { getAllPaths } from "../maps/map.js";
 import { applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
+import { GOBLIN_AURA_RADIUS } from "./goblinAuraConstants.js";
 
 
 // ============================================================
@@ -587,6 +588,36 @@ function handleGoblinEscape(goblin) {
 // 🎨 DRAW
 // ============================================================
 
+function drawIceAura(ctx, e) {
+  const auraRadius = GOBLIN_AURA_RADIUS.iceGoblin;
+  const pulse = 0.82 + Math.sin(Date.now() / 250) * 0.18;
+  const inner = auraRadius * 0.35;
+
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+
+  ctx.globalAlpha = 0.32 * pulse;
+  const gradient = ctx.createRadialGradient(e.x, e.y, inner, e.x, e.y, auraRadius);
+  gradient.addColorStop(0.0, "rgba(200,230,255,0.6)");
+  gradient.addColorStop(0.5, "rgba(150,190,255,0.28)");
+  gradient.addColorStop(1.0, "rgba(120,170,255,0)");
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, auraRadius, 0, Math.PI * 2);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  ctx.globalAlpha = 0.35 * pulse;
+  ctx.strokeStyle = "rgba(180,220,255,0.9)";
+  ctx.lineWidth = 3;
+  ctx.setLineDash([6, 10]);
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, auraRadius, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.restore();
+}
+
 export function drawGoblins(context) {
   if (!goblinSprites) return;
   ctx = context;
@@ -613,6 +644,8 @@ export function drawGoblins(context) {
 
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
+
+    if (e.alive) drawIceAura(ctx, e);
 
     if (e.alive && e.flashTimer > 0) {
       const flashAlpha = e.flashTimer / 150;
