@@ -73,7 +73,7 @@ const CROSSBOW_HITBOX = CROSSBOW_SIZE * 0.55;
 const ATTACK_RANGE = 260;
 const IDEAL_MIN_RANGE = 160;
 
-const ATTACK_COOLDOWN = 1600;
+const ATTACK_COOLDOWN = 3200;
 const ATTACK_DAMAGE = 8;
 const ATTACK_WINDUP_MS = 160;
 const ATTACK_DURATION_MS = 380;
@@ -562,7 +562,7 @@ function killCrossbow(c) {
   Events.emit(E.enemyKilled, { type: "crossbow", x: c.x, y: c.y });
 
   awardXP(5);
-  addGold(4);
+  addGold(2);
   addBravery(1);
   updateHUD();
   playGoblinDeath();

@@ -65,7 +65,7 @@ let ogreSprites = null;
 
 const OGRE_SIZE   = 160;
 const OGRE_SPEED  = 38;
-const BASE_HP     = 600;
+const BASE_HP     = 1200;
 const OGRE_DAMAGE = 25;
 
 const ATTACK_RANGE    = 120;
@@ -427,8 +427,8 @@ export function damageOgre(o, amount) {
     o.fading = true;
 
     spawnLoot("ogre", o.x, o.y);
-    awardXP(25);
-    addBravery(20);
+    awardXP(15);
+    addBravery(10);
 
     spawnFloatingText(o.x, o.y - 50, "💀 Ogre Down!", "#ffccff");
     playOgreSlain();

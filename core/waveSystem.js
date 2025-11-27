@@ -77,95 +77,263 @@ export const waveConfigs = {
   // Wave 5: + 1 voidGoblin
   // ============================================================
   1: [
-    { goblins: 0, iceGoblins: 0, emberGoblins: 0, ashGoblins: 0, voidGoblins: 0, worgs: 0 , ogres: 0, elites: 0, trolls: 10, crossbows: 10 },
-    { goblins: 0, iceGoblins:10, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 10, emberGoblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 10, emberGoblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 10, emberGoblins: 0, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
+    { goblins: 8,  worgs: 0 },   // Wave 1 - intro
+    { goblins: 12, worgs: 0 },   // Wave 2
+    { goblins: 16, worgs: 0 },   // Wave 3
+    { goblins: 18, worgs: 1 },   // Wave 4 - first worg
+    { goblins: 20, worgs: 2 },   // Wave 5
+    { goblins: 24, worgs: 2 },   // Wave 6
+    { goblins: 26, worgs: 3 },   // Wave 7
+    { goblins: 30, worgs: 3 },   // Wave 8
+    { goblins: 34, worgs: 4 },   // Wave 9
+    { boss: "seraphine", phase: 1, goblins: 20, worgs: 4 } // Wave 10 boss
   ],
 
   // ============================================================
   // MAP 2 - Early Worg Pressure (Introduced Mid-Map)
   // ============================================================
   2: [
-    { goblins: 18, worgs: 0, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 22, worgs: 2, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 24, worgs: 3, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 26, worgs: 4, elites: 1, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 30, worgs: 5, elites: 1, trolls: 0, ogres: 0, crossbows: 1 },
+    { goblins: 18, worgs: 0,  elites: 0 },
+    { goblins: 22, worgs: 1,  elites: 0 },
+    { goblins: 26, worgs: 2,  elites: 0 },
+    { goblins: 30, worgs: 3,  elites: 1 }, // elite intro
+    { goblins: 32, worgs: 3,  elites: 1 },
+    { goblins: 34, worgs: 4,  elites: 1 },
+    { goblins: 36, worgs: 4,  elites: 2 },
+    { goblins: 40, worgs: 5,  elites: 2 },
+    { goblins: 42, worgs: 5,  elites: 3 },
+    { goblins: 44, worgs: 5,  elites: 3 },
+    { goblins: 46, worgs: 6,  elites: 3 },
+    { goblins: 50, worgs: 6,  elites: 4 },
   ],
 
   // ============================================================
   // MAP 3 - Pattern Mixing + Elite Ambushes
   // ============================================================
   3: [
-    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { boss: "seraphine", phase: 1, goblins: 6 }
+    { goblins: 20, worgs: 2, elites: 0, trolls: 0, ogres: 0 },
+    { goblins: 24, worgs: 2, elites: 0, trolls: 0, ogres: 0 },
+    { goblins: 26, worgs: 3, elites: 1, trolls: 0, ogres: 0 },
+    { goblins: 30, worgs: 3, elites: 1, trolls: 0, ogres: 0 },
+
+    { goblins: 34, worgs: 4, elites: 1, trolls: 1, ogres: 0 }, // troll intro
+    { goblins: 36, worgs: 4, elites: 2, trolls: 1, ogres: 0 },
+    { goblins: 40, worgs: 5, elites: 2, trolls: 2, ogres: 0 },
+    { goblins: 42, worgs: 5, elites: 3, trolls: 2, ogres: 0 },
+
+    { goblins: 44, worgs: 6, elites: 3, trolls: 2, ogres: 1 }, // ogre intro
+    { goblins: 46, worgs: 6, elites: 3, trolls: 2, ogres: 1 },
+    { goblins: 48, worgs: 6, elites: 3, trolls: 3, ogres: 1 },
+    { goblins: 50, worgs: 7, elites: 4, trolls: 3, ogres: 1 },
+
+    { goblins: 55, worgs: 8, elites: 4, trolls: 3, ogres: 2 },
+    { goblins: 60, worgs: 8, elites: 4, trolls: 4, ogres: 2 },
   ],
 
   // ============================================================
   // MAP 4 - Everything Tightens
   // ============================================================
   4: [
-    { goblins: 4, worgs: 0, elites: 0, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 28, worgs: 6, elites: 2, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 32, worgs: 7, elites: 2, trolls: 0, ogres: 0, crossbows: 0 },
-    { goblins: 34, worgs: 7, elites: 3, trolls: 0, ogres: 0, crossbows: 1 },
-    { goblins: 38, worgs: 8, elites: 3, trolls: 0, ogres: 0, crossbows: 1 },
+    { goblins: 22, worgs: 2, elites: 0, trolls: 0, ogres: 0, emberGoblins: 0 },
+
+    { goblins: 28, worgs: 3, elites: 1, trolls: 0, ogres: 0, emberGoblins: 2 }, // ember intro
+    { goblins: 32, worgs: 4, elites: 1, trolls: 0, ogres: 0, emberGoblins: 3 },
+    { goblins: 36, worgs: 4, elites: 2, trolls: 1, ogres: 0, emberGoblins: 3 },
+    { goblins: 40, worgs: 5, elites: 2, trolls: 1, ogres: 0, emberGoblins: 4 },
+    { goblins: 42, worgs: 5, elites: 2, trolls: 1, ogres: 1, emberGoblins: 4 },
+
+    { goblins: 44, worgs: 6, elites: 3, trolls: 1, ogres: 1, emberGoblins: 4 },
+    { goblins: 48, worgs: 6, elites: 3, trolls: 2, ogres: 1, emberGoblins: 4 },
+    { goblins: 52, worgs: 7, elites: 3, trolls: 2, ogres: 1, emberGoblins: 5 },
+    { goblins: 55, worgs: 7, elites: 4, trolls: 2, ogres: 1, emberGoblins: 5 },
+
+    { goblins: 58, worgs: 8, elites: 4, trolls: 2, ogres: 2, emberGoblins: 5 },
+    { goblins: 60, worgs: 8, elites: 4, trolls: 3, ogres: 2, emberGoblins: 5 },
+
+    { goblins: 65, worgs: 9, elites: 5, trolls: 3, ogres: 2, emberGoblins: 6 },
+    { goblins: 70, worgs: 10, elites: 5, trolls: 3, ogres: 3, emberGoblins: 6 },
+
+    { boss: "seraphine", phase: 2, goblins: 30, worgs: 8, elites: 3, trolls: 1, ogres: 1, emberGoblins: 6 },
   ],
 
   // ============================================================
   // MAP 5 - Trolls Arrive (High HP Disruptors)
   // ============================================================
   5: [
-    { goblins: 28, worgs: 6, elites: 1, trolls: 1, ogres: 0, crossbows: 0 },
-    { goblins: 30, worgs: 7, elites: 1, trolls: 1, ogres: 0, crossbows: 0 },
-    { goblins: 32, worgs: 7, elites: 2, trolls: 2, ogres: 0, crossbows: 0 },
-    { goblins: 34, worgs: 8, elites: 2, trolls: 2, ogres: 0, crossbows: 1 },
-    { goblins: 38, worgs: 9, elites: 3, trolls: 2, ogres: 0, crossbows: 1 },
+    // Ice Goblin Intro
+    { goblins: 26, worgs: 3, elites: 0, trolls: 0, ogres: 0, iceGoblins: 1 },
+    { goblins: 28, worgs: 3, elites: 1, trolls: 0, ogres: 0, iceGoblins: 2 },
+    { goblins: 30, worgs: 4, elites: 1, trolls: 1, ogres: 0, iceGoblins: 2 },
+
+    // Mixed Pressure
+    { goblins: 32, worgs: 4, elites: 1, trolls: 1, ogres: 0, iceGoblins: 3 },
+    { goblins: 34, worgs: 4, elites: 2, trolls: 1, ogres: 0, iceGoblins: 3 },
+    { goblins: 36, worgs: 5, elites: 2, trolls: 1, ogres: 1, iceGoblins: 3 },
+
+    // More Ice Integration
+    { goblins: 38, worgs: 5, elites: 2, trolls: 2, ogres: 1, iceGoblins: 4 },
+    { goblins: 40, worgs: 5, elites: 3, trolls: 2, ogres: 1, iceGoblins: 4 },
+    { goblins: 42, worgs: 6, elites: 3, trolls: 2, ogres: 1, iceGoblins: 5 },
+
+    // Bigger Waves
+    { goblins: 44, worgs: 6, elites: 3, trolls: 3, ogres: 1, iceGoblins: 5 },
+    { goblins: 46, worgs: 6, elites: 4, trolls: 3, ogres: 1, iceGoblins: 5 },
+    { goblins:46, worgs: 7, elites: 4, trolls: 3, ogres: 2, iceGoblins: 6 },
+
+    // Final Ice Assault
+    { goblins: 48, worgs: 7, elites: 4, trolls: 3, ogres: 2, iceGoblins: 6 },
+    { goblins: 50, worgs: 7, elites: 4, trolls: 4, ogres: 2, iceGoblins: 7 },
+    { goblins: 52, worgs: 8, elites: 5, trolls: 4, ogres: 2, iceGoblins: 7 },
+    { goblins: 55, worgs: 8, elites: 5, trolls: 4, ogres: 3, iceGoblins: 8 },
   ],
+
 
   // ============================================================
   // MAP 6 - Ogre Introduction (Slow, Heavy Hitters)
   // ============================================================
   6: [
-    { goblins: 5, worgs: 0, ogres: 0, elites: 0, trolls: 0, crossbows: 0 },
-    { goblins: 14, worgs: 3, ogres: 1, elites: 1, trolls: 0, crossbows: 0 },
-    { boss: "seraphine", phase: 2, goblins: 10, worgs: 4, elites: 2 }
+    // Healer Intro
+    { goblins: 26, worgs: 4, elites: 1, trolls: 0, ogres: 0, iceGoblins: 0, ashGoblins: 1 },
+    { goblins: 28, worgs: 4, elites: 1, trolls: 0, ogres: 0, iceGoblins: 1, ashGoblins: 1 },
+    { goblins: 30, worgs: 5, elites: 1, trolls: 1, ogres: 0, iceGoblins: 1, ashGoblins: 2 },
+
+    // Combining Heals + Frost
+    { goblins: 32, worgs: 5, elites: 2, trolls: 1, ogres: 0, iceGoblins: 1, ashGoblins: 2 },
+    { goblins: 34, worgs: 5, elites: 2, trolls: 1, ogres: 0, iceGoblins: 2, ashGoblins: 2 },
+    { goblins: 36, worgs: 6, elites: 2, trolls: 2, ogres: 0, iceGoblins: 2, ashGoblins: 3 },
+
+    // Stronger Mix
+    { goblins: 38, worgs: 6, elites: 3, trolls: 2, ogres: 1, iceGoblins: 2, ashGoblins: 3 },
+    { goblins: 40, worgs: 6, elites: 3, trolls: 2, ogres: 1, iceGoblins: 3, ashGoblins: 3 },
+    { goblins: 42, worgs: 7, elites: 3, trolls: 2, ogres: 1, iceGoblins: 3, ashGoblins: 4 },
+
+    // Higher Tier Pressure
+    { goblins: 44, worgs: 7, elites: 4, trolls: 3, ogres: 1, iceGoblins: 3, ashGoblins: 4 },
+    { goblins: 46, worgs: 7, elites: 4, trolls: 3, ogres: 2, iceGoblins: 4, ashGoblins: 4 },
+    { goblins: 48, worgs: 7, elites: 4, trolls: 3, ogres: 2, iceGoblins: 4, ashGoblins: 5 },
+
+    // Final Build-Up
+    { goblins: 50, worgs: 8, elites: 5, trolls: 3, ogres: 2, iceGoblins: 5, ashGoblins: 5 },
+    { goblins: 52, worgs: 8, elites: 5, trolls: 4, ogres: 2, iceGoblins: 5, ashGoblins: 5 },
+    { goblins: 54, worgs: 8, elites: 5, trolls: 4, ogres: 2, iceGoblins: 6, ashGoblins: 6 },
+    { goblins: 56, worgs: 9, elites: 6, trolls: 4, ogres: 3, iceGoblins: 6, ashGoblins: 6 },
+    { goblins: 60, worgs: 9, elites: 6, trolls: 4, ogres: 3, iceGoblins: 6, ashGoblins: 7 },
   ],
 
   // ============================================================
   // MAP 7 - Crossbows Introduced (1-2 MAX)
   // ============================================================
   7: [
-    { goblins: 32, worgs: 8, elites: 2, trolls: 2, ogres: 1, crossbows: 1 },
-    { goblins: 34, worgs: 8, elites: 2, trolls: 3, ogres: 1, crossbows: 1 },
-    { goblins: 36, worgs: 9, elites: 3, trolls: 3, ogres: 1, crossbows: 1 },
-    { goblins: 38, worgs: 9, elites: 3, trolls: 3, ogres: 2, crossbows: 2 },
-    { goblins: 42, worgs: 10, elites: 4, trolls: 3, ogres: 2, crossbows: 2 },
+    // Crossbow Intro
+    { goblins: 34, worgs: 6, elites: 2, trolls: 1, ogres: 0, iceGoblins: 0, ashGoblins: 1, crossbows: 1 },
+    { goblins: 36, worgs: 6, elites: 2, trolls: 1, ogres: 0, iceGoblins: 1, ashGoblins: 1, crossbows: 1 },
+    { goblins: 38, worgs: 6, elites: 2, trolls: 2, ogres: 0, iceGoblins: 1, ashGoblins: 2, crossbows: 1 },
+
+    // Mid Build
+    { goblins: 40, worgs: 7, elites: 3, trolls: 2, ogres: 1, iceGoblins: 1, ashGoblins: 2, crossbows: 1 },
+    { goblins: 42, worgs: 7, elites: 3, trolls: 2, ogres: 1, iceGoblins: 2, ashGoblins: 2, crossbows: 1 },
+    { goblins: 44, worgs: 7, elites: 3, trolls: 3, ogres: 1, iceGoblins: 2, ashGoblins: 3, crossbows: 1 },
+
+    // Strong Mix
+    { goblins: 46, worgs: 7, elites: 4, trolls: 3, ogres: 1, iceGoblins: 2, ashGoblins: 3, crossbows: 2 },
+    { goblins: 48, worgs: 8, elites: 4, trolls: 3, ogres: 2, iceGoblins: 3, ashGoblins: 3, crossbows: 2 },
+    { goblins: 50, worgs: 8, elites: 4, trolls: 3, ogres: 2, iceGoblins: 3, ashGoblins: 4, crossbows: 2 },
+
+    // Bigger Pressure
+    { goblins: 52, worgs: 8, elites: 5, trolls: 4, ogres: 2, iceGoblins: 3, ashGoblins: 4, crossbows: 2 },
+    { goblins: 54, worgs: 9, elites: 5, trolls: 4, ogres: 2, iceGoblins: 4, ashGoblins: 4, crossbows: 2 },
+    { goblins: 56, worgs: 9, elites: 5, trolls: 4, ogres: 3, iceGoblins: 4, ashGoblins: 5, crossbows: 2 },
+
+    // Final Mixed Waves
+    { goblins: 58, worgs: 10, elites: 6, trolls: 4, ogres: 3, iceGoblins: 5, ashGoblins: 5, crossbows: 2 },
+    { goblins: 60, worgs: 10, elites: 6, trolls: 4, ogres: 3, iceGoblins: 5, ashGoblins: 5, crossbows: 2 },
+    { goblins: 62, worgs: 10, elites: 6, trolls: 4, ogres: 3, iceGoblins: 5, ashGoblins: 6, crossbows: 2 },
+
+    // Boss build-up
+    { goblins: 64, worgs: 10, elites: 6, trolls: 5, ogres: 3, iceGoblins: 5, ashGoblins: 6, crossbows: 2 },
+    { goblins: 70, worgs: 12, elites: 7, trolls: 5, ogres: 3, iceGoblins: 6, ashGoblins: 6, crossbows: 2 },
+
+    // Seraphine Form III
+    { boss: "seraphine", phase: 3, goblins: 40, worgs: 10, elites: 5, trolls: 4, ogres: 2, iceGoblins: 4, ashGoblins: 4, crossbows: 2 }
   ],
 
   // ============================================================
   // MAP 8 - Penultimate Chaos
   // ============================================================
   8: [
-    { goblins: 36, worgs: 10, elites: 3, trolls: 3, ogres: 2, crossbows: 1 },
-    { goblins: 40, worgs: 10, elites: 3, trolls: 4, ogres: 2, crossbows: 1 },
-    { goblins: 42, worgs: 11, elites: 4, trolls: 4, ogres: 2, crossbows: 2 },
-    { goblins: 44, worgs: 11, elites: 4, trolls: 4, ogres: 3, crossbows: 2 },
-    { goblins: 48, worgs: 12, elites: 5, trolls: 4, ogres: 3, crossbows: 2 },
+    // Void Intro
+    { goblins: 40, worgs: 8, elites: 3, trolls: 2, ogres: 1, iceGoblins: 2, ashGoblins: 1, crossbows: 1, voidGoblins: 1 },
+    { goblins: 42, worgs: 8, elites: 3, trolls: 2, ogres: 1, iceGoblins: 2, ashGoblins: 1, crossbows: 1, voidGoblins: 2 },
+    { goblins: 44, worgs: 8, elites: 4, trolls: 2, ogres: 1, iceGoblins: 3, ashGoblins: 2, crossbows: 1, voidGoblins: 2 },
+
+    // Mid Voids
+    { goblins: 46, worgs: 8, elites: 4, trolls: 3, ogres: 1, iceGoblins: 3, ashGoblins: 2, crossbows: 1, voidGoblins: 3 },
+    { goblins: 48, worgs: 8, elites: 4, trolls: 3, ogres: 2, iceGoblins: 3, ashGoblins: 2, crossbows: 1, voidGoblins: 3 },
+    { goblins: 50, worgs: 9, elites: 4, trolls: 3, ogres: 2, iceGoblins: 4, ashGoblins: 2, crossbows: 1, voidGoblins: 3 },
+
+    // Building Void Pressure
+    { goblins: 52, worgs: 9, elites: 5, trolls: 3, ogres: 2, iceGoblins: 4, ashGoblins: 3, crossbows: 2, voidGoblins: 4 },
+    { goblins: 54, worgs: 9, elites: 5, trolls: 4, ogres: 2, iceGoblins: 4, ashGoblins: 3, crossbows: 2, voidGoblins: 4 },
+    { goblins: 56, worgs: 9, elites: 5, trolls: 4, ogres: 2, iceGoblins: 4, ashGoblins: 3, crossbows: 2, voidGoblins: 5 },
+
+    // Harder Variants
+    { goblins: 58, worgs: 10, elites: 5, trolls: 4, ogres: 3, iceGoblins: 4, ashGoblins: 4, crossbows: 2, voidGoblins: 5 },
+    { goblins: 60, worgs: 10, elites: 6, trolls: 4, ogres: 3, iceGoblins: 5, ashGoblins: 4, crossbows: 2, voidGoblins: 5 },
+    { goblins: 62, worgs: 10, elites: 6, trolls: 4, ogres: 3, iceGoblins: 5, ashGoblins: 4, crossbows: 2, voidGoblins: 6 },
+    { goblins: 64, worgs: 10, elites: 6, trolls: 4, ogres: 3, iceGoblins: 5, ashGoblins: 4, crossbows: 2, voidGoblins: 6 },
+
+    // Larger Swarm Build-Up
+    { goblins: 66, worgs: 11, elites: 6, trolls: 4, ogres: 3, iceGoblins: 6, ashGoblins: 5, crossbows: 2, voidGoblins: 6 },
+    { goblins: 70, worgs: 11, elites: 6, trolls: 5, ogres: 3, iceGoblins: 6, ashGoblins: 5, crossbows: 2, voidGoblins: 7 },
+
+    // Final Void Overload
+    { goblins: 72, worgs: 12, elites: 7, trolls: 5, ogres: 3, iceGoblins: 6, ashGoblins: 5, crossbows: 2, voidGoblins: 7 },
+    { goblins: 74, worgs: 12, elites: 7, trolls: 5, ogres: 4, iceGoblins: 6, ashGoblins: 5, crossbows: 2, voidGoblins: 7 },
+    { goblins: 76, worgs: 12, elites: 7, trolls: 5, ogres: 4, iceGoblins: 7, ashGoblins: 5, crossbows: 2, voidGoblins: 7 },
+    { goblins: 80, worgs: 12, elites: 7, trolls: 6, ogres: 4, iceGoblins: 7, ashGoblins: 5, crossbows: 2, voidGoblins: 8 }
   ],
 
   // ============================================================
   // MAP 9 - Ultimate Final Showdown
   // ============================================================
   9: [
-    { goblins: 40, worgs: 12, elites: 3, trolls: 3, ogres: 2, crossbows: 1 },
-    { goblins: 44, worgs: 12, elites: 4, trolls: 4, ogres: 2, crossbows: 1 },
-    { goblins: 48, worgs: 13, elites: 4, trolls: 4, ogres: 3, crossbows: 1 },
-    { goblins: 52, worgs: 14, elites: 5, trolls: 5, ogres: 3, crossbows: 2 },
-    { boss: "seraphine", phase: 3, goblins: 56, worgs: 15, elites: 6, trolls: 6, ogres: 4, crossbows: 2 }, // **BOSS WAVE**
+    // The Drums Begin
+    { goblins: 40, worgs: 10, elites: 3, trolls: 2, ogres: 1, iceGoblins: 2, ashGoblins: 1, emberGoblins: 1, voidGoblins: 1, crossbows: 1 },
+    { goblins: 42, worgs: 10, elites: 3, trolls: 2, ogres: 1, iceGoblins: 2, ashGoblins: 1, emberGoblins: 1, voidGoblins: 1, crossbows: 1 },
+    { goblins: 44, worgs: 10, elites: 4, trolls: 2, ogres: 1, iceGoblins: 2, ashGoblins: 2, emberGoblins: 1, voidGoblins: 1, crossbows: 1 },
+
+    // Building Up
+    { goblins: 46, worgs: 10, elites: 4, trolls: 3, ogres: 1, iceGoblins: 2, ashGoblins: 2, emberGoblins: 2, voidGoblins: 1, crossbows: 2 },
+    { goblins: 48, worgs: 11, elites: 4, trolls: 3, ogres: 1, iceGoblins: 3, ashGoblins: 2, emberGoblins: 2, voidGoblins: 1, crossbows: 2 },
+    { goblins: 50, worgs: 11, elites: 4, trolls: 3, ogres: 2, iceGoblins: 3, ashGoblins: 2, emberGoblins: 2, voidGoblins: 1, crossbows: 2 },
+
+    // Mid-Pressure
+    { goblins: 52, worgs: 11, elites: 5, trolls: 3, ogres: 2, iceGoblins: 3, ashGoblins: 3, emberGoblins: 2, voidGoblins: 2, crossbows: 2 },
+    { goblins: 54, worgs: 11, elites: 5, trolls: 4, ogres: 2, iceGoblins: 4, ashGoblins: 3, emberGoblins: 2, voidGoblins: 2, crossbows: 2 },
+    { goblins: 56, worgs: 12, elites: 5, trolls: 4, ogres: 2, iceGoblins: 4, ashGoblins: 3, emberGoblins: 2, voidGoblins: 2, crossbows: 2 },
+
+    // Heat Rises
+    { goblins: 58, worgs: 12, elites: 6, trolls: 4, ogres: 2, iceGoblins: 4, ashGoblins: 3, emberGoblins: 2, voidGoblins: 3, crossbows: 2 },
+    { goblins: 60, worgs: 12, elites: 6, trolls: 4, ogres: 2, iceGoblins: 4, ashGoblins: 3, emberGoblins: 3, voidGoblins: 3, crossbows: 2 },
+    { goblins: 62, worgs: 12, elites: 6, trolls: 4, ogres: 3, iceGoblins: 4, ashGoblins: 3, emberGoblins: 3, voidGoblins: 3, crossbows: 2 },
+
+    // Swarm Approaches
+    { goblins: 65, worgs: 12, elites: 6, trolls: 5, ogres: 3, iceGoblins: 4, ashGoblins: 4, emberGoblins: 3, voidGoblins: 3, crossbows: 2 },
+    { goblins: 68, worgs: 12, elites: 6, trolls: 5, ogres: 3, iceGoblins: 5, ashGoblins: 4, emberGoblins: 3, voidGoblins: 3, crossbows: 2 },
+    { goblins: 70, worgs: 12, elites: 6, trolls: 5, ogres: 3, iceGoblins: 5, ashGoblins: 4, emberGoblins: 3, voidGoblins: 4, crossbows: 2 },
+
+    // Pre-Final Assault
+    { goblins: 72, worgs: 12, elites: 7, trolls: 5, ogres: 3, iceGoblins: 5, ashGoblins: 4, emberGoblins: 4, voidGoblins: 4, crossbows: 2 },
+    { goblins: 75, worgs: 12, elites: 7, trolls: 5, ogres: 3, iceGoblins: 5, ashGoblins: 4, emberGoblins: 4, voidGoblins: 4, crossbows: 2 },
+    { goblins: 78, worgs: 13, elites: 7, trolls: 5, ogres: 4, iceGoblins: 6, ashGoblins: 4, emberGoblins: 4, voidGoblins: 4, crossbows: 2 },
+
+    // The Army of the Architect
+    { goblins: 82, worgs: 14, elites: 7, trolls: 6, ogres: 4, iceGoblins: 6, ashGoblins: 4, emberGoblins: 4, voidGoblins: 4, crossbows: 2 },
+    { goblins: 85, worgs: 14, elites: 8, trolls: 6, ogres: 4, iceGoblins: 6, ashGoblins: 5, emberGoblins: 4, voidGoblins: 5, crossbows: 2 },
+    { goblins: 90, worgs: 14, elites: 8, trolls: 6, ogres: 4, iceGoblins: 6, ashGoblins: 5, emberGoblins: 4, voidGoblins: 5, crossbows: 2 },
+
+    // Final Boss Wave (Form IV)
+    { boss: "seraphine", phase: 4, goblins: 50, worgs: 12, elites: 6, trolls: 5, ogres: 4, iceGoblins: 4, ashGoblins: 3, emberGoblins: 3, voidGoblins: 3, crossbows: 2 }
   ],
 };
 

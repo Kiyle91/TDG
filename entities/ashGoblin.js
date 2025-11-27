@@ -58,10 +58,10 @@ let goblinsSpawned = 0;
 let storyTriggered = false;
 
 const GOBLIN_SIZE = 80;
-const BASE_SPEED = 80;
+const BASE_SPEED = 90;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;
-const DEFAULT_HP = 80;
+const DEFAULT_HP = 180;
 const HITBOX_OFFSET_Y = 15;
 const ATTACK_RANGE = 80;
 const AGGRO_RANGE = 150;
@@ -568,8 +568,8 @@ export function damageGoblin(goblin, amount) {
     playGoblinDeath();
     incrementGoblinDefeated();
     awardXP(5);
-    addGold(3);
-    addBravery(100);
+    addGold(2);
+    addBravery(1);
     updateHUD();
     spawnLoot("goblin", goblin.x, goblin.y);
   }

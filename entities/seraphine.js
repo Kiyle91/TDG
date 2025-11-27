@@ -80,7 +80,7 @@ const FADE_OUT = 1200;
 // Rewards (per kill)
 const EXP_REWARD = 40;
 const GOLD_REWARD = 15;
-const BRAVERY_REWARD = 3;
+const BRAVERY_REWARD = 100;
 
 // ------------------------------------------------------------
 // 📦 IMAGE LOADER

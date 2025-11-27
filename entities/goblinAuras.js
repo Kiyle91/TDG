@@ -73,6 +73,8 @@ export function applyGoblinAuras(delta, context = {}) {
   const dt = delta / 1000;
   const player = gameState.player;
   if (!player || player.dead) return;
+  const bravery = gameState.bravery;
+  const braveryImmune = player.invincible === true || bravery?.draining === true || bravery?.charged === true;
 
   const allEnemies = Array.isArray(context.enemies) ? context.enemies : getAllEnemies();
   const spatial = context.spatial;
@@ -90,13 +92,17 @@ export function applyGoblinAuras(delta, context = {}) {
   // 🧊 ICE AURA — Slow the player if inside radius
   // ==========================================================
 
-  for (const g of ice) {
-    if (!g.alive) continue;
-    const dist = Math.hypot(player.pos.x - g.x, player.pos.y - g.y);
-    if (dist < GOBLIN_AURA_RADIUS.iceGoblin) {
-      player.slowAuraTimer = 120;            // ms duration resets each frame
-      player.slowAuraFactor = PLAYER_SLOW_AMOUNT;
+  if (!braveryImmune) {
+    for (const g of ice) {
+      if (!g.alive) continue;
+      const dist = Math.hypot(player.pos.x - g.x, player.pos.y - g.y);
+      if (dist < GOBLIN_AURA_RADIUS.iceGoblin) {
+        player.slowAuraTimer = 120;            // ms duration resets each frame
+        player.slowAuraFactor = PLAYER_SLOW_AMOUNT;
+      }
     }
+  } else {
+    player.slowAuraTimer = 0;
   }
 
 
@@ -106,31 +112,35 @@ export function applyGoblinAuras(delta, context = {}) {
 
   if (!player.fireAuraTick) player.fireAuraTick = 0;
 
-  let burnInside = false;
+  if (!braveryImmune) {
+    let burnInside = false;
 
-  for (const g of ember) {
-    if (!g.alive) continue;
-    const dist = Math.hypot(player.pos.x - g.x, player.pos.y - g.y);
-    if (dist < GOBLIN_AURA_RADIUS.emberGoblin) {
-      burnInside = true;
+    for (const g of ember) {
+      if (!g.alive) continue;
+      const dist = Math.hypot(player.pos.x - g.x, player.pos.y - g.y);
+      if (dist < GOBLIN_AURA_RADIUS.emberGoblin) {
+        burnInside = true;
+      }
     }
-  }
 
-  if (burnInside) {
-    player.fireAuraTick += delta;
-    if (player.fireAuraTick >= FIRE_TICK_RATE) {
+    if (burnInside) {
+      player.fireAuraTick += delta;
+      if (player.fireAuraTick >= FIRE_TICK_RATE) {
+        player.fireAuraTick = 0;
+        player.hp = Math.max(0, player.hp - FIRE_TICK_DAMAGE);
+
+        spawnFloatingText(
+          player.pos.x,
+          player.pos.y - 40,
+          `-${FIRE_TICK_DAMAGE}`,
+          "#ff3f1e",
+          22
+        );
+
+        updateHUD();
+      }
+    } else {
       player.fireAuraTick = 0;
-      player.hp = Math.max(0, player.hp - FIRE_TICK_DAMAGE);
-
-      spawnFloatingText(
-        player.pos.x,
-        player.pos.y - 40,
-        `-${FIRE_TICK_DAMAGE}`,
-        "#ff3f1e",
-        22
-      );
-
-      updateHUD();
     }
   } else {
     player.fireAuraTick = 0;

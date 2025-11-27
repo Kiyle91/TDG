@@ -81,11 +81,11 @@ const LOOT_ITEMS = [
 // ------------------------------------------------------------
 
 const LOOT_TABLE = {
-  goblin:   { chance: 1, rolls: 1 },
-  troll:    { chance: 0.1, rolls: 1 },
-  worg:     { chance: 0.8, rolls: 1 },
-  elite:    { chance: 0.12, rolls: 1 },
-  crossbow: { chance: 0.12, rolls: 1 },
+  goblin:   { chance: 0.05, rolls: 1 },
+  troll:    { chance: 0.05, rolls: 1 },
+  worg:     { chance: 0.05, rolls: 1 },
+  elite:    { chance: 0.07, rolls: 1 },
+  crossbow: { chance: 0.1, rolls: 1 },
   ogre:     { chance: 1.0,  rolls: 3 },
   pegasus:  { chance: 1.0,  rolls: 1 },
 };

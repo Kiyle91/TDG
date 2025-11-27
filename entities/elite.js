@@ -58,7 +58,7 @@ let eliteSprites = null;
 // ⚙️ CONFIGURATION
 // ============================================================
 
-const ELITE_HP = 100;
+const ELITE_HP = 120;
 const ELITE_SPEED = 90;
 const ELITE_SIZE = 80;
 const ELITE_HITBOX = ELITE_SIZE * 0.55;
@@ -74,7 +74,7 @@ const ATTACK_COOLDOWN = 1500;   // delay between swings
 const FADE_OUT = 900;
 
 const EXP_REWARD = 5;
-const GOLD_REWARD = 3;
+const GOLD_REWARD = 2;
 
 
 // ============================================================

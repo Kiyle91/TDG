@@ -26,14 +26,14 @@ let worgSprites = null;
 // ------------------------------------------------------------
 // Config
 // ------------------------------------------------------------
-const WORG_HP = 50;
+const WORG_HP = 70;
 const WORG_SPEED = 150;
 const WORG_SIZE = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT = 900;
 const WORG_HITBOX = WORG_SIZE * 0.55;
-const WORG_XP_REWARD = 5;
-const WORG_GOLD_REWARD = 2;
+const WORG_XP_REWARD = 2;
+const WORG_GOLD_REWARD = 1;
 
 // ------------------------------------------------------------
 // Sprite loader (cached to canvas)

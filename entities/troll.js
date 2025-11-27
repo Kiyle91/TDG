@@ -60,7 +60,7 @@ let trollSprites = null;
 
 const SIZE = 96;
 const SPEED = 55;
-const HP = 170;
+const HP = 350;
 const HITBOX = SIZE * 0.55;
 
 const ATTACK_RANGE = 80;
@@ -335,7 +335,7 @@ export function updateTrolls(delta = 16) {
       const dy = target.y - t.y;
       const dist = Math.hypot(dx, dy) || 1;
 
-      if (dist < 6) {
+      if (dist < 14) {
         t.pathIndex++;
         // ✅ FIXED: Compare against t.path.length instead of pathPoints.length
         if (t.pathIndex >= t.path.length) {
@@ -462,7 +462,7 @@ export function damageTroll(t, amount) {
     incrementGoblinDefeated();
 
     awardXP(5);
-    addGold(5);
+    addGold(2);
     addBravery(1);
 
     updateHUD();

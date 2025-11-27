@@ -35,7 +35,7 @@
 // ↪️ Imports
 // ------------------------------------------------------------
 
-import { gameState, addGold, addDiamonds, saveProfiles } from "../utils/gameState.js";
+import { gameState, addDiamonds, saveProfiles } from "../utils/gameState.js";
 import { updateHUD } from "./ui.js";
 import { updateHubCurrencies } from "./hub.js";
 import { playChestOpen } from "../core/soundtrack.js";
