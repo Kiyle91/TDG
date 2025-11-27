@@ -32,6 +32,8 @@
 let musicAudio = null;
 let sfxVolume = 0.8;
 let musicUnlocked = false;
+const sfxPool = new Map();
+const POOL_SIZE = 6;
 
 // ------------------------------------------------------------
 // 🌸 Initialize background music (gesture-unlocked)
@@ -79,9 +81,30 @@ export function setSfxVolume(value) {
 
 export function playSfx(path) {
   if (!musicUnlocked) return;       // block until user unlocks
-  const sfx = new Audio(path);
+
+  let pool = sfxPool.get(path);
+  if (!pool) {
+    pool = [];
+    sfxPool.set(path, pool);
+  }
+
+  let sfx = pool.find(a => a.__idle);
+  if (!sfx) {
+    if (pool.length >= POOL_SIZE) {
+      // Reuse the oldest if we hit the cap
+      sfx = pool.shift();
+    } else {
+      sfx = new Audio(path);
+      sfx.__idle = true;
+      pool.push(sfx);
+    }
+  }
+
+  sfx.__idle = false;
+  sfx.currentTime = 0;
   sfx.volume = Math.pow(sfxVolume, 0.7);  // smoother curve
-  sfx.play().catch(() => {});
+  sfx.onended = () => { sfx.__idle = true; };
+  sfx.play().catch(() => { sfx.__idle = true; });
 }
 
 // ------------------------------------------------------------

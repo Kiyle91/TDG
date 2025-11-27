@@ -33,6 +33,7 @@
 // ------------------------------------------------------------
 
 import { gameState } from "../utils/gameState.js";
+import { createPlayer } from "./player.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
 import { getGoblins } from "../entities/goblin.js";
 import { getGoblins as getIceGoblins } from "../entities/iceGoblin.js";
@@ -97,6 +98,10 @@ const LOW_HP_RESET = 0.36;
 let attackCooldown = 0;
 let isAttacking = false;
 let attackType = null;
+let attackTimerMs = 0;
+let attackDurationMs = 0;
+let attackFrameSwitchMs = 0;
+let attackFrameSwitched = false;
 let currentFrame = 0;
 let currentDir = "down";
 let isMoving = false;
@@ -156,47 +161,71 @@ function loadSprite(src) {
 // 🖼 Load Player Sprites (Skin-Aware)
 // ------------------------------------------------------------
 
-async function loadPlayerSprites() {
-  const skinKey = gameState.player?.skin || "glitter";
-  const folder = SKINS[skinKey].folder;
+async function loadPlayerSprites(skinKey) {
+  const resolvedSkin = SKINS[skinKey] ? skinKey : "glitter";
+  const skinConfig = SKINS[resolvedSkin] || SKINS.glitter;
+  const folder = skinConfig.folder;
   const base = `./assets/images/sprites/${folder}/${folder}`;
   const L = (suffix) => loadSprite(`${base}${suffix}`);
 
-  // Idle + Walk
-  sprites.idle = await L("_idle.png");
+  const [
+    idle,
+    walkUp1, walkUp2,
+    walkLeft1, walkLeft2,
+    walkDown1, walkDown2,
+    walkRight1, walkRight2,
+    attackLeft, meleeLeft,
+    attackRight, meleeRight,
+    shootRaiseLeft, shootLeft,
+    shootRaiseRight, shootRight,
+    shootLowerLeft, shootLowerRight,
+    spellCharge, spellExplode,
+    heal,
+    dead,
+  ] = await Promise.all([
+    L("_idle.png"),
+    L("_W1.png"), L("_W2.png"),
+    L("_A1.png"), L("_A2.png"),
+    L("_S1.png"), L("_S2.png"),
+    L("_D1.png"), L("_D2.png"),
+    L("_attack_left.png"), L("_melee_left.png"),
+    L("_attack_right.png"), L("_melee_right.png"),
+    L("_raise_left.png"), L("_shoot_left.png"),
+    L("_raise_right.png"), L("_shoot_right.png"),
+    L("_lower_left.png"), L("_lower_right.png"),
+    L("_spell_charge.png"), L("_spell_explode.png"),
+    L("_heal_kneel.png"),
+    L("_slain.png"),
+  ]);
 
-  sprites.walk.up[0] = await L("_W1.png");
-  sprites.walk.up[1] = await L("_W2.png");
-  sprites.walk.left[0] = await L("_A1.png");
-  sprites.walk.left[1] = await L("_A2.png");
-  sprites.walk.down[0] = await L("_S1.png");
-  sprites.walk.down[1] = await L("_S2.png");
-  sprites.walk.right[0] = await L("_D1.png");
-  sprites.walk.right[1] = await L("_D2.png");
+  sprites.idle = idle;
 
-  // Attack
-  sprites.attack.left[0] = await L("_attack_left.png");
-  sprites.attack.left[1] = await L("_melee_left.png");
-  sprites.attack.right[0] = await L("_attack_right.png");
-  sprites.attack.right[1] = await L("_melee_right.png");
+  sprites.walk.up[0] = walkUp1;
+  sprites.walk.up[1] = walkUp2;
+  sprites.walk.left[0] = walkLeft1;
+  sprites.walk.left[1] = walkLeft2;
+  sprites.walk.down[0] = walkDown1;
+  sprites.walk.down[1] = walkDown2;
+  sprites.walk.right[0] = walkRight1;
+  sprites.walk.right[1] = walkRight2;
 
-  // Shooting
-  sprites.shoot.left[0] = await L("_raise_left.png");
-  sprites.shoot.left[1] = await L("_shoot_left.png");
-  sprites.shoot.right[0] = await L("_raise_right.png");
-  sprites.shoot.right[1] = await L("_shoot_right.png");
-  sprites.shoot.lowerLeft = await L("_lower_left.png");
-  sprites.shoot.lowerRight = await L("_lower_right.png");
+  sprites.attack.left[0] = attackLeft;
+  sprites.attack.left[1] = meleeLeft;
+  sprites.attack.right[0] = attackRight;
+  sprites.attack.right[1] = meleeRight;
 
-  // Spell
-  sprites.spell.charge = await L("_spell_charge.png");
-  sprites.spell.explode = await L("_spell_explode.png");
+  sprites.shoot.left[0] = shootRaiseLeft;
+  sprites.shoot.left[1] = shootLeft;
+  sprites.shoot.right[0] = shootRaiseRight;
+  sprites.shoot.right[1] = shootRight;
+  sprites.shoot.lowerLeft = shootLowerLeft;
+  sprites.shoot.lowerRight = shootLowerRight;
 
-  // Heal
-  sprites.heal = await L("_heal_kneel.png");
+  sprites.spell.charge = spellCharge;
+  sprites.spell.explode = spellExplode;
 
-  // Dead
-  sprites.dead = await L("_slain.png");
+  sprites.heal = heal;
+  sprites.dead = dead;
 }
 
 // ------------------------------------------------------------
@@ -204,29 +233,27 @@ async function loadPlayerSprites() {
 // ------------------------------------------------------------
 
 function ensurePlayerRuntime() {
+  const name = gameState.profile?.name || gameState.player?.name || "Princess";
+
   if (!gameState.player) {
-    gameState.player = {
-      name: gameState.profile?.name || "Princess",
-      pos: { x: 400, y: 400 },
-      speed: DEFAULT_SPEED,
-      hp: 100,
-      maxHp: 100,
-      mana: 50,
-      maxMana: 50,
-      attack: 15,
-      defense: 5,
-      rangedAttack: 10,
-      spellPower: 10,
-    };
+    gameState.player = createPlayer({ name });
+  } else {
+    const hydrated = createPlayer({ ...gameState.player, name });
+    Object.assign(gameState.player, hydrated);
   }
 
   const p = gameState.player;
 
-  if (!p.name) p.name = gameState.profile?.name || "Princess";
-
   if (!p.pos || typeof p.pos.x !== "number" || typeof p.pos.y !== "number") {
-    p.pos = { x: 400, y: 400 };
+    const fallbackX = typeof p.x === "number" ? p.x : 400;
+    const fallbackY = typeof p.y === "number" ? p.y : 400;
+    p.pos = { x: fallbackX, y: fallbackY };
   }
+  if (typeof p.x !== "number") p.x = p.pos.x;
+  if (typeof p.y !== "number") p.y = p.pos.y;
+
+  if (!p.skin) p.skin = p.skinId || "glitter";
+  if (!p.skinId) p.skinId = p.skin;
 
   if (typeof p.speed !== "number") p.speed = DEFAULT_SPEED;
   if (typeof p.attack !== "number" || isNaN(p.attack)) p.attack = 15;
@@ -397,7 +424,8 @@ function onMouseDown(e) {
 export async function initPlayerController(canvas) {
   canvasRef = canvas;
   ensurePlayerRuntime();
-  const skinKey = gameState.player?.skin || "glitter";
+  const skinKey = gameState.player?.skin || gameState.player?.skinId || "glitter";
+  const resolvedSkin = SKINS[skinKey] ? skinKey : "glitter";
 
   if (!listenersAttached) {
     window.addEventListener("keydown", onKeyDown);
@@ -406,9 +434,9 @@ export async function initPlayerController(canvas) {
     listenersAttached = true;
   }
 
-  if (!spritesLoadedPromise || spritesLoadedForSkin !== skinKey) {
-    spritesLoadedForSkin = skinKey;
-    spritesLoadedPromise = loadPlayerSprites();
+  if (!spritesLoadedPromise || spritesLoadedForSkin !== resolvedSkin) {
+    spritesLoadedForSkin = resolvedSkin;
+    spritesLoadedPromise = loadPlayerSprites(resolvedSkin);
   }
   await spritesLoadedPromise;
 }
@@ -437,18 +465,13 @@ function performMeleeAttack() {
   attackType = "melee";
   attackCooldown = CD_MELEE;
   currentFrame = 0;
+  attackDurationMs = 400;
+  attackTimerMs = attackDurationMs;
+  attackFrameSwitchMs = 180;
+  attackFrameSwitched = false;
 
   const { tier } = performMelee(p, currentDir);
   p.lastMeleeTier = tier;
-
-  setTimeout(() => {
-    currentFrame = 1;
-  }, 180);
-
-  setTimeout(() => {
-    isAttacking = false;
-    currentFrame = 0;
-  }, 400);
 }
 
 // ------------------------------------------------------------
@@ -477,10 +500,10 @@ function performRangedAttack(e) {
   isAttacking = true;
   attackType = "ranged";
   attackCooldown = CD_RANGED;
-
-  setTimeout(() => {
-    isAttacking = false;
-  }, 300);
+  attackDurationMs = 300;
+  attackTimerMs = attackDurationMs;
+  attackFrameSwitchMs = 0;
+  attackFrameSwitched = false;
 }
 
 // ------------------------------------------------------------
@@ -504,13 +527,11 @@ function performHealAction() {
   attackType = "heal";
   attackCooldown = CD_HEAL;
   currentFrame = 0;
+  attackDurationMs = result.anim.totalTime;
+  attackTimerMs = attackDurationMs;
+  attackFrameSwitchMs = 0;
+  attackFrameSwitched = false;
 
-  const anim = result.anim;
-
-  setTimeout(() => {
-    isAttacking = false;
-    currentFrame = 0;
-  }, anim.totalTime);
 }
 
 // ------------------------------------------------------------
@@ -530,21 +551,16 @@ function performSpellAction() {
     return;
   }
 
+  const anim = result.anim;
+
   isAttacking = true;
   attackType = "spell";
   attackCooldown = CD_SPELL;
   currentFrame = 0;
-
-  const anim = result.anim;
-
-  setTimeout(() => {
-    currentFrame = 1;
-  }, anim.chargeTime);
-
-  setTimeout(() => {
-    isAttacking = false;
-    currentFrame = 0;
-  }, anim.totalTime);
+  attackDurationMs = anim.totalTime;
+  attackTimerMs = attackDurationMs;
+  attackFrameSwitchMs = anim.chargeTime;
+  attackFrameSwitched = false;
 }
 
 // ============================================================
@@ -581,14 +597,30 @@ export function updatePlayer(delta, enemyContext) {
     if (attackCooldown < 0) attackCooldown = 0;
   }
 
+  if (isAttacking) {
+    attackTimerMs -= delta;
+    if (
+      !attackFrameSwitched &&
+      attackFrameSwitchMs > 0 &&
+      attackDurationMs - attackTimerMs >= attackFrameSwitchMs
+    ) {
+      currentFrame = 1;
+      attackFrameSwitched = true;
+    }
+
+    if (attackTimerMs <= 0) {
+      isAttacking = false;
+      attackType = null;
+      currentFrame = 0;
+      attackTimerMs = 0;
+      attackDurationMs = 0;
+      attackFrameSwitched = false;
+    }
+  }
+
   // 🔮 Passive mana regen
   const regenRate = 0.8 + (p.level ?? 1) * 0.05;
-  const prevArrows = getArrowCount();
   p.mana = Math.min(p.maxMana, p.mana + regenRate * dt);
-
-  if (getArrowCount() !== prevArrows) {
-    updateHUD();
-  }
 
   // 🎮 Movement input
   const left = keys.has("KeyA") || keys.has("ArrowLeft");
@@ -927,6 +959,10 @@ export function drawPlayer(ctx) {
 export function resetPlayerControllerState() {
   isAttacking = false;
   attackType = null;
+  attackTimerMs = 0;
+  attackDurationMs = 0;
+  attackFrameSwitchMs = 0;
+  attackFrameSwitched = false;
   currentFrame = 0;
   isMoving = false;
   attackCooldown = 0;

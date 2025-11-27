@@ -1069,10 +1069,16 @@ export function resetPlayerState() {
 }
 
 // Resize â†’ invalidate rect cache (production-safe)
-window.addEventListener("resize", () => {
-  cachedCanvasRect = null;
-  rectCacheTimer = RECT_CACHE_DURATION;
-});
+let resizeListenerBound = false;
+function bindResizeListener() {
+  if (resizeListenerBound) return;
+  window.addEventListener("resize", () => {
+    cachedCanvasRect = null;
+    rectCacheTimer = RECT_CACHE_DURATION;
+  });
+  resizeListenerBound = true;
+}
+bindResizeListener();
 
 function ensurePerfOverlay() {
   if (perfOverlayEl) return;

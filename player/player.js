@@ -1,9 +1,9 @@
 // ============================================================
-// 👑 player.js — Olivia’s World: Crystal Keep
+// player.js - Olivia's World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Defines base player stats template
-// ✦ Name/title injected from Profile system
-// ✦ Supports init + save-slot restoration
+// - Defines base player stats template
+// - Name/title injected from Profile system
+// - Supports init + save-slot restoration
 // ============================================================
 /* ------------------------------------------------------------
  * MODULE: player.js
@@ -14,38 +14,39 @@
  *   handles assignment into gameState.
  *
  * SUMMARY:
- *   createPlayer() returns the default player template. 
+ *   createPlayer() returns the default player template.
  *   initPlayer() installs a fresh player object into gameState.
  *   restorePlayer() restores a saved snapshot into gameState.
- *
- * FEATURES:
- *   • createPlayer() — base stats for a new character
- *   • initPlayer() — installs fresh player (used by new story)
- *   • restorePlayer() — merges saved data back into runtime
- *
- * TECHNICAL NOTES:
- *   • Stats are tuned for early-game balancing
- *   • Name/title fields are set by profile creation flow
- *   • Skin and sprite assignment align with skins.js
  * ------------------------------------------------------------ */
 
-
 // ------------------------------------------------------------
-// ↪️ Imports
+// Imports
 // ------------------------------------------------------------
 
 import { gameState } from "../utils/gameState.js";
 
+const DEFAULT_POS = { x: 400, y: 400 };
+const DEFAULT_SKIN = "glitter";
+
 // ------------------------------------------------------------
-// 🎀 CREATE NEW PLAYER OBJECT
+// Create new player object
 // ------------------------------------------------------------
 
-export function createPlayer() {
-  return {
+export function createPlayer(overrides = {}) {
+  const pos = {
+    x: typeof overrides.pos?.x === "number" ? overrides.pos.x : (typeof overrides.x === "number" ? overrides.x : DEFAULT_POS.x),
+    y: typeof overrides.pos?.y === "number" ? overrides.pos.y : (typeof overrides.y === "number" ? overrides.y : DEFAULT_POS.y),
+  };
+
+  const skin = (overrides.skin ?? overrides.skinId ?? DEFAULT_SKIN) || DEFAULT_SKIN;
+  const normalizedSkin = skin === "default" ? DEFAULT_SKIN : skin;
+
+  const base = {
     name: "",
     title: "",
 
-    skinId: "default",
+    skin: normalizedSkin,
+    skinId: normalizedSkin,
 
     level: 1,
     xp: 0,
@@ -57,21 +58,34 @@ export function createPlayer() {
     mana: 50,
     maxMana: 50,
 
+    speed: 160,
+
     spellPower: 10,
     rangedAttack: 10,
     attack: 15,
     defense: 5,
     critChance: 0.1,
 
-    x: 0,
-    y: 0,
+    pos,
+    x: pos.x,
+    y: pos.y,
 
     sprite: "./assets/sprites/glitter_guardian_default.png",
+  };
+
+  return {
+    ...base,
+    ...overrides,
+    pos,
+    skin: normalizedSkin,
+    skinId: normalizedSkin,
+    x: pos.x,
+    y: pos.y,
   };
 }
 
 // ------------------------------------------------------------
-// 🌸 INITIALIZE NEW PLAYER
+// Initialize new player
 // ------------------------------------------------------------
 
 export function initPlayer() {
@@ -79,14 +93,14 @@ export function initPlayer() {
 }
 
 // ------------------------------------------------------------
-// 💾 RESTORE PLAYER FROM SAVE SLOT
+// Restore player from save slot
 // ------------------------------------------------------------
 
 export function restorePlayer(savedPlayer) {
   if (!savedPlayer) return;
-  gameState.player = { ...savedPlayer };
+  gameState.player = createPlayer(savedPlayer);
 }
 
 // ============================================================
-// 🌟 END OF FILE
+// END OF FILE
 // ============================================================

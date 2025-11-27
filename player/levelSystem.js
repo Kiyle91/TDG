@@ -1,17 +1,17 @@
-﻿// ============================================================
-// ðŸŒŸ levelSystem.js â€” Oliviaâ€™s World: Crystal Keep
-//   (Static Overlay + 3 Choices: Attack / Spell / Ranged)
+// ============================================================
+// levelSystem.js - Olivia's World: Crystal Keep
+// (Static Overlay + 3 Choices: Attack / Spell / Ranged)
 // ------------------------------------------------------------
-// âœ¦ Handles XP gain, level-ups, and stat upgrades
-// âœ¦ HP & Mana auto-increase each level (+10)
-// âœ¦ Player allocates: Attack, Spell Power, or Ranged
-// âœ¦ Pauses gameplay during allocation
-// âœ¦ Fully stable, save-safe, UI integrated
+// - Handles XP gain, level-ups, and stat upgrades
+// - HP & Mana auto-increase each level (+10)
+// - Player allocates: Attack, Spell Power, or Ranged
+// - Pauses gameplay during allocation
+// - Fully stable, save-safe, UI integrated
 // ============================================================
 /* ------------------------------------------------------------
  * MODULE: levelSystem.js
  * PURPOSE:
- *   Manages the playerâ€™s experience system including XP gain,
+ *   Manages the player's experience system including XP gain,
  *   level thresholds, stat point allocation, level-up rewards,
  *   and presentation of the Level-Up overlay.
  *
@@ -22,32 +22,29 @@
  *   stat upgrade (Attack, Spell Power, or Ranged Attack).
  *
  * FEATURES:
- *   â€¢ awardXP() â€” grants XP and triggers level-up checks
- *   â€¢ Automatic HP/Mana increases on level up
- *   â€¢ Stat allocation overlay with 3 upgrade choices
- *   â€¢ pauseGame() + resumeGame() integration preserved
- *   â€¢ Floating text feedback for XP + upgrades
+ *   - awardXP(): grants XP and triggers level-up checks
+ *   - Automatic HP/Mana increases on level up
+ *   - Stat allocation overlay with 3 upgrade choices
+ *   - pauseGame() + resumeGame() integration preserved
+ *   - Floating text feedback for XP + upgrades
  *
  * TECHNICAL NOTES:
- *   â€¢ XP thresholds scale by exponential growth
- *   â€¢ Overlay is fully static DOM for reliability
- *   â€¢ Compatible with gameâ€™s spire unlock system
+ *   - XP thresholds scale by exponential growth
+ *   - Overlay is fully static DOM for reliability
+ *   - Compatible with game's spire unlock system
  * ------------------------------------------------------------ */
 
 // ------------------------------------------------------------
-// â†ªï¸ Imports
+// Imports
 // ------------------------------------------------------------
-
 
 import { gameState } from "../utils/gameState.js";
 import { updateHUD, pauseGame, resumeGame } from "../screenManagement/ui.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
-import { saveProfiles } from "../utils/gameState.js";
-import { saveToSlot } from "../save/saveSystem.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 // ------------------------------------------------------------
-// ðŸ—ºï¸ MODULE-LEVEL VARIABLES
+// Module-level variables
 // ------------------------------------------------------------
 
 const XP_PER_LEVEL_BASE = 100;
@@ -55,7 +52,7 @@ const XP_SCALING = 1.25;
 const POINTS_PER_LEVEL = 1;
 
 // ------------------------------------------------------------
-// ðŸ§  XP GAIN
+// XP Gain
 // ------------------------------------------------------------
 
 export function awardXP(amount = 25) {
@@ -73,17 +70,20 @@ export function awardXP(amount = 25) {
 }
 
 // ------------------------------------------------------------
-// ðŸŽ¯ LEVEL-UP CHECK
+// Level-up check
 // ------------------------------------------------------------
 
 async function checkLevelUp() {
   const p = gameState.player;
   if (!p) return;
 
-  const currentLevel = p.level || 1;
-  const xpToNext = getXpForLevel(currentLevel);
+  let leveledUp = false;
 
-  if (p.xp >= xpToNext) {
+  while (true) {
+    const currentLevel = p.level || 1;
+    const xpToNext = getXpForLevel(currentLevel);
+    if (p.xp < xpToNext) break;
+
     p.xp -= xpToNext;
     p.level = currentLevel + 1;
     p.statPoints = (p.statPoints || 0) + POINTS_PER_LEVEL;
@@ -104,34 +104,23 @@ async function checkLevelUp() {
       22
     );
 
-    // â­ AUTOSAVE ON LEVEL UP
-    const profile = gameState.profile;
-    if (profile) {
-      const slot = typeof profile.lastSave === "number" ? profile.lastSave : 0;
-      try {
-        const savePromise = saveToSlot(slot);
-        await Promise.resolve(savePromise);
-        profile.lastSave = slot;
-        saveProfiles();
-        console.log(`Autosaved after reaching Level ${p.level}`);
-      } catch (err) {
-        console.warn("Autosave (level-up) failed:", err);
-      }
-    }
-
-    // Pause gameplay for allocation
-    pauseGame();
-
-    // Show overlay â†’ resume when done
-    showLevelUpOverlay(p, () => {
-      updateSummaryPanel(p);
-      resumeGame();
-    });
+    leveledUp = true;
   }
+
+  if (!leveledUp) return;
+
+  // Pause gameplay for allocation
+  pauseGame();
+
+  // Show overlay and resume when done
+  showLevelUpOverlay(p, () => {
+    updateSummaryPanel(p);
+    resumeGame();
+  });
 }
 
 // ------------------------------------------------------------
-// ðŸ“ˆ XP THRESHOLD CURVE
+// XP threshold curve
 // ------------------------------------------------------------
 
 function getXpForLevel(level) {
@@ -139,7 +128,7 @@ function getXpForLevel(level) {
 }
 
 // ------------------------------------------------------------
-// ðŸ’« LEVEL-UP OVERLAY
+// Level-up overlay
 // ------------------------------------------------------------
 
 function showLevelUpOverlay(p, onClose) {
@@ -174,7 +163,7 @@ function showLevelUpOverlay(p, onClose) {
 }
 
 // ------------------------------------------------------------
-// ðŸ§® STAT UPGRADE HANDLER
+// Stat upgrade handler
 // ------------------------------------------------------------
 
 function handleStatUpgrade(p, key, overlay, onClose) {
@@ -209,38 +198,31 @@ function handleStatUpgrade(p, key, overlay, onClose) {
   }
 }
 
-
 function updateSummaryPanel(p) {
-  // --- Define your true base stats ---
   const BASE_ATTACK = 15;
-  const BASE_SPELL  = 10;
+  const BASE_SPELL = 10;
   const BASE_RANGED = 10;
 
   const atk = Number(p.attack || 0);
-  const sp  = Number(p.spellPower || 0);
+  const sp = Number(p.spellPower || 0);
   const rng = Number(p.rangedAttack || 0);
 
-  // Points spent = (stat - baseStat) / 5
   const atkSpent = Math.max(0, Math.floor((atk - BASE_ATTACK) / 5));
-  const spSpent  = Math.max(0, Math.floor((sp  - BASE_SPELL)  / 5));
+  const spSpent = Math.max(0, Math.floor((sp - BASE_SPELL) / 5));
   const rngSpent = Math.max(0, Math.floor((rng - BASE_RANGED) / 5));
-
-  const totalSpent = atkSpent + spSpent + rngSpent;
-  const rem = Number(p.statPoints || 0);
 
   const set = (id, val) => {
     const el = document.getElementById(id);
     if (el) el.textContent = val;
   };
 
-  // Display BASE STATS + SPENT VALUES
-  set("sum-attack",       atkSpent);
-  set("sum-spell",        spSpent);
-  set("sum-ranged",       rngSpent);
+  set("sum-attack", atkSpent);
+  set("sum-spell", spSpent);
+  set("sum-ranged", rngSpent);
 }
 
 // ------------------------------------------------------------
-// ðŸ§¹ CLOSE LEVEL-UP OVERLAY
+// Close level-up overlay
 // ------------------------------------------------------------
 
 function closeLevelUpOverlay(overlay, onClose) {
@@ -257,5 +239,5 @@ function closeLevelUpOverlay(overlay, onClose) {
 }
 
 // ============================================================
-// ðŸŒŸ END OF FILE
+// END OF FILE
 // ============================================================

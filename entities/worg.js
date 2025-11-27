@@ -131,7 +131,7 @@ export function spawnWorg(pathIndex = null) {
     burnTimer: 0,
     burnDamage: 0,
     isBurning: false,
-    burnTick: 1000,
+    burnTick: 1,
     stunTimer: 0,
     path: chosenPath,
     pathIndex: chosenPathIndex,
@@ -212,10 +212,10 @@ function handleWorgElementalEffects(w, dt) {
 
   if (w.isBurning) {
     w.burnTimer -= dt;
-    if (!w.burnTick) w.burnTick = 1000;
-    w.burnTick -= dt * 1000;
+    if (!w.burnTick) w.burnTick = 1;
+    w.burnTick -= dt;
     if (w.burnTick <= 0) {
-      w.burnTick = 1000;
+      w.burnTick = 1;
       damageWorg(w, w.burnDamage);
     }
     if (w.burnTimer <= 0) {
