@@ -15,6 +15,7 @@
 
 import { gameState } from "../utils/gameState.js";
 import { GOBLIN_AURA_RADIUS } from "./goblinAuraConstants.js";
+import { getNeighbors } from "../utils/spatialGrid.js";
 
 // 🧩 Pull enemy lists from all enemy modules
 import { getGoblins as getBaseGoblins } from "./goblin.js";
@@ -68,13 +69,15 @@ export function getAllEnemies() {
 // Call this ONCE per frame in updateGame(dt)
 // ============================================================
 
-export function applyGoblinAuras(delta) {
+export function applyGoblinAuras(delta, context = {}) {
   const dt = delta / 1000;
   const player = gameState.player;
   if (!player || player.dead) return;
 
+  const allEnemies = Array.isArray(context.enemies) ? context.enemies : getAllEnemies();
+  const spatial = context.spatial;
+
   // Make sure spires know which enemies are shielded this frame.
-  const allEnemies = getAllEnemies();
   for (const e of allEnemies) e.insideVoidAura = false;
 
   // Auras only come from goblin variants:
@@ -141,7 +144,9 @@ export function applyGoblinAuras(delta) {
   for (const g of ash) {
     if (!g.alive) continue;
 
-    for (const e of allEnemies) {
+    const nearby = spatial ? getNeighbors(spatial, g.x, g.y) : allEnemies;
+
+    for (const e of nearby) {
       if (!e.alive || e.hp <= 0 || !e.maxHp) continue;
 
       const dist = Math.hypot(e.x - g.x, e.y - g.y);
@@ -159,7 +164,9 @@ export function applyGoblinAuras(delta) {
   for (const g of voids) {
     if (!g.alive) continue;
 
-    for (const e of allEnemies) {
+    const nearby = spatial ? getNeighbors(spatial, g.x, g.y) : allEnemies;
+
+    for (const e of nearby) {
       const dist = Math.hypot(e.x - g.x, e.y - g.y);
       if (dist < GOBLIN_AURA_RADIUS.voidGoblin) {
         e.insideVoidAura = true;

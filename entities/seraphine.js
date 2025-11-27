@@ -40,7 +40,7 @@ import { spawnFloatingText } from "../fx/floatingText.js";
 import { playGoblinDamage, playGoblinDeath } from "../core/soundtrack.js";
 import { addBravery, applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
-
+import { playSeraphineSpawn } from "../core/soundtrack.js";
 // ------------------------------------------------------------
 // 🧩 INTERNAL STATE
 // ------------------------------------------------------------
@@ -249,6 +249,8 @@ export function spawnSeraphineBoss(phase = 1, x, y, options = {}) {
     y: boss.y,
     instance: boss,
   });
+
+  playSeraphineSpawn();
 
   return boss;
 }

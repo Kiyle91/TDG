@@ -19,6 +19,7 @@ import { updateHUD } from "../screenManagement/ui.js";
 import { playGoblinDeath, playGoblinDamage } from "../core/soundtrack.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
+import { playWorgDeath } from "../core/soundtrack.js";
 
 
 // ============================================================
@@ -327,6 +328,7 @@ export function damageWorg(w, amount) {
     addGold(WORG_GOLD_REWARD);
     addBravery(1);
     updateHUD();
+    playWorgDeath();
   }
 }
 

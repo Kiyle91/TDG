@@ -40,13 +40,14 @@
 // ↪️ Imports
 // ------------------------------------------------------------
 
+
 import { addGold, gameState } from "../utils/gameState.js";
 import { awardXP } from "../player/levelSystem.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { playFairySprinkle } from "./soundtrack.js";
 import { updateHUD } from "../screenManagement/ui.js";
 import { Events, EVENT_NAMES as E } from "./eventEngine.js";
-
+import { playEchoCollect } from "./soundtrack.js";
 
 // ------------------------------------------------------------
 // 🌈 PER-MAP CRYSTAL ECHO COLOUR RULES
@@ -254,7 +255,7 @@ function collectCrystalEcho(crystal, index) {
     Events.emit(E.echoHalf, { found, total });
   }
 
-  playFairySprinkle();
+  playEchoCollect();
 
   addGold (5);
   awardXP(5);

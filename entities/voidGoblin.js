@@ -100,37 +100,40 @@ async function loadImage(src) {
 }
 
 async function loadGoblinSprites() {
+  const sources = {
+    idle: "./assets/images/sprites/voidGoblin/voidGoblin_idle.png",
+    walkUp1: "./assets/images/sprites/voidGoblin/voidGoblin_W1.png",
+    walkUp2: "./assets/images/sprites/voidGoblin/voidGoblin_W2.png",
+    walkDown1: "./assets/images/sprites/voidGoblin/voidGoblin_S1.png",
+    walkDown2: "./assets/images/sprites/voidGoblin/voidGoblin_S2.png",
+    walkLeft1: "./assets/images/sprites/voidGoblin/voidGoblin_A1.png",
+    walkLeft2: "./assets/images/sprites/voidGoblin/voidGoblin_A2.png",
+    walkRight1: "./assets/images/sprites/voidGoblin/voidGoblin_D1.png",
+    walkRight2: "./assets/images/sprites/voidGoblin/voidGoblin_D2.png",
+    attackLeft1: "./assets/images/sprites/voidGoblin/voidGoblin_attack_left.png",
+    attackLeft2: "./assets/images/sprites/voidGoblin/voidGoblin_melee_left.png",
+    attackRight1: "./assets/images/sprites/voidGoblin/voidGoblin_attack_right.png",
+    attackRight2: "./assets/images/sprites/voidGoblin/voidGoblin_melee_right.png",
+    slain: "./assets/images/sprites/voidGoblin/voidGoblin_slain.png",
+  };
+
+  const keys = Object.keys(sources);
+  const loaded = await Promise.all(keys.map(k => loadImage(sources[k])));
+  const get = (name) => loaded[keys.indexOf(name)];
+
   goblinSprites = {
-    idle: await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_idle.png"),
+    idle: get("idle"),
     walk: {
-      up: [
-        await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_W1.png"),
-        await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_W2.png"),
-      ],
-      down: [
-        await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_S1.png"),
-        await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_S2.png"),
-      ],
-      left: [
-        await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_A1.png"),
-        await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_A2.png"),
-      ],
-      right: [
-        await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_D1.png"),
-        await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_D2.png"),
-      ],
+      up: [get("walkUp1"), get("walkUp2")],
+      down: [get("walkDown1"), get("walkDown2")],
+      left: [get("walkLeft1"), get("walkLeft2")],
+      right: [get("walkRight1"), get("walkRight2")],
     },
     attack: {
-      left: [
-        await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_attack_left.png"),
-        await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_melee_left.png"),
-      ],
-      right: [
-        await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_attack_right.png"),
-        await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_melee_right.png"),
-      ],
+      left: [get("attackLeft1"), get("attackLeft2")],
+      right: [get("attackRight1"), get("attackRight2")],
     },
-    slain: await loadImage("./assets/images/sprites/voidGoblin/voidGoblin_slain.png"),
+    slain: get("slain"),
   };
 }
 

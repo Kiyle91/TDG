@@ -175,6 +175,34 @@ export function playPlayerDamage() {
   playSfx(playerDamagePath);
 }
 
+// ------------------------------------------------------------
+// 🟣 Seraphine (Boss) SFX
+// ------------------------------------------------------------
+
+const seraphineSpawnPath = "./assets/sounds/seraphine.mp3";
+export function playSeraphineSpawn() {
+  playSfx(seraphineSpawnPath);
+}
+
+// ------------------------------------------------------------
+// 🐺 Worg SFX
+// ------------------------------------------------------------
+
+const worgDeathPath = "./assets/sounds/worg.mp3";
+export function playWorgDeath() {
+  playSfx(worgDeathPath);
+}
+
+// ------------------------------------------------------------
+// 💎 Crystal Echo Pickup
+// ------------------------------------------------------------
+
+const echoCollectPath = "./assets/sounds/echoes.mp3";
+export function playEchoCollect() {
+  playSfx(echoCollectPath);
+}
+
+
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================

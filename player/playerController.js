@@ -65,6 +65,7 @@ import { performSpell as castSpell } from "../combat/spell.js";
 import { performHeal as castHeal } from "../combat/heal.js";
 
 import { spawnArrow } from "../combat/arrow.js";
+import { getNeighbors } from "../utils/spatialGrid.js";
 
 
 // ------------------------------------------------------------
@@ -269,7 +270,46 @@ function getAllGoblinVariants() {
   ];
 }
 
-function applyEnemyBodyCollision(nextX, nextY) {
+const GOBLIN_TYPES = new Set(["goblin", "iceGoblin", "emberGoblin", "ashGoblin", "voidGoblin"]);
+const isGoblinType = (e) => e && GOBLIN_TYPES.has(e.type);
+
+function applyEnemyBodyCollision(nextX, nextY, enemyContext) {
+  const spatial = enemyContext?.spatial;
+  if (spatial) {
+    let px = nextX;
+    let py = nextY;
+    const nearby = getNeighbors(spatial, nextX, nextY);
+    for (const e of nearby) {
+      if (!e || !e.alive) continue;
+      const ex = e.x ?? e.pos?.x;
+      const ey = e.y ?? e.pos?.y;
+      if (typeof ex !== "number" || typeof ey !== "number") continue;
+
+      let radius = 45;
+      switch (e.type) {
+        case "troll": radius = 55; break;
+        case "seraphine": radius = 72; break;
+        case "ogre": radius = 60; break;
+        default: radius = 45; break;
+      }
+
+      const dx = px - ex;
+      const dy = py - ey;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > 0 && dist < radius) {
+        const overlap = (radius - dist) / 3;
+        const nx = dx / dist;
+        const ny = dy / dist;
+
+        px += nx * overlap * 0.8;
+        py += ny * overlap * 0.8;
+      }
+    }
+
+    return { x: px, y: py };
+  }
+
   const groups = [
     { list: getAllGoblinVariants(), radius: 45 },
     { list: getWorg(), radius: 45 },
@@ -496,7 +536,7 @@ function performSpellAction() {
 // 🔁 UPDATE PLAYER — Movement, Combat, Collision, Regen + FX
 // ============================================================
 
-export function updatePlayer(delta) {
+export function updatePlayer(delta, enemyContext) {
   ensurePlayerRuntime();
   const p = gameState.player;
   const dt = Math.max(0, delta) / 1000;
@@ -569,7 +609,7 @@ export function updatePlayer(delta) {
     const feetY = nextY + oy;
 
     if (!isRectBlocked(feetX, feetY, bw, bh)) {
-      const { x: resolvedX, y: resolvedY } = applyEnemyBodyCollision(nextX, nextY);
+      const { x: resolvedX, y: resolvedY } = applyEnemyBodyCollision(nextX, nextY, enemyContext);
 
       p.pos.x = resolvedX;
       p.pos.y = resolvedY;
@@ -604,7 +644,9 @@ export function updatePlayer(delta) {
     if (p.invulnTimer > 0) {
       p.invulnTimer -= delta;
     } else {
-      const goblinTargets = getAllGoblinVariants();
+      const goblinTargets = enemyContext?.spatial
+        ? getNeighbors(enemyContext.spatial, p.pos.x, p.pos.y).filter(isGoblinType)
+        : getAllGoblinVariants();
       for (const g of goblinTargets) {
         if (!g.alive) continue;
 

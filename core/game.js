@@ -203,6 +203,7 @@ import { updateStepEvents } from "./eventEngine.js";
 import { spawnSeraphineBoss, clearSeraphines, drawSeraphine, updateSeraphine, initSeraphine, getSeraphines } from "../entities/seraphine.js";
 import { initMap1Events } from "./events/map1Events.js";
 import "../core/events/seraphineSpeech.js";
+import { buildSpatialGrid, getNeighbors, getIndex } from "../utils/spatialGrid.js";
 
 
 // ❄ Ice goblin
@@ -285,8 +286,8 @@ const STUCK_TIME_MS = 2000;
 const UNSTUCK_WINDOW_MS = 3000;
 const LATERAL_STUCK_NUDGE = 6; // px
 
-function trackEnemyMotion(delta) {
-  const enemies = collectAllEnemies();
+function trackEnemyMotion(delta, enemies) {
+  if (!Array.isArray(enemies)) return;
   const now = performance.now();
 
   for (const e of enemies) {
@@ -359,26 +360,96 @@ function collectAllEnemies() {
   ].filter(e => e && e.alive);
 }
 
-function resolveEnemyCollisions() {
-  const enemies = collectAllEnemies();
+function resolveEnemyCollisions(spatial, enemies) {
+  if (!Array.isArray(enemies) || enemies.length === 0) return;
   const count = enemies.length;
   const now = performance.now();
 
-  // Fisher-Yates shuffle to avoid directional bias
-  for (let i = count - 1; i > 0; i--) {
-    const j = (Math.random() * (i + 1)) | 0;
-    [enemies[i], enemies[j]] = [enemies[j], enemies[i]];
-  }
-
   const MAX_PUSH = 5; // cap push per pair to reduce clumping chains
+
+  const useSpatial = spatial && spatial.grid && spatial.indexMap;
+
+  if (useSpatial) {
+    for (let i = 0; i < count; i++) {
+      const a = enemies[i];
+      if (!a || !a.alive) continue;
+      let ra = getEnemyRadius(a);
+      const aInfo = getPathFollowerInfo(a);
+      const candidates = getNeighbors(spatial, a.x, a.y);
+
+      for (const b of candidates) {
+        let rb = getEnemyRadius(b);
+        if (!b || !b.alive) continue;
+        const j = getIndex(spatial, b);
+        if (j <= i) continue;
+        const bInfo = getPathFollowerInfo(b);
+        if ((a.__noCollideUntil ?? 0) > now || (b.__noCollideUntil ?? 0) > now) {
+          continue;
+        }
+
+        if (aInfo.isPathFollower && bInfo.isPathFollower) {
+          if (aInfo.distToWaypoint < 90 || bInfo.distToWaypoint < 90) {
+            continue;
+          }
+        }
+
+        if (aInfo.isPathFollower) ra *= 0.75;
+        if (bInfo.isPathFollower) rb *= 0.75;
+
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        let dist = Math.hypot(dx, dy);
+        const minDist = ra + rb;
+
+        if (dist >= minDist || !Number.isFinite(dist)) continue;
+
+        if (dist === 0) {
+          const angle = Math.random() * Math.PI * 2;
+          dist = 0.01;
+          a.x += Math.cos(angle) * 0.5;
+          a.y += Math.sin(angle) * 0.5;
+        }
+
+        let overlap = Math.min((minDist - dist) * 0.5, MAX_PUSH);
+        if (aInfo.isPathFollower && bInfo.isPathFollower) overlap *= 0.6;
+        const adirX = a.vx ?? 0;
+        const adirY = a.vy ?? 0;
+        const bdirX = b.vx ?? 0;
+        const bdirY = b.vy ?? 0;
+        const lenA = Math.hypot(adirX, adirY) || 1;
+        const lenB = Math.hypot(bdirX, bdirY) || 1;
+        const dot = (adirX * bdirX + adirY * bdirY) / (lenA * lenB);
+        let lateralBoost = 0;
+        if (dot < -0.5) {
+          lateralBoost = 3;
+        } else if (dot < 0) {
+          lateralBoost = 1.5;
+        }
+        const nx = dx / (dist || 1);
+        const ny = dy / (dist || 1);
+
+        const jitter = (0.2 + lateralBoost * 0.1) * (Math.random() - 0.5);
+        const jx = -ny * (jitter + lateralBoost * 0.15);
+        const jy = nx * (jitter + lateralBoost * 0.15);
+
+        a.x += nx * overlap + jx;
+        a.y += ny * overlap + jy;
+        b.x -= nx * overlap + jx;
+        b.y -= ny * overlap + jy;
+      }
+    }
+    return;
+  }
 
   for (let i = 0; i < count; i++) {
     const a = enemies[i];
+    if (!a || !a.alive) continue;
     let ra = getEnemyRadius(a);
     const aInfo = getPathFollowerInfo(a);
 
     for (let j = i + 1; j < count; j++) {
       const b = enemies[j];
+      if (!b || !b.alive) continue;
       let rb = getEnemyRadius(b);
       const bInfo = getPathFollowerInfo(b);
 
@@ -392,7 +463,6 @@ function resolveEnemyCollisions() {
         }
       }
 
-      // Allow path-followers to squeeze closer at corners
       if (aInfo.isPathFollower) ra *= 0.75;
       if (bInfo.isPathFollower) rb *= 0.75;
 
@@ -404,7 +474,6 @@ function resolveEnemyCollisions() {
       if (dist >= minDist || !Number.isFinite(dist)) continue;
 
       if (dist === 0) {
-        // random small nudge to break perfect overlap
         const angle = Math.random() * Math.PI * 2;
         dist = 0.01;
         a.x += Math.cos(angle) * 0.5;
@@ -412,8 +481,7 @@ function resolveEnemyCollisions() {
       }
 
       let overlap = Math.min((minDist - dist) * 0.5, MAX_PUSH);
-      if (aInfo.isPathFollower && bInfo.isPathFollower) overlap *= 0.6; // softer push for path walkers
-      // If head-on (dot product near -1), add stronger lateral shove to clear lane
+      if (aInfo.isPathFollower && bInfo.isPathFollower) overlap *= 0.6;
       const adirX = a.vx ?? 0;
       const adirY = a.vy ?? 0;
       const bdirX = b.vx ?? 0;
@@ -430,7 +498,6 @@ function resolveEnemyCollisions() {
       const nx = dx / (dist || 1);
       const ny = dy / (dist || 1);
 
-      // slight perpendicular jitter to prevent long snake lines, amplified if head-on
       const jitter = (0.2 + lateralBoost * 0.1) * (Math.random() - 0.5);
       const jx = -ny * (jitter + lateralBoost * 0.15);
       const jy = nx * (jitter + lateralBoost * 0.15);
@@ -631,7 +698,6 @@ export function updateGame(delta) {
   updateEmberGoblins(delta);
   updateAshGoblins(delta);
   updateVoidGoblins(delta);
-  applyGoblinAuras(delta);
 
   updateWorg(delta);
   updateCrossbows(delta);
@@ -643,13 +709,16 @@ export function updateGame(delta) {
   updateProjectiles(delta);
   updateArrows(delta);
   updateHealFX(delta);
-  updatePlayer(delta);
+  const enemies = collectAllEnemies();
+  const enemySpatial = buildSpatialGrid(enemies, 128);
+  updatePlayer(delta, { enemies, spatial: enemySpatial });
   updateFloatingText(delta);
   updatePegasus(delta);
   updateLoot(delta);
   updateStepEvents();
-  trackEnemyMotion(delta);
-  resolveEnemyCollisions();
+  applyGoblinAuras(delta, { enemies, spatial: enemySpatial });
+  trackEnemyMotion(delta, enemies);
+  resolveEnemyCollisions(enemySpatial, enemies);
   updateWaveSystem(delta).catch(err => {
     console.warn("updateWaveSystem failed:", err);
   });
