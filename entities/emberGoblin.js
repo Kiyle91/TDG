@@ -69,7 +69,7 @@ const HITBOX_OFFSET_Y = 15;
 const ATTACK_RANGE = 80;
 const AGGRO_RANGE = 150;
 const RETURN_DELAY = 1200;
-const ATTACK_COOLDOWN = 1000;
+const ATTACK_COOLDOWN = 1500;
 const GOBLIN_DAMAGE = 6;
 const DEATH_LAY_DURATION = 600;
 
@@ -530,11 +530,11 @@ function attackPlayer(goblin, player) {
 
   setTimeout(() => {
     if (goblin.alive) goblin.attackFrame = 1;
-  }, 150);
+  }, 250); // hold wind-up frame a bit longer
 
   setTimeout(() => {
     if (goblin.alive) goblin.attacking = false;
-  }, 400);
+  }, 700); // keep swing frame visible longer
 }
 
 

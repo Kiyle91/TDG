@@ -67,8 +67,9 @@ const FRAME_INTERVAL = 220;
 
 const ATTACK_RANGE = 55;
 const ATTACK_DAMAGE = 14;
-const ATTACK_TOTAL_TIME = 320;
-const ATTACK_WINDUP = 120;
+const ATTACK_TOTAL_TIME = 700;  // lengthen full attack animation
+const ATTACK_WINDUP = 250;      // keep attack frame visible longer
+const ATTACK_COOLDOWN = 1500;   // delay between swings
 
 const FADE_OUT = 900;
 
@@ -246,6 +247,11 @@ export function updateElites(delta = 16) {
       continue;
     }
 
+    // Attack cooldown
+    if (e.attackCooldown > 0) {
+      e.attackCooldown = Math.max(0, e.attackCooldown - delta);
+    }
+
     // Elemental: Frost
     if (e.slowTimer > 0) e.slowTimer -= dt;
 
@@ -271,10 +277,11 @@ export function updateElites(delta = 16) {
     const dist = Math.hypot(dx, dy);
 
     // Attack logic
-    if (!e.attacking && dist < ATTACK_RANGE) {
+    if (!e.attacking && dist < ATTACK_RANGE && e.attackCooldown === 0) {
       e.attacking = true;
       e.attackTimer = ATTACK_TOTAL_TIME;
       e.attackFrame = 0;
+      e.attackCooldown = ATTACK_COOLDOWN;
 
       setTimeout(() => { if (e.alive) e.attackFrame = 1; }, ATTACK_WINDUP);
 
@@ -298,7 +305,7 @@ export function updateElites(delta = 16) {
           spawnFloatingText(p.pos.x, p.pos.y - 30, `-${dmg}`, "#ff5577", 20);
           updateHUD();
         }
-      }, 180);
+      }, 360);
 
       setTimeout(() => {
         if (e.alive) {
