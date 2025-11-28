@@ -456,8 +456,6 @@ export async function showOpeningStory() {
   flowers blooming out of season, and worst of all — goblin tracks.
 
   Goblins haven’t dared come near the Crystal Isles in generations.
-  Not since the old stories about the Goblin King and the siege
-  that almost cracked the Crystal Heart.
 
   Our scouts saw them carrying something that glowed — not torches,
   not loot. Crystal Echoes.

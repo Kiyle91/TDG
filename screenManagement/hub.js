@@ -163,7 +163,7 @@ export function initHub() {
 
   newStoryBtn.addEventListener("click", () => {
     playFairySprinkle();
-    showConfirm("Start a new story from Map 1?", () => {
+    showConfirm("Are you ready to begin your adventure?", () => {
       const startStory = (resetProgress) => {
         if (gameActive) stopGameplay("restart");
 
