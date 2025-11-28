@@ -97,6 +97,7 @@ export const EVENT_NAMES = {
   braveryFull: "braveryFull",
   braveryActivated: "braveryActivated",
   playerLowHP: "playerLowHP",
+  playerLifeLost: "playerLifeLost",
   playerLevelUp: "playerLevelUp",
   echoHalf: "echoHalf",
   echoComplete: "echoComplete"

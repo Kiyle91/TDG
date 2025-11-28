@@ -428,7 +428,11 @@ function handleEscape(t) {
   const p = gameState.player;
   if (p) {
     if (p.lives === undefined) p.lives = 10;
+    const prevLives = p.lives;
     p.lives = Math.max(0, p.lives - 1);
+    if (p.lives < prevLives) {
+      Events.emit(E.playerLifeLost, { lives: p.lives });
+    }
     updateHUD();
   }
 

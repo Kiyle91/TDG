@@ -183,7 +183,11 @@ export function updateWorg(delta = 16) {
       if (w.targetIndex >= w.path.length) {
         if (gameState.player) {
           if (typeof gameState.player.lives !== "number") gameState.player.lives = 10;
+          const prevLives = gameState.player.lives;
           gameState.player.lives = Math.max(0, gameState.player.lives - 1);
+          if (gameState.player.lives < prevLives) {
+            Events.emit(E.playerLifeLost, { lives: gameState.player.lives });
+          }
           updateHUD();
         }
 

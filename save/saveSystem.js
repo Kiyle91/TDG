@@ -197,7 +197,6 @@ export function snapshotGame() {
       totalWaves: gameState.totalWaves ?? 1,
       gold,
       diamonds,
-      level: gameState.player.level ?? 1,
       hp: gameState.player.hp ?? 0,
       maxHp: gameState.player.maxHp ?? 0,
       firstWaveStarted: normalizedWaveState.firstWaveStarted,
@@ -205,7 +204,14 @@ export function snapshotGame() {
     },
 
     progress: sanitizedProgress,
-    player: safeClone(gameState.player),
+    player: (() => {
+      const clone = safeClone(gameState.player);
+      // Levels/XP are persisted on profile; omit from runtime snapshots
+      delete clone.level;
+      delete clone.xp;
+      delete clone.statPoints;
+      return clone;
+    })(),
     bravery: sanitizeBravery(gameState.bravery),
 
     spires: safeClone(getSpires() || []),
@@ -278,8 +284,17 @@ export function applySnapshot(snapshot) {
   // ----------------------------------------------------------
   if (snapshot.player) {
     const restored = JSON.parse(JSON.stringify(snapshot.player));
+    const profilePlayer = gameState.profile?.player || gameState.player || {};
+    const keepLevel = profilePlayer.level ?? 1;
+    const keepXp = profilePlayer.xp ?? 0;
+    const keepStatPoints = profilePlayer.statPoints ?? 0;
+
     delete restored.skin;
     delete restored.unlockedSkins;
+
+    restored.level = keepLevel;
+    restored.xp = keepXp;
+    restored.statPoints = keepStatPoints;
     gameState.player = restored;
   }
 
@@ -483,12 +498,27 @@ export function autoSave() {
   const { slots } = resolveProfileSlots(all, { create: true });
   if (!slots) return snap;
 
-  // Always use slot 0 for autosave
-  slots[0] = snap;
+  // Always use slot 0 for autosave, but avoid downgrading progress (by map/wave)
+  const existing = slots[0];
+  const newMap = snap.meta?.map ?? 1;
+  const existingMap = existing?.meta?.map ?? 1;
+  const newWave = snap.meta?.wave ?? 1;
+  const existingWave = existing?.meta?.wave ?? 1;
 
-  // Update lastSave pointer
-  const profile = gameState.profile;
-  if (profile) profile.lastSave = 0;
+  const isDowngrade =
+    existing &&
+    (
+      existingMap > newMap ||
+      (existingMap === newMap && existingWave > newWave)
+    );
+
+  if (!isDowngrade) {
+    slots[0] = snap;
+
+    // Update lastSave pointer
+    const profile = gameState.profile;
+    if (profile) profile.lastSave = 0;
+  }
 
   persistAllSaves(all);
   saveProfiles();

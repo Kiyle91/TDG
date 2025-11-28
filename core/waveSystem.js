@@ -65,6 +65,13 @@ import { Events, EVENT_NAMES as E } from "./eventEngine.js";
 // All enemy counts doubled from baseline design
 // ============================================================
 
+let lifeWarnings = {
+  "80": false,
+  "60": false,
+  "40": false,
+  "20": false
+};
+
 export const waveConfigs = {
 
   // ============================================================
@@ -83,9 +90,9 @@ export const waveConfigs = {
     { goblins: 18, worgs: 1 },   // Wave 4 - first worg
     { goblins: 20, worgs: 2 },   // Wave 5
     { goblins: 24, worgs: 2 },   // Wave 6
-    { goblins: 26, worgs: 3 },   // Wave 7
-    { goblins: 20, worgs: 15 },
-    { goblins: 34, worgs: 20 },   // Wave 9
+    { goblins: 26, goblins: 15, worgs: 10, worgs: 3 },   // Wave 7
+    { goblins: 26, goblins: 20, worgs: 15, worgs: 10 }, 
+    { goblins: 26, goblins: 35, goblins: 20, goblins: 10, worgs: 20, worgs: 10 },    // Wave 9
     { boss: "seraphine", phase: 1, goblins: 20, worgs: 4 } // Wave 10 boss
   ],
 
@@ -391,7 +398,7 @@ if (typeof gameState.victoryPending !== "boolean") {
   gameState.victoryPending = false;
 }
 
-const SPAWN_INTERVAL = 4000;
+const SPAWN_INTERVAL = 2000;
 let spawnQueue = [];
 let spawnTimer = 0;
 

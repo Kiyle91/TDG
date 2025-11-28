@@ -578,7 +578,11 @@ export function damageGoblin(goblin, amount) {
 function handleGoblinEscape(goblin) {
   if (gameState.player) {
     if (gameState.player.lives === undefined) gameState.player.lives = 10;
+    const prevLives = gameState.player.lives;
     gameState.player.lives = Math.max(0, gameState.player.lives - 1);
+    if (gameState.player.lives < prevLives) {
+      Events.emit(E.playerLifeLost, { lives: gameState.player.lives });
+    }
     updateHUD();
   }
   goblin.alive = false;
