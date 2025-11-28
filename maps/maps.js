@@ -70,10 +70,14 @@ export function initMapSelect() {
 
       // 1️⃣ Update global map state
       setCurrentMap(level);
+      gameState.currentMap = level;
+      if (gameState.profile?.progress) {
+        gameState.profile.progress.currentMap = level;
+      }
 
-      // Reset gold for the new map (gameplay reset)
+      // Reset shards for the new map (gameplay reset)
       if (gameState.profile?.currencies) {
-        gameState.profile.currencies.gold = 0;
+        gameState.profile.currencies.shards = 0;
       }
 
       saveProfiles();

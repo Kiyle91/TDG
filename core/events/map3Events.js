@@ -1,334 +1,290 @@
 // ============================================================
-// 🍂 Map 3 — Glitter’s Extended Time-Based Story Script
+// 🌵 map3Events.js — Drylands Story Script (FULL VERSION)
 // ------------------------------------------------------------
-// • ~10–12 minute pacing (up to ~700s)
-// • Humorous, girly, confident, dramatic Glitter commentary
-// • Golden Drylands theme — warm, dusty, magical
-// • Ties into Life Crystal weakening + Fire Realm foreshadowing
+// Map 3: Troll territory. Dry, hot, miserable. Glitter hates it.
+// Introduces Trolls (big HP brutes), first Ogres near the end.
+//
+// Covers:
+//   • Timed introduction (humorous + environmental context)
+//   • Wave start/end flavour text (10+ waves)
+//   • First troll kill reaction
+//   • First ogre kill reaction
+//   • First pickups (Shards, Diamonds, Hearts, Mana, Bravery)
+//   • Spire destruction (one-time)
+//   • Echo half + complete narrative
+//   • Life-loss callouts
+//   • No boss here — Seraphine returns later.
 // ============================================================
 
+import { Events, EVENT_NAMES as E, loadTimedEventsForMap, mapOn, mapOnce } from "../eventEngine.js";
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
+import { gameState } from "../../utils/gameState.js";
 
-export default [
+// ------------------------------------------------------------
+// PLAYER POSITION HELPER
+// ------------------------------------------------------------
+const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 
-  // ============================================================
-  // ⭐ PHASE 0 — ARRIVING IN THE DRYLANDS (3–40s)
-  // ============================================================
+// ------------------------------------------------------------
+// LIFE-LOSS CALLOUT LINES
+// ------------------------------------------------------------
+const lifeLossLines = {
+  80: [
+    "One slipped past—ugh, the dust is blinding!",
+    "Stay sharp Glitter—dry air’s no excuse!"
+  ],
+  60: [
+    "These trolls hit harder than they smell!",
+    "Focus! Reinforce the paths!"
+  ],
+  40: [
+    "We’re losing ground! Hold them back!",
+    "If any more get through I’m blaming the heat!"
+  ],
+  20: [
+    "Princess, we’re almost out of room here!",
+    "This is looking bad… don’t give up!"
+  ]
+};
 
+// ------------------------------------------------------------
+// TIMED INTRO — 45s (Humour + Environmental Setup)
+// ------------------------------------------------------------
+const TIMED_EVENTS = [
   {
     id: "t_003",
     timeRequired: 3,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Wow… everything’s so gold and sparkly. Did I accidentally walk into a shampoo commercial?",
-        p.pos.x, p.pos.y
-      );
-    },
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble("Ugh… dry, dusty, hot… welcome to the Drylands.", pos.x, pos.y, 4500);
+    }
   },
-
   {
-    id: "t_015",
-    timeRequired: 15,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Drylands? More like Glitterlands. I’m owning this whole colour palette.",
-        p.pos.x, p.pos.y
-      );
-    },
+    id: "t_010",
+    timeRequired: 10,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble("Troll territory. Perfect. Just perfect.", pos.x, pos.y, 4200);
+    }
   },
-
   {
-    id: "t_035",
-    timeRequired: 35,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If a goblin jumps out of a leaf pile, I’m kicking it straight back in.",
-        p.pos.x, p.pos.y
-      );
-    },
+    id: "t_018",
+    timeRequired: 18,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble("Echoes still appear out here… somehow.", pos.x, pos.y, 4200);
+    }
   },
-
-  // ============================================================
-  // ⭐ PHASE 1 — FIRST GOBLIN ENCOUNTERS (60–130s)
-  // ============================================================
-
   {
-    id: "t_060",
-    timeRequired: 60,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ugh… that smell. Goblins. Burnt toast mixed with old socks. Fantastic.",
-        p.pos.x, p.pos.y
-      );
-    },
+    id: "t_026",
+    timeRequired: 26,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble("Place your Spires close to the paths—trolls don’t fall for tricks.", pos.x, pos.y, 4500);
+    }
   },
-
   {
-    id: "t_090",
-    timeRequired: 90,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Remember Glitter: cute, powerful, and absolutely terrifying when provoked.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_125",
-    timeRequired: 125,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If one more goblin wobbles at me, I swear it’s sword o’clock.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 2 — CRYSTAL ECHOES & LIFE MAGIC (150–220s)
-  // ============================================================
-
-  {
-    id: "t_150",
-    timeRequired: 150,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "The Crystal Echoes look extra shiny out here… like they’re posing for a photoshoot.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_180",
-    timeRequired: 180,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "The Drylands feel warm but… wrong. Like all the Life magic is draining away.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_215",
-    timeRequired: 215,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "More Echoes means more glitter power. Goblins touching them means disaster.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 3 — SPIRES & DEFENCE PLANNING (240–310s)
-  // ============================================================
-
-  {
-    id: "t_240",
-    timeRequired: 240,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "This place is HUGE. Perfect for Spires. Glitter Guardian HQ, coming right up.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_275",
-    timeRequired: 275,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "1 through 5 to summon Spires… my little sparkle soldiers of doom.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_310",
-    timeRequired: 310,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Strategic placement ONLY. No putting a Spire in the middle of a tumbleweed.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 4 — POWERS & HEAT (340–420s)
-  // ============================================================
-
-  {
-    id: "t_340",
-    timeRequired: 340,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If I get hurt, R to heal. Glitter refuses to look dusty. Hydrate AND heal.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_375",
-    timeRequired: 375,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "F for spells. Time to turn these goblins into glitter smoke.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_405",
-    timeRequired: 405,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Q for bravery. Also known as my ‘stop annoying me’ energy burst.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 5 — DRYLANDS FLAVOUR (440–540s)
-  // ============================================================
-
-  {
-    id: "t_440",
-    timeRequired: 440,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "These golden trees look gorgeous. Probably hiding something hideous.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_480",
-    timeRequired: 480,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Why do goblins run like spaghetti? Stand STILL so I can fix it!",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_520",
-    timeRequired: 520,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If one more worg snarls at me, it’s getting a sparkly timeout.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 6 — PLOT BUILDUP (560–650s)
-  // ============================================================
-
-  {
-    id: "t_560",
-    timeRequired: 560,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "The Drylands didn’t used to be this hot… something is draining the Life Crystal.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_600",
-    timeRequired: 600,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If the goblins are collecting Echoes, they’re powering something up.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_635",
-    timeRequired: 635,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana said the Fire Realm is acting weird too… great. Love that for us.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_665",
-    timeRequired: 665,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If this is the warm-up, the next map is going to be like walking into an oven.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 7 — LATE MAP CONFIDENCE (690–720s)
-  // ============================================================
-
-  {
-    id: "t_690",
-    timeRequired: 690,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Still slaying. Still iconic. Glitter conquers the Drylands.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_720",
-    timeRequired: 720,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Next stop: The Ember Realm. I’m bringing sunscreen AND attitude.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
+    id: "t_040",
+    timeRequired: 40,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble("Heat’s rising… something’s coming.", pos.x, pos.y, 4000);
+    }
+  }
 ];
+
+// ------------------------------------------------------------
+// INIT
+// ------------------------------------------------------------
+export default function initMap3Events() {
+  loadTimedEventsForMap(3, TIMED_EVENTS);
+
+  // ------------------------------------------------------------
+  // WAVE START DIALOGUE
+  // ------------------------------------------------------------
+  mapOn(3, E.waveStart, ({ wave }) => {
+    const pos = p();
+
+    const lines = {
+      1: "First wave… let’s see how trolls handle arrows.",
+      2: "More goblins? How’d they survive out here?",
+      3: "I hear stomping. That’s… not reassuring.",
+      4: "Heat and goblins… worst combination.",
+      5: "Okay, now they're getting organised. Bad sign.",
+      6: "Is that… a troll? Yep. That’s a troll.",
+      7: "They're pushing hard… stay close to your Spires.",
+      8: "Drylands aren’t slowing them down… why?!",
+      9: "Something massive is rumbling out there…",
+      10: "These footsteps… that better not be an ogre.",
+      11: "Here they come—big ones too.",
+      12: "I refuse to get flattened today.",
+      13: "Almost at the end… stay sharp!",
+      14: "This heat is making everything worse.",
+      15: "One last push—Drylands won’t beat me!"
+    };
+
+    if (lines[wave]) {
+      spawnSpeechBubble(lines[wave], pos.x, pos.y, 4200);
+    }
+  });
+
+  // ------------------------------------------------------------
+  // WAVE END DIALOGUE
+  // ------------------------------------------------------------
+  mapOn(3, E.waveEnd, ({ wave }) => {
+    const pos = p();
+
+    const lines = {
+      1: "Okay… that wasn’t too bad.",
+      2: "Why does everything taste like sand?",
+      3: "Someone’s definitely watching us.",
+      4: "Heat’s getting worse… great.",
+      5: "Trolls incoming soon. I can feel it.",
+      6: "Troll down! They’re tough but slow.",
+      7: "My Spires are working overtime out here.",
+      8: "We’re getting closer… stay cautious.",
+      9: "Those footsteps sounded… large.",
+      10: "If that wasn’t an ogre… what was it?",
+      11: "They just keep coming…",
+      12: "Everything hurts and it's too hot.",
+      13: "Nearly done! I can taste victory… or sand.",
+      14: "One more wave… let's end this!",
+    };
+
+    if (lines[wave]) {
+      spawnSpeechBubble(lines[wave], pos.x, pos.y, 4200);
+    }
+  });
+
+  // ------------------------------------------------------------
+  // FIRST TROLL KILL
+  // ------------------------------------------------------------
+  let firstTrollKill = false;
+
+  mapOn(3, E.enemyKilled, ({ type }) => {
+    if (type !== "troll" || firstTrollKill) return;
+    firstTrollKill = true;
+
+    const pos = p();
+    spawnSpeechBubble("Troll defeated! That took way too long.", pos.x, pos.y, 4800);
+  });
+
+  // ------------------------------------------------------------
+  // FIRST OGRE KILL
+  // ------------------------------------------------------------
+  let firstOgreKill = false;
+
+  mapOn(3, E.enemyKilled, ({ type }) => {
+    if (type !== "ogre" || firstOgreKill) return;
+    firstOgreKill = true;
+
+    const pos = p();
+    spawnSpeechBubble("An ogre… fell?! I’m stronger than I thought!", pos.x, pos.y, 5000);
+  });
+
+  // ------------------------------------------------------------
+  // FIRST PICKUPS (Shards, Diamonds, Hearts, Mana, Bravery)
+  // ------------------------------------------------------------
+  let lastGold = 0;
+  let lastDiamonds = 0;
+  let lastHearts = 0;
+  let lastMana = 0;
+  let lastBravery = 0;
+
+  let saidShard = false;
+  let saidDiamond = false;
+  let saidHeart = false;
+  let saidMana = false;
+  let saidBravery = false;
+
+  mapOn(3, "resourceUpdate", () => {
+    const pos = p();
+
+    if (!saidShard && gameState.gold > lastGold) {
+      saidShard = true;
+      spawnSpeechBubble("Shards! Perfect—more Spires for the field.", pos.x, pos.y, 5000);
+    }
+
+    if (!saidDiamond && gameState.diamonds > lastDiamonds) {
+      saidDiamond = true;
+      spawnSpeechBubble("Diamonds! Upgrade time!", pos.x, pos.y, 5000);
+    }
+
+    if (!saidHeart && gameState.hearts > lastHearts) {
+      saidHeart = true;
+      spawnSpeechBubble("Heart essence—much needed in this heat.", pos.x, pos.y, 5000);
+    }
+
+    if (!saidMana && gameState.mana > lastMana) {
+      saidMana = true;
+      spawnSpeechBubble("Mana! Finally—I can cast again.", pos.x, pos.y, 5000);
+    }
+
+    if (!saidBravery && gameState.bravery > lastBravery) {
+      saidBravery = true;
+      spawnSpeechBubble("Bravery shards… I feel stronger already.", pos.x, pos.y, 5000);
+    }
+
+    lastGold = gameState.gold;
+    lastDiamonds = gameState.diamonds;
+    lastHearts = gameState.hearts;
+    lastMana = gameState.mana;
+    lastBravery = gameState.bravery;
+  });
+
+  // ------------------------------------------------------------
+  // SPIRE DESTROYED — FIRST TIME
+  // ------------------------------------------------------------
+  let firstSpireDown = false;
+
+  mapOn(3, "spireDestroyed", () => {
+    if (firstSpireDown) return;
+    firstSpireDown = true;
+
+    const pos = p();
+    spawnSpeechBubble("My Spire! Ugh—trolls hit like wagons!", pos.x, pos.y, 5000);
+  });
+
+  // ------------------------------------------------------------
+  // ECHO COLLECTION — HALF + COMPLETE
+  // ------------------------------------------------------------
+  mapOn(3, E.echoHalf, ({ found, total }) => {
+    const pos = p();
+    spawnSpeechBubble("Half the Echoes… even out here they shine.", pos.x, pos.y, 4500);
+  });
+
+  mapOnce(3, E.echoComplete, () => {
+    const pos = p();
+    spawnSpeechBubble("All the Echoes… glowing together again.", pos.x, pos.y, 5500);
+
+    setTimeout(() => {
+      spawnSpeechBubble("Drylands or not… the crystals still trust me.", pos.x, pos.y, 5200);
+    }, 2500);
+  });
+
+  // ------------------------------------------------------------
+  // LIFE LOSS CALLOUTS
+  // ------------------------------------------------------------
+  const thresholds = Object.keys(lifeLossLines).map(Number).sort((a, b) => b - a);
+  const triggered = new Set();
+
+  mapOn(3, E.playerLifeLost, ({ lives }) => {
+    const total = 10;
+    const pct = (lives / total) * 100;
+    const pos = p();
+
+    for (const t of thresholds) {
+      if (pct <= t && !triggered.has(t)) {
+        triggered.add(t);
+        const arr = lifeLossLines[t];
+        const line = arr[Math.floor(Math.random() * arr.length)];
+        spawnSpeechBubble(line, pos.x, pos.y, 4200);
+        break;
+      }
+    }
+  });
+}
+
+// ============================================================
+// END OF FILE
+// ============================================================

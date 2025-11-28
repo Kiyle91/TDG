@@ -1,330 +1,367 @@
 // ============================================================
-// 🍄 Map 7 — Glitter’s Mushroom Realm Extended Script
+// 🐸 map7Events.js — The Swamplands Story Script (Full)
 // ------------------------------------------------------------
-// • 10–12 minute pacing (~700s)
-// • Pure chaos: spores, colours, bouncing goblins, weird magic
-// • Wild Magic Bloom lore + Architect hints
-// • Glitter is dramatic, funny, confused, fearless
+// Map 7: The Swamplands
+// Theme: muddy detour before the Voidlands,
+//        Crossbow Trolls introduced, Seraphine returns angrier.
+//
+// Includes:
+//   • Wave start flavour
+//   • Wave end flavour
+//   • First Crossbow Troll intro
+//   • First Crossbow Troll kill
+//   • Seraphine (Phase 3) introduction + mid-fight reactions
+//   • Pickup lines (swamp-themed humour)
+//   • Bravery lines
+//   • Life-loss lines (swamp panic)
+//   • First spire destroyed (mud-rage)
+//   • Echo completion (mushroom sparkle nonsense)
 // ============================================================
 
+import { Events, EVENT_NAMES as E, loadTimedEventsForMap, mapOn, mapOnce } from "../eventEngine.js";
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
+import { gameState } from "../../utils/gameState.js";
 
-export default [
+const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 
-  // ============================================================
-  // ⭐ PHASE 0 — FIRST IMPRESSIONS (3–40s)
-  // ============================================================
-
-  {
-    id: "t_003",
-    timeRequired: 3,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Okay… this place is weird. Like, ‘who spilled magic everywhere?’ weird.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_018",
-    timeRequired: 18,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Why are the mushrooms taller than me? Who approved giant fungus?!",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_040",
-    timeRequired: 40,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If any mushroom talks to me… I am leaving. Immediately.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+export function initMap7Events() {
 
   // ============================================================
-  // ⭐ PHASE 1 — MUSHROOM GOBLINS (60–130s)
+  // 🐸 1) WAVE START — Swamp misery intensifies
   // ============================================================
 
-  {
-    id: "t_060",
-    timeRequired: 60,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Oh no. Even the goblins look weird here. That’s saying A LOT.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(7, E.waveStart, ({ wave }) => {
+    const pos = p();
 
-  {
-    id: "t_095",
-    timeRequired: 95,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "EWW! That one just sneezed spores. No. Absolutely not.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    switch (wave) {
 
-  {
-    id: "t_130",
-    timeRequired: 130,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Why are they running like they drank five cups of sugar? Calm DOWN.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 1:
+        spawnSpeechBubble("Ugh… it squelched. I stepped in something ALIVE.", pos.x, pos.y, 4500);
+        break;
 
-  // ============================================================
-  // ⭐ PHASE 2 — REALM FLAVOUR + BLOOM LORE (155–250s)
-  // ============================================================
+      case 2:
+        spawnSpeechBubble("This whole place smells like angry soup.", pos.x, pos.y, 4200);
+        break;
 
-  {
-    id: "t_155",
-    timeRequired: 155,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "There are so many colours… it’s like a rainbow exploded and didn’t clean up.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 3:
+        spawnSpeechBubble("The mushrooms are staring at me. I swear they blinked.", pos.x, pos.y, 4800);
+        break;
 
-  {
-    id: "t_190",
-    timeRequired: 190,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Why does the air taste like strawberry? Should *air* taste like anything?!",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 4:
+        spawnSpeechBubble("Why do goblins like swamps so much?!", pos.x, pos.y, 4300);
+        break;
 
-  {
-    id: "t_220",
-    timeRequired: 220,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana said the Wild Magic Bloom started here… everything’s mutating.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 5:
+        spawnSpeechBubble("Wait… is that a troll with— a CROSSBOW?!", pos.x, pos.y, 4800);
+        break;
 
-  {
-    id: "t_250",
-    timeRequired: 250,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If this is what happens when crystals lose balance… yikes.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 6:
+        spawnSpeechBubble("Those trolls can shoot! ERRATICALLY!", pos.x, pos.y, 4800);
+        break;
+
+      case 7:
+        spawnSpeechBubble("I hate this swamp. I hate these mushrooms. I hate ranged trolls.", pos.x, pos.y, 5000);
+        break;
+
+      case 8:
+        spawnSpeechBubble("Nearly done… I can smell the Voidlands from here.", pos.x, pos.y, 4500);
+        break;
+
+      case 9:
+        spawnSpeechBubble("A chill… Seraphine is near. And she sounds furious.", pos.x, pos.y, 4800);
+        break;
+
+      default:
+        spawnSpeechBubble("I swear the mud moved—ON ITS OWN.", pos.x, pos.y, 4800);
+    }
+  });
 
   // ============================================================
-  // ⭐ PHASE 3 — PEAK MUSHROOM CHAOS (280–360s)
+  // 🐸 2) WAVE END — Glitter’s swamp suffering continues
   // ============================================================
 
-  {
-    id: "t_280",
-    timeRequired: 280,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Imagine a goblin tripping on a mushroom cap… that would make my WEEK.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(7, E.waveEnd, ({ wave }) => {
+    const pos = p();
 
-  {
-    id: "t_315",
-    timeRequired: 315,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "This map smells… funky. Not cute-funky. FUNGUS-funky.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    switch (wave) {
 
-  {
-    id: "t_360",
-    timeRequired: 360,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If these mushrooms are magical, I expect sparkles. Minimum requirement.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 1:
+        spawnSpeechBubble("My shoes are ruined. My soul is damp.", pos.x, pos.y, 4200);
+        break;
 
-  // ============================================================
-  // ⭐ PHASE 4 — GLITTER GETS STRANGE (390–490s)
-  // ============================================================
+      case 2:
+        spawnSpeechBubble("This swamp is testing my patience… and my hygiene.", pos.x, pos.y, 4500);
+        break;
 
-  {
-    id: "t_390",
-    timeRequired: 390,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Do… do goblins grow mushrooms on purpose? That thought lives rent-free in my nightmares.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 3:
+        spawnSpeechBubble("Those mushrooms are DEFINITELY judging me.", pos.x, pos.y, 4600);
+        break;
 
-  {
-    id: "t_430",
-    timeRequired: 430,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Everything here is squishy. Glitter hates squishy. I need a towel.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 4:
+        spawnSpeechBubble("If another goblin splashes swamp water on me…", pos.x, pos.y, 4800);
+        break;
 
-  {
-    id: "t_460",
-    timeRequired: 460,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "The Bloom is spreading spores everywhere. No wonder the goblins are EXTRA weird.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 5:
+        spawnSpeechBubble("Crossbow trolls?! Who gave trolls ranged weapons?!", pos.x, pos.y, 5000);
+        break;
 
-  {
-    id: "t_490",
-    timeRequired: 490,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If the Shadow Architect corrupts this Bloom… the whole Isles will turn into Mushroom Land.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 6:
+        spawnSpeechBubble("One down. A billion swamp creatures to go.", pos.x, pos.y, 4800);
+        break;
+
+      case 7:
+        spawnSpeechBubble("My hair is frizzing. THIS IS A CRISIS.", pos.x, pos.y, 4600);
+        break;
+
+      case 8:
+        spawnSpeechBubble("One more wave… then I am BATHING for a WEEK.", pos.x, pos.y, 5200);
+        break;
+
+      case 9:
+        spawnSpeechBubble("Seraphine… I can feel her rage from here.", pos.x, pos.y, 5200);
+        break;
+    }
+  });
 
   // ============================================================
-  // ⭐ PHASE 5 — MUSHROOM MADNESS (520–620s)
+  // 🐸 3) FIRST CROSSBOW TROLL INTRO
   // ============================================================
 
-  {
-    id: "t_520",
-    timeRequired: 520,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "That goblin just bounced off a mushroom and didn’t even question it. Iconic.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  let cbIntro = false;
 
-  {
-    id: "t_555",
-    timeRequired: 555,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "The colours keep changing. Either magic is broken… or I’m dizzy.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(7, E.enemySpawn, ({ type }) => {
+    if (type !== "crossbow" || cbIntro) return;
+    cbIntro = true;
 
-  {
-    id: "t_600",
-    timeRequired: 600,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If a mushroom starts singing, I'm leaving the whole universe.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_620",
-    timeRequired: 620,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana said the Void Realm reacts to wild magic… oh good. More chaos coming.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    const pos = p();
+    spawnSpeechBubble(
+      "CROSSBOW trolls?! That’s ILLEGAL! They’re supposed to bonk, not snipe!",
+      pos.x, pos.y, 5600
+    );
+  });
 
   // ============================================================
-  // ⭐ PHASE 6 — LATE-MAP CONFIDENCE (650–700s)
+  // 🐸 4) FIRST CROSSBOW TROLL KILL
   // ============================================================
 
-  {
-    id: "t_650",
-    timeRequired: 650,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Still alive. Still fabulous. Still avoiding suspicious shrooms.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  let cbKill = false;
 
-  {
-    id: "t_680",
-    timeRequired: 680,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Next stop: The Void Realm. Time to defeat gravity with style.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(7, E.enemyKilled, ({ type }) => {
+    if (type !== "crossbow" || cbKill) return;
+    cbKill = true;
 
-  {
-    id: "t_700",
-    timeRequired: 700,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana’s gonna SCREAM laughing when I describe this place. Mushroom Realm: complete.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    const pos = p();
+    spawnSpeechBubble(
+      "Yes! One less sniper in this boggy nightmare!",
+      pos.x, pos.y, 5200
+    );
+  });
 
-];
+  // ============================================================
+  // 🐸 5) SERAPHINE (PHASE 3) — Furious confrontation
+  // ============================================================
+
+  mapOn(7, E.bossSpawn, ({ boss, phase }) => {
+    if (boss !== "seraphine" || phase !== 3) return;
+
+    const pos = p();
+
+    setTimeout(() => {
+      spawnSpeechBubble(
+        "Seraphine… you look… angrier. MUCH angrier.",
+        pos.x, pos.y, 5200
+      );
+    }, 600);
+
+    setTimeout(() => {
+      spawnSpeechBubble(
+        "Why here though?! The swamp stinks already!",
+        pos.x, pos.y, 5200
+      );
+    }, 2600);
+  });
+
+  // Mid-fight HP thresholds
+  mapOn(7, E.bossHpThreshold, ({ boss, threshold }) => {
+    if (boss !== "seraphine") return;
+
+    const pos = p();
+
+    if (threshold === 75) {
+      spawnSpeechBubble("She’s faster this time!", pos.x, pos.y, 4800);
+    }
+    if (threshold === 50) {
+      spawnSpeechBubble("Seraphine why are you so MAD?!", pos.x, pos.y, 4800);
+    }
+    if (threshold === 25) {
+      spawnSpeechBubble("Stop dodging!! Fight me properly!!", pos.x, pos.y, 4500);
+    }
+  });
+
+  mapOn(7, E.bossDefeated, ({ boss, phase }) => {
+    if (boss !== "seraphine" || phase !== 3) return;
+    const pos = p();
+
+    spawnSpeechBubble(
+      "She escaped AGAIN?! SERAPHINE PLEASE.",
+      pos.x, pos.y, 5400
+    );
+  });
+
+  // ============================================================
+  // 🐸 6) PICKUPS — Swamp-ified flavour
+  // ============================================================
+
+  let lastGold = 0;
+  let lastDiamonds = 0;
+  let lastHearts = 0;
+  let lastMana = 0;
+  let lastBravery = 0;
+
+  let saidShard = false;
+  let saidDiamond = false;
+  let saidHeart = false;
+  let saidMana = false;
+  let saidBravery = false;
+
+  mapOn(7, "resourceUpdate", () => {
+    const pos = p();
+
+    if (!saidDiamond && gameState.diamonds > lastDiamonds) {
+      saidDiamond = true;
+      spawnSpeechBubble("Shiny diamonds! A welcome change from… swamp muck.", pos.x, pos.y, 5000);
+    }
+
+    if (!saidShard && gameState.gold > lastGold) {
+      saidShard = true;
+      spawnSpeechBubble("Shards! Perfect—Spires hate swamp water as much as I do.", pos.x, pos.y, 5200);
+    }
+
+    if (!saidHeart && gameState.hearts > lastHearts) {
+      saidHeart = true;
+      spawnSpeechBubble("A Heart! Probably not swamp-contaminated!", pos.x, pos.y, 5200);
+    }
+
+    if (!saidMana && gameState.mana > lastMana) {
+      saidMana = true;
+      spawnSpeechBubble("Mana! Good. I need magic just to stay CLEAN.", pos.x, pos.y, 5200);
+    }
+
+    if (!saidBravery && gameState.bravery > lastBravery) {
+      saidBravery = true;
+      spawnSpeechBubble("Bravery shards! Finally something here that doesn’t smell weird!", pos.x, pos.y, 5200);
+    }
+
+    lastGold = gameState.gold;
+    lastDiamonds = gameState.diamonds;
+    lastHearts = gameState.hearts;
+    lastMana = gameState.mana;
+    lastBravery = gameState.bravery;
+  });
+
+  // ============================================================
+  // 🐸 7) BRAVERY EVENTS
+  // ============================================================
+
+  let braveFull = false;
+  let braveUse = false;
+
+  mapOn(7, E.braveryFull, () => {
+    if (braveFull) return;
+    braveFull = true;
+
+    const pos = p();
+    spawnSpeechBubble("Bravery charged—finally something pure in this bog.", pos.x, pos.y, 5000);
+  });
+
+  mapOn(7, E.braveryActivated, () => {
+    if (braveUse) return;
+    braveUse = true;
+
+    const pos = p();
+    spawnSpeechBubble("Guardian Form! I WILL NOT BE DEFEATED BY MUSHROOMS!", pos.x, pos.y, 5200);
+  });
+
+  // ============================================================
+  // 🐸 8) FIRST SPIRE DESTROYED
+  // ============================================================
+
+  let spireBreak = false;
+
+  mapOn(7, "spireDestroyed", () => {
+    if (spireBreak) return;
+    spireBreak = true;
+
+    const pos = p();
+    spawnSpeechBubble(
+      "HEY! That Spire was the cleanest thing in this swamp!",
+      pos.x, pos.y, 5200
+    );
+  });
+
+  // ============================================================
+  // 🐸 9) LIFE LOSS — Swamp panic
+  // ============================================================
+
+  const swampLoss = {
+    80: [
+      "They got through—probably slipping in the mud!",
+      "Oops—lost one. Blame the mushrooms."
+    ],
+    60: [
+      "We’re losing ground! And probably sinking!",
+      "Stay calm Glitter! Even if the swamp isn't!"
+    ],
+    40: [
+      "This swamp is CURSED! I swear!",
+      "Everything is moist AND dangerous!"
+    ],
+    20: [
+      "We’re nearly done for! SQUELCH FASTER!!",
+      "If we lose here I'm never entering a swamp again!"
+    ]
+  };
+
+  const triggered = new Set();
+
+  mapOn(7, E.playerLifeLost, ({ lives }) => {
+    const pct = (lives / 10) * 100;
+    const pos = p();
+
+    for (const t of Object.keys(swampLoss).map(Number).sort((a,b)=>b-a)) {
+      if (pct <= t && !triggered.has(t)) {
+        triggered.add(t);
+        const line = swampLoss[t][Math.floor(Math.random() * swampLoss[t].length)];
+        spawnSpeechBubble(line, pos.x, pos.y, 4500);
+        break;
+      }
+    }
+  });
+
+  // ============================================================
+  // 🐸 10) ALL CRYSTAL ECHOES — Swamp sparkle chaos
+  // ============================================================
+
+  mapOnce(7, "echoComplete", () => {
+    const pos = p();
+
+    spawnSpeechBubble(
+      "All Crystal Echoes collected! They smell… slightly… swampy?",
+      pos.x, pos.y, 5500
+    );
+
+    setTimeout(() => {
+      spawnSpeechBubble(
+        "They’re glowing through the muck. Proud of them.",
+        pos.x, pos.y, 5000
+      );
+    }, 2500);
+  });
+
+}
+
+export default initMap7Events;
+
+// ============================================================
+// END OF FILE
+// ============================================================

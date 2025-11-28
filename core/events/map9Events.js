@@ -1,304 +1,291 @@
 // ============================================================
-// 👑 Map 9 — Glitter’s Crystal Keep Interior EXTENDED Script
+// 🌑 map8Events.js — The Voidlands Story Script (Final)
 // ------------------------------------------------------------
-// FINAL MAP. Peak heroic comedy, emotional payoff,
-// Glitter defending her home and the Crystal Heart.
+// Map 8: Seraphine’s homeland. Forbidden magic. Gravity warps.
+// Introduces:
+//   • Void Goblins (disable spires, distort magic, gravity slips)
+//   • Everyone fears this type of magic — even Glitter
+//   • Seraphine’s homeland, heavy lore hints
+//   • No tutorials — atmospheric, unsettling, but still funny
+//
+// Covers:
+//   • Wave start/end flavour
+//   • First Void Goblin kill (ONE TIME)
+//   • Life loss callouts
+//   • Void-flavoured resource lines
+//   • Seraphine cameo (Phase 4 foreshadowing but not a fight)
 // ============================================================
 
+import { Events, EVENT_NAMES as E, loadTimedEventsForMap, mapOn, mapOnce } from "../eventEngine.js";
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
+import { gameState } from "../../utils/gameState.js";
 
-export default [
+// ============================================================
+// PLAYER POSITION HELPER
+// ============================================================
 
-  // ============================================================
-  // ⭐ PHASE 0 — RETURNING HOME (3–40s)
-  // ============================================================
+const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 
-  {
-    id: "t_003",
-    timeRequired: 3,
-    action: (gs) => {
-      const p = gs.player;
+// ============================================================
+// LIFE LOSS CALLOUTS (void-panic flavoured)
+// ============================================================
+
+const lifeLossLines = {
+  80: [
+    "That one bent around the spire—how?!",
+    "Void tricks… stay sharp!"
+  ],
+  60: [
+    "They're scrambling space itself—keep moving!",
+    "My spires can’t track them when they do that!"
+  ],
+  40: [
+    "This place is warping around me—ugh!",
+    "Void creatures… why does it feel like it's watching?"
+  ],
+  20: [
+    "Princess—don’t let the Void take you!",
+    "Glitter… focus! Don’t lose yourself!"
+  ]
+};
+
+// ============================================================
+// INIT
+// ============================================================
+
+export default function initMap9Events() {
+
+  // ------------------------------------------------------------
+  // 1) WAVE START
+  // ------------------------------------------------------------
+  mapOn(9, E.waveStart, ({ wave }) => {
+    const pos = p();
+    switch (wave) {
+      case 1:
+        spawnSpeechBubble(
+          "This air… it’s thick. Like I'm walking through someone else’s dream.",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 2:
+        spawnSpeechBubble(
+          "Void Goblins… even the regular ones look nervous around them.",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 3:
+        spawnSpeechBubble(
+          "My Spires—are they… flickering? Void magic is terrifying.",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 4:
+        spawnSpeechBubble(
+          "Gravity shifted—nope nope nope I hate this map.",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 5:
+        spawnSpeechBubble(
+          "Seraphine was born here… is she watching me?",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 6:
+        spawnSpeechBubble(
+          "The void energy is pulsing… stronger than the Ember Plains.",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 7:
+        spawnSpeechBubble(
+          "My arrows are curving—how do physics even WORK here?!",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 8:
+        spawnSpeechBubble(
+          "Okay Glitter… don’t freak out. Just… pretend this is normal.",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 9:
+        spawnSpeechBubble(
+          "Something big is stirring beneath this place…",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 10:
+        spawnSpeechBubble(
+          "Seraphine… I can feel you nearby. Are you still my enemy?",
+          pos.x, pos.y, 5000
+        );
+        break;
+    }
+  });
+
+  // ------------------------------------------------------------
+  // 2) WAVE END
+  // ------------------------------------------------------------
+  mapOn(9, E.waveEnd, ({ wave }) => {
+    const pos = p();
+
+    switch (wave) {
+      case 1:
+        spawnSpeechBubble("Okay. I survived the welcome party. Nice.", pos.x, pos.y, 4000);
+        break;
+      case 2:
+        spawnSpeechBubble("Void Goblins are cheating. I swear they’re cheating.", pos.x, pos.y, 4200);
+        break;
+      case 3:
+        spawnSpeechBubble("My spires hate this place. I hate this place.", pos.x, pos.y, 4200);
+        break;
+      case 4:
+        spawnSpeechBubble("If gravity flips again I’m filing a complaint.", pos.x, pos.y, 4200);
+        break;
+      case 5:
+        spawnSpeechBubble("Seraphine grew up here? That explains… a lot.", pos.x, pos.y, 4500);
+        break;
+      case 6:
+        spawnSpeechBubble("Even the Echoes sound nervous.", pos.x, pos.y, 4000);
+        break;
+      case 7:
+        spawnSpeechBubble("The shadows have… depth. Too much depth.", pos.x, pos.y, 4500);
+        break;
+      case 8:
+        spawnSpeechBubble("Almost done, Glitter. Don’t fall into the void.", pos.x, pos.y, 4500);
+        break;
+      case 9:
+        spawnSpeechBubble("Did the ground just breathe?", pos.x, pos.y, 4200);
+        break;
+    }
+  });
+
+  // ------------------------------------------------------------
+  // 3) FIRST VOID GOBLIN KILL
+  // ------------------------------------------------------------
+  let firstVoidKill = false;
+
+  mapOn(9, E.enemyKilled, ({ type }) => {
+    if (type !== "voidGoblin") return;
+    if (firstVoidKill) return;
+
+    firstVoidKill = true;
+    const pos = p();
+
+    spawnSpeechBubble(
+      "Void Goblin down… and it felt like it stared straight into me.",
+      pos.x, pos.y, 5000
+    );
+
+    setTimeout(() => {
       spawnSpeechBubble(
-        "Home sweet home… and OF COURSE goblins broke in.",
-        p.pos.x, p.pos.y
+        "No wonder the Spires can’t see them… they’re bending light.",
+        pos.x, pos.y, 4800
       );
-    },
-  },
+    }, 2400);
+  });
 
-  {
-    id: "t_018",
-    timeRequired: 18,
-    action: (gs) => {
-      const p = gs.player;
+  // ------------------------------------------------------------
+  // 4) LIFE LOSS CALLOUTS
+  // ------------------------------------------------------------
+  const thresholds = Object.keys(lifeLossLines)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  const done = new Set();
+
+  mapOn(9, E.playerLifeLost, ({ lives }) => {
+    const pct = (lives / 10) * 100;
+    const pos = p();
+
+    for (const t of thresholds) {
+      if (pct <= t && !done.has(t)) {
+        done.add(t);
+        const lines = lifeLossLines[t];
+        const line = lines[Math.floor(Math.random() * lines.length)];
+        spawnSpeechBubble(line, pos.x, pos.y, 4500);
+        break;
+      }
+    }
+  });
+
+  // ------------------------------------------------------------
+  // 5) SERAPHINE — NOT A FIGHT, JUST A PRESENCE
+  // ------------------------------------------------------------
+  mapOn(9, E.bossSpawn, ({ boss }) => {
+    if (boss !== "seraphine") return;
+
+    const pos = p();
+    setTimeout(() => {
       spawnSpeechBubble(
-        "MY FLOORS! My shiny beautiful floors! Covered in goblin footprints!",
-        p.pos.x, p.pos.y
+        "Seraphine… this is your home, isn’t it?",
+        pos.x, pos.y, 4800
       );
-    },
-  },
+    }, 700);
 
-  {
-    id: "t_040",
-    timeRequired: 40,
-    action: (gs) => {
-      const p = gs.player;
+    setTimeout(() => {
       spawnSpeechBubble(
-        "I am cleaning NONE of this. Someone call a maid. Or a wizard.",
-        p.pos.x, p.pos.y
+        "Why does it feel like… you don’t want me here?",
+        pos.x, pos.y, 4800
       );
-    },
-  },
+    }, 3500);
+  });
 
-  // ============================================================
-  // ⭐ PHASE 1 — PALACE INTRUDERS (60–130s)
-  // ============================================================
+  // ------------------------------------------------------------
+  // 6) RESOURCE PICKUPS — VOID FLAVOUR
+  // ------------------------------------------------------------
+  let lastD = 0, lastG = 0, lastH = 0, lastM = 0, lastB = 0;
+  let saidD = false, saidG = false, saidH = false, saidM = false, saidB = false;
 
-  {
-    id: "t_060",
-    timeRequired: 60,
-    action: (gs) => {
-      const p = gs.player;
+  mapOn(9, "resourceUpdate", () => {
+    const pos = p();
+
+    if (!saidD && gameState.diamonds > lastD) {
+      saidD = true;
       spawnSpeechBubble(
-        "Eww, they’re TOUCHING the royal carpets. THEIR FEET. ON MY CARPETS.",
-        p.pos.x, p.pos.y
+        "Even the diamonds hum… this land is alive.",
+        pos.x, pos.y, 4800
       );
-    },
-  },
+    }
 
-  {
-    id: "t_095",
-    timeRequired: 95,
-    action: (gs) => {
-      const p = gs.player;
+    if (!saidG && gameState.gold > lastG) {
+      saidG = true;
       spawnSpeechBubble(
-        "Why are they screaming?! This is a palace. USE YOUR INSIDE GOBLIN VOICES!",
-        p.pos.x, p.pos.y
+        "Shards… warped by void light, but still spendable.",
+        pos.x, pos.y, 4600
       );
-    },
-  },
+    }
 
-  {
-    id: "t_130",
-    timeRequired: 130,
-    action: (gs) => {
-      const p = gs.player;
+    if (!saidH && gameState.hearts > lastH) {
+      saidH = true;
       spawnSpeechBubble(
-        "After this, I'm putting up a giant ‘NO GOBLINS ALLOWED EVER’ sign.",
-        p.pos.x, p.pos.y
+        "A Heart… glowing faintly purple. I really hope that’s fine.",
+        pos.x, pos.y, 5000
       );
-    },
-  },
+    }
 
-  // ============================================================
-  // ⭐ PHASE 2 — CRYSTAL HEART LORE (155–260s)
-  // ============================================================
-
-  {
-    id: "t_155",
-    timeRequired: 155,
-    action: (gs) => {
-      const p = gs.player;
+    if (!saidM && gameState.mana > lastM) {
+      saidM = true;
       spawnSpeechBubble(
-        "The Crystal Heart is close… I can feel it glowing stronger.",
-        p.pos.x, p.pos.y
+        "Void mana… it crackles when I hold it.",
+        pos.x, pos.y, 4800
       );
-    },
-  },
+    }
 
-  {
-    id: "t_190",
-    timeRequired: 190,
-    action: (gs) => {
-      const p = gs.player;
+    if (!saidB && gameState.bravery > lastB) {
+      saidB = true;
       spawnSpeechBubble(
-        "Ariana said the Architect wants the Heart for his weird shadow plans… nope.",
-        p.pos.x, p.pos.y
+        "Bravery shards… they vibrate like they’re warning me.",
+        pos.x, pos.y, 4800
       );
-    },
-  },
+    }
 
-  {
-    id: "t_225",
-    timeRequired: 225,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "NOT TODAY MISTER ARCHITECT! Glitter is home and ready to throw hands.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    lastD = gameState.diamonds;
+    lastG = gameState.gold;
+    lastH = gameState.hearts;
+    lastM = gameState.mana;
+    lastB = gameState.bravery;
+  });
 
-  {
-    id: "t_260",
-    timeRequired: 260,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "These halls held every memory I have… no goblin is taking them.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 3 — KEEP CHAOS (290–380s)
-  // ============================================================
-
-  {
-    id: "t_290",
-    timeRequired: 290,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "STOP RUNNING! You’re making the mess WORSE!",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_330",
-    timeRequired: 330,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Who opened the side doors? WHO LET THEM IN?!",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_380",
-    timeRequired: 380,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If any goblin touches the throne… they’re going out the WINDOW.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 4 — HEROIC GLITTER (410–520s)
-  // ============================================================
-
-  {
-    id: "t_410",
-    timeRequired: 410,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana trusted me to protect the Keep… and I am SLAYING THIS.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_455",
-    timeRequired: 455,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Honestly, I deserve a crown upgrade. With sparkles. Many sparkles.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_520",
-    timeRequired: 520,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "The Keep is MINE. The crystals are MINE. These goblins? NOT MINE.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 5 — FINAL BATTLE ENERGY (550–650s)
-  // ============================================================
-
-  {
-    id: "t_550",
-    timeRequired: 550,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "The Crystal Heart is pulsing… it knows I’m close.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_600",
-    timeRequired: 600,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Architect, if you can hear this: YOU’RE NOT GETTING MY HEART. OR THE CRYSTAL ONE.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_650",
-    timeRequired: 650,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "This is it. Glitter vs EVERY goblin EVER. Spoiler: I win.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 6 — THE FINAL TRIUMPH (670–710s)
-  // ============================================================
-
-  {
-    id: "t_670",
-    timeRequired: 670,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Still shining. Still slaying. Still Sparkle Guardian Number One.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_690",
-    timeRequired: 690,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana… your Keep is safe. Glitter saved the day. AGAIN.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_710",
-    timeRequired: 710,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Now someone please fetch me a cupcake. I have earned twelve.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-];
+}

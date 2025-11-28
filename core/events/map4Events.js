@@ -1,293 +1,350 @@
 // ============================================================
-// 🔥 Map 4 — Glitter’s Ember Realm Extended Script
+// 🔥 map4Events.js — Ember Plains Chaos Script (Full)
 // ------------------------------------------------------------
-// • ~10–12 minute pacing (up to ~700s)
-// • Pure humour, sass, confidence — no tutorials
-// • Ember Realm theme with drama + Fire Crystal plot tie-ins
+// Map 4: Firelands / Ember Plains
+// Tone: Humorous, chaotic, fiery, high-energy
+//
+// Includes:
+//   • Wave start/end spice
+//   • First Ember Goblin intro
+//   • First Ember Goblin kill (panic + sass)
+//   • Seraphine’s 2nd appearance (taunting, confident)
+//   • Pickup reinforces (shards, diamonds, hearts, mana, bravery)
+//   • First spire destroyed (carried from Map 1)
+//   • Full Echo collection reaction
+//   • Life-loss callouts (same system)
+//   • No tutorial lines — player already trained
 // ============================================================
 
+import { Events, EVENT_NAMES as E, loadTimedEventsForMap, mapOn, mapOnce } from "../eventEngine.js";
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
+import { gameState } from "../../utils/gameState.js";
 
-export default [
+const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 
-  // ============================================================
-  // ⭐ PHASE 0 — ARRIVAL (3–40s)
-  // ============================================================
+// ============================================================
+// 🔥 1) WAVE START LINES (Chaotic Ember Plains Energy)
+// ============================================================
 
-  {
-    id: "t_003",
-    timeRequired: 3,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Oh GREAT. Everything’s on fire. Love that for me. Really sets the mood.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+export function initMap4Events() {
 
-  {
-    id: "t_018",
-    timeRequired: 18,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Seriously… who decorates with lava? It’s not a vibe. It’s a hazard.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(4, E.waveStart, ({ wave }) => {
+    const pos = p();
 
-  {
-    id: "t_040",
-    timeRequired: 40,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If a goblin pushes me into lava, I’m filing an official Glitter Complaint.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    switch (wave) {
+      case 1:
+        spawnSpeechBubble("Why is it SO hot? Did someone set the ground on fire?", pos.x, pos.y, 4000);
+        break;
 
-  // ============================================================
-  // ⭐ PHASE 1 — FIRE REALM GOBLINS (60–130s)
-  // ============================================================
+      case 2:
+        spawnSpeechBubble("More goblins… and they’re sweating too!", pos.x, pos.y, 3800);
+        break;
 
-  {
-    id: "t_060",
-    timeRequired: 60,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Fire goblins… hotter, angrier, and still dressed like they lost a bet.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 3:
+        spawnSpeechBubble("I swear the air itself is trying to cook me.", pos.x, pos.y, 3800);
+        break;
 
-  {
-    id: "t_095",
-    timeRequired: 95,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If one of them sets my hair on fire, I’m SCREAMING and they’re BURNED.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 4:
+        spawnSpeechBubble("These ones look… spicy. Too spicy.", pos.x, pos.y, 4000);
+        break;
 
-  {
-    id: "t_130",
-    timeRequired: 130,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Reminder: Glitter beats goblins *and* fire. I’m practically unstoppable.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 5:
+        spawnSpeechBubble("The plains are rumbling… this can't be good.", pos.x, pos.y, 4200);
+        break;
+
+      case 6:
+        spawnSpeechBubble("A whole wave of angry fire-gremlins—fantastic!", pos.x, pos.y, 4000);
+        break;
+
+      case 7:
+        spawnSpeechBubble("The heat’s warping the air… and my sanity.", pos.x, pos.y, 4200);
+        break;
+
+      case 8:
+        spawnSpeechBubble("Okay Glitter, don’t combust. You’ve got this.", pos.x, pos.y, 4000);
+        break;
+
+      case 9:
+        spawnSpeechBubble("Oh great, MORE flames. Just what I wanted.", pos.x, pos.y, 3800);
+        break;
+
+      case 10:
+        spawnSpeechBubble("That aura… she’s here. Again.", pos.x, pos.y, 4000);
+        break;
+
+      default:
+        spawnSpeechBubble("The Ember Plains never run out of trouble…", pos.x, pos.y, 3500);
+        break;
+    }
+  });
 
   // ============================================================
-  // ⭐ PHASE 2 — EMBER REALM FLAVOUR (155–240s)
+  // 🔥 2) WAVE END LINES (Fire-themed humour)
   // ============================================================
 
-  {
-    id: "t_155",
-    timeRequired: 155,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Everything smells like burnt marshmallows and rage. Gorgeous.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(4, E.waveEnd, ({ wave }) => {
+    const pos = p();
 
-  {
-    id: "t_190",
-    timeRequired: 190,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "These glowing rocks are pretty… in a ‘touch me and die’ sort of way.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    switch (wave) {
+      case 1:
+        spawnSpeechBubble("Warm-up done—literally warm.", pos.x, pos.y, 3500);
+        break;
 
-  {
-    id: "t_240",
-    timeRequired: 240,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Living in a place that’s just fire forever? No thanks. My shoes would melt.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 2:
+        spawnSpeechBubble("I am approximately… 40% cooked.", pos.x, pos.y, 3500);
+        break;
 
-  // ============================================================
-  // ⭐ PHASE 3 — FIERY COMEDY (270–350s)
-  // ============================================================
+      case 3:
+        spawnSpeechBubble("Is everything here flammable? Including me??", pos.x, pos.y, 4000);
+        break;
 
-  {
-    id: "t_270",
-    timeRequired: 270,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "The goblins here think they’re SO tough. Bless their crispy hearts.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 4:
+        spawnSpeechBubble("If my hair survives this map, it deserves its own reward.", pos.x, pos.y, 4200);
+        break;
 
-  {
-    id: "t_300",
-    timeRequired: 300,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Why do they run like their feet are hot? Oh wait. THEY ARE.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 5:
+        spawnSpeechBubble("I smell burning… hope it’s not me.", pos.x, pos.y, 3800);
+        break;
 
-  {
-    id: "t_350",
-    timeRequired: 350,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "One more goblin screams at me and I’m tossing it straight into the magma.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 6:
+        spawnSpeechBubble("Fire goblins AND elites? Wonderful.", pos.x, pos.y, 3800);
+        break;
+
+      case 7:
+        spawnSpeechBubble("It’s so hot my Spires are sweating.", pos.x, pos.y, 3800);
+        break;
+
+      case 8:
+        spawnSpeechBubble("Nearly there… please let Map 5 be colder.", pos.x, pos.y, 4000);
+        break;
+
+      case 9:
+        spawnSpeechBubble("Something huge is coming…", pos.x, pos.y, 4200);
+        break;
+    }
+  });
 
   // ============================================================
-  // ⭐ PHASE 4 — PLOT: FIRE CRYSTAL IMBALANCE (380–470s)
+  // 🔥 3) EMBER GOBLIN INTRO (FIRST TIME EVER)
   // ============================================================
 
-  {
-    id: "t_380",
-    timeRequired: 380,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "This heat isn’t natural… the Fire Crystal must be freaking out again.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  let emberIntroduced = false;
 
-  {
-    id: "t_425",
-    timeRequired: 425,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If goblins are collecting Fire Echoes, they’re powering something BAD.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(4, E.enemySpawn, ({ type }) => {
+    if (type !== "emberGoblin" || emberIntroduced) return;
+    emberIntroduced = true;
 
-  {
-    id: "t_470",
-    timeRequired: 470,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana said the Fire General might be awake… I hope he’s ugly. Easier to punch.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    const pos = p();
+    spawnSpeechBubble(
+      "Is that goblin on FIRE?! Nope. No thank you.",
+      pos.x, pos.y, 4800
+    );
+  });
 
   // ============================================================
-  // ⭐ PHASE 5 — GLITTER GETS DRAMATIC (500–580s)
+  // 🔥 4) FIRST EMBER GOBLIN KILL
   // ============================================================
 
-  {
-    id: "t_500",
-    timeRequired: 500,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "I feel like a fire princess… a sweaty, irritated, dramatic fire princess.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  let emberKill = false;
 
-  {
-    id: "t_540",
-    timeRequired: 540,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Do fire goblins moisturise? Their skin looks like burnt cereal.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(4, E.enemyKilled, ({ type }) => {
+    if (type !== "emberGoblin" || emberKill) return;
+    emberKill = true;
 
-  {
-    id: "t_580",
-    timeRequired: 580,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "This realm is perfect for roasting marshmallows… AND goblins.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    const pos = p();
+    spawnSpeechBubble(
+      "Yikes—burnt goblin smells… exactly like you’d expect.",
+      pos.x, pos.y, 5000
+    );
+  });
 
   // ============================================================
-  // ⭐ PHASE 6 — LATE MAP / FIRE QUEEN ENERGY (610–700s)
+  // 🔥 5) SERAPHINE RETURNS (Phase 2 Encounter)
   // ============================================================
 
-  {
-    id: "t_610",
-    timeRequired: 610,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Still alive. Still fabulous. Basically lava-proof at this point.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(4, E.bossSpawn, ({ boss }) => {
+    if (boss !== "seraphine") return;
 
-  {
-    id: "t_655",
-    timeRequired: 655,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Honestly? I’m slaying this entire volcano. It should thank me.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    const pos = p();
 
-  {
-    id: "t_700",
-    timeRequired: 700,
-    action: (gs) => {
-      const p = gs.player;
+    // Glitter reacts
+    setTimeout(() => {
       spawnSpeechBubble(
-        "Wait till Ariana hears I beat the FIRE Realm. Massive bragging rights.",
-        p.pos.x, p.pos.y
+        "Seraphine… you again?! Didn’t we do this already?",
+        pos.x, pos.y, 4500
       );
-    },
-  },
+    }, 700);
 
-];
+    // Seraphine line (handled by seraphineSpeech.js)  
+    // Glitter additions:
+  });
+
+  mapOn(4, E.bossHpThreshold, ({ boss, threshold }) => {
+    if (boss !== "seraphine") return;
+
+    const pos = p();
+
+    if (threshold === 75) {
+      spawnSpeechBubble("She’s stronger than last time… great.", pos.x, pos.y, 4000);
+    }
+    if (threshold === 50) {
+      spawnSpeechBubble("Is she… enjoying this?!", pos.x, pos.y, 4000);
+    }
+    if (threshold === 25) {
+      spawnSpeechBubble("Just fall already! I’m overheating!", pos.x, pos.y, 4200);
+    }
+  });
+
+  mapOn(4, E.bossDefeated, ({ boss, phase }) => {
+    if (boss !== "seraphine" || phase !== 2) return;
+
+    const pos = p();
+    spawnSpeechBubble(
+      "She left AGAIN?! Does she even WANT to win?",
+      pos.x, pos.y, 4500
+    );
+  });
+
+  // ============================================================
+  // 🔥 6) PICKUPS (Reinforced from Map 1/2)
+// ============================================================
+
+  let lastGold = 0;
+  let lastDiamonds = 0;
+  let lastHearts = 0;
+  let lastMana = 0;
+  let lastBravery = 0;
+
+  let saidShard = false;
+  let saidDiamond = false;
+  let saidHeart = false;
+  let saidMana = false;
+  let saidBravery = false;
+
+  mapOn(4, "resourceUpdate", () => {
+    const pos = p();
+
+    if (!saidDiamond && gameState.diamonds > lastDiamonds) {
+      saidDiamond = true;
+      spawnSpeechBubble("Diamonds—yes please. Spire upgrades incoming!", pos.x, pos.y, 4500);
+    }
+
+    if (!saidShard && gameState.gold > lastGold) {
+      saidShard = true;
+      spawnSpeechBubble("Shards! Perfect for rebuilding my crispy Spires.", pos.x, pos.y, 4500);
+    }
+
+    if (!saidHeart && gameState.hearts > lastHearts) {
+      saidHeart = true;
+      spawnSpeechBubble("A Heart! Great, because these goblins hit HARD.", pos.x, pos.y, 4500);
+    }
+
+    if (!saidMana && gameState.mana > lastMana) {
+      saidMana = true;
+      spawnSpeechBubble("Mana! More spells to throw at the fire gremlins.", pos.x, pos.y, 4500);
+    }
+
+    if (!saidBravery && gameState.bravery > lastBravery) {
+      saidBravery = true;
+      spawnSpeechBubble("Bravery shards… my Guardian form LOVES these.", pos.x, pos.y, 4500);
+    }
+
+    lastGold = gameState.gold;
+    lastDiamonds = gameState.diamonds;
+    lastHearts = gameState.hearts;
+    lastMana = gameState.mana;
+    lastBravery = gameState.bravery;
+  });
+
+  // ============================================================
+  // 🔥 7) FIRST BRAVERY FULL & ACTIVATION (Carried Over)
+// ============================================================
+
+  let braveryFull = false;
+  let braveryUse = false;
+
+  mapOn(4, E.braveryFull, () => {
+    if (braveryFull) return;
+    braveryFull = true;
+
+    const pos = p();
+    spawnSpeechBubble("Bravery charged—time to fry some firelings!", pos.x, pos.y, 4800);
+  });
+
+  mapOn(4, E.braveryActivated, () => {
+    if (braveryUse) return;
+    braveryUse = true;
+
+    const pos = p();
+    spawnSpeechBubble("Guardian Form—engaged! Time to shine!", pos.x, pos.y, 4500);
+  });
+
+  // ============================================================
+  // 🔥 8) SPIRE DESTROYED (ONE TIME)
+// ============================================================
+
+  let spireDestroyed = false;
+
+  mapOn(4, "spireDestroyed", () => {
+    if (spireDestroyed) return;
+    spireDestroyed = true;
+
+    const pos = p();
+    spawnSpeechBubble(
+      "HEY! That was expensive! And on fire! And expensive!!",
+      pos.x, pos.y, 5000
+    );
+  });
+
+  // ============================================================
+  // 🔥 9) LIFE LOSS CALLOUTS (Reused from Map 1)
+// ============================================================
+
+  const lossLines = {
+    80: ["Ouch! Someone's getting toasted—me!", "Fire AND goblins? Rude."],
+    60: ["They’re pushing too close!", "We’re getting overwhelmed!"],
+    40: ["Spire placement! Glitter! Focus!", "My hair is at risk here!"],
+    20: ["We’re nearly out! Keep it together!!"]
+  };
+
+  const done = new Set();
+
+  mapOn(4, E.playerLifeLost, ({ lives }) => {
+    const pct = (lives / 10) * 100;
+    const pos = p();
+
+    for (const t of Object.keys(lossLines).map(Number).sort((a,b)=>b-a)) {
+      if (pct <= t && !done.has(t)) {
+        done.add(t);
+        const line = lossLines[t][Math.floor(Math.random() * lossLines[t].length)];
+        spawnSpeechBubble(line, pos.x, pos.y, 4200);
+        break;
+      }
+    }
+  });
+
+  // ============================================================
+  // 🔥 10) ALL CRYSTAL ECHOES COLLECTED
+  // ============================================================
+
+  mapOnce(4, "echoComplete", () => {
+    const pos = p();
+    spawnSpeechBubble(
+      "All the Echoes… they feel hotter than before. Like… alive?",
+      pos.x, pos.y, 5200
+    );
+
+    setTimeout(() => {
+      spawnSpeechBubble(
+        "Ariana better have answers when I get back.",
+        pos.x, pos.y, 4800
+      );
+    }, 2600);
+  });
+}
+
+export default initMap4Events;
+
+// ============================================================
+// END OF FILE
+// ============================================================

@@ -72,6 +72,13 @@ export const Events = {
     if (!list || !list.length) return;
     // Shallow copy in case handlers mutate the list
     for (const cb of [...list]) {
+      const targetMap = cb && typeof cb.__mapId === "number"
+        ? cb.__mapId
+        : null;
+      const currentMap =
+        gameState.progress?.currentMap ?? gameState.currentMap ?? 1;
+      if (targetMap !== null && currentMap !== targetMap) continue;
+
       try {
         cb(payload);
       } catch (err) {
@@ -102,6 +109,23 @@ export const EVENT_NAMES = {
   echoHalf: "echoHalf",
   echoComplete: "echoComplete"
 };
+
+// Map-scoped helpers to tag handlers with a mapId
+export function mapOn(mapId, eventName, callback) {
+  if (typeof callback !== "function") return null;
+  const wrapped = (payload) => callback(payload);
+  wrapped.__mapId = mapId;
+  Events.on(eventName, wrapped);
+  return wrapped;
+}
+
+export function mapOnce(mapId, eventName, callback) {
+  if (typeof callback !== "function") return null;
+  const wrapped = (payload) => callback(payload);
+  wrapped.__mapId = mapId;
+  Events.once(eventName, wrapped);
+  return wrapped;
+}
 
 // ============================================================
 // ⏱️ 2. TIME-BASED MAP STORY ENGINE

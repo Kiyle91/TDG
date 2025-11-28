@@ -352,6 +352,7 @@ export function setCurrentMap(id) {
   const index = id - 1;
   if (gameState.progress.mapsUnlocked[index]) {
     gameState.progress.currentMap = id;
+    gameState.currentMap = id;
     saveProfiles();
   }
 }

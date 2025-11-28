@@ -16,7 +16,7 @@
 //   • Seraphine encounter + HP threshold reactions
 // ============================================================
 
-import { Events, EVENT_NAMES as E, loadTimedEventsForMap } from "../eventEngine.js";
+import { Events, EVENT_NAMES as E, loadTimedEventsForMap, mapOn, mapOnce } from "../eventEngine.js";
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
 import { gameState } from "../../utils/gameState.js";
 
@@ -45,6 +45,7 @@ export const lifeLossLines = {
 // ============================================================
 
 const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
+const isActiveMap = () => (gameState.progress?.currentMap ?? 1) === 1;
 
 // ============================================================
 // 1) REVISED TIMED INTRO — 45s, LIGHT + NON-INTRUSIVE
@@ -107,7 +108,7 @@ export function initMap1Events() {
   // ------------------------------------------------------------
   // 2) WAVE START SPEECHES
   // ------------------------------------------------------------
-  Events.on(E.waveStart, ({ wave }) => {
+  mapOn(1, E.waveStart, ({ wave }) => {
     const pos = p();
 
     switch (wave) {
@@ -147,7 +148,7 @@ export function initMap1Events() {
   // ------------------------------------------------------------
   // 3) WAVE END SPEECHES (30s downtime)
   // ------------------------------------------------------------
-  Events.on(E.waveEnd, ({ wave }) => {
+  mapOn(1, E.waveEnd, ({ wave }) => {
     const pos = p();
 
     switch (wave) {
@@ -181,7 +182,7 @@ export function initMap1Events() {
   // ------------------------------------------------------------
   // 4) ARIANA CALL AFTER WAVE 5 (Overlay handled in story.js)
   // ------------------------------------------------------------
-  Events.on(E.waveEnd, ({ wave }) => {
+  mapOn(1, E.waveEnd, ({ wave }) => {
     if (wave !== 5) return;
     const pos = p();
     spawnSpeechBubble(
@@ -195,7 +196,7 @@ export function initMap1Events() {
   // ------------------------------------------------------------
   let firstGoblinKill = false;
 
-  Events.on(E.enemyKilled, ({ type }) => {
+  mapOn(1, E.enemyKilled, ({ type }) => {
     if (type !== "goblin") return;
     if (firstGoblinKill) return;
     firstGoblinKill = true;
@@ -212,7 +213,7 @@ export function initMap1Events() {
   // ------------------------------------------------------------
   let firstWorgKill = false;
 
-  Events.on(E.enemyKilled, ({ type }) => {
+  mapOn(1, E.enemyKilled, ({ type }) => {
     if (type !== "worg") return;
     if (firstWorgKill) return;
     firstWorgKill = true;
@@ -229,7 +230,7 @@ export function initMap1Events() {
   // ------------------------------------------------------------
   let firstBraveryFull = false;
 
-  Events.on(E.braveryFull, () => {
+  mapOn(1, E.braveryFull, () => {
     if (firstBraveryFull) return;
     firstBraveryFull = true;
 
@@ -245,7 +246,7 @@ export function initMap1Events() {
   // ------------------------------------------------------------
   let firstBraveryUse = false;
 
-  Events.on(E.braveryActivated, () => {
+  mapOn(1, E.braveryActivated, () => {
     if (firstBraveryUse) return;
     firstBraveryUse = true;
 
@@ -265,7 +266,7 @@ export function initMap1Events() {
 
   const lifeCalloutDone = new Set();
 
-  Events.on(E.playerLifeLost, ({ lives }) => {
+  mapOn(1, E.playerLifeLost, ({ lives }) => {
     const totalLives = 10;
     const pct = (lives / totalLives) * 100;
     const pos = p();
@@ -284,7 +285,7 @@ export function initMap1Events() {
   // ------------------------------------------------------------
   // 10) BOSS / SERAPHINE EVENTS
   // ------------------------------------------------------------
-  Events.on(E.bossSpawn, ({ boss }) => {
+  mapOn(1, E.bossSpawn, ({ boss }) => {
     if (boss !== "seraphine") return;
 
     const pos = p();
@@ -296,7 +297,7 @@ export function initMap1Events() {
     }, 800);
   });
 
-  Events.on(E.bossHpThreshold, ({ boss, threshold }) => {
+  mapOn(1, E.bossHpThreshold, ({ boss, threshold }) => {
     if (boss !== "seraphine") return;
 
     const pos = p();
@@ -308,7 +309,7 @@ export function initMap1Events() {
     }
   });
 
-  Events.on(E.bossDefeated, ({ boss, phase }) => {
+  mapOn(1, E.bossDefeated, ({ boss, phase }) => {
     if (boss !== "seraphine" || phase !== 1) return;
 
     const pos = p();
@@ -333,7 +334,7 @@ export function initMap1Events() {
   let saidMana = false;
   let saidBravery = false;
 
-  Events.on("resourceUpdate", () => {
+  mapOn(1, "resourceUpdate", () => {
     const pos = p();
 
     // Diamonds
@@ -394,7 +395,7 @@ export function initMap1Events() {
   // ------------------------------------------------------------
   let firstSpireDestroyed = false;
 
-  Events.on("spireDestroyed", ({ x, y }) => {
+  mapOn(1, "spireDestroyed", ({ x, y }) => {
     if (firstSpireDestroyed) return;
     firstSpireDestroyed = true;
 
@@ -408,7 +409,7 @@ export function initMap1Events() {
   // ------------------------------------------------------------
   // 13) ALL CRYSTAL ECHOES COLLECTED (ONE TIME)
   // ------------------------------------------------------------
-  Events.once("echoComplete", ({ found, total }) => {
+  mapOnce(1, "echoComplete", ({ found, total }) => {
     const pos = p();
     spawnSpeechBubble(
       "All the Crystal Echoes… they’re resonating. They feel warm—like they're choosing me…",
@@ -426,7 +427,7 @@ export function initMap1Events() {
   // ------------------------------------------------------------
   // 14) External tutorial lines (from engine)
   // ------------------------------------------------------------
-  Events.on("tutorialSpeech", line => {
+  mapOn(1, "tutorialSpeech", line => {
     const pos = p();
     spawnSpeechBubble(line, pos.x, pos.y, 4500);
   });

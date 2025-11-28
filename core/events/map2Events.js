@@ -1,389 +1,306 @@
 // ============================================================
-// 🌲 Map 2 — Glitter’s Time-Based Story Script
+// 🌾 map2Events.js — Bragg’s Farm Story Script (FINAL & FULL)
 // ------------------------------------------------------------
-// • Humorous, girly, bossy, fearless Glitter commentary
-// • Tied into Farmer Bragg’s Field + Crystal Echo plot
-// • Spaced for ~10–12 minutes of play
+// Map 2: The Farm
+// Tone: Humorous, semi-chaotic, light reinforcement of Map 1.
+// Mechanics: First ELITE enemy introduction.
+// NO BOSSES appear on this map.
+//
+// Includes:
+//   • Short 20s timed intro
+//   • Wave start lines
+//   • Wave end reflections
+//   • First Goblin/Worg/Elite kill reactions
+//   • Bravery full + used
+//   • Spire destroyed
+//   • All Echoes collected
+//   • Life loss warnings (shared thresholds)
+//   • Light shard pickup reminder
 // ============================================================
 
+import { Events, EVENT_NAMES as E, loadTimedEventsForMap, mapOn, mapOnce } from "../eventEngine.js";
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
+import { gameState } from "../../utils/gameState.js";
+import { lifeLossLines } from "./map1Events.js";
 
-export default [
+// Player position helper
+const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 
-  // ============================================================
-  // ⭐ PHASE 0 — ARRIVAL AT FARMER BRAGG’S (3–40s)
-  // ============================================================
+// ============================================================
+// 1) SHORT 20-SECOND INTRO (player already knows basics)
+// ============================================================
 
+const TIMED_EVENTS = [
   {
     id: "t_003",
     timeRequired: 3,
-    action: (gs) => {
-      const p = gs.player;
+    action: () => {
+      const pos = p();
       spawnSpeechBubble(
-        "Okay… so this is Farmer Bragg’s place. Cute… but also kinda spooky.",
-        p.pos.x, p.pos.y
+        "Bragg’s Farm… still smells like hay and despair.",
+        pos.x, pos.y, 4200
       );
-    },
+    }
   },
-
   {
-    id: "t_010",
-    timeRequired: 10,
-    action: (gs) => {
-      const p = gs.player;
+    id: "t_009",
+    timeRequired: 9,
+    action: () => {
+      const pos = p();
       spawnSpeechBubble(
-        "Fields, fences, mysterious forest edges… this map is giving ‘goblin raid starter pack’.",
-        p.pos.x, p.pos.y
+        "Crystal Echoes should still be around. Free shards if I’m quick.",
+        pos.x, pos.y, 4200
       );
-    },
+    }
   },
-
+  {
+    id: "t_015",
+    timeRequired: 15,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble(
+        "Remember Glitter… Spires work best near the paths.",
+        pos.x, pos.y, 4500
+      );
+    }
+  },
   {
     id: "t_020",
     timeRequired: 20,
-    action: (gs) => {
-      const p = gs.player;
+    action: () => {
+      const pos = p();
       spawnSpeechBubble(
-        "Ariana said Bragg saw goblins out here. If he’s right… things are about to get loud.",
-        p.pos.x, p.pos.y
+        "Okay… wave one incoming.",
+        pos.x, pos.y, 4000
       );
-    },
-  },
-
-  {
-    id: "t_040",
-    timeRequired: 40,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Okay Glitter, mission recap: protect the farm, grab Echoes, and don’t let anything explode.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 1 — FIRST ENEMIES & FARM CHAOS (60–130s)
-  // ============================================================
-
-  {
-    id: "t_060",
-    timeRequired: 60,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "There it is… goblin screeching. Like a rusty violin with anger issues.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_080",
-    timeRequired: 80,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If they touch Farmer Bragg’s crops, I am personally escorting them off the map.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_100",
-    timeRequired: 100,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Goblins plus pitchforks would be a disaster. Luckily, they’re too busy screaming.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_130",
-    timeRequired: 130,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Bragg’s always been dramatic… but if goblins are here, he was right to panic.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 2 — CRYSTAL ECHOES & GOBLIN PLAN (150–220s)
-  // ============================================================
-
-  {
-    id: "t_150",
-    timeRequired: 150,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "I see Crystal Echoes out in the fields… goblins will definitely want those.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_175",
-    timeRequired: 175,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Echoes plus goblins equals ‘very bad idea’. Echoes plus Glitter equals ‘very good idea’.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_200",
-    timeRequired: 200,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Maybe they’re stealing food and Echoes to fuel some big goblin army. Rude.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_220",
-    timeRequired: 220,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If the Shadow Architect really is behind this… Bragg’s farm is just step one.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 3 — SPIRES & DEFENDING THE FIELDS (240–320s)
-  // ============================================================
-
-  {
-    id: "t_240",
-    timeRequired: 240,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "These fields are huge. Perfect place for Spires to keep watch.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_270",
-    timeRequired: 270,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Note to self: Spires near the paths, not just randomly in the cabbage patch.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_300",
-    timeRequired: 300,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Honestly, this is kind of fun. Like gardening… but with more explosions.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_320",
-    timeRequired: 320,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Bragg should pay me in snacks for this. Guardian work AND farm defence.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 4 — POWERS & PANIC MANAGEMENT (340–420s)
-  // ============================================================
-
-  {
-    id: "t_340",
-    timeRequired: 340,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If the goblins get too close, remember: heal with R, stay calm, bonk goblin.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_370",
-    timeRequired: 370,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "F for spells if they start swarming. Glitter solves problems with glittery explosions.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_400",
-    timeRequired: 400,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "And Q for bravery aura… just in case they think they can rush the farm.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_420",
-    timeRequired: 420,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Big rule: don’t panic. Panicking is for goblins. Glitter is composed and deadly.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 5 — FARM LIFE & GOBLIN NONSENSE (450–540s)
-  // ============================================================
-
-  {
-    id: "t_450",
-    timeRequired: 450,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Somewhere out here is Farmer Bragg shouting at a scarecrow. I can just feel it.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_480",
-    timeRequired: 480,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "I bet the animals are hiding. Honestly? Same. I’d hide too if goblins were in my garden.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_510",
-    timeRequired: 510,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Look at them run through the crops. Zero respect for agriculture.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_540",
-    timeRequired: 540,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If they trample one more row of vegetables, I’m upgrading every Spire I own.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 6 — PLOT HINTS & MOVING ON (570–690s)
-  // ============================================================
-
-  {
-    id: "t_570",
-    timeRequired: 570,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "The goblins are organised here… more than they were in the Meadows. That’s worrying.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_600",
-    timeRequired: 600,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If they’re gathering food and Echoes, they’re planning for something bigger.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_630",
-    timeRequired: 630,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana’s going to want a full report after this. ‘Dear Princess, goblins are annoying.’",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_660",
-    timeRequired: 660,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Once Bragg’s farm is safe, I’ll have to see what they’re doing in the Drylands next.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_690",
-    timeRequired: 690,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Still here. Still fabulous. Glitter Guardian of the Fields has a nice ring to it.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
+    }
+  }
 ];
+
+// ============================================================
+// INIT
+// ============================================================
+
+export default function initMap2Events() {
+  loadTimedEventsForMap(2, TIMED_EVENTS);
+
+  // ------------------------------------------------------------
+  // 2) WAVE START LINES
+  // ------------------------------------------------------------
+  mapOn(2, E.waveStart, ({ wave }) => {
+    const pos = p();
+
+    switch (wave) {
+      case 1:
+        spawnSpeechBubble("Goblins on a farm… that tracks.", pos.x, pos.y, 3500);
+        break;
+      case 2:
+        spawnSpeechBubble("More? I just got here!", pos.x, pos.y, 3500);
+        break;
+      case 3:
+        spawnSpeechBubble("They’re multiplying again…", pos.x, pos.y, 3500);
+        break;
+      case 4:
+        spawnSpeechBubble("Wait— is that an Elite? HERE?!", pos.x, pos.y, 4000);
+        break;
+      case 5:
+        spawnSpeechBubble("Bragg would be furious if he saw this mess.", pos.x, pos.y, 3500);
+        break;
+      case 6:
+        spawnSpeechBubble("Worgs? Who let wolves onto a farm?", pos.x, pos.y, 3500);
+        break;
+      case 7:
+        spawnSpeechBubble("This is getting ridiculous.", pos.x, pos.y, 3500);
+        break;
+      case 8:
+        spawnSpeechBubble("Spires, don’t fail me now!", pos.x, pos.y, 3500);
+        break;
+      case 9:
+        spawnSpeechBubble("Okay Glitter, focus. Almost there.", pos.x, pos.y, 3500);
+        break;
+      case 10:
+        spawnSpeechBubble("This farm needs a holiday.", pos.x, pos.y, 4000);
+        break;
+      case 11:
+        spawnSpeechBubble("Why is wave eleven so intense?!", pos.x, pos.y, 4000);
+        break;
+      case 12:
+        spawnSpeechBubble("Deep breaths… this is fine.", pos.x, pos.y, 4000);
+        break;
+    }
+  });
+
+  // ------------------------------------------------------------
+  // 3) WAVE END REFLECTIONS
+  // ------------------------------------------------------------
+  mapOn(2, E.waveEnd, ({ wave }) => {
+    const pos = p();
+
+    const lines = {
+      1: "Farm’s quiet… too quiet.",
+      2: "Should grab Echoes while I can.",
+      3: "My Spires are carrying, actually.",
+      4: "An Elite on a farm… fantastic.",
+      5: "Shards mean upgrades. Don’t forget.",
+      6: "Worgs shouldn’t be this close to humans…",
+      7: "Quick breather. Very quick.",
+      8: "This is a LOT for Bragg’s Farm.",
+      9: "Nearly through… I hope.",
+      10: "No boss here… right? RIGHT?",
+      11: "Glitter… why did you say that.",
+    };
+
+    if (lines[wave]) {
+      spawnSpeechBubble(lines[wave], pos.x, pos.y, 3800);
+    }
+  });
+
+  // ------------------------------------------------------------
+  // 4) FIRST GOBLIN KILL
+  // ------------------------------------------------------------
+  let firstGoblin = false;
+
+  mapOn(2, E.enemyKilled, ({ type }) => {
+    if (type !== "goblin" || firstGoblin) return;
+    firstGoblin = true;
+
+    const pos = p();
+    spawnSpeechBubble("Yep. Still got it.", pos.x, pos.y, 4000);
+  });
+
+  // ------------------------------------------------------------
+  // 5) FIRST WORG KILL
+  // ------------------------------------------------------------
+  let firstWorg = false;
+
+  mapOn(2, E.enemyKilled, ({ type }) => {
+    if (type !== "worg" || firstWorg) return;
+    firstWorg = true;
+
+    const pos = p();
+    spawnSpeechBubble(
+      "Poor wolves… they’re being forced into this.",
+      pos.x, pos.y, 4500
+    );
+  });
+
+  // ------------------------------------------------------------
+  // 6) FIRST ELITE KILL (Map 2's big moment)
+  // ------------------------------------------------------------
+  let firstElite = false;
+
+  mapOn(2, E.enemyKilled, ({ type }) => {
+    if (type !== "elite" || firstElite) return;
+    firstElite = true;
+
+    const pos = p();
+    spawnSpeechBubble(
+      "Elites on a farm… absolutely not.",
+      pos.x, pos.y, 4500
+    );
+  });
+
+  // ------------------------------------------------------------
+  // 7) BRAVERY TRIGGERS
+  // ------------------------------------------------------------
+  let braveryFull = false;
+  let braveryUsed = false;
+
+  mapOn(2, E.braveryFull, () => {
+    if (braveryFull) return;
+    braveryFull = true;
+
+    const pos = p();
+    spawnSpeechBubble("Bravery charged! Press Q!", pos.x, pos.y, 4500);
+  });
+
+  mapOn(2, E.braveryActivated, () => {
+    if (braveryUsed) return;
+    braveryUsed = true;
+
+    const pos = p();
+    spawnSpeechBubble("Guardian mode! Let’s clear this farm!", pos.x, pos.y, 4500);
+  });
+
+  // ------------------------------------------------------------
+  // 8) FIRST SPIRE DESTROYED
+  // ------------------------------------------------------------
+  let spireDown = false;
+
+  mapOn(2, "spireDestroyed", () => {
+    if (spireDown) return;
+    spireDown = true;
+
+    const pos = p();
+    spawnSpeechBubble(
+      "My Spire! They're actually breaking them?!",
+      pos.x, pos.y, 4800
+    );
+  });
+
+  // ------------------------------------------------------------
+  // 9) ALL CRYSTAL ECHOES COLLECTED
+  // ------------------------------------------------------------
+  mapOnce(2, E.echoComplete, () => {
+    const pos = p();
+
+    spawnSpeechBubble(
+      "All Echoes collected… they’re resonating again.",
+      pos.x, pos.y, 5200
+    );
+
+    setTimeout(() => {
+      spawnSpeechBubble(
+        "Feels like I’m actually getting good at this.",
+        pos.x, pos.y, 4500
+      );
+    }, 2200);
+  });
+
+  // ------------------------------------------------------------
+  // 10) LIFE LOSS CALLOUTS (reuse Map1 lines)
+// ------------------------------------------------------------
+  const thresholds = Object.keys(lifeLossLines)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  const used = new Set();
+
+  mapOn(2, E.playerLifeLost, ({ lives }) => {
+    const pct = (lives / 10) * 100;
+    const pos = p();
+
+    for (const t of thresholds) {
+      if (pct <= t && !used.has(t)) {
+        used.add(t);
+
+        const arr = lifeLossLines[t];
+        const line = arr[Math.floor(Math.random() * arr.length)];
+
+        spawnSpeechBubble(line, pos.x, pos.y, 4200);
+        break;
+      }
+    }
+  });
+
+  // ------------------------------------------------------------
+  // 11) OPTIONAL RESOURCE REMINDER (SHARDS)
+  // ------------------------------------------------------------
+  let shardReminder = false;
+
+  mapOn(2, "resourceUpdate", () => {
+    const pos = p();
+
+    if (!shardReminder && gameState.gold > 0) {
+      shardReminder = true;
+      spawnSpeechBubble(
+        "Shards are handy… don’t forget to spend them!",
+        pos.x, pos.y, 4500
+      );
+    }
+  });
+}
+
+// ============================================================
+// END OF FILE
+// ============================================================

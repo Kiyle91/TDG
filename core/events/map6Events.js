@@ -1,330 +1,316 @@
 // ============================================================
-// 🌟 Map 6 — Glitter’s Realm of Light Extended Script
+// ⭐ map6Events.js — Lightlands Story Script (Full)
 // ------------------------------------------------------------
-// • 10–12 minute pacing (~700s)
-// • Max sparkle energy, angel jokes, fearless humour
-// • Light Crystal instability + Architect plot tie-in
-// • Goblins hate the light. Glitter LOVES it.
+// Map 6: The Lightlands
+// Tone: Sparkly sarcasm, "too bright", holy magic humour,
+//       furious Glitter dealing with healer goblins.
+//
+// Includes:
+//   • Wave start flavour
+//   • Wave end flavour
+//   • First Ash Goblin intro
+//   • First Ash Goblin kill
+//   • Pickup lines reflavoured for Lightlands
+//   • Bravery events (kept)
+//   • Spire destruction (kept)
+//   • Life-loss with light-themed panic
+//   • Echo Complete messages (holy flare)
+// No Seraphine.
+// No tutorials.
 // ============================================================
 
+import { Events, EVENT_NAMES as E, loadTimedEventsForMap, mapOn, mapOnce } from "../eventEngine.js";
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
+import { gameState } from "../../utils/gameState.js";
 
-export default [
+const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 
-  // ============================================================
-  // ⭐ PHASE 0 — ARRIVING IN THE LIGHT REALM (3–40s)
-  // ============================================================
-
-  {
-    id: "t_003",
-    timeRequired: 3,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Oh WOW. This place is brighter than my entire future.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_020",
-    timeRequired: 20,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Wait—am I glowing more than usual? Actually… I ALWAYS glow. Nevermind.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_040",
-    timeRequired: 40,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If the sun asks: yes, I’m the main character today.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+export function initMap6Events() {
 
   // ============================================================
-  // ⭐ PHASE 1 — LIGHT-REALM GOBLINS (60–130s)
+  // ⭐ 1) WAVE START — Glitter blinded & annoyed
   // ============================================================
 
-  {
-    id: "t_060",
-    timeRequired: 60,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Eww—goblins in the Light Realm? That’s illegal. Someone arrest them.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(6, E.waveStart, ({ wave }) => {
+    const pos = p();
 
-  {
-    id: "t_095",
-    timeRequired: 95,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Look! They’re squinting! The light is too bright for their gremlin eyes!",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    switch (wave) {
+      case 1:
+        spawnSpeechBubble("Ow—this light is SO aggressive.", pos.x, pos.y, 4000);
+        break;
 
-  {
-    id: "t_130",
-    timeRequired: 130,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If they hiss at the light, I’m throwing sparkles directly at them. Double-blind!",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 2:
+        spawnSpeechBubble("Bright goblins? Really? Really??", pos.x, pos.y, 3800);
+        break;
 
-  // ============================================================
-  // ⭐ PHASE 2 — HOLY REALM FLAVOUR + CRYSTAL LORE (155–250s)
-  // ============================================================
+      case 3:
+        spawnSpeechBubble("I didn’t bring sunscreen for this!", pos.x, pos.y, 4200);
+        break;
 
-  {
-    id: "t_155",
-    timeRequired: 155,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "This place is so shiny I need sunglasses. Glitter shades. Maximum fabulousness.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 4:
+        spawnSpeechBubble("Okay who turned the saturation to 300%?", pos.x, pos.y, 3800);
+        break;
 
-  {
-    id: "t_190",
-    timeRequired: 190,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "The air literally tastes like sparkles. That’s new… kind of delicious?",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 5:
+        spawnSpeechBubble("Something’s glowing… and healing… that’s not allowed.", pos.x, pos.y, 4200);
+        break;
 
-  {
-    id: "t_220",
-    timeRequired: 220,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "The Light Crystal must be unstable… I can feel it humming through my bones.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 6:
+        spawnSpeechBubble("Ash Goblins! Illegal medics! Stop healing each other!", pos.x, pos.y, 4800);
+        break;
 
-  {
-    id: "t_250",
-    timeRequired: 250,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana said holy energy is bursting everywhere… love that for ME, hate it for everyone else.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 7:
+        spawnSpeechBubble("It's so bright I can’t even see my own panic.", pos.x, pos.y, 4000);
+        break;
+
+      case 8:
+        spawnSpeechBubble("Hold on Glitter… just pretend the light isn’t judging you.", pos.x, pos.y, 4200);
+        break;
+
+      case 9:
+        spawnSpeechBubble("Last wave! Then I’m buying sunglasses the size of my face.", pos.x, pos.y, 4500);
+        break;
+
+      default:
+        spawnSpeechBubble("Lightlands? More like Eye-Strain Lands.", pos.x, pos.y, 3800);
+        break;
+    }
+  });
 
   // ============================================================
-  // ⭐ PHASE 3 — LIGHT REALM COMEDY (280–360s)
+  // ⭐ 2) WAVE END — Sparkly exhaustion
   // ============================================================
 
-  {
-    id: "t_280",
-    timeRequired: 280,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Imagine being a goblin scared of sunshine. Couldn’t be me. I *am* the sunshine.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(6, E.waveEnd, ({ wave }) => {
+    const pos = p();
 
-  {
-    id: "t_315",
-    timeRequired: 315,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "One of them just shielded its eyes from ME. Yes. You SHOULD fear this glow.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    switch (wave) {
+      case 1:
+        spawnSpeechBubble("Even the shadows here glow. HOW.", pos.x, pos.y, 4500);
+        break;
 
-  {
-    id: "t_360",
-    timeRequired: 360,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "At this point, I am basically their final boss. Fabulous AND terrifying.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 2:
+        spawnSpeechBubble("I miss the forest. At least trees don’t blind you.", pos.x, pos.y, 4000);
+        break;
 
-  // ============================================================
-  // ⭐ PHASE 4 — DIVINE DRAMA + PLOT (390–480s)
-  // ============================================================
+      case 3:
+        spawnSpeechBubble("Everything is so clean. It’s unsettling.", pos.x, pos.y, 4000);
+        break;
 
-  {
-    id: "t_390",
-    timeRequired: 390,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Holy energy is bursting everywhere… the Light Crystal is losing control.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 4:
+        spawnSpeechBubble("If this place gets any brighter I’ll evaporate.", pos.x, pos.y, 4200);
+        break;
 
-  {
-    id: "t_425",
-    timeRequired: 425,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If the Shadow Architect twists THIS realm too… everything’s gonna glow wrong.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 5:
+        spawnSpeechBubble("Whoever invented healer goblins deserves jail.", pos.x, pos.y, 4800);
+        break;
 
-  {
-    id: "t_460",
-    timeRequired: 460,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "And of course goblins are here, making things worse. They’re allergic to peace.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 6:
+        spawnSpeechBubble("STOP HEALING! STOP BEING HELPFUL! FOR THE ENEMY!", pos.x, pos.y, 5200);
+        break;
 
-  {
-    id: "t_480",
-    timeRequired: 480,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Somewhere above us, a holy guardian is waking up… I really hope it likes me.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+      case 7:
+        spawnSpeechBubble("My eyes hurt. My soul hurts. My everything hurts.", pos.x, pos.y, 4200);
+        break;
+
+      case 8:
+        spawnSpeechBubble("Nearly done… stay strong Glitter… literally.", pos.x, pos.y, 4500);
+        break;
+
+      case 9:
+        spawnSpeechBubble("Okay… deep breaths… last sparkle-infused nightmare.", pos.x, pos.y, 4500);
+        break;
+    }
+  });
 
   // ============================================================
-  // ⭐ PHASE 5 — LIGHT CHAOS (510–620s)
+  // ⭐ 3) FIRST ASH GOBLIN INTRO — Healer panic
   // ============================================================
 
-  {
-    id: "t_510",
-    timeRequired: 510,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "This realm is so bright, my eyes are turning into glitter. Again.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  let ashIntro = false;
 
-  {
-    id: "t_555",
-    timeRequired: 555,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "One goblin actually tripped because it couldn’t see. I am LIVING for this.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(6, E.enemySpawn, ({ type }) => {
+    if (type !== "ashGoblin" || ashIntro) return;
+    ashIntro = true;
 
-  {
-    id: "t_600",
-    timeRequired: 600,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Light beams are bursting everywhere… Ariana was NOT exaggerating.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_620",
-    timeRequired: 620,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If the Light Crystal fully cracks, this realm will glow itself inside-out. No thanks.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    const pos = p();
+    spawnSpeechBubble(
+      "WAIT—are they healing each other?! No. No healing!!",
+      pos.x, pos.y, 5400
+    );
+  });
 
   // ============================================================
-  // ⭐ PHASE 6 — LATE-MAP GLITTER GODDESS ENERGY (650–700s)
+  // ⭐ 4) FIRST ASH GOBLIN KILL — Glitter is DONE
   // ============================================================
 
-  {
-    id: "t_650",
-    timeRequired: 650,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Still glowing. Still heroic. Still the prettiest danger in existence.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  let ashKill = false;
 
-  {
-    id: "t_680",
-    timeRequired: 680,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "After this? Straight to the Mushroom Realm. Wild magic and chaos incoming.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+  mapOn(6, E.enemyKilled, ({ type }) => {
+    if (type !== "ashGoblin" || ashKill) return;
+    ashKill = true;
 
-  {
-    id: "t_700",
-    timeRequired: 700,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana better give me a halo after this. Or at least a glowstick.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    const pos = p();
+    spawnSpeechBubble(
+      "Finally! Take THAT, you glow-in-the-dark nurse gremlin!",
+      pos.x, pos.y, 5200
+    );
+  });
 
-];
+  // ============================================================
+  // ⭐ 5) PICKUPS — Lightlands variants
+  // ============================================================
+
+  let lastGold = 0;
+  let lastDiamonds = 0;
+  let lastHearts = 0;
+  let lastMana = 0;
+  let lastBravery = 0;
+
+  let saidShard = false;
+  let saidDiamond = false;
+  let saidHeart = false;
+  let saidMana = false;
+  let saidBravery = false;
+
+  mapOn(6, "resourceUpdate", () => {
+    const pos = p();
+
+    if (!saidDiamond && gameState.diamonds > lastDiamonds) {
+      saidDiamond = true;
+      spawnSpeechBubble("Diamonds! Even brighter than this whole region!", pos.x, pos.y, 4800);
+    }
+
+    if (!saidShard && gameState.gold > lastGold) {
+      saidShard = true;
+      spawnSpeechBubble("Shards! Perfect—my Spires need divine assistance.", pos.x, pos.y, 4800);
+    }
+
+    if (!saidHeart && gameState.hearts > lastHearts) {
+      saidHeart = true;
+      spawnSpeechBubble("A Heart! Finally, something warm in this glowing nightmare.", pos.x, pos.y, 5000);
+    }
+
+    if (!saidMana && gameState.mana > lastMana) {
+      saidMana = true;
+      spawnSpeechBubble("Mana essence! I could really use some holy fire.", pos.x, pos.y, 4800);
+    }
+
+    if (!saidBravery && gameState.bravery > lastBravery) {
+      saidBravery = true;
+      spawnSpeechBubble("Bravery shards! They sparkle less than this place… thank goodness.", pos.x, pos.y, 5000);
+    }
+
+    lastGold = gameState.gold;
+    lastDiamonds = gameState.diamonds;
+    lastHearts = gameState.hearts;
+    lastMana = gameState.mana;
+    lastBravery = gameState.bravery;
+  });
+
+  // ============================================================
+  // ⭐ 6) BRAVERY — Holy empowerment
+  // ============================================================
+
+  let braveryFull = false;
+  let braveryUse = false;
+
+  mapOn(6, E.braveryFull, () => {
+    if (braveryFull) return;
+    braveryFull = true;
+
+    const pos = p();
+    spawnSpeechBubble("Bravery is full—time for Glitter to shine brighter!", pos.x, pos.y, 4800);
+  });
+
+  mapOn(6, E.braveryActivated, () => {
+    if (braveryUse) return;
+    braveryUse = true;
+
+    const pos = p();
+    spawnSpeechBubble("Guardian Form! LET’S OUT-SHINE THEM!", pos.x, pos.y, 4500);
+  });
+
+  // ============================================================
+  // ⭐ 7) FIRST SPIRE DESTROYED — Lightlands sass
+  // ============================================================
+
+  let spireDestroyed = false;
+
+  mapOn(6, "spireDestroyed", () => {
+    if (spireDestroyed) return;
+    spireDestroyed = true;
+
+    const pos = p();
+    spawnSpeechBubble(
+      "HEY! That Spire was glowing beautifully! Rude!",
+      pos.x, pos.y, 5200
+    );
+  });
+
+  // ============================================================
+  // ⭐ 8) LIFE LOSS — Holy panic
+  // ============================================================
+
+  const lightLoss = {
+    80: [
+      "They got through! I blame the blinding sunlight!",
+      "Oops—lost one! The Lightlands giveth and taketh!"
+    ],
+    60: [
+      "We’re losing ground—LIGHTLY losing ground!",
+      "They’re pushing through! This light is distracting!"
+    ],
+    40: [
+      "This is bad—VERY shiny and VERY bad!",
+      "We’re slipping—HOLY HELP!"
+    ],
+    20: [
+      "We're nearly out! Glitter in distress! SEND HELP!",
+      "If we lose here I’m haunting the sun!"
+    ]
+  };
+
+  const triggered = new Set();
+
+  mapOn(6, E.playerLifeLost, ({ lives }) => {
+    const pct = (lives / 10) * 100;
+    const pos = p();
+
+    for (const t of Object.keys(lightLoss).map(Number).sort((a,b)=>b-a)) {
+      if (pct <= t && !triggered.has(t)) {
+        triggered.add(t);
+        const line = lightLoss[t][Math.floor(Math.random() * lightLoss[t].length)];
+        spawnSpeechBubble(line, pos.x, pos.y, 4300);
+        break;
+      }
+    }
+  });
+
+  // ============================================================
+  // ⭐ 9) ALL CRYSTAL ECHOES COLLECTED — Holy resonance
+  // ============================================================
+
+  mapOnce(6, "echoComplete", () => {
+    const pos = p();
+
+    spawnSpeechBubble(
+      "All Echoes collected… they’re glowing like tiny suns…",
+      pos.x, pos.y, 5200
+    );
+
+    setTimeout(() => {
+      spawnSpeechBubble(
+        "I can feel the Lightlands humming through them… beautiful.",
+        pos.x, pos.y, 5000
+      );
+    }, 2600);
+  });
+
+}
+
+export default initMap6Events;
+
+// ============================================================
+// END OF FILE
+// ============================================================

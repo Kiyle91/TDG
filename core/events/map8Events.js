@@ -1,306 +1,291 @@
 // ============================================================
-// 🌑 Map 8 — Glitter’s Void / Gravity Realm Extended Script
+// 🌑 map8Events.js — The Voidlands Story Script (Final)
 // ------------------------------------------------------------
-// • 10–12 minute pacing (~700s)
-// • Gravity glitches, floating rocks, strange shadows
-// • Shadow Architect tension rising
-// • Glitter is dramatic, confused, fearless, hilarious
+// Map 8: Seraphine’s homeland. Forbidden magic. Gravity warps.
+// Introduces:
+//   • Void Goblins (disable spires, distort magic, gravity slips)
+//   • Everyone fears this type of magic — even Glitter
+//   • Seraphine’s homeland, heavy lore hints
+//   • No tutorials — atmospheric, unsettling, but still funny
+//
+// Covers:
+//   • Wave start/end flavour
+//   • First Void Goblin kill (ONE TIME)
+//   • Life loss callouts
+//   • Void-flavoured resource lines
+//   • Seraphine cameo (Phase 4 foreshadowing but not a fight)
 // ============================================================
 
+import { Events, EVENT_NAMES as E, loadTimedEventsForMap, mapOn, mapOnce } from "../eventEngine.js";
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
+import { gameState } from "../../utils/gameState.js";
 
-export default [
+// ============================================================
+// PLAYER POSITION HELPER
+// ============================================================
 
-  // ============================================================
-  // ⭐ PHASE 0 — ENTERING THE VOID (3–40s)
-  // ============================================================
+const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 
-  {
-    id: "t_003",
-    timeRequired: 3,
-    action: (gs) => {
-      const p = gs.player;
+// ============================================================
+// LIFE LOSS CALLOUTS (void-panic flavoured)
+// ============================================================
+
+const lifeLossLines = {
+  80: [
+    "That one bent around the spire—how?!",
+    "Void tricks… stay sharp!"
+  ],
+  60: [
+    "They're scrambling space itself—keep moving!",
+    "My spires can’t track them when they do that!"
+  ],
+  40: [
+    "This place is warping around me—ugh!",
+    "Void creatures… why does it feel like it's watching?"
+  ],
+  20: [
+    "Princess—don’t let the Void take you!",
+    "Glitter… focus! Don’t lose yourself!"
+  ]
+};
+
+// ============================================================
+// INIT
+// ============================================================
+
+export default function initMap8Events() {
+
+  // ------------------------------------------------------------
+  // 1) WAVE START
+  // ------------------------------------------------------------
+  mapOn(8, E.waveStart, ({ wave }) => {
+    const pos = p();
+    switch (wave) {
+      case 1:
+        spawnSpeechBubble(
+          "This air… it’s thick. Like I'm walking through someone else’s dream.",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 2:
+        spawnSpeechBubble(
+          "Void Goblins… even the regular ones look nervous around them.",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 3:
+        spawnSpeechBubble(
+          "My Spires—are they… flickering? Void magic is terrifying.",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 4:
+        spawnSpeechBubble(
+          "Gravity shifted—nope nope nope I hate this map.",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 5:
+        spawnSpeechBubble(
+          "Seraphine was born here… is she watching me?",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 6:
+        spawnSpeechBubble(
+          "The void energy is pulsing… stronger than the Ember Plains.",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 7:
+        spawnSpeechBubble(
+          "My arrows are curving—how do physics even WORK here?!",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 8:
+        spawnSpeechBubble(
+          "Okay Glitter… don’t freak out. Just… pretend this is normal.",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 9:
+        spawnSpeechBubble(
+          "Something big is stirring beneath this place…",
+          pos.x, pos.y, 4500
+        );
+        break;
+      case 10:
+        spawnSpeechBubble(
+          "Seraphine… I can feel you nearby. Are you still my enemy?",
+          pos.x, pos.y, 5000
+        );
+        break;
+    }
+  });
+
+  // ------------------------------------------------------------
+  // 2) WAVE END
+  // ------------------------------------------------------------
+  mapOn(8, E.waveEnd, ({ wave }) => {
+    const pos = p();
+
+    switch (wave) {
+      case 1:
+        spawnSpeechBubble("Okay. I survived the welcome party. Nice.", pos.x, pos.y, 4000);
+        break;
+      case 2:
+        spawnSpeechBubble("Void Goblins are cheating. I swear they’re cheating.", pos.x, pos.y, 4200);
+        break;
+      case 3:
+        spawnSpeechBubble("My spires hate this place. I hate this place.", pos.x, pos.y, 4200);
+        break;
+      case 4:
+        spawnSpeechBubble("If gravity flips again I’m filing a complaint.", pos.x, pos.y, 4200);
+        break;
+      case 5:
+        spawnSpeechBubble("Seraphine grew up here? That explains… a lot.", pos.x, pos.y, 4500);
+        break;
+      case 6:
+        spawnSpeechBubble("Even the Echoes sound nervous.", pos.x, pos.y, 4000);
+        break;
+      case 7:
+        spawnSpeechBubble("The shadows have… depth. Too much depth.", pos.x, pos.y, 4500);
+        break;
+      case 8:
+        spawnSpeechBubble("Almost done, Glitter. Don’t fall into the void.", pos.x, pos.y, 4500);
+        break;
+      case 9:
+        spawnSpeechBubble("Did the ground just breathe?", pos.x, pos.y, 4200);
+        break;
+    }
+  });
+
+  // ------------------------------------------------------------
+  // 3) FIRST VOID GOBLIN KILL
+  // ------------------------------------------------------------
+  let firstVoidKill = false;
+
+  mapOn(8, E.enemyKilled, ({ type }) => {
+    if (type !== "voidGoblin") return;
+    if (firstVoidKill) return;
+
+    firstVoidKill = true;
+    const pos = p();
+
+    spawnSpeechBubble(
+      "Void Goblin down… and it felt like it stared straight into me.",
+      pos.x, pos.y, 5000
+    );
+
+    setTimeout(() => {
       spawnSpeechBubble(
-        "Okay… this place needs a warning label. Preferably several.",
-        p.pos.x, p.pos.y
+        "No wonder the Spires can’t see them… they’re bending light.",
+        pos.x, pos.y, 4800
       );
-    },
-  },
+    }, 2400);
+  });
 
-  {
-    id: "t_018",
-    timeRequired: 18,
-    action: (gs) => {
-      const p = gs.player;
+  // ------------------------------------------------------------
+  // 4) LIFE LOSS CALLOUTS
+  // ------------------------------------------------------------
+  const thresholds = Object.keys(lifeLossLines)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  const done = new Set();
+
+  mapOn(8, E.playerLifeLost, ({ lives }) => {
+    const pct = (lives / 10) * 100;
+    const pos = p();
+
+    for (const t of thresholds) {
+      if (pct <= t && !done.has(t)) {
+        done.add(t);
+        const lines = lifeLossLines[t];
+        const line = lines[Math.floor(Math.random() * lines.length)];
+        spawnSpeechBubble(line, pos.x, pos.y, 4500);
+        break;
+      }
+    }
+  });
+
+  // ------------------------------------------------------------
+  // 5) SERAPHINE — NOT A FIGHT, JUST A PRESENCE
+  // ------------------------------------------------------------
+  mapOn(8, E.bossSpawn, ({ boss }) => {
+    if (boss !== "seraphine") return;
+
+    const pos = p();
+    setTimeout(() => {
       spawnSpeechBubble(
-        "Why is the ground FLOATING? Who designed this map—chaos itself?",
-        p.pos.x, p.pos.y
+        "Seraphine… this is your home, isn’t it?",
+        pos.x, pos.y, 4800
       );
-    },
-  },
+    }, 700);
 
-  {
-    id: "t_040",
-    timeRequired: 40,
-    action: (gs) => {
-      const p = gs.player;
+    setTimeout(() => {
       spawnSpeechBubble(
-        "If gravity turns off, I’m grabbing the nearest rock. Or goblin. Whichever is closer.",
-        p.pos.x, p.pos.y
+        "Why does it feel like… you don’t want me here?",
+        pos.x, pos.y, 4800
       );
-    },
-  },
+    }, 3500);
+  });
 
-  // ============================================================
-  // ⭐ PHASE 1 — SHADOW GOBLINS (60–130s)
-  // ============================================================
+  // ------------------------------------------------------------
+  // 6) RESOURCE PICKUPS — VOID FLAVOUR
+  // ------------------------------------------------------------
+  let lastD = 0, lastG = 0, lastH = 0, lastM = 0, lastB = 0;
+  let saidD = false, saidG = false, saidH = false, saidM = false, saidB = false;
 
-  {
-    id: "t_060",
-    timeRequired: 60,
-    action: (gs) => {
-      const p = gs.player;
+  mapOn(8, "resourceUpdate", () => {
+    const pos = p();
+
+    if (!saidD && gameState.diamonds > lastD) {
+      saidD = true;
       spawnSpeechBubble(
-        "Eww, shadow goblins. They look like nightmares with legs.",
-        p.pos.x, p.pos.y
+        "Even the diamonds hum… this land is alive.",
+        pos.x, pos.y, 4800
       );
-    },
-  },
+    }
 
-  {
-    id: "t_095",
-    timeRequired: 95,
-    action: (gs) => {
-      const p = gs.player;
+    if (!saidG && gameState.gold > lastG) {
+      saidG = true;
       spawnSpeechBubble(
-        "One just phased through a rock. NO. Absolutely not.",
-        p.pos.x, p.pos.y
+        "Shards… warped by void light, but still spendable.",
+        pos.x, pos.y, 4600
       );
-    },
-  },
+    }
 
-  {
-    id: "t_130",
-    timeRequired: 130,
-    action: (gs) => {
-      const p = gs.player;
+    if (!saidH && gameState.hearts > lastH) {
+      saidH = true;
       spawnSpeechBubble(
-        "They move like ‘woOoOo’. Stop it. You're not scary. You're weird.",
-        p.pos.x, p.pos.y
+        "A Heart… glowing faintly purple. I really hope that’s fine.",
+        pos.x, pos.y, 5000
       );
-    },
-  },
+    }
 
-  // ============================================================
-  // ⭐ PHASE 2 — VOID REALM FLAVOUR + ARCHITECT FORESHADOWING (155–260s)
-  // ============================================================
-
-  {
-    id: "t_155",
-    timeRequired: 155,
-    action: (gs) => {
-      const p = gs.player;
+    if (!saidM && gameState.mana > lastM) {
+      saidM = true;
       spawnSpeechBubble(
-        "Everything here is purple and dramatic. Honestly? Same.",
-        p.pos.x, p.pos.y
+        "Void mana… it crackles when I hold it.",
+        pos.x, pos.y, 4800
       );
-    },
-  },
+    }
 
-  {
-    id: "t_185",
-    timeRequired: 185,
-    action: (gs) => {
-      const p = gs.player;
+    if (!saidB && gameState.bravery > lastB) {
+      saidB = true;
       spawnSpeechBubble(
-        "Why does the AIR feel floaty? Am I floating? Am I panicking?",
-        p.pos.x, p.pos.y
+        "Bravery shards… they vibrate like they’re warning me.",
+        pos.x, pos.y, 4800
       );
-    },
-  },
+    }
 
-  {
-    id: "t_220",
-    timeRequired: 220,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana said gravity breaks down where corruption is strongest… amazing.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
+    lastD = gameState.diamonds;
+    lastG = gameState.gold;
+    lastH = gameState.hearts;
+    lastM = gameState.mana;
+    lastB = gameState.bravery;
+  });
 
-  {
-    id: "t_260",
-    timeRequired: 260,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If the Shadow Architect is behind this, I'm kicking him into low orbit.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 3 — PEAK VOID CHAOS (285–380s)
-  // ============================================================
-
-  {
-    id: "t_285",
-    timeRequired: 285,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "A goblin just FLOATED at me. Absolutely not. Despawn yourself.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_330",
-    timeRequired: 330,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "I can’t tell if that one is walking or hovering. Gross either way.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_380",
-    timeRequired: 380,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "This whole place feels like a fever dream with goblins. Ew.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 4 — GRAVITY DRAMA (410–520s)
-  // ============================================================
-
-  {
-    id: "t_410",
-    timeRequired: 410,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Why do the shadows move BEFORE I move? No thank you.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_455",
-    timeRequired: 455,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "If gravity flips upside down, I’m suing the universe AND the Architect.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_520",
-    timeRequired: 520,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Everything is floaty… including my patience.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 5 — LATE-VOID REVELATIONS (550–640s)
-  // ============================================================
-
-  {
-    id: "t_550",
-    timeRequired: 550,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana said the Void Realm bends to fear… but I’m Glitter. I don’t do fear.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_590",
-    timeRequired: 590,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Some goblins are literally phasing in and out… pick a dimension!!",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_640",
-    timeRequired: 640,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "The Architect wants the Crystal Heart… over my sparkly, fabulous body.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  // ============================================================
-  // ⭐ PHASE 6 — THE FINAL PUSH (660–700s)
-  // ============================================================
-
-  {
-    id: "t_660",
-    timeRequired: 660,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Still alive. Still fabulous. Still ignoring gravity’s nonsense.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_685",
-    timeRequired: 685,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Next stop: Crystal Keep. Architect, your days are numbered.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-  {
-    id: "t_700",
-    timeRequired: 700,
-    action: (gs) => {
-      const p = gs.player;
-      spawnSpeechBubble(
-        "Ariana is NOT ready for how hard I’m going to win the final map.",
-        p.pos.x, p.pos.y
-      );
-    },
-  },
-
-];
+}

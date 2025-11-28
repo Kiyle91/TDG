@@ -189,7 +189,6 @@ import { spawnDamageSparkles } from "../fx/sparkles.js";
 
 import { updateHealFX, renderHealFX } from "../combat/heal.js";
 
-import { loadStepEventsForMap } from "./eventEngine.js";
 import map2Events from "../core/events/map2Events.js";
 import map3Events from "../core/events/map3Events.js";
 import map4Events from "../core/events/map4Events.js";
@@ -660,20 +659,19 @@ export async function initGame(mode = "new") {
   initUI();
   ensurePerfOverlay();
 
-  const current = gameState.progress?.currentMap ?? 1;
+  const current = gameState.progress?.currentMap ?? gameState.currentMap ?? 1;
+  gameState.currentMap = current;
 
   switch (current) {
-    case 1: initMap1Events()
-            break;
-
-    case 2: loadStepEventsForMap(2, map2Events); break;
-    case 3: loadStepEventsForMap(3, map3Events); break;
-    case 4: loadStepEventsForMap(4, map4Events); break;
-    case 5: loadStepEventsForMap(5, map5Events); break;
-    case 6: loadStepEventsForMap(6, map6Events); break;
-    case 7: loadStepEventsForMap(7, map7Events); break;
-    case 8: loadStepEventsForMap(8, map8Events); break;
-    case 9: loadStepEventsForMap(9, map9Events); break;
+    case 1: initMap1Events(); break;
+    case 2: map2Events(); break;
+    case 3: map3Events(); break;
+    case 4: map4Events(); break;
+    case 5: map5Events(); break;
+    case 6: map6Events(); break;
+    case 7: map7Events(); break;
+    case 8: map8Events(); break;
+    case 9: map9Events(); break;
     default: break;
   }
 
@@ -962,18 +960,19 @@ export function resetCombatState() {
   gameState.elapsedTime = 0;
   gameState.victoryPending = false;
 
-  const cur = gameState.progress?.currentMap ?? 1;
+  const cur = gameState.progress?.currentMap ?? gameState.currentMap ?? 1;
+  gameState.currentMap = cur;
 
   switch (cur) {
     case 1: initMap1Events(); break;
-    case 2: loadStepEventsForMap(2, map2Events); break;
-    case 3: loadStepEventsForMap(3, map3Events); break;
-    case 4: loadStepEventsForMap(4, map4Events); break;
-    case 5: loadStepEventsForMap(5, map5Events); break;
-    case 6: loadStepEventsForMap(6, map6Events); break;
-    case 7: loadStepEventsForMap(7, map7Events); break;
-    case 8: loadStepEventsForMap(8, map8Events); break;
-    case 9: loadStepEventsForMap(9, map9Events); break;
+    case 2: map2Events(); break;
+    case 3: map3Events(); break;
+    case 4: map4Events(); break;
+    case 5: map5Events(); break;
+    case 6: map6Events(); break;
+    case 7: map7Events(); break;
+    case 8: map8Events(); break;
+    case 9: map9Events(); break;
     default: break;
   }
 
