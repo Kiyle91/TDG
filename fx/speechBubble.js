@@ -44,6 +44,18 @@ export function spawnSpeechBubble(text, x, y, duration = 10000, anchor, options 
 export function updateAndDrawSpeechBubbles(ctx, delta) {
   for (let i = speechBubbles.length - 1; i >= 0; i--) {
     const b = speechBubbles[i];
+
+    // If the bubble is anchored to a non-Seraphine entity that has died, drop it immediately
+    const anchor = b.anchor;
+    const anchorDead =
+      anchor &&
+      anchor.type !== "seraphine" &&
+      anchor.alive === false;
+    if (anchorDead) {
+      speechBubbles.splice(i, 1);
+      continue;
+    }
+
     b.age += delta;
 
     if (b.age >= b.life) {
