@@ -399,8 +399,8 @@ if (typeof gameState.victoryPending !== "boolean") {
 }
 
 const SPAWN_INTERVAL = 2000;
-let spawnQueue = [];
 let spawnTimer = 0;
+let spawnPlan = null;
 
 // ============================================================
 // RESET / SNAPSHOT HELPERS
@@ -415,8 +415,8 @@ export function resetWaveSystem() {
 
   window.betweenWaveTimerActive = true;
 
-  spawnQueue.length = 0;
   spawnTimer = 0;
+  spawnPlan = null;
 
   gameState.victoryPending = false;
   gameState.wave = 1;
@@ -488,7 +488,7 @@ export function restoreWaveFromSnapshot(meta, snapshot) {
       : (!waveActive && firstWaveStarted);
   justStartedWave = false;
 
-  spawnQueue.length = 0;
+  spawnPlan = null;
   spawnTimer = 0;
 
   let restoredTimer = 0;
@@ -540,8 +540,6 @@ function startNextWave() {
   const wave = waves[currentWaveIndex];
   if (!wave) return;
 
-  spawnQueue.length = 0;
-
   waveActive = true;
   waveCleared = false;
   justStartedWave = true;
@@ -552,94 +550,8 @@ function startNextWave() {
   Events.emit(E.waveStart, { wave: gameState.wave });
 
   const hpMult = getDifficultyHpMultiplier();
-  const spawnScaled = (fn) => {
-    const enemy = fn();
-    if (enemy) {
-      enemy.hp = Math.round(enemy.hp * hpMult);
-      enemy.maxHp = Math.round(enemy.maxHp * hpMult);
-    }
-    return enemy;
-  };
-  const spawnAndEmit = (type, fn) => {
-    const enemy = spawnScaled(fn);
-    if (enemy) {
-      applySpawnSeparation(enemy);
-      Events.emit(E.enemySpawn, { type, wave: gameState.wave });
-    }
-    return enemy;
-  };
-
-  if (wave.boss === "seraphine") {
-
-    // spawn boss immediately (apply difficulty scaling)
-    spawnSeraphineBoss(wave.phase || 1, undefined, undefined, { hpMultiplier: hpMult });
-
-    // goblin escorts
-    const escorts = wave.goblins || 0;
-    for (let i = 0; i < escorts; i++) {
-      spawnQueue.push(() => spawnAndEmit("goblin", spawnGoblin));
-    }
-
-    return; // IMPORTANT so normal enemies don't spawn
-  }
-
-  const iceCount   = wave.iceGoblins   || 0;
-  const emberCount = wave.emberGoblins || 0;
-  const ashCount   = wave.ashGoblins   || 0;
-  const voidCount  = wave.voidGoblins  || 0;
-
-  for (let i = 0; i < wave.goblins; i++) {
-    spawnQueue.push(() => {
-      spawnAndEmit("goblin", spawnGoblin);
-
-      if (i < iceCount)   spawnAndEmit("iceGoblin",   spawnIceGoblin);
-      if (i < emberCount) spawnAndEmit("emberGoblin", spawnEmberGoblin);
-      if (i < ashCount)   spawnAndEmit("ashGoblin",   spawnAshGoblin);
-      if (i < voidCount)  spawnAndEmit("voidGoblin",  spawnVoidGoblin);
-
-      if (i < wave.worgs)      spawnAndEmit("worg",      spawnWorg);
-      if (i < wave.elites)     spawnAndEmit("elite",     spawnElite);
-      if (i < wave.trolls)     spawnAndEmit("troll",     spawnTroll);
-      if (i < wave.ogres) {
-        spawnAndEmit("ogre", () => spawnOgre({ skipDifficultyScaling: true }));
-      }
-      if (i < wave.crossbows)  spawnAndEmit("crossbow",  spawnCrossbow);
-    });
-  }
-
-  // In case any counts exceed goblins, top up the queue with the extras:
-
-  for (let i = wave.goblins; i < iceCount; i++) {
-    spawnQueue.push(() => spawnAndEmit("iceGoblin", spawnIceGoblin));
-  }
-
-  for (let i = wave.goblins; i < emberCount; i++) {
-    spawnQueue.push(() => spawnAndEmit("emberGoblin", spawnEmberGoblin));
-  }
-
-  for (let i = wave.goblins; i < ashCount; i++) {
-    spawnQueue.push(() => spawnAndEmit("ashGoblin", spawnAshGoblin));
-  }
-
-  for (let i = wave.goblins; i < voidCount; i++) {
-    spawnQueue.push(() => spawnAndEmit("voidGoblin", spawnVoidGoblin));
-  }
-
-  for (let i = wave.goblins; i < wave.worgs; i++) {
-    spawnQueue.push(() => spawnAndEmit("worg", spawnWorg));
-  }
-
-  for (let i = wave.goblins; i < wave.elites; i++) {
-    spawnQueue.push(() => spawnAndEmit("elite", spawnElite));
-  }
-
-  for (let i = wave.goblins; i < wave.trolls; i++) {
-    spawnQueue.push(() => spawnAndEmit("troll", spawnTroll));
-  }
-
-  for (let i = wave.goblins; i < wave.crossbows; i++) {
-    spawnQueue.push(() => spawnAndEmit("crossbow", spawnCrossbow));
-  }
+  spawnPlan = buildSpawnPlan(wave, hpMult);
+  spawnTimer = 0;
 }
 
 function getSpawnRadiusByType(type) {
@@ -658,6 +570,159 @@ function getSpawnRadiusByType(type) {
     default:
       return 40;
   }
+}
+
+const SPAWNERS = {
+  goblin: { fn: spawnGoblin },
+  iceGoblin: { fn: spawnIceGoblin },
+  emberGoblin: { fn: spawnEmberGoblin },
+  ashGoblin: { fn: spawnAshGoblin },
+  voidGoblin: { fn: spawnVoidGoblin },
+  worg: { fn: spawnWorg },
+  elite: { fn: spawnElite },
+  troll: { fn: spawnTroll },
+  ogre: { fn: () => spawnOgre({ skipDifficultyScaling: true }) },
+  crossbow: { fn: spawnCrossbow },
+};
+
+function spawnAndEmit(type, spawnFn, hpMult, skipScale) {
+  const enemy = spawnFn();
+  if (!enemy) return null;
+  if (!skipScale) {
+    enemy.hp = Math.round(enemy.hp * hpMult);
+    enemy.maxHp = Math.round(enemy.maxHp * hpMult);
+  }
+  applySpawnSeparation(enemy);
+  Events.emit(E.enemySpawn, { type, wave: gameState.wave });
+  return enemy;
+}
+
+function spawnEnemy(type, plan) {
+  const entry = SPAWNERS[type];
+  if (!entry || !plan) return null;
+  return spawnAndEmit(type, entry.fn, plan.hpMult, entry.skipScale === true);
+}
+
+function buildSpawnPlan(wave, hpMult) {
+  if (wave.boss === "seraphine") {
+    spawnSeraphineBoss(wave.phase || 1, undefined, undefined, { hpMultiplier: hpMult });
+    return {
+      hpMult,
+      escortsRemaining: wave.goblins || 0,
+      primaryTotal: 0,
+      primaryIndex: 0,
+      counts: null,
+      extras: null,
+    };
+  }
+
+  const goblins = wave.goblins || 0;
+  const counts = {
+    goblins,
+    ice: wave.iceGoblins || 0,
+    ember: wave.emberGoblins || 0,
+    ash: wave.ashGoblins || 0,
+    voids: wave.voidGoblins || 0,
+    worg: wave.worgs || 0,
+    elite: wave.elites || 0,
+    troll: wave.trolls || 0,
+    ogre: wave.ogres || 0,
+    crossbow: wave.crossbows || 0,
+  };
+
+  const extras = {
+    ice: Math.max(0, counts.ice - goblins),
+    ember: Math.max(0, counts.ember - goblins),
+    ash: Math.max(0, counts.ash - goblins),
+    voids: Math.max(0, counts.voids - goblins),
+    worg: Math.max(0, counts.worg - goblins),
+    elite: Math.max(0, counts.elite - goblins),
+    troll: Math.max(0, counts.troll - goblins),
+    crossbow: Math.max(0, counts.crossbow - goblins),
+  };
+
+  return {
+    hpMult,
+    counts,
+    primaryTotal: goblins,
+    primaryIndex: 0,
+    extras,
+    escortsRemaining: 0,
+  };
+}
+
+function hasPendingSpawns() {
+  if (!spawnPlan) return false;
+  if (spawnPlan.escortsRemaining > 0) return true;
+  if (spawnPlan.counts && spawnPlan.primaryIndex < spawnPlan.primaryTotal) return true;
+  const extras = spawnPlan.extras;
+  if (!extras) return false;
+  return (
+    extras.ice > 0 ||
+    extras.ember > 0 ||
+    extras.ash > 0 ||
+    extras.voids > 0 ||
+    extras.worg > 0 ||
+    extras.elite > 0 ||
+    extras.troll > 0 ||
+    extras.crossbow > 0
+  );
+}
+
+function spawnNextFromPlan() {
+  if (!spawnPlan) return false;
+
+  if (spawnPlan.escortsRemaining > 0) {
+    spawnPlan.escortsRemaining -= 1;
+    spawnEnemy("goblin", spawnPlan);
+    if (!hasPendingSpawns()) spawnPlan = null;
+    return true;
+  }
+
+  if (spawnPlan.counts && spawnPlan.primaryIndex < spawnPlan.primaryTotal) {
+    const i = spawnPlan.primaryIndex++;
+    spawnEnemy("goblin", spawnPlan);
+
+    if (i < spawnPlan.counts.ice) spawnEnemy("iceGoblin", spawnPlan);
+    if (i < spawnPlan.counts.ember) spawnEnemy("emberGoblin", spawnPlan);
+    if (i < spawnPlan.counts.ash) spawnEnemy("ashGoblin", spawnPlan);
+    if (i < spawnPlan.counts.voids) spawnEnemy("voidGoblin", spawnPlan);
+
+    if (i < spawnPlan.counts.worg) spawnEnemy("worg", spawnPlan);
+    if (i < spawnPlan.counts.elite) spawnEnemy("elite", spawnPlan);
+    if (i < spawnPlan.counts.troll) spawnEnemy("troll", spawnPlan);
+    if (i < spawnPlan.counts.ogre) spawnEnemy("ogre", spawnPlan);
+    if (i < spawnPlan.counts.crossbow) spawnEnemy("crossbow", spawnPlan);
+
+    if (!hasPendingSpawns()) spawnPlan = null;
+    return true;
+  }
+
+  const extras = spawnPlan.extras;
+  if (extras) {
+    const order = [
+      ["ice", "iceGoblin"],
+      ["ember", "emberGoblin"],
+      ["ash", "ashGoblin"],
+      ["voids", "voidGoblin"],
+      ["worg", "worg"],
+      ["elite", "elite"],
+      ["troll", "troll"],
+      ["crossbow", "crossbow"],
+    ];
+
+    for (const [key, type] of order) {
+      if (extras[key] > 0) {
+        extras[key] -= 1;
+        spawnEnemy(type, spawnPlan);
+        if (!hasPendingSpawns()) spawnPlan = null;
+        return true;
+      }
+    }
+  }
+
+  spawnPlan = null;
+  return false;
 }
 
 function applySpawnSeparation(enemy) {
@@ -712,45 +777,38 @@ function applySpawnSeparation(enemy) {
 }
 
 function noEnemiesAlive() {
-  const g  = getGoblins();
-  const gi = getIceGoblins();
-  const ge = getEmberGoblins();
-  const ga = getAshGoblins();
-  const gv = getVoidGoblins();
-  const w  = getWorg();
-  const o  = getOgres();
-  const e  = getElites();
-  const t  = getTrolls();
-  const x  = getCrossbows();
-  const s  = getSeraphines();
+  const groups = [
+    getGoblins(),
+    getIceGoblins(),
+    getEmberGoblins(),
+    getAshGoblins(),
+    getVoidGoblins(),
+    getWorg(),
+    getOgres(),
+    getElites(),
+    getTrolls(),
+    getCrossbows(),
+    getSeraphines(),
+  ];
 
-  const aliveG  = g.filter(e => e.alive).length;
-  const aliveGi = gi.filter(e => e.alive).length;
-  const aliveGe = ge.filter(e => e.alive).length;
-  const aliveGa = ga.filter(e => e.alive).length;
-  const aliveGv = gv.filter(e => e.alive).length;
-  const aliveW  = w.filter(e => e.alive).length;
-  const aliveO  = o.filter(e => e.alive).length;
-  const aliveE  = e.filter(e => e.alive).length;
-  const aliveT  = t.filter(e => e.alive).length;
-  const aliveX  = x.filter(e => e.alive).length;
-  const aliveS  = s.filter(e => e.alive).length;
+  let totalAlive = 0;
+  let totalSpawnedSoFar = 0;
 
-  const totalAlive =
-    aliveG + aliveGi + aliveGe + aliveGa + aliveGv +
-    aliveW + aliveO + aliveE + aliveT + aliveX + aliveS;
+  for (const group of groups) {
+    if (!Array.isArray(group)) continue;
+    totalSpawnedSoFar += group.length;
+    for (const enemy of group) {
+      if (enemy && enemy.alive) totalAlive += 1;
+    }
+  }
 
-  const totalSpawnedSoFar =
-    g.length + gi.length + ge.length + ga.length + gv.length +
-    w.length + o.length + e.length + t.length + x.length + s.length;
-
-  if (spawnQueue.length > 0) return false;
+  if (hasPendingSpawns()) return false;
   if (totalSpawnedSoFar === 0) return false;
 
   return totalAlive === 0;
 }
 
-export async function updateWaveSystem(delta) {
+export function updateWaveSystem(delta) {
   if (!firstWaveStarted) {
     betweenWaveTimer -= delta;
 
@@ -772,10 +830,12 @@ export async function updateWaveSystem(delta) {
   }
 
   spawnTimer -= delta;
-  if (spawnQueue.length > 0 && spawnTimer <= 0) {
-    const spawnFn = spawnQueue.shift();
-    spawnFn();
-    spawnTimer = SPAWN_INTERVAL;
+  if (spawnPlan && spawnTimer <= 0 && hasPendingSpawns()) {
+    if (spawnNextFromPlan()) {
+      spawnTimer = SPAWN_INTERVAL;
+    } else {
+      spawnTimer = 0;
+    }
   }
 
   if (gameState.victoryPending) return;

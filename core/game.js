@@ -290,6 +290,7 @@ let perfAccum = 0;
 let perfFrames = 0;
 let smoothedFps = 60;
 let lastEnemyCount = 0;
+const enemiesScratch = [];
 
 function trackEnemyMotion(delta, enemies) {
   if (!Array.isArray(enemies)) return;
@@ -350,19 +351,29 @@ function getPathFollowerInfo(e) {
 }
 
 function collectAllEnemies() {
-  return [
-    ...getGoblins(),
-    ...getIceGoblins(),
-    ...getEmberGoblins(),
-    ...getAshGoblins(),
-    ...getVoidGoblins(),
-    ...getWorg(),
-    ...getTrolls(),
-    ...getCrossbows(),
-    ...getElites(),
-    ...getOgres(),
-    ...getSeraphines()
-  ].filter(e => e && e.alive);
+  enemiesScratch.length = 0;
+  const groups = [
+    getGoblins(),
+    getIceGoblins(),
+    getEmberGoblins(),
+    getAshGoblins(),
+    getVoidGoblins(),
+    getWorg(),
+    getTrolls(),
+    getCrossbows(),
+    getElites(),
+    getOgres(),
+    getSeraphines()
+  ];
+
+  for (const group of groups) {
+    if (!Array.isArray(group)) continue;
+    for (const e of group) {
+      if (e && e.alive) enemiesScratch.push(e);
+    }
+  }
+
+  return enemiesScratch;
 }
 
 function resolveEnemyCollisions(spatial, enemies) {
@@ -725,9 +736,11 @@ export function updateGame(delta) {
   applyGoblinAuras(delta, { enemies, spatial: enemySpatial });
   trackEnemyMotion(delta, enemies);
   resolveEnemyCollisions(enemySpatial, enemies);
-  updateWaveSystem(delta).catch(err => {
+  try {
+    updateWaveSystem(delta);
+  } catch (err) {
     console.warn("updateWaveSystem failed:", err);
-  });
+  }
 
   // ðŸ”® UPDATE SEEKER ORBS
   if (gameState.fx?.seekers) {
