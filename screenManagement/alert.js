@@ -36,6 +36,8 @@
 // ------------------------------------------------------------
 
 import { playFairySprinkle, playCancelSound } from "../core/soundtrack.js";
+import { getSettings } from "./settings.js";
+import { gameState, saveProfiles } from "../utils/gameState.js";
 
 // ------------------------------------------------------------
 // 🗺️ MODULE-LEVEL VARIABLES
@@ -228,7 +230,14 @@ export function showDifficultySelect(onSelect) {
       const diff = btn.dataset.diff;
       playFairySprinkle();
       modal.style.display = "none";
-      if (onSelect) onSelect(diff);
+      if (onSelect(diff)) {
+          settings.difficulty = diff;
+          gameState.settings.difficulty = diff; // NEW
+          saveSettings();
+          saveProfiles?.();
+          modal.style.display = "none";
+          if (onSelect) onSelect(diff);
+      };
     };
   });
 }

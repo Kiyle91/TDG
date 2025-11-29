@@ -159,6 +159,7 @@ export const gameState = {
     music: true,
     sfx: true,
     visualEffects: true,
+    difficulty: "normal",  
   },
 
   bravery: defaultBraveryState(),

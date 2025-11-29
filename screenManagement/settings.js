@@ -39,6 +39,10 @@ import {
   setSfxVolume
 } from "../core/soundtrack.js";
 
+
+import { gameState, saveProfiles } from "../utils/gameState.js";
+
+
 // ------------------------------------------------------------
 // 🧰 SETTINGS STORAGE
 // ------------------------------------------------------------
@@ -96,9 +100,11 @@ function applySettingsToUI() {
   if (musicRange) musicRange.value = settings.musicVolume * 100;
   if (sfxRange) sfxRange.value = settings.sfxVolume * 100;
   if (visualsToggle) visualsToggle.checked = settings.visualsEnabled;
-  if (diffEasy)   diffEasy.checked = settings.difficulty === "easy";
-  if (diffNormal) diffNormal.checked = settings.difficulty === "normal";
-  if (diffHard)   diffHard.checked = settings.difficulty === "hard";
+  const diff = gameState.settings?.difficulty || settings.difficulty;
+
+  diffEasy.checked   = diff === "easy";
+  diffNormal.checked = diff === "normal";
+  diffHard.checked   = diff === "hard";
 
   updateLabels();
 }
@@ -146,7 +152,9 @@ function setupListeners() {
   diffRadios.forEach(radio => {
     radio.addEventListener("change", (e) => {
       settings.difficulty = e.target.value;
+      gameState.settings.difficulty = e.target.value;  // ← ADD THIS
       saveSettings();
+      saveProfiles?.(); // if available
     });
   });
 }
@@ -228,7 +236,9 @@ export function initGameSettings() {
   document.querySelectorAll("input[name='difficulty-game']").forEach(radio => {
     radio.onchange = (e) => {
       settings.difficulty = e.target.value;
+      gameState.settings.difficulty = e.target.value;  // ← ADD THIS
       saveSettings();
+      saveProfiles?.(); // if available
     };
   });
 }
