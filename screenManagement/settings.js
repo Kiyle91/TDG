@@ -69,6 +69,19 @@ export function setVisualsEnabled(enabled) {
   saveSettings();
 }
 
+export function setDifficulty(diff) {
+  if (!["easy", "normal", "hard"].includes(diff)) return;
+
+  settings.difficulty = diff;
+  if (gameState.settings) {
+    gameState.settings.difficulty = diff;
+  }
+
+  saveSettings();
+  saveProfiles?.();
+  syncDifficultyRadios();
+}
+
 // ------------------------------------------------------------
 // 🌈 INITIAL LOAD
 // ------------------------------------------------------------
@@ -77,6 +90,10 @@ export function initSettings() {
   const saved = localStorage.getItem(SETTINGS_KEY);
   if (saved) {
     settings = { ...settings, ...JSON.parse(saved) };
+  }
+
+  if (gameState.settings) {
+    gameState.settings.difficulty = settings.difficulty;
   }
 
   applySettingsToUI();
@@ -93,18 +110,11 @@ function applySettingsToUI() {
   const musicRange = document.getElementById("music-volume");
   const sfxRange = document.getElementById("sfx-volume");
   const visualsToggle = document.getElementById("visuals-toggle");
-  const diffEasy = document.getElementById("difficulty-easy");
-  const diffNormal = document.getElementById("difficulty-normal");
-  const diffHard = document.getElementById("difficulty-hard");
 
   if (musicRange) musicRange.value = settings.musicVolume * 100;
   if (sfxRange) sfxRange.value = settings.sfxVolume * 100;
   if (visualsToggle) visualsToggle.checked = settings.visualsEnabled;
-  const diff = gameState.settings?.difficulty || settings.difficulty;
-
-  diffEasy.checked   = diff === "easy";
-  diffNormal.checked = diff === "normal";
-  diffHard.checked   = diff === "hard";
+  syncDifficultyRadios();
 
   updateLabels();
 }
@@ -151,10 +161,7 @@ function setupListeners() {
   const diffRadios = document.querySelectorAll("input[name='difficulty']");
   diffRadios.forEach(radio => {
     radio.addEventListener("change", (e) => {
-      settings.difficulty = e.target.value;
-      gameState.settings.difficulty = e.target.value;  // ← ADD THIS
-      saveSettings();
-      saveProfiles?.(); // if available
+      setDifficulty(e.target.value);
     });
   });
 }
@@ -229,20 +236,31 @@ export function initGameSettings() {
     playFairySprinkle();
   };
 
-  document.getElementById("difficulty-easy-game").checked   = settings.difficulty === "easy";
-  document.getElementById("difficulty-normal-game").checked = settings.difficulty === "normal";
-  document.getElementById("difficulty-hard-game").checked   = settings.difficulty === "hard";
-
+  syncDifficultyRadios();
   document.querySelectorAll("input[name='difficulty-game']").forEach(radio => {
     radio.onchange = (e) => {
-      settings.difficulty = e.target.value;
-      gameState.settings.difficulty = e.target.value;  // ← ADD THIS
-      saveSettings();
-      saveProfiles?.(); // if available
+      setDifficulty(e.target.value);
     };
   });
 }
-  
+
+function syncDifficultyRadios() {
+  const diff = settings.difficulty;
+  const mapping = [
+    ["difficulty-easy", "easy"],
+    ["difficulty-normal", "normal"],
+    ["difficulty-hard", "hard"],
+    ["difficulty-easy-game", "easy"],
+    ["difficulty-normal-game", "normal"],
+    ["difficulty-hard-game", "hard"],
+  ];
+
+  mapping.forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = diff === value;
+  });
+}
+
 // ------------------------------------------------------------
 // 🛡️ DIFFICULTY HP MULTIPLIER
 // ------------------------------------------------------------
