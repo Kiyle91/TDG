@@ -1,8 +1,8 @@
 // ============================================================
 // 🔮 spell.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// Pastel AoE Burst Spell (modular + tier-scaled)
-// Now uses STAT-BASED seeker scaling (spellPower)
+// Pastel AoE Burst Spell with STAT-BASED seeker scaling
+// Level 30 balanced version
 // ============================================================
 
 import { updateHUD } from "../screenManagement/ui.js";
@@ -11,7 +11,7 @@ import { spawnCanvasSparkleBurst } from "../fx/sparkles.js";
 import { damageGoblin, getGoblins } from "../entities/goblin.js";
 import { damageGoblin as damageIceGoblin, getGoblins as getIceGoblins } from "../entities/iceGoblin.js";
 import { damageGoblin as damageEmberGoblin, getGoblins as getEmberGoblins } from "../entities/emberGoblin.js";
-import { damageGoblin as damageAshGoblin, getGoblins as getAshGoblins } from "../entities/ashGoblin.js";
+import { damageGoblin as damageAshGoblin, getGoblins as getAshGoblin } from "../entities/ashGoblin.js";
 import { damageGoblin as damageVoidGoblin, getGoblins as getVoidGoblins } from "../entities/voidGoblin.js";
 import { damageElite, getElites } from "../entities/elite.js";
 import { damageOgre, getOgres } from "../entities/ogre.js";
@@ -24,7 +24,7 @@ import { playSpellCast } from "../core/soundtrack.js";
 import { getSeraphines, damageSeraphine } from "../entities/seraphine.js";
 
 // ------------------------------------------------------------
-// ⭐ Tier calculation (based on player LEVEL)
+// ⭐ Tier calculation (AoE radius only, NOT seekers)
 // ------------------------------------------------------------
 function getSpellTier() {
   const lvl = Number(gameState.player?.level || 1);
@@ -33,11 +33,11 @@ function getSpellTier() {
   if (lvl < 10) return 2;
   if (lvl < 15) return 3;
   if (lvl < 20) return 4;
-  return 5; // lvl 20+
+  return 5;
 }
 
 // ------------------------------------------------------------
-// 🔮 Crystal Seeker Orbs (homing projectiles)
+// 🔮 Crystal Seeker Orbs
 // ------------------------------------------------------------
 function spawnSeekerOrb(x, y, dmg) {
   if (!gameState.fx) gameState.fx = {};
@@ -103,7 +103,7 @@ const EXPLODE_TIME = 400;
 const ANIM_TOTAL = 900;
 
 // ------------------------------------------------------------
-// Unified enemy access
+// Unified enemy list
 // ------------------------------------------------------------
 function getAllTargets() {
   return [
@@ -132,6 +132,7 @@ export function performSpell(player) {
   if (player.mana < COST_SPELL) {
     return { ok: false, reason: "mana" };
   }
+
   player.mana -= COST_SPELL;
   updateHUD();
 
@@ -174,12 +175,8 @@ export function performSpell(player) {
           case "troll":     damageTroll(t, dmg); break;
           case "crossbow":  damageCrossbow(t, dmg); break;
           default:
-            if (t.maxHp >= 400 && t.type !== "goblin") {
-              damageOgre(t, dmg, "spell");
-            } else {
-              damageGoblin(t, dmg);
-            }
-            break;
+            if (t.maxHp >= 400 && t.type !== "goblin") damageOgre(t, dmg, "spell");
+            else damageGoblin(t, dmg);
         }
       }
     }
@@ -193,7 +190,7 @@ export function performSpell(player) {
       ["#ffb3e6", "#b3ecff", "#fff2b3", "#cdb3ff", "#b3ffd9", "#ffffff"]
     );
 
-    // Radiating ring
+    // Pulse ring
     spawnPulseRing(
       player.pos.x,
       player.pos.y,
@@ -202,16 +199,17 @@ export function performSpell(player) {
     );
 
     // ------------------------------------------------------------
-    // 🔮 STAT-BASED SEEKER COUNT (spellPower perks)
+    // 🔮 STAT-BASED SEEKER COUNT (wide balanced progression)
     // ------------------------------------------------------------
     let seekerCount = 3;
     const sp = Number(player.spellPower || 0);
 
-    if (sp >= 50) seekerCount = 12;
-    else if (sp >= 40) seekerCount = 9;
-    else if (sp >= 30) seekerCount = 7;
-    else if (sp >= 20) seekerCount = 5;
+    if (sp >= 210) seekerCount = 12;
+    else if (sp >= 160) seekerCount = 9;
+    else if (sp >= 110) seekerCount = 7;
+    else if (sp >= 60)  seekerCount = 5;
 
+    // Timed orb releases (pretty)
     for (let i = 0; i < seekerCount; i++) {
       setTimeout(() => {
         spawnSeekerOrb(player.pos.x, player.pos.y, dmg);

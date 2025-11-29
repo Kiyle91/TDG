@@ -65,15 +65,15 @@ export function performRanged(player, e, canvasRef) {
   player.facing = facing;
 
   // ------------------------------------------------------------
-  // 🏹 STAT-BASED MULTI-ARROW PERKS
+  // 🏹 STAT-BASED MULTI-ARROW PERKS  (balanced progression)
   // ------------------------------------------------------------
   const stat = Number(player.rangedAttack || 0);
   let arrowCount = 1;
 
-  if (stat >= 50) arrowCount = 9;
-  else if (stat >= 40) arrowCount = 7;
-  else if (stat >= 30) arrowCount = 5;
-  else if (stat >= 20) arrowCount = 3;
+  if (stat >= 210) arrowCount = 9;
+  else if (stat >= 160) arrowCount = 7;
+  else if (stat >= 110) arrowCount = 5;
+  else if (stat >= 60)  arrowCount = 3;
 
   // ------------------------------------------------------------
   // SINGLE ARROW
