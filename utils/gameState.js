@@ -428,6 +428,13 @@ export function saveProfiles() {
       "ow_profiles_v1",
       JSON.stringify(gameState.profiles)
     );
+
+    // Remove legacy store so deleted profiles cannot resurrect
+    try {
+      window.localStorage.removeItem("td_profiles");
+    } catch {
+      /* ignore */
+    }
   } catch (err) {
     console.warn("Failed to save profiles:", err);
   }
@@ -441,10 +448,14 @@ export function initProfiles() {
   let stored = [];
 
   try {
-    const raw =
-      window.localStorage.getItem("ow_profiles_v1") ||
-      window.localStorage.getItem("td_profiles");
-    if (raw) stored = JSON.parse(raw);
+    const rawOw = window.localStorage.getItem("ow_profiles_v1");
+    const rawLegacy = rawOw === null ? window.localStorage.getItem("td_profiles") : null;
+
+    if (rawOw !== null) {
+      stored = JSON.parse(rawOw);
+    } else if (rawLegacy) {
+      stored = JSON.parse(rawLegacy);
+    }
   } catch (err) {
     console.warn("Failed to parse profiles:", err);
   }
@@ -460,11 +471,9 @@ export function initProfiles() {
   gameState.profile = stored[0] || null;
 
   // 🔁 restore player into runtime when a profile exists
-  if (gameState.profile?.player) {
-    gameState.player = { ...gameState.profile.player };
-  } else {
-    gameState.player = null;
-  }
+  gameState.player = gameState.profile?.player
+    ? { ...gameState.profile.player }
+    : null;
 
   if (gameState.profile?.progress) {
     gameState.progress = { ...(gameState.profile.progress || gameState.progress) };

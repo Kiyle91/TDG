@@ -48,6 +48,7 @@ import {
 } from "../utils/gameState.js";
 
 import { createPlayer, restorePlayer } from "../player/player.js";
+import { clearProfileSaves } from "../save/saveSystem.js";
 import { showAlert, showConfirm, showInput } from "./alert.js";
 import {
   updateHubProfile,
@@ -139,7 +140,22 @@ export function initProfiles() {
       showConfirm(
         "Are you sure you want to DELETE this profile?",
         () => {
+          clearProfileSaves(profile);
           gameState.profiles.splice(index, 1);
+
+          // If the active profile was deleted, clear runtime links
+          if (gameState.profile === profile) {
+            gameState.profile = null;
+            gameState.player = null;
+          }
+
+          // Reset active index to a valid slot (or -1 if none remain)
+          if (gameState.profiles.length === 0) {
+            gameState.activeProfileIndex = -1;
+          } else if (gameState.activeProfileIndex >= gameState.profiles.length) {
+            gameState.activeProfileIndex = gameState.profiles.length - 1;
+          }
+
           saveProfiles();
           renderProfileSlots(slotsContainer);
           playFairySprinkle()

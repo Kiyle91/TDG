@@ -130,6 +130,26 @@ function getPrimaryProfileKey() {
   return getProfileStorageKeys()[0];
 }
 
+export function clearProfileSaves(profile) {
+  const all = loadAllSaves();
+  const ids = [];
+
+  if (profile?.id) ids.push(`profile_${profile.id}`);
+
+  const index = gameState.profiles.indexOf(profile);
+  if (index >= 0) ids.push(`profile_${index}`);
+  // Also remove any residual numeric slots up to current length to avoid stale reuse
+  for (let i = 0; i < gameState.profiles.length + 2; i++) {
+    ids.push(`profile_${i}`);
+  }
+
+  for (const key of ids) {
+    if (all[key]) delete all[key];
+  }
+
+  persistAllSaves(all);
+}
+
 function resolveProfileSlots(all, { create = false } = {}) {
   const [primary, ...fallbacks] = getProfileStorageKeys();
   let slots = all[primary];
