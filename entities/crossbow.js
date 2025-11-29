@@ -567,12 +567,6 @@ function killCrossbow(c) {
   updateHUD();
   playGoblinDeath();
   spawnLoot("crossbow", c.x, c.y);
-  spawnFloatingText(
-    c.x,
-    c.y - 50,
-    "Crossbow Down!",
-    "#ffffff"
-  );
 }
 
 
