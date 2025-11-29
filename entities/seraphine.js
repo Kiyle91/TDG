@@ -41,6 +41,7 @@ import { playGoblinDamage } from "../core/soundtrack.js";
 import { addBravery, applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 import { playSeraphineSpawn } from "../core/soundtrack.js";
+
 // ------------------------------------------------------------
 // 🧩 INTERNAL STATE
 // ------------------------------------------------------------
@@ -48,6 +49,7 @@ import { playSeraphineSpawn } from "../core/soundtrack.js";
 let seraphines = [];
 let sprites = null;
 let darkOrbs = [];
+let seraphineEdgeFlash = 0; // 0–1 intensity
 
 // Which maps she appears on: 1, 4, 7, 9
 // Tune these numbers however you like.
@@ -421,6 +423,21 @@ export function updateSeraphine(delta = 16) {
       b.dir = dx >= 0 ? "right" : "left";
     } else {
       b.dir = dy >= 0 ? "down" : "up";
+    }
+
+    // ============================================================
+    // 🌌 SCREEN EDGE PURPLE FLASH INTENSITY
+    // ============================================================
+    if (b.alive && !b.defeated) {
+      // stronger flash when close, weaker when far
+      const maxDist = 1200; 
+      const intensity = Math.max(0, 1 - dist / maxDist);
+
+      // smooth transition
+      seraphineEdgeFlash += (intensity - seraphineEdgeFlash) * 0.08;
+    } else {
+      // fade out when defeated / removed
+      seraphineEdgeFlash *= 0.92;
     }
 
     // If currently casting spell, just let its timer run
@@ -864,6 +881,9 @@ export function clearSeraphines() {
   darkOrbs.length = 0;
 }
 
+export function getSeraphinesEdgeFlash() {
+  return seraphineEdgeFlash;
+}
 // ============================================================
 // 🌟 END OF FILE — seraphine.js
 // ============================================================

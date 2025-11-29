@@ -202,6 +202,7 @@ import { spawnSeraphineBoss, clearSeraphines, drawSeraphine, updateSeraphine, in
 import { initMap1Events } from "./events/map1Events.js";
 import "../core/events/seraphineSpeech.js";
 import { buildSpatialGrid, getNeighbors, getIndex } from "../utils/spatialGrid.js";
+import { getSeraphinesEdgeFlash } from "../entities/seraphine.js";
 
 
 // ❄ Ice goblin
@@ -862,6 +863,8 @@ export function renderGame() {
   renderSparkleBursts(ctx, 16);
   renderHealFX(ctx);
 
+
+
   // ðŸš€ PULSE RINGS
   if (gameState.fx?.pulses) {
     for (let i = gameState.fx.pulses.length - 1; i >= 0; i--) {
@@ -910,6 +913,34 @@ export function renderGame() {
   }
 
   ctx.restore();
+
+  // ============================================================
+  // 🌌 SCREEN EDGE PURPLE FLASH (Seraphine presence cue)
+  // ============================================================
+  const flash = getSeraphinesEdgeFlash();
+  if (flash > 0.01) {
+      const w = ctx.canvas.width;
+      const h = ctx.canvas.height;
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = flash * 0.55;
+
+      // Purple radial gradient centered off-screen for edge glow
+      const grad = ctx.createRadialGradient(
+          w/2, h/2, Math.min(w,h) * 0.25,
+          w/2, h/2, Math.max(w,h) * 0.9
+      );
+
+      grad.addColorStop(0.0, "rgba(0,0,0,0)");
+      grad.addColorStop(0.55, "rgba(90,0,140,0.1)");
+      grad.addColorStop(1.0, "rgba(180,70,255,0.85)");
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.restore();
+  }
 
   for (const layer of MAP_LAYERS_ABOVE_ENTITIES) {
     drawMapLayered(ctx, layer, cameraX, cameraY, canvas.width, canvas.height);

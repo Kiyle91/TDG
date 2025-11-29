@@ -122,7 +122,11 @@ function getProfileStorageKeys() {
   const keys = [];
   const profile = getActiveProfile();
   if (profile?.id) keys.push(`profile_${profile.id}`);
-  keys.push(`profile_${getProfileIndex()}`);
+
+  // Only use numeric index key when index is valid (avoids -1 / empty cases)
+  const idx = getProfileIndex();
+  if (idx >= 0) keys.push(`profile_${idx}`);
+
   return [...new Set(keys)];
 }
 
@@ -138,10 +142,6 @@ export function clearProfileSaves(profile) {
 
   const index = gameState.profiles.indexOf(profile);
   if (index >= 0) ids.push(`profile_${index}`);
-  // Also remove any residual numeric slots up to current length to avoid stale reuse
-  for (let i = 0; i < gameState.profiles.length + 2; i++) {
-    ids.push(`profile_${i}`);
-  }
 
   for (const key of ids) {
     if (all[key]) delete all[key];
@@ -512,10 +512,40 @@ export function loadFromSlot(index) {
   }
 
   const all = loadAllSaves();
-  const { slots, migrated } = resolveProfileSlots(all);
+  let { slots, migrated } = resolveProfileSlots(all);
+
+  if (!slots) {
+    // Fallback: try any slot list keyed by current profile id/index
+    const keys = getProfileStorageKeys();
+    for (const key of keys) {
+      if (all[key]) {
+        slots = all[key];
+        break;
+      }
+    }
+  }
+
   if (migrated) persistAllSaves(all);
   const list = slots || [];
-  return list[slot] || null;
+
+  const chosen = list[slot] || null;
+  if (chosen) return chosen;
+
+  // Graceful fallback: return the first non-null slot (typically autosave slot 0)
+  for (const snap of list) {
+    if (snap) return snap;
+  }
+
+  // Final fallback: scan all stored profiles for any available save
+  for (const key of Object.keys(all)) {
+    const arr = all[key];
+    if (Array.isArray(arr)) {
+      const found = arr.find(Boolean);
+      if (found) return found;
+    }
+  }
+
+  return null;
 }
 
 export function deleteSlot(index) {
