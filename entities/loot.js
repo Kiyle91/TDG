@@ -261,7 +261,7 @@ function applyLootReward(d) {
     case "chest": {
       const amount = Number(d.amount) || 0;
       addGold(amount);
-      spawnFloatingText(d.x, d.y - 40, `+${amount} Gold`, "#ffd966");
+      spawnFloatingText(d.x, d.y - 40, `+${amount} Shards`, "#ffffffff");
 
       if (!saidGold) {
         saidGold = true;

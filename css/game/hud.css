@@ -76,11 +76,11 @@
 
 #hp-bar,
 #mana-bar {
-  position: absolute;
-  top: 12px;
+  position: fixed;
+  
 
-  width: 30%;
-  height: 30px;
+  width: 20%;
+  height: 20px;
 
   overflow: hidden;
   border-radius: 10px;
@@ -93,11 +93,14 @@
 
 /* Placement within HUD */
 #hp-bar {
-  left: 20px;
+  left: 40%;
+  bottom: 52px;
 }
 
 #mana-bar {
-  right: 20px;
+  right: 40% ;
+  bottom: 31px;
+
 }
 
 /* Fill layer driven by JS via --fill variable */
@@ -213,8 +216,8 @@
   position: absolute;
   bottom: 1.8rem;
 
-  width: clamp(64px, 6vw, 88px);
-  height: clamp(64px, 6vw, 88px);
+  width: clamp(52px, 6vw, 66px);
+  height: clamp(52px, 6vw, 66px);
 
   border-radius: 999px;
   backdrop-filter: blur(7px);
@@ -242,11 +245,13 @@
 
 /* Anchors */
 .hud-corner-left {
-  left: 1.8rem;
+  left: 36%;
+  bottom: 5px;
 }
 
 .hud-corner-right {
-  right: 1.8rem;
+  right: 36%;
+  bottom: 5px;
 }
 
 /* Inner glowing core */
@@ -272,7 +277,7 @@
 
 /* Icon glyphs (arrow / crystal) */
 .hud-circle-icon {
-  font-size: clamp(1rem, 1.3vw, 1.35rem);
+  font-size: clamp(1.6rem, 1.3vw, 1.6rem);
   line-height: 1;
 
   text-shadow:
@@ -291,10 +296,10 @@
 /* Counter text */
 .hud-circle-counter {
   font-family: "Comic Sans MS", system-ui;
-  font-weight: 700;
+  font-weight: 300;
 
   color: #ffffff;
-  font-size: clamp(0.85rem, 1vw, 1.1rem);
+  font-size: clamp(0.5rem, 1vw, 0.8rem);
 
   display: flex;
   align-items: center;
@@ -379,12 +384,12 @@
 
 #bravery-bar {
   position: absolute;
-  top: 50%;
-  left: 12px;
+  bottom: 0.01%;
+  left: 40%;
   transform: translateY(-50%);
 
-  width: 28px;
-  height: 500px;
+  width: 20%;
+  height: 20px;
 
   background: rgba(255, 255, 255, 0.15);
   border: 2px solid rgba(255, 255, 255, 0.7);
@@ -412,7 +417,7 @@
     0 0 16px rgba(255, 200, 255, 0.8),
     inset 0 0 12px rgba(255, 255, 255, 0.5);
 
-  transition: height 0.25s ease-out;
+  transition: width 0.25s ease-out;
 }
 
 /* When bravery is full, JS adds .full for constant glow */

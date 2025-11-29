@@ -377,7 +377,7 @@ export function updateBraveryBar() {
   const b = gameState.bravery;
   const pct = Math.min(1, b.current / b.max);
 
-  fill.style.height = `${pct * 100}%`;
+  fill.style.width = `${pct * 100}%`;
   fill.classList.remove("full");
 
   if (b.charged && !b.draining) {
