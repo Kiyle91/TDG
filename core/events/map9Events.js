@@ -1,51 +1,55 @@
 // ============================================================
-// 🌑 map8Events.js — The Voidlands Story Script (Final)
+// 🟣 map9Events.js — The Crystal Keep (FINAL MAP) Script
 // ------------------------------------------------------------
-// Map 8: Seraphine’s homeland. Forbidden magic. Gravity warps.
-// Introduces:
-//   • Void Goblins (disable spires, distort magic, gravity slips)
-//   • Everyone fears this type of magic — even Glitter
-//   • Seraphine’s homeland, heavy lore hints
-//   • No tutorials — atmospheric, unsettling, but still funny
+// Map 9: Full enemy roster + Seraphine Phase IV
+// The Architect’s final attempt to seize the Crystal Heart.
+//
+// Tone:
+//   • Epic, high-stakes, emotional
+//   • Glitter fully confident in her Guardian role
+//   • Seraphine reveals her motives, her tragedy, and her plan
+//   • Humour still present, but lighter — this is the final battle
 //
 // Covers:
-//   • Wave start/end flavour
-//   • First Void Goblin kill (ONE TIME)
-//   • Life loss callouts
-//   • Void-flavoured resource lines
-//   • Seraphine cameo (Phase 4 foreshadowing but not a fight)
+//   • Wave start/end flavour (all-out assault)
+//   • First Void->Mixed swarm reactions
+//   • Seraphine arrival + mid-fight HP threshold lines
+//   • Final “defeat but escape” lore beat
+//   • Crystal Heart references
+//   • Life-loss callouts (intense version)
+//   • Resource flavour
 // ============================================================
 
-import { Events, EVENT_NAMES as E, loadTimedEventsForMap, mapOn, mapOnce } from "../eventEngine.js";
+import { Events, EVENT_NAMES as E } from "../eventEngine.js";
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
 import { gameState } from "../../utils/gameState.js";
 
 // ============================================================
-// PLAYER POSITION HELPER
+// PLAYER POSITION
 // ============================================================
 
 const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 
 // ============================================================
-// LIFE LOSS CALLOUTS (void-panic flavoured)
+// LIFE LOSS CALLOUTS — FINAL MAP VARIANTS
 // ============================================================
 
 const lifeLossLines = {
   80: [
-    "That one bent around the spire—how?!",
-    "Void tricks… stay sharp!"
+    "One slipped through—stay focused!",
+    "Don’t let the pressure shake you, Princess!"
   ],
   60: [
-    "They're scrambling space itself—keep moving!",
-    "My spires can’t track them when they do that!"
+    "We’re getting overwhelmed—move, move!",
+    "Paths collapsing—reinforce faster!"
   ],
   40: [
-    "This place is warping around me—ugh!",
-    "Void creatures… why does it feel like it's watching?"
+    "I can’t lose now… not this close!",
+    "Crystal Keep is depending on me!"
   ],
   20: [
-    "Princess—don’t let the Void take you!",
-    "Glitter… focus! Don’t lose yourself!"
+    "Princess—please! The Keep will fall!",
+    "Glitter—hold the line!!"
   ]
 };
 
@@ -56,134 +60,134 @@ const lifeLossLines = {
 export default function initMap9Events() {
 
   // ------------------------------------------------------------
-  // 1) WAVE START
+  // 1) WAVE START — escalating chaos
   // ------------------------------------------------------------
-  mapOn(9, E.waveStart, ({ wave }) => {
+  Events.on(E.waveStart, ({ wave }) => {
     const pos = p();
+
     switch (wave) {
       case 1:
         spawnSpeechBubble(
-          "This air… it’s thick. Like I'm walking through someone else’s dream.",
-          pos.x, pos.y, 4500
+          "Crystal Keep… home. If this falls… everything falls.",
+          pos.x, pos.y, 4800
         );
         break;
+
       case 2:
         spawnSpeechBubble(
-          "Void Goblins… even the regular ones look nervous around them.",
+          "They’re coming harder now… all tribes united against us.",
           pos.x, pos.y, 4500
         );
         break;
+
       case 3:
         spawnSpeechBubble(
-          "My Spires—are they… flickering? Void magic is terrifying.",
+          "Elites, Worgs, Voidlings—this is a full assault.",
           pos.x, pos.y, 4500
         );
         break;
+
       case 4:
         spawnSpeechBubble(
-          "Gravity shifted—nope nope nope I hate this map.",
-          pos.x, pos.y, 4500
+          "The Architect is close. I can feel her breathing through the crystals.",
+          pos.x, pos.y, 4800
         );
         break;
+
       case 5:
         spawnSpeechBubble(
-          "Seraphine was born here… is she watching me?",
+          "That rumble… she’s almost here.",
           pos.x, pos.y, 4500
         );
         break;
+
       case 6:
         spawnSpeechBubble(
-          "The void energy is pulsing… stronger than the Ember Plains.",
+          "This wave is huge—Spire placement is everything now!",
           pos.x, pos.y, 4500
         );
         break;
+
       case 7:
         spawnSpeechBubble(
-          "My arrows are curving—how do physics even WORK here?!",
+          "They’re hitting every path at once—classic Seraphine move.",
           pos.x, pos.y, 4500
         );
         break;
+
       case 8:
         spawnSpeechBubble(
-          "Okay Glitter… don’t freak out. Just… pretend this is normal.",
-          pos.x, pos.y, 4500
+          "The Crystal Heart is pulsing… like it's afraid.",
+          pos.x, pos.y, 4800
         );
         break;
+
       case 9:
         spawnSpeechBubble(
-          "Something big is stirring beneath this place…",
-          pos.x, pos.y, 4500
+          "Last wave before she comes. Deep breath Glitter…",
+          pos.x, pos.y, 4800
         );
         break;
+
       case 10:
         spawnSpeechBubble(
-          "Seraphine… I can feel you nearby. Are you still my enemy?",
-          pos.x, pos.y, 5000
+          "She’s here.",
+          pos.x, pos.y, 4000
         );
         break;
     }
   });
 
   // ------------------------------------------------------------
-  // 2) WAVE END
+  // 2) WAVE END — short, tense reactions
   // ------------------------------------------------------------
-  mapOn(9, E.waveEnd, ({ wave }) => {
+  Events.on(E.waveEnd, ({ wave }) => {
     const pos = p();
 
     switch (wave) {
       case 1:
-        spawnSpeechBubble("Okay. I survived the welcome party. Nice.", pos.x, pos.y, 4000);
+        spawnSpeechBubble("The Keep still stands. Good.", pos.x, pos.y, 3500);
         break;
       case 2:
-        spawnSpeechBubble("Void Goblins are cheating. I swear they’re cheating.", pos.x, pos.y, 4200);
+        spawnSpeechBubble("They’re testing our defences.", pos.x, pos.y, 3500);
         break;
       case 3:
-        spawnSpeechBubble("My spires hate this place. I hate this place.", pos.x, pos.y, 4200);
+        spawnSpeechBubble("Every tribe is here… why?", pos.x, pos.y, 3800);
         break;
       case 4:
-        spawnSpeechBubble("If gravity flips again I’m filing a complaint.", pos.x, pos.y, 4200);
+        spawnSpeechBubble("Seraphine’s magic is bleeding into reality.", pos.x, pos.y, 4000);
         break;
       case 5:
-        spawnSpeechBubble("Seraphine grew up here? That explains… a lot.", pos.x, pos.y, 4500);
+        spawnSpeechBubble("She wants the Heart… but why steal it?", pos.x, pos.y, 4200);
         break;
       case 6:
-        spawnSpeechBubble("Even the Echoes sound nervous.", pos.x, pos.y, 4000);
+        spawnSpeechBubble("I'm not backing down. Not now.", pos.x, pos.y, 3500);
         break;
       case 7:
-        spawnSpeechBubble("The shadows have… depth. Too much depth.", pos.x, pos.y, 4500);
+        spawnSpeechBubble("Almost… almost…", pos.x, pos.y, 3500);
         break;
       case 8:
-        spawnSpeechBubble("Almost done, Glitter. Don’t fall into the void.", pos.x, pos.y, 4500);
+        spawnSpeechBubble("The Heart is… crying?", pos.x, pos.y, 4500);
         break;
       case 9:
-        spawnSpeechBubble("Did the ground just breathe?", pos.x, pos.y, 4200);
+        spawnSpeechBubble("Last chance to breathe before she arrives.", pos.x, pos.y, 4500);
         break;
     }
   });
 
   // ------------------------------------------------------------
-  // 3) FIRST VOID GOBLIN KILL
+  // 3) FIRST KILLS — only Void gets special here
   // ------------------------------------------------------------
-  let firstVoidKill = false;
-
-  mapOn(9, E.enemyKilled, ({ type }) => {
-    if (type !== "voidGoblin") return;
-    if (firstVoidKill) return;
-
-    firstVoidKill = true;
-    const pos = p();
-
-    spawnSpeechBubble(
-      "Void Goblin down… and it felt like it stared straight into me.",
-      pos.x, pos.y, 5000
-    );
-
-    setTimeout(() => {
+  let firstVoid = false;
+  Events.on(E.enemyKilled, ({ type }) => {
+    if (type === "voidGoblin" && !firstVoid) {
+      firstVoid = true;
+      const pos = p();
       spawnSpeechBubble(
-        "No wonder the Spires can’t see them… they’re bending light.",
+        "Even here, Void Goblins twist the light…",
         pos.x, pos.y, 4800
       );
-    }, 2400);
+    }
   });
 
   // ------------------------------------------------------------
@@ -195,15 +199,15 @@ export default function initMap9Events() {
 
   const done = new Set();
 
-  mapOn(9, E.playerLifeLost, ({ lives }) => {
+  Events.on(E.playerLifeLost, ({ lives }) => {
     const pct = (lives / 10) * 100;
     const pos = p();
 
     for (const t of thresholds) {
       if (pct <= t && !done.has(t)) {
         done.add(t);
-        const lines = lifeLossLines[t];
-        const line = lines[Math.floor(Math.random() * lines.length)];
+        const options = lifeLossLines[t];
+        const line = options[Math.floor(Math.random() * options.length)];
         spawnSpeechBubble(line, pos.x, pos.y, 4500);
         break;
       }
@@ -211,40 +215,122 @@ export default function initMap9Events() {
   });
 
   // ------------------------------------------------------------
-  // 5) SERAPHINE — NOT A FIGHT, JUST A PRESENCE
+  // 5) BOSS ENCOUNTER — SERAPHINE (FINAL FORM)
   // ------------------------------------------------------------
-  mapOn(9, E.bossSpawn, ({ boss }) => {
+  Events.on(E.bossSpawn, ({ boss }) => {
     if (boss !== "seraphine") return;
 
     const pos = p();
+
+    // Entrance line
     setTimeout(() => {
       spawnSpeechBubble(
-        "Seraphine… this is your home, isn’t it?",
-        pos.x, pos.y, 4800
+        "Glitter… step aside. The Heart belongs to my people.",
+        pos.x, pos.y, 5200
       );
     }, 700);
 
+    // Glitter answers
     setTimeout(() => {
       spawnSpeechBubble(
-        "Why does it feel like… you don’t want me here?",
+        "Seraphine… you can't take it! The Isles will collapse!",
+        pos.x, pos.y, 5200
+      );
+    }, 3800);
+
+    // Seraphine reveals motive
+    setTimeout(() => {
+      spawnSpeechBubble(
+        "The Voidlands are dying… The Heart is the only thing that can save them.",
+        pos.x, pos.y, 5200
+      );
+    }, 7200);
+
+    // Glitter’s resolve
+    setTimeout(() => {
+      spawnSpeechBubble(
+        "You want to save your home… but not like this!",
         pos.x, pos.y, 4800
       );
-    }, 3500);
+    }, 10500);
   });
 
   // ------------------------------------------------------------
-  // 6) RESOURCE PICKUPS — VOID FLAVOUR
+  // 6) MID-BATTLE SERAPHINE THRESHOLDS
+  // ------------------------------------------------------------
+  Events.on(E.bossHpThreshold, ({ boss, threshold }) => {
+    if (boss !== "seraphine") return;
+
+    const pos = p();
+
+    if (threshold === 75) {
+      spawnSpeechBubble(
+        "You’re strong, Princess… but not strong enough.",
+        pos.x, pos.y, 4800
+      );
+    }
+
+    if (threshold === 50) {
+      spawnSpeechBubble(
+        "Why resist? I’m trying to save an entire realm!",
+        pos.x, pos.y, 4800
+      );
+    }
+
+    if (threshold === 25) {
+      spawnSpeechBubble(
+        "I won’t fail again… not after everything I lost!",
+        pos.x, pos.y, 5000
+      );
+    }
+  });
+
+  // ------------------------------------------------------------
+  // 7) SERAPHINE “DEFEAT” — ESCAPES (SEQUEL SETUP)
+  // ------------------------------------------------------------
+  Events.on(E.bossDefeated, ({ boss, phase }) => {
+    if (boss !== "seraphine") return;
+
+    const pos = p();
+
+    setTimeout(() => {
+      spawnSpeechBubble(
+        "No… not again… I was so close...",
+        pos.x, pos.y,
+        5500
+      );
+    }, 500);
+
+    setTimeout(() => {
+      spawnSpeechBubble(
+        "Glitter… next time, I won’t hold back.",
+        pos.x, pos.y,
+        5200
+      );
+    }, 3500);
+
+    setTimeout(() => {
+      spawnSpeechBubble(
+        "And next time… you’ll understand why.",
+        pos.x, pos.y,
+        5200
+      );
+    }, 6500);
+  });
+
+  // ------------------------------------------------------------
+  // 8) RESOURCE PICKUPS (subtle, final-map version)
   // ------------------------------------------------------------
   let lastD = 0, lastG = 0, lastH = 0, lastM = 0, lastB = 0;
   let saidD = false, saidG = false, saidH = false, saidM = false, saidB = false;
 
-  mapOn(9, "resourceUpdate", () => {
+  Events.on("resourceUpdate", () => {
     const pos = p();
 
     if (!saidD && gameState.diamonds > lastD) {
       saidD = true;
       spawnSpeechBubble(
-        "Even the diamonds hum… this land is alive.",
+        "The crystals resonate with the Keep’s Heart…",
         pos.x, pos.y, 4800
       );
     }
@@ -252,32 +338,32 @@ export default function initMap9Events() {
     if (!saidG && gameState.gold > lastG) {
       saidG = true;
       spawnSpeechBubble(
-        "Shards… warped by void light, but still spendable.",
-        pos.x, pos.y, 4600
+        "Shards… the Keep produces them faster here.",
+        pos.x, pos.y, 4200
       );
     }
 
     if (!saidH && gameState.hearts > lastH) {
       saidH = true;
       spawnSpeechBubble(
-        "A Heart… glowing faintly purple. I really hope that’s fine.",
-        pos.x, pos.y, 5000
+        "A Heart—no time to waste it!",
+        pos.x, pos.y, 4000
       );
     }
 
     if (!saidM && gameState.mana > lastM) {
       saidM = true;
       spawnSpeechBubble(
-        "Void mana… it crackles when I hold it.",
-        pos.x, pos.y, 4800
+        "Mana surges through the Keep’s walls…",
+        pos.x, pos.y, 4000
       );
     }
 
     if (!saidB && gameState.bravery > lastB) {
       saidB = true;
       spawnSpeechBubble(
-        "Bravery shards… they vibrate like they’re warning me.",
-        pos.x, pos.y, 4800
+        "Bravery shards… the Keep wants me to win.",
+        pos.x, pos.y, 4500
       );
     }
 

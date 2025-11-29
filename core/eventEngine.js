@@ -204,6 +204,16 @@ export function syncTimedEventsToTime(seconds = 0) {
  * Evaluates all loaded time-based events for the current map.
  */
 export function updateTimedEvents() {
+  const currentMap =
+    gameState.progress?.currentMap ?? gameState.currentMap ?? 1;
+
+  // Safety: drop any timed events that belong to a different map
+  if (timedEventsMapNumber !== null && timedEventsMapNumber !== currentMap) {
+    activeTimedEvents = [];
+    timedEventsMapNumber = null;
+    return;
+  }
+
   if (!activeTimedEvents.length) return;
 
   const t = gameState.elapsedTime ?? 0;

@@ -45,15 +45,30 @@ export function performRanged(player, e, canvasRef) {
   const worldX = (window.cameraX || 0) + canvasX;
   const worldY = (window.cameraY || 0) + canvasY;
 
-  // Compute angle
+  // Base angle toward target
   const dx = worldX - player.pos.x;
   const dy = worldY - player.pos.y;
-  const angle = Math.atan2(dy, dx);
+  const baseAngle = Math.atan2(dy, dx);
+
+  // ------------------------------------------------------------
+  // 🏹 LEVEL-BASED MULTI-ARROW PERK
+  // ------------------------------------------------------------
+  const lvl = Number(player.level || 1);
+  let arrowCount = 1;
+
+  if (lvl >= 20) arrowCount = 9;
+  else if (lvl >= 15) arrowCount = 7;
+  else if (lvl >= 10) arrowCount = 5;
+  else if (lvl >= 5) arrowCount = 3;
+
+  // Spread angle (narrow, keeps accuracy, still looks awesome)
+  const spread = 0.22; // radians (~12.5° total)
+  const half = (arrowCount - 1) / 2;
 
   // ------------------------------------------------------------
   // 🎞 Update facing for player shooting animation
   // ------------------------------------------------------------
-  const deg = ((angle * 180) / Math.PI + 360) % 360;
+  const deg = ((baseAngle * 180) / Math.PI + 360) % 360;
   let facing;
 
   if (deg >= 330 || deg < 30) facing = "right";
@@ -67,22 +82,26 @@ export function performRanged(player, e, canvasRef) {
   player.facing = facing;
 
   // ------------------------------------------------------------
-  // 🏹 Spawn the physical Silver Bolt
+  // 🏹 Spawn all arrows
   // ------------------------------------------------------------
-  const startX = player.pos.x + Math.cos(angle) * 30;
-  const startY = player.pos.y + Math.sin(angle) * 30;
+  for (let i = 0; i < arrowCount; i++) {
+    const offset = (i - half) * (spread / half || 0); 
+    const angle = baseAngle + offset;
 
-  spawnArrow(startX, startY, angle, dmg);
+    const startX = player.pos.x + Math.cos(angle) * 30;
+    const startY = player.pos.y + Math.sin(angle) * 30;
 
-  // SFX
+    spawnArrow(startX, startY, angle, dmg);
+  }
+
+  // SFX once (not per arrow)
   playArrowSwish();
 
   return {
     ok: true,
     facing,
-    angle,
+    angle: baseAngle,
     dmg,
-    startX,
-    startY
+    arrows: arrowCount
   };
 }
