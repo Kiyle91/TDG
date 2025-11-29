@@ -94,7 +94,7 @@ export function updateHUD() {
     waveDisplay.style.color = "";
   }
 
-  goldDisplay.textContent = `Gold: ${gold}`;
+  goldDisplay.textContent = `Shards: ${gold}`;
   diamondDisplay.textContent = `Diamonds: ${diamonds}`;
   goldDisplay.classList.toggle("gold-glow", !!gameState.echoPowerActive);
 

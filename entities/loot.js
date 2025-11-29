@@ -265,7 +265,7 @@ function applyLootReward(d) {
 
       if (!saidGold) {
         saidGold = true;
-        pickupSpeech("Gold! I can spend this on new abilities and upgrades.");
+        pickupSpeech("Shards! I need to collect these to build new Spires!.");
       }
       break;
     }
@@ -309,7 +309,7 @@ function applyLootReward(d) {
 
         if (!saidMana) {
           saidMana = true;
-          pickupSpeech("Mana essence… this lets me cast my spells more often.");
+          pickupSpeech("Mana essence… this lets me cast my spells and use my bow more often.");
         }
       }
       break;
@@ -322,7 +322,7 @@ function applyLootReward(d) {
 
       if (!saidBravery) {
         saidBravery = true;
-        pickupSpeech("Bravery shards… these charge my Guardian form!");
+        pickupSpeech("Bravery shards… these charge my Bravery Aura! I can do this!");
       }
       break;
     }
