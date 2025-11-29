@@ -669,7 +669,6 @@ export async function initGame(mode = "new") {
 
   initPlayerController(canvas);
   initUI();
-  ensurePerfOverlay();
 
   const current = gameState.progress?.currentMap ?? gameState.currentMap ?? 1;
   gameState.currentMap = current;
@@ -830,7 +829,7 @@ export function renderGame() {
     smoothedFps = Math.round(fps);
     perfAccum = 0;
     perfFrames = 0;
-    updatePerfOverlay(smoothedFps, lastEnemyCount);
+    // FPS overlay disabled
   }
 
   for (const layer of MAP_LAYERS_BELOW_ENTITIES) {

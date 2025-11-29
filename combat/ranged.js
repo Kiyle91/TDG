@@ -4,7 +4,7 @@
 // Silver Bolt launcher with STAT-BASED multi-arrow perks
 // ============================================================
 
-import { updateHUD } from "../screenManagement/ui.js";
+import { updateHUD, registerArrowShot } from "../screenManagement/ui.js";
 import { playArrowSwish } from "../core/soundtrack.js";
 import { spawnArrow } from "./arrow.js";
 
@@ -27,6 +27,7 @@ export function performRanged(player, e, canvasRef) {
 
   // Spend mana
   player.mana -= COST_RANGED;
+  registerArrowShot();
   updateHUD();
 
   // Damage

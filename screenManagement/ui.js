@@ -50,6 +50,11 @@ let gameStats = {
 let lastCrystalFound = -1;
 let lastCrystalTotal = -1;
 let lastArrowCount = -1;
+let arrowFlashPending = false;
+
+export function registerArrowShot() {
+  arrowFlashPending = true;
+}
 
 // ============================================================
 // INITIALIZATION
@@ -130,16 +135,15 @@ export function updateHUD() {
     const arrows = Math.floor((p.mana || 0) / 2);
     arrowsEl.textContent = arrows;
 
-    if (arrows !== lastArrowCount) {
-      if (arrowCircle) {
-        if (lastArrowCount !== -1 && arrows < lastArrowCount) {
-          arrowCircle.classList.remove("hud-circle-flash");
-          void arrowCircle.offsetWidth;
-          arrowCircle.classList.add("hud-circle-flash");
-        }
-      }
-      lastArrowCount = arrows;
+    const arrowsDropped = lastArrowCount !== -1 && arrows < lastArrowCount;
+    if (arrowFlashPending && arrowsDropped && arrowCircle) {
+      arrowCircle.classList.remove("hud-circle-flash");
+      void arrowCircle.offsetWidth;
+      arrowCircle.classList.add("hud-circle-flash");
     }
+
+    lastArrowCount = arrows;
+    arrowFlashPending = false;
   }
 
   // Crystal Echoes

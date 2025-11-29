@@ -100,11 +100,11 @@ export function updateSpireBar() {
     slot.classList.add("unlocked");
     label.textContent = `🪙 ${data.cost}`;
     label.style.color = "#fff";
-    label.style.textShadow = "0 0 6px #ffdf5f, 0 0 12px #ffdf5f";
+    label.style.textShadow = "0 0 6px #000000ff, 0 0 12px #000000ff";
     slot.title = `${data.name} — Cost: ${data.cost} Gold`;
 
     img.style.filter = "none";
-    slot.style.boxShadow = "0 0 10px rgba(255, 223, 95, 0.6)";
+    slot.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.6)";
     keyLabel?.classList.add("unlocked");
   });
 }
