@@ -2,8 +2,8 @@
 // 🔮 spell.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
 // Pastel AoE Burst Spell (modular + tier-scaled)
-// SEEKER BALLS REMOVED FROM SCALING — fixed at 3
-// ------------------------------------------------------------
+// Now uses STAT-BASED seeker scaling (spellPower)
+// ============================================================
 
 import { updateHUD } from "../screenManagement/ui.js";
 import { spawnCanvasSparkleBurst } from "../fx/sparkles.js";
@@ -202,12 +202,20 @@ export function performSpell(player) {
     );
 
     // ------------------------------------------------------------
-    // 🔮 FIXED SEEKER COUNT (3 only)
+    // 🔮 STAT-BASED SEEKER COUNT (spellPower perks)
     // ------------------------------------------------------------
-    for (let i = 0; i < 3; i++) {
+    let seekerCount = 3;
+    const sp = Number(player.spellPower || 0);
+
+    if (sp >= 50) seekerCount = 12;
+    else if (sp >= 40) seekerCount = 9;
+    else if (sp >= 30) seekerCount = 7;
+    else if (sp >= 20) seekerCount = 5;
+
+    for (let i = 0; i < seekerCount; i++) {
       setTimeout(() => {
         spawnSeekerOrb(player.pos.x, player.pos.y, dmg);
-      }, 120 + i * 120);
+      }, 120 + i * 80);
     }
 
     playSpellCast();

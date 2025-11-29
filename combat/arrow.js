@@ -1,9 +1,8 @@
 // ============================================================
 // 🏹 arrow.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// Physical flying Silver Bolt projectile for player ranged combat
-// Modular, lightweight, enemy-agnostic, sparkle-enhanced.
-// Now includes LEVEL-BASED sparkle scaling.
+// Lightweight Silver Bolt projectile
+// Damage logic intact, visuals optimised for multi-arrow builds
 // ============================================================
 
 import { spawnDamageSparkles, spawnCanvasSparkleBurst } from "../fx/sparkles.js";
@@ -15,13 +14,11 @@ import { getGoblins as getVoidGoblins, damageGoblin as damageVoidGoblin } from "
 import { getOgres, damageOgre, OGRE_HIT_RADIUS } from "../entities/ogre.js";
 import { getElites, damageElite } from "../entities/elite.js";
 import { getWorg, damageWorg } from "../entities/worg.js";
-import { getTrolls } from "../entities/troll.js";
-import { damageTroll } from "../entities/troll.js";
-import { getCrossbows } from "../entities/crossbow.js";
-import { damageCrossbow } from "../entities/crossbow.js";
+import { getTrolls, damageTroll } from "../entities/troll.js";
+import { getCrossbows, damageCrossbow } from "../entities/crossbow.js";
 import { isRectBlocked } from "../utils/mapCollision.js";
-import { gameState } from "../utils/gameState.js";
 import { getSeraphines, damageSeraphine } from "../entities/seraphine.js";
+import { gameState } from "../utils/gameState.js";
 
 const goblinSources = [
   { get: getGoblins, damage: damageGoblin },
@@ -35,9 +32,7 @@ function getAllGoblinTargets() {
   const result = [];
   for (const src of goblinSources) {
     const list = src.get?.();
-    if (Array.isArray(list) && list.length) {
-      result.push(...list);
-    }
+    if (Array.isArray(list) && list.length) result.push(...list);
   }
   return result;
 }
@@ -60,15 +55,14 @@ const arrows = [];
 export function getArrows() { return arrows; }
 
 const ARROW_SPEED = 1400;
-const ARROW_LIFETIME = 1400; // ms
+const ARROW_LIFETIME = 1400;
 const BASE_LENGTH = 44;
 
 // ------------------------------------------------------------
-// 🌟 LEVEL → SPARKLE TIER
+// ⭐ Level → Sparkle Tier
 // ------------------------------------------------------------
 function getArrowTier() {
   const lvl = Number(gameState.player?.level || 1);
-
   if (lvl < 5) return 1;
   if (lvl < 10) return 2;
   if (lvl < 15) return 3;
@@ -77,7 +71,7 @@ function getArrowTier() {
 }
 
 // ------------------------------------------------------------
-// 🧠 Unified target access
+// 🔥 Unified Target List
 // ------------------------------------------------------------
 function getAllTargets() {
   return [
@@ -92,10 +86,13 @@ function getAllTargets() {
 }
 
 // ------------------------------------------------------------
-// 🏹 Spawn a new arrow
+// 🏹 Spawn Arrow (lightweight visuals)
 // ------------------------------------------------------------
 export function spawnArrow(x, y, angle, dmg) {
   const tier = getArrowTier();
+
+  // ★ Lightweight arrow length
+  const softLen = (BASE_LENGTH + tier * 6) * 0.75;
 
   arrows.push({
     x,
@@ -105,13 +102,13 @@ export function spawnArrow(x, y, angle, dmg) {
     life: 0,
     alive: true,
     tier,
-    len: BASE_LENGTH + tier * 6,   // scales length
+    len: softLen,
     sparkleTick: 0,
   });
 }
 
 // ------------------------------------------------------------
-// 🔁 Update arrows (+ MAP COLLISION + sparkle trail)
+// 🔁 Update Arrows (movement + sparkles + collision)
 // ------------------------------------------------------------
 export function updateArrows(delta) {
   const dt = delta / 1000;
@@ -124,7 +121,6 @@ export function updateArrows(delta) {
       continue;
     }
 
-    // Lifetime
     a.life += delta;
     if (a.life > ARROW_LIFETIME) {
       arrows.splice(i, 1);
@@ -136,17 +132,16 @@ export function updateArrows(delta) {
     a.y += Math.sin(a.angle) * ARROW_SPEED * dt;
 
     // ------------------------------------------------------------
-    // ✨ Sparkle Trail (scaled by level)
+    // ✨ Lightweight Sparkle Trail
     // ------------------------------------------------------------
     a.sparkleTick += delta;
 
-    const sparkleFreq = Math.max(40, 140 - a.tier * 20);  
-    const sparkleCount = 2 + a.tier;  
+    const sparkleFreq = Math.max(60, 200 - a.tier * 30);      // less often
+    const sparkleCount = Math.max(1, 1 + Math.floor(a.tier * 0.5)); // fewer sparks
 
     if (a.sparkleTick > sparkleFreq) {
       a.sparkleTick = 0;
 
-      // sparkle origin slightly behind arrow
       const sx = a.x - Math.cos(a.angle) * (a.len * 0.4);
       const sy = a.y - Math.sin(a.angle) * (a.len * 0.4);
 
@@ -154,13 +149,13 @@ export function updateArrows(delta) {
         sx,
         sy,
         sparkleCount,
-        14 + a.tier * 2,
+        10 + a.tier * 2,
         ["#ffffff", "#e8c6ff", "#cdd7ff"]
       );
     }
 
     // ------------------------------------------------------------
-    // 🧱 MAP COLLISION CHECK
+    // 🧱 Map Collision
     // ------------------------------------------------------------
     const tipX = a.x + Math.cos(a.angle) * (a.len * 0.55);
     const tipY = a.y + Math.sin(a.angle) * (a.len * 0.55);
@@ -175,6 +170,7 @@ export function updateArrows(delta) {
     // 🎯 Enemy Collision
     // ------------------------------------------------------------
     const targets = getAllTargets();
+
     for (const t of targets) {
       if (!t.alive) continue;
 
@@ -213,7 +209,7 @@ export function updateArrows(delta) {
 }
 
 // ------------------------------------------------------------
-// ✨ Draw arrows (with glow scaling)
+// ✨ Draw Lightweight Arrows
 // ------------------------------------------------------------
 export function drawArrows(ctx) {
   ctx.save();
@@ -226,24 +222,24 @@ export function drawArrows(ctx) {
     ctx.translate(a.x, a.y);
     ctx.rotate(a.angle);
 
-    // Scaling
-    const glow = 0.35 + a.tier * 0.1;
+    // ★ Lightweight glow
+    const glow = (0.25 + a.tier * 0.06);
 
-    // GLOW trail
     const grad = ctx.createLinearGradient(0, 0, a.len, 0);
     grad.addColorStop(0, `rgba(255,200,255,${glow})`);
-    grad.addColorStop(1, `rgba(180,220,255,${glow * 0.7})`);
+    grad.addColorStop(1, `rgba(180,220,255,${glow * 0.5})`);
 
+    // Trail
     ctx.fillStyle = grad;
-    ctx.fillRect(-a.len * 0.4, -1.5, a.len, 3);
+    ctx.fillRect(-a.len * 0.4, -1.0, a.len, 2);
 
-    // Thin silver core
-    ctx.fillStyle = "white";
-    ctx.fillRect(-a.len * 0.3, -0.8, a.len * 0.9, 1.6);
+    // Core
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.fillRect(-a.len * 0.3, -0.6, a.len * 0.9, 1.2);
 
     // Tip sparkle
-    ctx.fillStyle = "rgba(255,255,255,0.9)";
-    ctx.fillRect(a.len * 0.4, -1.2, 4, 2.4);
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.fillRect(a.len * 0.4, -1.0, 3, 2);
 
     ctx.restore();
   }

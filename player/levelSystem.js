@@ -38,7 +38,7 @@
 // Imports
 // ------------------------------------------------------------
 
-import { gameState } from "../utils/gameState.js";
+import { gameState, saveProfiles } from "../utils/gameState.js";
 import { updateHUD, pauseGame, resumeGame } from "../screenManagement/ui.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
@@ -93,6 +93,7 @@ async function checkLevelUp() {
     p.maxMana = (p.maxMana || 50) + 10;
     p.hp = p.maxHp;
     p.mana = p.maxMana;
+    p.xpToNext = getXpForLevel(p.level);
 
     Events.emit(E.playerLevelUp, { level: p.level });
 
@@ -108,6 +109,7 @@ async function checkLevelUp() {
   }
 
   if (!leveledUp) return;
+  saveProfiles();
 
   // Pause gameplay for allocation
   pauseGame();
@@ -183,6 +185,7 @@ function handleStatUpgrade(p, key, overlay, onClose) {
   spawnFloatingText(p.pos.x, p.pos.y - 30, `+${label}`, "#b5e2ff");
   updateHUD();
   updateSummaryPanel(p);
+  saveProfiles();
 
   const text = overlay.querySelector(".levelup-message");
 

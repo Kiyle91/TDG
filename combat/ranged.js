@@ -1,9 +1,7 @@
 // ============================================================
 // 🏹 ranged.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// Silver Bolt physical projectile launcher
-// Uses arrow.js for movement + collisions
-// Clean modular system extracted from playerController
+// Silver Bolt launcher with STAT-BASED multi-arrow perks
 // ============================================================
 
 import { updateHUD } from "../screenManagement/ui.js";
@@ -17,7 +15,7 @@ const DMG_RANGED = 0.9;
 const COST_RANGED = 2;
 
 // ------------------------------------------------------------
-// 🎯 PERFORM RANGED ATTACK (Physical Silver Bolt)
+// 🎯 PERFORM RANGED ATTACK
 // ------------------------------------------------------------
 export function performRanged(player, e, canvasRef) {
   if (!player || !canvasRef) return { ok: false };
@@ -31,10 +29,10 @@ export function performRanged(player, e, canvasRef) {
   player.mana -= COST_RANGED;
   updateHUD();
 
-  // Damage calculation
+  // Damage
   const dmg = Math.max(1, (Number(player.rangedAttack) || 0) * DMG_RANGED);
 
-  // Convert mouse → world coords
+  // Mouse → world coords
   const rect = canvasRef.getBoundingClientRect();
   const scaleX = window.canvasScaleX || (canvasRef.width / rect.width);
   const scaleY = window.canvasScaleY || (canvasRef.height / rect.height);
@@ -45,28 +43,13 @@ export function performRanged(player, e, canvasRef) {
   const worldX = (window.cameraX || 0) + canvasX;
   const worldY = (window.cameraY || 0) + canvasY;
 
-  // Base angle toward target
+  // Base angle
   const dx = worldX - player.pos.x;
   const dy = worldY - player.pos.y;
   const baseAngle = Math.atan2(dy, dx);
 
   // ------------------------------------------------------------
-  // 🏹 LEVEL-BASED MULTI-ARROW PERK
-  // ------------------------------------------------------------
-  const lvl = Number(player.level || 1);
-  let arrowCount = 1;
-
-  if (lvl >= 20) arrowCount = 9;
-  else if (lvl >= 15) arrowCount = 7;
-  else if (lvl >= 10) arrowCount = 5;
-  else if (lvl >= 5) arrowCount = 3;
-
-  // Spread angle (narrow, keeps accuracy, still looks awesome)
-  const spread = 0.22; // radians (~12.5° total)
-  const half = (arrowCount - 1) / 2;
-
-  // ------------------------------------------------------------
-  // 🎞 Update facing for player shooting animation
+  // 🎞 Update player facing
   // ------------------------------------------------------------
   const deg = ((baseAngle * 180) / Math.PI + 360) % 360;
   let facing;
@@ -82,10 +65,36 @@ export function performRanged(player, e, canvasRef) {
   player.facing = facing;
 
   // ------------------------------------------------------------
-  // 🏹 Spawn all arrows
+  // 🏹 STAT-BASED MULTI-ARROW PERKS
   // ------------------------------------------------------------
+  const stat = Number(player.rangedAttack || 0);
+  let arrowCount = 1;
+
+  if (stat >= 50) arrowCount = 9;
+  else if (stat >= 40) arrowCount = 7;
+  else if (stat >= 30) arrowCount = 5;
+  else if (stat >= 20) arrowCount = 3;
+
+  // ------------------------------------------------------------
+  // SINGLE ARROW
+  // ------------------------------------------------------------
+  if (arrowCount === 1) {
+    const startX = player.pos.x + Math.cos(baseAngle) * 30;
+    const startY = player.pos.y + Math.sin(baseAngle) * 30;
+
+    spawnArrow(startX, startY, baseAngle, dmg);
+    playArrowSwish();
+    return { ok: true, facing, angle: baseAngle, dmg, arrows: 1 };
+  }
+
+  // ------------------------------------------------------------
+  // MULTI-SPREAD ARROWS
+  // ------------------------------------------------------------
+  const spread = 0.22;
+  const half = (arrowCount - 1) / 2;
+
   for (let i = 0; i < arrowCount; i++) {
-    const offset = (i - half) * (spread / half || 0); 
+    const offset = (i - half) * (spread / half);
     const angle = baseAngle + offset;
 
     const startX = player.pos.x + Math.cos(angle) * 30;
@@ -94,14 +103,6 @@ export function performRanged(player, e, canvasRef) {
     spawnArrow(startX, startY, angle, dmg);
   }
 
-  // SFX once (not per arrow)
   playArrowSwish();
-
-  return {
-    ok: true,
-    facing,
-    angle: baseAngle,
-    dmg,
-    arrows: arrowCount
-  };
+  return { ok: true, facing, angle: baseAngle, dmg, arrows: arrowCount };
 }
