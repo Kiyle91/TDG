@@ -1,11 +1,9 @@
 // ============================================================
-// 🗡️ melee.js — Modular Melee Combat System
+// 🗡️ melee.js — Modular Melee Combat System (Final v2)
 // ------------------------------------------------------------
-// ✦ Handles all melee logic OUTSIDE playerController
-// ✦ Power scaling visuals (Tier 1–5)
-// ✦ Slash arcs, spark bursts, knockback
-// ✦ Clean hit detection for all enemy types
-// ✦ Returns animation data to playerController
+// ✦ Crits, Stuns, Knockback Perks
+// ✦ Late-game melee scaling balanced to level 30
+// ✦ High-risk, high-reward close combat
 // ============================================================
 
 import { spawnFloatingText } from "../fx/floatingText.js";
@@ -25,20 +23,18 @@ import { gameState } from "../utils/gameState.js";
 import { getSeraphines, damageSeraphine } from "../entities/seraphine.js";
 
 const goblinSources = [
-  { get: getGoblins, damage: damageGoblin },
-  { get: getIceGoblins, damage: damageIceGoblin },
+  { get: getGoblins,      damage: damageGoblin },
+  { get: getIceGoblins,   damage: damageIceGoblin },
   { get: getEmberGoblins, damage: damageEmberGoblin },
-  { get: getAshGoblins, damage: damageAshGoblin },
-  { get: getVoidGoblins, damage: damageVoidGoblin },
+  { get: getAshGoblins,   damage: damageAshGoblin },
+  { get: getVoidGoblins,  damage: damageVoidGoblin },
 ];
 
 function getAllGoblinTargets() {
   const result = [];
   for (const src of goblinSources) {
     const list = src.get?.();
-    if (Array.isArray(list) && list.length) {
-      result.push(...list);
-    }
+    if (Array.isArray(list) && list.length) result.push(...list);
   }
   return result;
 }
@@ -55,36 +51,48 @@ function damageGoblinVariant(target, dmg) {
 }
 
 // ------------------------------------------------------------
-// 🔥 Power Tier Calculation (based on Player Attack stat)
+// 🔥 Power Tier (strike size + knockback scaling)
 // ------------------------------------------------------------
-
 function getPowerTier(attack) {
-  if (attack < 20) return 1;
-  if (attack < 35) return 2;
-  if (attack < 55) return 3;
-  if (attack < 80) return 4;
+  if (attack < 40) return 1;
+  if (attack < 80) return 2;
+  if (attack < 120) return 3;
+  if (attack < 160) return 4;
   return 5;
 }
 
 // ------------------------------------------------------------
-// 🎨 Slash Arc Renderer (for game.js render loop)
-// (playerController will call this when attackFrame === 0)
+// 🎯 Crit + Stun Perk Logic
 // ------------------------------------------------------------
+function getMeleePerks(attack) {
+  if (attack < 40) {
+    return { critChance: 0,    critMult: 1.0, stun: 0 };
+  }
+  if (attack < 80) {
+    return { critChance: 0.05, critMult: 1.4, stun: 0 };
+  }
+  if (attack < 120) {
+    return { critChance: 0.08, critMult: 1.55, stun: 0.4 };
+  }
+  if (attack < 160) {
+    return { critChance: 0.12, critMult: 1.7, stun: 0.8 };
+  }
+  return { critChance: 0.15, critMult: 1.9, stun: 1.1 };
+}
 
+// ------------------------------------------------------------
+// 🎨 Slash Arc (unchanged)
+// ------------------------------------------------------------
 export function drawSlashArc(ctx, x, y, dir, tier) {
-  const radius = 42 + tier * 14;        // arc sweep size
-  const thickness = 4 + tier * 1.3;     // line width
+  const radius = 42 + tier * 14;
+  const thickness = 4 + tier * 1.3;
 
   ctx.save();
   ctx.translate(x, y);
 
-  // Flip horizontally when facing left
   if (dir === "left") ctx.scale(-1, 1);
-
-  // Dynamic tilt for motion feel
   ctx.rotate(-0.4);
 
-  // Pastel glow gradient
   const grad = ctx.createLinearGradient(0, -radius, 0, radius);
   grad.addColorStop(0.0, "rgba(255,255,255,0.9)");
   grad.addColorStop(0.5, `rgba(255,150,255,${0.25 + tier * 0.1})`);
@@ -95,25 +103,32 @@ export function drawSlashArc(ctx, x, y, dir, tier) {
   ctx.lineCap = "round";
 
   ctx.beginPath();
-  ctx.arc(0, 0, radius, -1.2, 1.2); // Perfect crescent slash
+  ctx.arc(0, 0, radius, -1.2, 1.2);
   ctx.stroke();
 
   ctx.restore();
 }
 
 // ------------------------------------------------------------
-// 🗡️ Main Melee Function
+// 🗡️ MAIN MELEE FUNCTION with CRITS + STUNS + BOOSTED SCALE
 // ------------------------------------------------------------
-
 export function performMelee(player) {
   const p = player;
-  const attackValue = p.attack || 10;
-  const dmg = attackValue * 1.2;
-  const tier = getPowerTier(attackValue);
+  const atk = p.attack || 10;
 
-  const range = 120 + tier * 10;
+  const tier = getPowerTier(atk);
+  const perks = getMeleePerks(atk);
+
+  // Base damage
+  let dmg = atk * 1.0;
+
+  // Crit roll
+  const isCrit = Math.random() < perks.critChance;
+  if (isCrit) dmg *= perks.critMult;
+
   const ox = p.pos.x;
   const oy = p.pos.y;
+  const range = 120 + tier * 12;
 
   const targets = [
     ...getAllGoblinTargets(),
@@ -136,6 +151,15 @@ export function performMelee(player) {
 
     if (dist > range) continue;
 
+    // Apply stun (if unlocked)
+    if (perks.stun > 0 && !t.stunned) {
+      t.stunned = true;
+      t.stunTimer = perks.stun;
+
+      // Visual: little flash
+      spawnCanvasSparkleBurst(t.x, t.y, 6, 40, ["#ffccff", "#ffffff"]);
+    }
+
     // Damage routing
     switch (t.type) {
       case "elite":      damageElite(t, dmg, "player"); break;
@@ -145,39 +169,37 @@ export function performMelee(player) {
       case "troll":      damageTroll(t, dmg); break;
       case "crossbow":   damageCrossbow(t, dmg); break;
       default:
-        // Ogre clones or high-HP variants
         if (t.maxHp >= 400 && t.type !== "goblin") {
           damageOgre(t, dmg, "player");
         } else {
           damageGoblinVariant(t, dmg);
         }
-        break;
     }
 
     hitSomething = true;
 
     // Knockback
     if (t.type !== "ogre") {
-      const push = 40 + tier * 5;
+      const push = 40 + tier * 8;
       const len = Math.max(1, dist);
       t.x += (dx / len) * push;
       t.y += (dy / len) * push;
     }
 
     spawnDamageSparkles(t.x, t.y);
+
+    // Crit FX popup
+    if (isCrit) {
+      spawnFloatingText("CRIT!", t.x, t.y - 20, "#ff66ff");
+    }
   }
 
-  // --------------------------------------------------------
-  // 🌟 Visual Power Burst (Tier-based intensity)
-  // --------------------------------------------------------
-  const sparkleCount = 8 + tier * 4;
-  const sparkleRadius = 60 + tier * 20;
-
+  // Tier-based sparkle burst
   spawnCanvasSparkleBurst(
     ox,
     oy,
-    sparkleCount,
-    sparkleRadius,
+    8 + tier * 4,
+    60 + tier * 20,
     ["#ffd6eb", "#ffffff", "#ffe0ff"]
   );
 
@@ -187,5 +209,7 @@ export function performMelee(player) {
     hit: hitSomething,
     tier,
     dmg,
+    crit: isCrit,
+    stun: perks.stun
   };
 }

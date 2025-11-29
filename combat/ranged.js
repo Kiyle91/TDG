@@ -9,7 +9,7 @@ import { playArrowSwish } from "../core/soundtrack.js";
 import { spawnArrow } from "./arrow.js";
 
 // Damage multiplier
-const DMG_RANGED = 0.9;
+const DMG_RANGED = 0.5;
 
 // Mana cost
 const COST_RANGED = 2;

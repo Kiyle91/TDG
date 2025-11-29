@@ -11,7 +11,7 @@ import { spawnCanvasSparkleBurst } from "../fx/sparkles.js";
 import { damageGoblin, getGoblins } from "../entities/goblin.js";
 import { damageGoblin as damageIceGoblin, getGoblins as getIceGoblins } from "../entities/iceGoblin.js";
 import { damageGoblin as damageEmberGoblin, getGoblins as getEmberGoblins } from "../entities/emberGoblin.js";
-import { damageGoblin as damageAshGoblin, getGoblins as getAshGoblin } from "../entities/ashGoblin.js";
+import { damageGoblin as damageAshGoblin, getGoblins as getAshGoblins } from "../entities/ashGoblin.js";
 import { damageGoblin as damageVoidGoblin, getGoblins as getVoidGoblins } from "../entities/voidGoblin.js";
 import { damageElite, getElites } from "../entities/elite.js";
 import { damageOgre, getOgres } from "../entities/ogre.js";

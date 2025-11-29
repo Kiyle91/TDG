@@ -79,7 +79,11 @@ export function updateHUD() {
   const wave = gameState.wave ?? 1;
   const total = gameState.totalWaves ?? 1;
 
-  if (gameState.victoryPending === true) {
+  const finalWaveCleared =
+    gameState.victoryPending === true ||
+    (wave >= total && window.betweenWaveTimerActive === true);
+
+  if (finalWaveCleared) {
     waveDisplay.textContent = "VICTORY";
     waveDisplay.style.color = "#ff4d4d";
   } else if (window.firstWaveStarted === false || window.betweenWaveTimerActive === true) {
