@@ -49,6 +49,16 @@ let seraphines = [];
 let sprites = null;
 let darkOrbs = [];
 
+// Which maps she appears on: 1, 4, 7, 9
+// Tune these numbers however you like.
+const SERAPHINE_PHASES = {
+  1: { hp: 350, melee: 12, spell: 10 },  // tutorial boss
+  4: { hp: 600, melee: 18, spell: 14 },  // early mid-game
+  7: { hp: 900, melee: 24, spell: 18 },  // late-game
+  9: { hp: 1300, melee: 30, spell: 22 }, // final showdown
+};
+
+
 // ------------------------------------------------------------
 // ⚙️ CONFIGURATION
 // ------------------------------------------------------------
@@ -172,6 +182,19 @@ function moveWithCollision(b, dx, dy) {
   b.y = moved.y + h / 2;
 }
 
+
+function getSeraphineStats() {
+  const mapId = gameState.progress?.currentMap ?? 1;
+
+  const base = SERAPHINE_PHASES[mapId] || SERAPHINE_PHASES[1];
+
+  return {
+    maxHp: base.hp,
+    meleeDamage: base.melee,
+    spellDamage: base.spell,
+  };
+}
+
 // ------------------------------------------------------------
 // 🟣 SPAWN BOSS
 // ------------------------------------------------------------
@@ -204,14 +227,19 @@ export function spawnSeraphineBoss(phase = 1, x, y, options = {}) {
     }
   }
 
+  const stats = getSeraphineStats();
+
   const boss = {
     type: "seraphine",
     phase,
     x: sx,
     y: sy,
 
-    hp: SERAPHINE_BASE_HP * (1 + 0.4 * (phase - 1)) * hpMultiplier,
-    maxHp: SERAPHINE_BASE_HP * (1 + 0.4 * (phase - 1)) * hpMultiplier,
+    hp: stats.maxHp,
+    maxHp: stats.maxHp,
+
+    meleeDamage: stats.meleeDamage,
+    spellDamage: stats.spellDamage,
 
     alive: true,
     defeated: false,
@@ -283,7 +311,7 @@ function updateDarkOrbs(delta) {
       continue;
     }
 
-    // Home toward player each frame (slow, but persistent)
+    // Home toward player each frame
     const dx = p.pos.x - o.x;
     const dy = p.pos.y - o.y;
     const dist = Math.hypot(dx, dy) || 1;
@@ -295,10 +323,12 @@ function updateDarkOrbs(delta) {
     o.y += stepY;
 
     // Collision with player
-    const hitDist = SPELL_ORB_RADIUS + 22; // ~player radius
+    const hitDist = SPELL_ORB_RADIUS + 22;
+
     if (!p.invincible && dist < hitDist) {
-      // Respect bravery invulnerability
+      // Damage uses spellDamage stored on the boss instance that cast it
       const dmg = SPELL_DAMAGE;
+
       p.hp = Math.max(0, p.hp - dmg);
       p.flashTimer = 220;
 
@@ -425,7 +455,7 @@ export function updateSeraphine(delta = 16) {
         const dNow = Math.hypot(pdx, pdy);
 
         if (dNow < MELEE_RANGE + 18 && p.invincible !== true) {
-          const dmg = MELEE_DAMAGE;
+          const dmg = b.meleeDamage ?? MELEE_DAMAGE;
           p.hp = Math.max(0, p.hp - dmg);
           p.flashTimer = 220;
 
