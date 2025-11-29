@@ -531,12 +531,12 @@ export function loadFromSlot(index) {
   const chosen = list[slot] || null;
   if (chosen) return chosen;
 
-  // Graceful fallback: return the first non-null slot (typically autosave slot 0)
+  // Graceful fallback within this profile: return the first non-null slot (typically autosave slot 0)
   for (const snap of list) {
     if (snap) return snap;
   }
 
-  // Final fallback: scan all stored profiles for any available save
+  // Final fallback: scan all stored profile slot lists for any available save
   for (const key of Object.keys(all)) {
     const arr = all[key];
     if (Array.isArray(arr)) {

@@ -215,6 +215,9 @@ export function spawnGoblin() {
     returnTimer: 0,
     flashTimer: 0,
     slowTimer: 0,
+    stunTimer: 0,
+    stunned: false,
+    preStunState: null,
     burnTimer: 0,
     burnDamage: 0,
     knockback: 0,
@@ -284,9 +287,19 @@ export function updateGoblins(delta) {
     tryEnemySpeech(e);
 
     if (e.stunTimer > 0) {
+      if (!e.stunned) {
+        e.preStunState = e.state;
+        e.stunned = true;
+      }
       e.stunTimer -= delta;
+      if (e.stunTimer < 0) e.stunTimer = 0;
       e.state = "stunned";
       continue;
+    } else if (e.stunned) {
+      e.stunned = false;
+      e.stunTimer = 0;
+      e.state = e.preStunState || "path";
+      e.preStunState = null;
     }
 
     if (!e.alive) {

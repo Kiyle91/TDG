@@ -118,9 +118,10 @@ export function performMelee(player) {
 
   const tier = getPowerTier(atk);
   const perks = getMeleePerks(atk);
+  const stunDurationMs = perks.stun > 0 ? perks.stun * 1000 : 0;
 
   // Base damage
-  let dmg = atk * 1.0;
+  let dmg = atk * 0.7;
 
   // Crit roll
   const isCrit = Math.random() < perks.critChance;
@@ -145,6 +146,10 @@ export function performMelee(player) {
   for (const t of targets) {
     if (!t.alive) continue;
 
+    if (t.stunned && (!t.stunTimer || t.stunTimer <= 0)) {
+      t.stunned = false;
+    }
+
     const dx = t.x - ox;
     const dy = t.y - oy;
     const dist = Math.hypot(dx, dy);
@@ -152,9 +157,9 @@ export function performMelee(player) {
     if (dist > range) continue;
 
     // Apply stun (if unlocked)
-    if (perks.stun > 0 && !t.stunned) {
+    if (stunDurationMs > 0 && !t.stunned) {
       t.stunned = true;
-      t.stunTimer = perks.stun;
+      t.stunTimer = stunDurationMs;
 
       // Visual: little flash
       spawnCanvasSparkleBurst(t.x, t.y, 6, 40, ["#ffccff", "#ffffff"]);
