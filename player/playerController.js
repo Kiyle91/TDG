@@ -113,6 +113,8 @@ const SHADOW_OPACITY = 0.25;
 const STEP_LENGTH_PX = 80; // distance traveled that counts as one story step
 const LOW_HP_THRESHOLD = 0.3;
 const LOW_HP_RESET = 0.36;
+const SPRINT_SPEED_MULTIPLIER = 1.5;
+const SPRINT_MANA_COST_PER_SEC = 2;
 
 // Attack / animation state
 let attackCooldown = 0;
@@ -598,12 +600,11 @@ export function updatePlayer(delta, enemyContext) {
   const p = gameState.player;
   const dt = Math.max(0, delta) / 1000;
   const speed = p.speed ?? DEFAULT_SPEED;
+  let speedMultiplier = 1;
 
   if (p.slowAuraTimer > 0) {
     p.slowAuraTimer -= delta;     // ms count-down
-    p.speedMultiplier = p.slowAuraFactor || 0.5;
-  } else {
-    p.speedMultiplier = 1;
+    speedMultiplier = p.slowAuraFactor || 0.5;
   }
 
   if (p.hp <= 0 && !p.dead) {
@@ -669,6 +670,18 @@ export function updatePlayer(delta, enemyContext) {
     dx *= inv;
     dy *= inv;
   }
+
+  const shiftHeld = keys.has("ShiftLeft") || keys.has("ShiftRight");
+  const wantsSprint = !isAttacking && isMoving && shiftHeld;
+  if (wantsSprint) {
+    const sprintManaCost = SPRINT_MANA_COST_PER_SEC * dt;
+    if (p.mana > sprintManaCost) {
+      p.mana = Math.max(0, p.mana - sprintManaCost);
+      speedMultiplier *= SPRINT_SPEED_MULTIPLIER;
+    }
+  }
+
+  p.speedMultiplier = speedMultiplier;
 
   // 🚶 Movement + goblin body shunt
   if (!isAttacking) {
