@@ -24,6 +24,84 @@
 import { createPlayer } from "../player/player.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 
+function defaultBraveryState() {
+  return {
+    current: 0,
+    max: 100,
+    charged: false,
+    draining: false,
+  };
+}
+
+function resolveActiveProfile() {
+  if (!Array.isArray(gameState.profiles) || gameState.profiles.length === 0) {
+    return null;
+  }
+
+  const idx = Number.isInteger(gameState.activeProfileIndex)
+    ? gameState.activeProfileIndex
+    : 0;
+
+  return gameState.profiles[idx] ?? gameState.profiles[0] ?? null;
+}
+
+function hydratePlayerFromProfile(profile) {
+  const saved = profile?.player || {};
+  const name = profile?.name || saved?.name;
+  return createPlayer({ ...saved, name });
+}
+
+function syncRuntimePlayerIntoProfile() {
+  if (!gameState.profile || !gameState.player) return;
+  gameState.profile.player = { ...gameState.player };
+}
+
+function createDefaultPlayer(overrides = {}) {
+  const base = {
+    name: gameState.profile?.name || "Princess",
+    level: 1,
+    xp: 0,
+    statPoints: 0,
+    hp: 100,
+    maxHp: 100,
+    mana: 50,
+    maxMana: 50,
+    attack: 15,
+    defense: 5,
+    rangedAttack: 10,
+    spellPower: 10,
+  };
+
+  return { ...base, ...overrides };
+}
+
+function createDefaultProfile(name = "Princess") {
+  const player = createDefaultPlayer({ name });
+  return {
+    id: generateProfileId(new Set()),
+    name,
+    created: Date.now(),
+    player: { ...player },
+    progress: {
+      mapsUnlocked: [true, false, false, false, false, false, false, false, false],
+      currentMap: 1,
+      storyCompleted: false,
+    },
+    resources: { xp: 0 },
+    currencies: { gold: 0, diamonds: 0 },
+    exploration: {},
+    bravery: defaultBraveryState(),
+    spires: {
+      1: { diamondsSpent: 0 },
+      2: { diamondsSpent: 0 },
+      3: { diamondsSpent: 0 },
+      4: { diamondsSpent: 0 },
+      5: { diamondsSpent: 0 },
+      6: { diamondsSpent: 0 },
+    },
+  };
+}
+
 function generateProfileId(existingIds = new Set()) {
   let id;
   do {
@@ -83,12 +161,7 @@ export const gameState = {
     visualEffects: true,
   },
 
-  bravery: {
-    current: 0,
-    max: 100,
-    charged: false,
-    draining: false,
-  },
+  bravery: defaultBraveryState(),
 };
 
 // ============================================================
@@ -107,19 +180,14 @@ export function setProfile(profile) {
 
   gameState.progress = { ...profile.progress };
 
-  gameState.player = profile.player || createPlayer();
-  gameState.player.name = profile.name;
+  gameState.player = hydratePlayerFromProfile(profile);
+  syncRuntimePlayerIntoProfile();
 
   if (!profile.currencies) {
     profile.currencies = { gold: 0, diamonds: 0 };
   }
 
-  gameState.bravery = profile.bravery || {
-    current: 0,
-    max: 100,
-    charged: false,
-    draining: false,
-  };
+  gameState.bravery = { ...(profile.bravery || defaultBraveryState()) };
 
   // 💎 Ensure spire upgrade data exists
   if (!profile.spires) {
@@ -299,24 +367,69 @@ export function addProfile(name) {
 
 export function saveProfiles() {
   try {
-    if (gameState.profile) {
-      gameState.profile.progress = { ...gameState.progress };
-      gameState.profile.player = { ...gameState.player };
-      gameState.profile.bravery = { ...gameState.bravery };
-
-      const explorationSafe = gameState.profile.exploration || {
-        echoes: [],
-        crystalsFound: 0,
-        secretsFound: 0,
-        visitedTiles: []
-      };
-
-      gameState.profile.exploration = { ...explorationSafe };
+    if (!Array.isArray(gameState.profiles)) {
+      gameState.profiles = [];
     }
 
-    localStorage.setItem("td_profiles", JSON.stringify(gameState.profiles));
+    let profile = gameState.profile;
+    const profiles = gameState.profiles;
+
+    // If the current profile was deleted, drop reference and pick a fallback slot if any
+    let idx = profiles.indexOf(profile);
+    if (idx === -1) {
+      profile = null;
+      gameState.profile = null;
+    }
+
+    // Determine intended index (clamped to available slots)
+    if (!Number.isInteger(gameState.activeProfileIndex)) {
+      gameState.activeProfileIndex = 0;
+    }
+    if (gameState.activeProfileIndex < 0) gameState.activeProfileIndex = 0;
+    if (profiles.length > 0 && gameState.activeProfileIndex >= profiles.length) {
+      gameState.activeProfileIndex = profiles.length - 1;
+    }
+
+    if (!profile && profiles.length > 0) {
+      idx = gameState.activeProfileIndex;
+      profile = profiles[idx] || profiles[0];
+      idx = profiles.indexOf(profile);
+      gameState.profile = profile;
+    }
+
+    if (profile) {
+      profile.progress = { ...(profile.progress || {}), ...(gameState.progress || {}) };
+      profile.bravery = { ...(profile.bravery || {}), ...(gameState.bravery || {}) };
+      profile.currencies = { ...(profile.currencies || { gold: 0, diamonds: 0 }) };
+      profile.resources = { ...(profile.resources || {}) };
+      profile.exploration = { ...(profile.exploration || {}) };
+      profile.spires = profile.spires || {
+        1: { diamondsSpent: 0 },
+        2: { diamondsSpent: 0 },
+        3: { diamondsSpent: 0 },
+        4: { diamondsSpent: 0 },
+        5: { diamondsSpent: 0 },
+        6: { diamondsSpent: 0 },
+      };
+
+      // 🔐 make sure player is stored on the profile
+      profile.player = {
+        ...(profile.player || {}),
+        ...(gameState.player || {}),
+      };
+
+      if (idx >= 0) {
+        gameState.profiles[idx] = profile;
+        gameState.activeProfileIndex = idx;
+      }
+    }
+
+    window.localStorage.setItem(
+      "ow_profiles_v1",
+      JSON.stringify(gameState.profiles)
+    );
   } catch (err) {
-    console.warn("saveProfiles failed:", err);
+    console.warn("Failed to save profiles:", err);
   }
 }
 
@@ -324,16 +437,45 @@ export function saveProfiles() {
 // 💾 LOAD PROFILES
 // ============================================================
 
-export function loadProfiles() {
+export function initProfiles() {
+  let stored = [];
+
   try {
-    const data = localStorage.getItem("td_profiles");
-    if (data) {
-      gameState.profiles = JSON.parse(data);
-      gameState.profiles.forEach(p => migrateProfile(p));
-    }
-  } catch {
-    gameState.profiles = [];
+    const raw =
+      window.localStorage.getItem("ow_profiles_v1") ||
+      window.localStorage.getItem("td_profiles");
+    if (raw) stored = JSON.parse(raw);
+  } catch (err) {
+    console.warn("Failed to parse profiles:", err);
   }
+
+  if (!Array.isArray(stored)) {
+    stored = [];
+  } else if (stored.length > 0) {
+    stored.forEach((p) => migrateProfile(p));
+  }
+
+  gameState.profiles = stored;
+  gameState.activeProfileIndex = stored.length > 0 ? 0 : -1;
+  gameState.profile = stored[0] || null;
+
+  // 🔁 restore player into runtime when a profile exists
+  if (gameState.profile?.player) {
+    gameState.player = { ...gameState.profile.player };
+  } else {
+    gameState.player = null;
+  }
+
+  if (gameState.profile?.progress) {
+    gameState.progress = { ...(gameState.profile.progress || gameState.progress) };
+  }
+  if (gameState.profile?.bravery) {
+    gameState.bravery = { ...(gameState.profile.bravery || defaultBraveryState()) };
+  }
+}
+
+export function loadProfiles() {
+  initProfiles();
 }
 
 // ============================================================
@@ -433,7 +575,7 @@ export function resetEchoBuff() {
   if (goldEl) goldEl.classList.remove("gold-glow");
 }
 
-loadProfiles();
+initProfiles();
 
 // ============================================================
 // 🌟 END OF FILE

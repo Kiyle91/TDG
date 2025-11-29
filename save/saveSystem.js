@@ -204,14 +204,7 @@ export function snapshotGame() {
     },
 
     progress: sanitizedProgress,
-    player: (() => {
-      const clone = safeClone(gameState.player);
-      // Levels/XP are persisted on profile; omit from runtime snapshots
-      delete clone.level;
-      delete clone.xp;
-      delete clone.statPoints;
-      return clone;
-    })(),
+    player: safeClone(gameState.player),
     bravery: sanitizeBravery(gameState.bravery),
 
     spires: safeClone(getSpires() || []),
@@ -285,9 +278,21 @@ export function applySnapshot(snapshot) {
   if (snapshot.player) {
     const restored = JSON.parse(JSON.stringify(snapshot.player));
     const profilePlayer = gameState.profile?.player || gameState.player || {};
-    const keepLevel = profilePlayer.level ?? 1;
-    const keepXp = profilePlayer.xp ?? 0;
-    const keepStatPoints = profilePlayer.statPoints ?? 0;
+    const keepLevel = Math.max(
+      Number(restored.level) || 0,
+      Number(profilePlayer.level) || 0,
+      1
+    );
+    const keepXp = Math.max(
+      Number.isFinite(restored.xp) ? restored.xp : 0,
+      Number.isFinite(profilePlayer.xp) ? profilePlayer.xp : 0,
+      0
+    );
+    const keepStatPoints = Math.max(
+      Number.isFinite(restored.statPoints) ? restored.statPoints : 0,
+      Number.isFinite(profilePlayer.statPoints) ? profilePlayer.statPoints : 0,
+      0
+    );
 
     delete restored.skin;
     delete restored.unlockedSkins;
@@ -295,6 +300,45 @@ export function applySnapshot(snapshot) {
     restored.level = keepLevel;
     restored.xp = keepXp;
     restored.statPoints = keepStatPoints;
+
+    // Prefer any higher or saved combat stats from profile to avoid downgrades
+    if (profilePlayer) {
+      const statKeys = [
+        "attack",
+        "spellPower",
+        "rangedAttack",
+        "defense",
+        "critChance",
+        "maxHp",
+        "maxMana",
+      ];
+
+      statKeys.forEach((k) => {
+        if (typeof profilePlayer[k] === "number") {
+          if (k === "maxHp" || k === "maxMana") {
+            restored[k] = Math.max(
+              typeof restored[k] === "number" ? restored[k] : 0,
+              profilePlayer[k]
+            );
+          } else {
+            restored[k] = profilePlayer[k];
+          }
+        }
+      });
+    }
+
+    // Ensure current HP/Mana are not stuck at old defaults after stat merges
+    if (typeof restored.maxHp === "number") {
+      if (typeof restored.hp !== "number" || restored.hp < restored.maxHp) {
+        restored.hp = restored.maxHp;
+      }
+    }
+    if (typeof restored.maxMana === "number") {
+      if (typeof restored.mana !== "number" || restored.mana < restored.maxMana) {
+        restored.mana = restored.maxMana;
+      }
+    }
+
     gameState.player = restored;
   }
 

@@ -406,10 +406,16 @@ export function initSkinsMenu() {
 // ============================================================
 
 function refreshSkinsMenu() {
-  const player = gameState.player;
+  let player = gameState.player;
+  if (!player) {
+    player = {};
+    gameState.player = player;
+  }
   ensureSkin(player);
 
-  const unlocked = player.unlockedSkins;
+  const unlocked = Array.isArray(player.unlockedSkins)
+    ? player.unlockedSkins
+    : [];
 
   document.querySelectorAll(".skin-card").forEach(card => {
     const key = card.dataset.skin;

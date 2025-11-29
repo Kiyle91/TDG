@@ -34,6 +34,26 @@
 
 import { gameState } from "../utils/gameState.js";
 import { createPlayer } from "./player.js";
+
+// Lightweight default player generator for runtime fills without clobbering saved stats
+function createDefaultPlayer(overrides = {}) {
+  const base = {
+    name: gameState.profile?.name || "Princess",
+    level: 1,
+    xp: 0,
+    statPoints: 0,
+    hp: 100,
+    maxHp: 100,
+    mana: 50,
+    maxMana: 50,
+    attack: 15,
+    defense: 5,
+    rangedAttack: 10,
+    spellPower: 10,
+  };
+
+  return { ...base, ...overrides };
+}
 import { isRectBlocked } from "../utils/mapCollision.js";
 import { getGoblins } from "../entities/goblin.js";
 import { getGoblins as getIceGoblins } from "../entities/iceGoblin.js";
@@ -236,35 +256,41 @@ function ensurePlayerRuntime() {
   const name = gameState.profile?.name || gameState.player?.name || "Princess";
 
   if (!gameState.player) {
-    gameState.player = createPlayer({ name });
-  } else {
-    const hydrated = createPlayer({ ...gameState.player, name });
-    Object.assign(gameState.player, hydrated);
+    gameState.player = createDefaultPlayer({ name });
   }
 
+  const defaults = createPlayer({ name });
   const p = gameState.player;
+  p.name = name;
+
+  const ensureNumber = (key, fallback) => {
+    const val = p[key];
+    if (typeof val !== "number" || Number.isNaN(val)) {
+      p[key] = fallback;
+    }
+  };
 
   if (!p.pos || typeof p.pos.x !== "number" || typeof p.pos.y !== "number") {
-    const fallbackX = typeof p.x === "number" ? p.x : 400;
-    const fallbackY = typeof p.y === "number" ? p.y : 400;
+    const fallbackX = typeof p.x === "number" ? p.x : defaults.pos.x;
+    const fallbackY = typeof p.y === "number" ? p.y : defaults.pos.y;
     p.pos = { x: fallbackX, y: fallbackY };
   }
   if (typeof p.x !== "number") p.x = p.pos.x;
   if (typeof p.y !== "number") p.y = p.pos.y;
 
-  if (!p.skin) p.skin = p.skinId || "glitter";
+  if (!p.skin) p.skin = p.skinId || defaults.skin;
   if (!p.skinId) p.skinId = p.skin;
 
-  if (typeof p.speed !== "number") p.speed = DEFAULT_SPEED;
-  if (typeof p.attack !== "number" || isNaN(p.attack)) p.attack = 15;
-  if (typeof p.rangedAttack !== "number" || isNaN(p.rangedAttack)) p.rangedAttack = 10;
-  if (typeof p.spellPower !== "number" || isNaN(p.spellPower)) p.spellPower = 10;
+  ensureNumber("speed", defaults.speed);
+  ensureNumber("attack", defaults.attack);
+  ensureNumber("rangedAttack", defaults.rangedAttack);
+  ensureNumber("spellPower", defaults.spellPower);
 
-  if (typeof p.hp !== "number" || isNaN(p.hp)) p.hp = 100;
-  if (typeof p.maxHp !== "number" || isNaN(p.maxHp)) p.maxHp = 100;
-  if (typeof p.mana !== "number" || isNaN(p.mana)) p.mana = 50;
-  if (typeof p.maxMana !== "number" || isNaN(p.maxMana)) p.maxMana = 50;
-  if (typeof p.defense !== "number" || isNaN(p.defense)) p.defense = 5;
+  ensureNumber("hp", defaults.hp);
+  ensureNumber("maxHp", defaults.maxHp);
+  ensureNumber("mana", defaults.mana);
+  ensureNumber("maxMana", defaults.maxMana);
+  ensureNumber("defense", defaults.defense);
   if (typeof p.dead === "undefined") p.dead = false;
 
   if (!p.body) {
@@ -275,10 +301,10 @@ function ensurePlayerRuntime() {
     p.body = { bw, bh, ox, oy };
   }
 
-  if (typeof p.invulnTimer !== "number") p.invulnTimer = 0;
-  if (typeof p.speedMultiplier !== "number") p.speedMultiplier = 1;
-  if (typeof p.steps !== "number") p.steps = 0;
-  if (typeof p.stepDistance !== "number") p.stepDistance = 0;
+  ensureNumber("invulnTimer", 0);
+  ensureNumber("speedMultiplier", 1);
+  ensureNumber("steps", 0);
+  ensureNumber("stepDistance", 0);
 }
 
 // ------------------------------------------------------------
