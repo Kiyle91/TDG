@@ -1,16 +1,16 @@
 // ============================================================
-// 🌲 map1Events.js — Whispering Meadows Story Script (Final)
+// 🌲 map1Events.js — Whispering Meadows Story Script (Rewrite)
 // ------------------------------------------------------------
 // Map 1: Light narrative, soft tutorial, early pacing, boss intro
 //
 // Covers:
-//   • Timed introduction (reduced + corrected mechanics)
+//   • Timed introduction (updated for lore + mechanics)
 //   • Wave start/end flavour
 //   • First goblin kill
-//   • First worg kill (with “controlled” hint for lore)
+//   • First worg kill (controlled hint)
 //   • Ariana wave 5 comms
-//   • First time pickups (Diamonds, Shards, Health, Mana, Bravery)
-//   • First spire destroyed
+//   • First pickups (Diamonds, Shards, Health, Mana, Bravery)
+//   • First spire depletion
 //   • First full Echo collection
 //   • Life-loss callouts at thresholds
 //   • Seraphine encounter + HP threshold reactions
@@ -23,20 +23,20 @@ import { gameState } from "../../utils/gameState.js";
 // Life-loss speech cues at thresholds (by percent of lives remaining)
 export const lifeLossLines = {
   80: [
-    "Oof— one got through! Stay sharp Princess!",
-    "It's okay! Just breathe, we’ve got this!"
+    "Ah! One slipped past—stay focused.",
+    "It’s okay… just breathe. I can handle this."
   ],
   60: [
-    "We’re losing ground… place more Spires!",
-    "That path’s getting busy—maybe reinforce it?"
+    "They’re rushing the paths… I should place more spires.",
+    "That lane’s heating up—maybe reinforce it?"
   ],
   40: [
-    "Ah! They’re slipping past faster now!",
-    "We can still turn this around—don’t panic!"
+    "They’re getting through faster now… stay calm.",
+    "Still winnable… don’t panic."
   ],
   20: [
-    "Princess, careful! We're almost overwhelmed!",
-    "We can't take many more hits!"
+    "Careful… I’m running out of room here!",
+    "I can’t afford many more mistakes…"
   ]
 };
 
@@ -48,7 +48,7 @@ const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 const isActiveMap = () => (gameState.progress?.currentMap ?? 1) === 1;
 
 // ============================================================
-// 1) REVISED TIMED INTRO — 45s, LIGHT + NON-INTRUSIVE
+// 1) TIMED INTRO — Light + Non-Intrusive
 // ============================================================
 
 const TIMED_EVENTS = [
@@ -58,7 +58,7 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Okay Glitter… WASD to move. Deep breath.",
+        "Okay… WASD to move. Deep breath.",
         pos.x, pos.y, 4000
       );
     }
@@ -69,7 +69,7 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Crystal Echoes… collect them when you see them.",
+        "Crystal Echoes… I should collect them whenever I see one.",
         pos.x, pos.y, 3800
       );
     }
@@ -80,7 +80,7 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Place your Spires close to the paths—so they hit more goblins.",
+        "Spire placement matters… closer to the paths means more hits.",
         pos.x, pos.y, 4200
       );
     }
@@ -91,7 +91,7 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Focus Glitter… the first wave is almost here.",
+        "Focus… the first wave is nearly here.",
         pos.x, pos.y, 3800
       );
     }
@@ -113,31 +113,31 @@ export function initMap1Events() {
 
     switch (wave) {
       case 1:
-        spawnSpeechBubble("Here they come… stay sharp.", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Here they come… stay ready.", pos.x, pos.y, 3500);
         break;
       case 2:
-        spawnSpeechBubble("More goblins… they’re desperate.", pos.x, pos.y, 3500);
+        spawnSpeechBubble("More goblins… still pushing forward.", pos.x, pos.y, 3500);
         break;
       case 3:
-        spawnSpeechBubble("Something feels… wrong in these woods.", pos.x, pos.y, 4000);
+        spawnSpeechBubble("Something feels strange in these woods…", pos.x, pos.y, 4000);
         break;
       case 4:
         spawnSpeechBubble("They’re not slowing down… keep moving.", pos.x, pos.y, 3500);
         break;
       case 5:
-        spawnSpeechBubble("Ariana? Are you there?", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Ariana… can you hear me?", pos.x, pos.y, 3500);
         break;
       case 6:
-        spawnSpeechBubble("The goblins are getting bolder…", pos.x, pos.y, 3500);
+        spawnSpeechBubble("They’re getting braver… or desperate.", pos.x, pos.y, 3500);
         break;
       case 7:
-        spawnSpeechBubble("I can feel Echo energy building…", pos.x, pos.y, 3500);
+        spawnSpeechBubble("The Echo energy is building… I can feel it.", pos.x, pos.y, 3500);
         break;
       case 8:
-        spawnSpeechBubble("Almost there… just a little more!", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Almost there… just a little more.", pos.x, pos.y, 3500);
         break;
       case 9:
-        spawnSpeechBubble("Something powerful approaches…", pos.x, pos.y, 3800);
+        spawnSpeechBubble("Something powerful is approaching…", pos.x, pos.y, 3800);
         break;
       case 10:
         spawnSpeechBubble("This presence… it’s overwhelming.", pos.x, pos.y, 4000);
@@ -146,53 +146,53 @@ export function initMap1Events() {
   });
 
   // ------------------------------------------------------------
-  // 3) WAVE END SPEECHES (30s downtime)
+  // 3) WAVE END SPEECHES
   // ------------------------------------------------------------
   mapOn(1, E.waveEnd, ({ wave }) => {
     const pos = p();
 
     switch (wave) {
       case 1:
-        spawnSpeechBubble("Okay… okay. That wasn’t so bad.", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Okay… that wasn’t too bad.", pos.x, pos.y, 3500);
         break;
       case 2:
-        spawnSpeechBubble("Why would goblins come this deep…", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Why would goblins wander this deep into the meadows?", pos.x, pos.y, 3500);
         break;
       case 3:
-        spawnSpeechBubble("Feels like something's watching…", pos.x, pos.y, 3800);
+        spawnSpeechBubble("Feels like something is watching me…", pos.x, pos.y, 3800);
         break;
       case 4:
         spawnSpeechBubble("Ariana better have answers…", pos.x, pos.y, 3500);
         break;
       case 6:
-        spawnSpeechBubble("Stronger than they look… but so am I.", pos.x, pos.y, 3500);
+        spawnSpeechBubble("They’re stronger than they look… but so am I.", pos.x, pos.y, 3500);
         break;
       case 7:
-        spawnSpeechBubble("My Spires are doing great—keep them close to the path.", pos.x, pos.y, 4000);
+        spawnSpeechBubble("My spires are holding… keeping them close to the path helps.", pos.x, pos.y, 4000);
         break;
       case 8:
-        spawnSpeechBubble("Echoes are humming… something’s near.", pos.x, pos.y, 3800);
+        spawnSpeechBubble("The Echoes are humming… something’s stirring.", pos.x, pos.y, 3800);
         break;
       case 9:
-        spawnSpeechBubble("That magic… it’s suffocating.", pos.x, pos.y, 4000);
+        spawnSpeechBubble("That magic… it feels heavy.", pos.x, pos.y, 4000);
         break;
     }
   });
 
   // ------------------------------------------------------------
-  // 4) ARIANA CALL AFTER WAVE 5 (Overlay handled in story.js)
+  // 4) ARIANA CALL AFTER WAVE 5
   // ------------------------------------------------------------
   mapOn(1, E.waveEnd, ({ wave }) => {
     if (wave !== 5) return;
     const pos = p();
     spawnSpeechBubble(
-      "Ariana… I knew you'd call. Something is wrong here.",
+      "Ariana… I knew you’d reach me. Something’s wrong here.",
       pos.x, pos.y, 4500
     );
   });
 
   // ------------------------------------------------------------
-  // 5) FIRST GOBLIN KILL (ONE TIME)
+  // 5) FIRST GOBLIN KILL
   // ------------------------------------------------------------
   let firstGoblinKill = false;
 
@@ -203,13 +203,13 @@ export function initMap1Events() {
 
     const pos = p();
     spawnSpeechBubble(
-      "I… I beat it. I can actually do this.",
+      "I… I did it. I can actually do this.",
       pos.x, pos.y, 4200
     );
   });
 
   // ------------------------------------------------------------
-  // 6) FIRST WORG KILL (ONE TIME)
+  // 6) FIRST WORG KILL
   // ------------------------------------------------------------
   let firstWorgKill = false;
 
@@ -220,7 +220,7 @@ export function initMap1Events() {
 
     const pos = p();
     spawnSpeechBubble(
-      "The wolves aren’t attacking on their own… something’s controlling them.",
+      "The wolves aren’t acting on their own… something’s guiding them.",
       pos.x, pos.y, 5000
     );
   });
@@ -236,7 +236,7 @@ export function initMap1Events() {
 
     const pos = p();
     spawnSpeechBubble(
-      "My Bravery is charged… press Q to unleash it!",
+      "My Bravery is full… press Q to release the aura!",
       pos.x, pos.y, 5000
     );
   });
@@ -291,7 +291,7 @@ export function initMap1Events() {
     const pos = p();
     setTimeout(() => {
       spawnSpeechBubble(
-        "What… what is THAT? That’s no goblin magic…",
+        "What… what is that? That’s not goblin magic…",
         pos.x, pos.y, 4500
       );
     }, 800);
@@ -302,10 +302,10 @@ export function initMap1Events() {
 
     const pos = p();
     if (threshold === 75) {
-      spawnSpeechBubble("Her magic feels… ancient…", pos.x, pos.y, 3800);
+      spawnSpeechBubble("Her magic feels ancient… older than these woods.", pos.x, pos.y, 3800);
     }
     if (threshold === 50) {
-      spawnSpeechBubble("She's testing me. Why?", pos.x, pos.y, 3800);
+      spawnSpeechBubble("She’s holding back… but why?", pos.x, pos.y, 3800);
     }
   });
 
@@ -314,13 +314,13 @@ export function initMap1Events() {
 
     const pos = p();
     spawnSpeechBubble(
-      "She escaped… but why spare me?",
+      "She slipped away… but she could’ve ended me. Why spare me?",
       pos.x, pos.y, 4500
     );
   });
 
   // ------------------------------------------------------------
-  // 11) FIRST PICKUPS (Diamonds, Shards, Health, Mana, Bravery)
+  // 11) FIRST PICKUPS
   // ------------------------------------------------------------
   let lastGold = 0;
   let lastDiamonds = 0;
@@ -341,16 +341,16 @@ export function initMap1Events() {
     if (!saidDiamond && gameState.diamonds > lastDiamonds) {
       saidDiamond = true;
       spawnSpeechBubble(
-        "Diamonds! I can use these to upgrade my Spires!",
+        "Diamonds! I can use these to upgrade my spires.",
         pos.x, pos.y, 5000
       );
     }
 
-    // Shards (Gold)
+    // Shards
     if (!saidShard && gameState.gold > lastGold) {
       saidShard = true;
       spawnSpeechBubble(
-        "Shards! I can use these to place and refresh my Spires.",
+        "Shards! I need these to place and refresh spires.",
         pos.x, pos.y, 5000
       );
     }
@@ -359,7 +359,7 @@ export function initMap1Events() {
     if (!saidHeart && gameState.hearts > lastHearts) {
       saidHeart = true;
       spawnSpeechBubble(
-        "A Heart! That'll heal me when I’m hurt.",
+        "A Heart! That’ll help when I’m hurt.",
         pos.x, pos.y, 5000
       );
     }
@@ -368,7 +368,7 @@ export function initMap1Events() {
     if (!saidMana && gameState.mana > lastMana) {
       saidMana = true;
       spawnSpeechBubble(
-        "Mana essence… this lets me cast spells more often.",
+        "Mana essence… now I can cast more spells.",
         pos.x, pos.y, 5000
       );
     }
@@ -377,12 +377,11 @@ export function initMap1Events() {
     if (!saidBravery && gameState.bravery > lastBravery) {
       saidBravery = true;
       spawnSpeechBubble(
-        "Bravery shards… these charge my Guardian form!",
+        "Bravery shards… these build up my Bravery Aura!",
         pos.x, pos.y, 5000
       );
     }
 
-    // Update last values
     lastGold = gameState.gold;
     lastDiamonds = gameState.diamonds;
     lastHearts = gameState.hearts;
@@ -391,7 +390,7 @@ export function initMap1Events() {
   });
 
   // ------------------------------------------------------------
-  // 12) FIRST TIME A SPIRE IS DESTROYED
+  // 12) FIRST SPIRE DEPLETED
   // ------------------------------------------------------------
   let firstSpireDestroyed = false;
 
@@ -401,18 +400,18 @@ export function initMap1Events() {
 
     const pos = p();
     spawnSpeechBubble(
-      "My Spire! They can break them?! I need to keep those safe!",
+      "My spire faded… I need to keep watch and replace them.",
       pos.x, pos.y, 5000
     );
   });
 
   // ------------------------------------------------------------
-  // 13) ALL CRYSTAL ECHOES COLLECTED (ONE TIME)
+  // 13) ALL CRYSTAL ECHOES COLLECTED
   // ------------------------------------------------------------
   mapOnce(1, "echoComplete", ({ found, total }) => {
     const pos = p();
     spawnSpeechBubble(
-      "All the Crystal Echoes… they’re resonating. They feel warm—like they're choosing me…",
+      "All the Crystal Echoes… they’re resonating. They feel warm—like they’re choosing me.",
       pos.x, pos.y, 5500
     );
 
@@ -425,7 +424,7 @@ export function initMap1Events() {
   });
 
   // ------------------------------------------------------------
-  // 14) External tutorial lines (from engine)
+  // 14) EXTERNAL TUTORIAL LINES
   // ------------------------------------------------------------
   mapOn(1, "tutorialSpeech", line => {
     const pos = p();

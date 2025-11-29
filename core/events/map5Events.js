@@ -1,22 +1,21 @@
 // ============================================================
-// ❄️ map5Events.js — Frosted Vale Story Script (Full)
+// ❄️ map5Events.js — Frosted Vale Story Script (Revised)
 // ------------------------------------------------------------
-// Map 5: The Frosted Vale
-// Tone: Cold humour, chilled sarcasm, irritated Glitter
+// Map 5: The Frosted Vale / Ice Kingdom outskirts
+// Tone: Cold humour, chilled sarcasm, irritated Princess
 //
 // Includes:
 //   • Wave start / wave end lines
 //   • First Ice Goblin intro
 //   • First Ice Goblin kill
 //   • Pickup reinforcements (snowy alternatives)
-//   • First spire destroyed (carried over)
-//   • Bravery events (carried over)
+//   • First spire depletion callout
+//   • Bravery events (aura-based, not “guardian form”)
 //   • Life-loss callouts with ice theme
 //   • Full Echo collection flavour
 //
 // No Seraphine.
 // No tutorials.
-// Glitter is cold, annoyed, and done with life.
 // ============================================================
 
 import { Events, EVENT_NAMES as E, loadTimedEventsForMap, mapOn, mapOnce } from "../eventEngine.js";
@@ -28,7 +27,7 @@ const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 export function initMap5Events() {
 
   // ============================================================
-  // ❄️ 1) WAVE START LINES — Cold, Irritated Glitter
+  // ❄️ 1) WAVE START LINES — Cold, Irritated Hero
   // ============================================================
 
   mapOn(5, E.waveStart, ({ wave }) => {
@@ -48,11 +47,11 @@ export function initMap5Events() {
         break;
 
       case 4:
-        spawnSpeechBubble("Trolls… in the snow. Great. Snow trolls.", pos.x, pos.y, 4000);
+        spawnSpeechBubble("Trolls… even out here in the snow. Of course.", pos.x, pos.y, 4000);
         break;
 
       case 5:
-        spawnSpeechBubble("Okay okay, calm down Glitter. Pretend it’s… refreshing.", pos.x, pos.y, 4200);
+        spawnSpeechBubble("Okay, okay… breathe. Pretend this is… refreshing.", pos.x, pos.y, 4200);
         break;
 
       case 6:
@@ -68,11 +67,11 @@ export function initMap5Events() {
         break;
 
       case 9:
-        spawnSpeechBubble("Last wave! Someone bring me a blanket!", pos.x, pos.y, 4500);
+        spawnSpeechBubble("Last wave! Someone bring a blanket!", pos.x, pos.y, 4500);
         break;
 
       default:
-        spawnSpeechBubble("Cold goblins. Cold trolls. Cold Glitter.", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Cold goblins. Cold trolls. Very cold princess.", pos.x, pos.y, 3500);
         break;
     }
   });
@@ -94,11 +93,11 @@ export function initMap5Events() {
         break;
 
       case 3:
-        spawnSpeechBubble("I’d kill for a hot chocolate. Preferably WITHOUT goblins.", pos.x, pos.y, 4200);
+        spawnSpeechBubble("I’d trade all these shards for a hot chocolate.", pos.x, pos.y, 4200);
         break;
 
       case 4:
-        spawnSpeechBubble("Snow trolls hit harder. Great.", pos.x, pos.y, 4200);
+        spawnSpeechBubble("Trolls still hit just as hard. Brilliant.", pos.x, pos.y, 4200);
         break;
 
       case 5:
@@ -106,15 +105,15 @@ export function initMap5Events() {
         break;
 
       case 6:
-        spawnSpeechBubble("Even my spires look cold.", pos.x, pos.y, 3800);
+        spawnSpeechBubble("Even my Spires look cold.", pos.x, pos.y, 3800);
         break;
 
       case 7:
-        spawnSpeechBubble("If I slip again I swear I’m suing the Frosted Vale.", pos.x, pos.y, 4200);
+        spawnSpeechBubble("If I slip again I’m lodging a complaint with the Ice Kingdom.", pos.x, pos.y, 4200);
         break;
 
       case 8:
-        spawnSpeechBubble("Almost there Glitter… almost thawed…", pos.x, pos.y, 4200);
+        spawnSpeechBubble("Almost there… almost thawed…", pos.x, pos.y, 4200);
         break;
 
       case 9:
@@ -211,7 +210,7 @@ export function initMap5Events() {
     if (!saidBravery && gameState.bravery > lastBravery) {
       saidBravery = true;
       spawnSpeechBubble(
-        "Bravery shards! They feel warm… or maybe I’m hallucinating.",
+        "Bravery shards… they feel warm, like courage pushing back the cold.",
         pos.x, pos.y, 5000
       );
     }
@@ -224,7 +223,7 @@ export function initMap5Events() {
   });
 
   // ============================================================
-  // ❄️ 6) BRAVERY FULL + ACTIVATION
+  // ❄️ 6) BRAVERY FULL + ACTIVATION (Aura, not form)
   // ============================================================
 
   let braveryFull = false;
@@ -235,7 +234,7 @@ export function initMap5Events() {
     braveryFull = true;
 
     const pos = p();
-    spawnSpeechBubble("Bravery charged—finally something WARM!", pos.x, pos.y, 4800);
+    spawnSpeechBubble("Bravery charged—finally something WARM.", pos.x, pos.y, 4800);
   });
 
   mapOn(5, E.braveryActivated, () => {
@@ -243,29 +242,29 @@ export function initMap5Events() {
     braveryUse = true;
 
     const pos = p();
-    spawnSpeechBubble("Guardian Form! Melt the frostlings!", pos.x, pos.y, 4500);
+    spawnSpeechBubble("Bravery aura—melt the chill and push them back!", pos.x, pos.y, 4600);
   });
 
   // ============================================================
-  // ❄️ 7) FIRST SPIRE DESTROYED
+  // ❄️ 7) FIRST SPIRE DEPLETED
   // ============================================================
 
-  let spireDestroyed = false;
+  let spireDepleted = false;
 
   mapOn(5, "spireDestroyed", () => {
-    if (spireDestroyed) return;
-    spireDestroyed = true;
+    if (spireDepleted) return;
+    spireDepleted = true;
 
     const pos = p();
     spawnSpeechBubble(
-      "HEY! That Spire was keeping me warm! …ish.",
-      pos.x, pos.y, 5000
+      "My Spire burned through all its crystal charge already… I’ll have to replace it.",
+      pos.x, pos.y, 5200
     );
   });
 
   // ============================================================
   // ❄️ 8) LIFE LOSS CALLOUTS (Ice-themed panic)
-// ============================================================
+  // ============================================================
 
   const lossLines = {
     80: [
@@ -277,11 +276,11 @@ export function initMap5Events() {
       "They’re pushing too hard—like a snowstorm of problems!"
     ],
     40: [
-      "Spire placement! Glitter!! Focus before you freeze!",
+      "Spire placement—focus before everything freezes!",
       "We’re sliding downhill fast!"
     ],
     20: [
-      "We're almost out! I AM THE WRONG TEMPERATURE FOR THIS!",
+      "We're almost out! I am the WRONG temperature for this!",
       "If we lose, bury me somewhere warm!"
     ]
   };
@@ -292,7 +291,7 @@ export function initMap5Events() {
     const pct = (lives / 10) * 100;
     const pos = p();
 
-    for (const t of Object.keys(lossLines).map(Number).sort((a,b)=>b-a)) {
+    for (const t of Object.keys(lossLines).map(Number).sort((a, b) => b - a)) {
       if (pct <= t && !triggered.has(t)) {
         triggered.add(t);
         const line = lossLines[t][Math.floor(Math.random() * lossLines[t].length)];
@@ -315,7 +314,7 @@ export function initMap5Events() {
 
     setTimeout(() => {
       spawnSpeechBubble(
-        "Ariana said the Frosted Vale was ancient… I can feel it.",
+        "Ariana said this ice was ancient… and the crystals agree.",
         pos.x, pos.y, 5000
       );
     }, 2600);
@@ -324,6 +323,7 @@ export function initMap5Events() {
 }
 
 export default initMap5Events;
+
 // ============================================================
 // END OF FILE
 // ============================================================

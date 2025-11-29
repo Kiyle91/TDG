@@ -1,20 +1,20 @@
 // ============================================================
-// 🌾 map2Events.js — Bragg’s Farm Story Script (FINAL & FULL)
+// 🌾 map2Events.js — Bragg’s Farm Story Script (Rewritten Final)
 // ------------------------------------------------------------
 // Map 2: The Farm
-// Tone: Humorous, semi-chaotic, light reinforcement of Map 1.
+// Tone: Humorous, chaotic, light reinforcement of Map 1.
 // Mechanics: First ELITE enemy introduction.
-// NO BOSSES appear on this map.
+// No bosses on this map.
 //
 // Includes:
 //   • Short 20s timed intro
 //   • Wave start lines
 //   • Wave end reflections
 //   • First Goblin/Worg/Elite kill reactions
-//   • Bravery full + used
-//   • Spire destroyed
+//   • Bravery full + activation
+//   • Spire depletion
 //   • All Echoes collected
-//   • Life loss warnings (shared thresholds)
+//   • Life-loss warnings (shared thresholds)
 //   • Light shard pickup reminder
 // ============================================================
 
@@ -37,7 +37,7 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Bragg’s Farm… still smells like hay and despair.",
+        "Bragg’s Farm… still smells like hay and mild regret.",
         pos.x, pos.y, 4200
       );
     }
@@ -48,7 +48,7 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Crystal Echoes should still be around. Free shards if I’m quick.",
+        "Crystal Echoes should still be around… easy shards if I’m quick.",
         pos.x, pos.y, 4200
       );
     }
@@ -59,7 +59,7 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Remember Glitter… Spires work best near the paths.",
+        "Remember… spires work best near the paths.",
         pos.x, pos.y, 4500
       );
     }
@@ -92,19 +92,19 @@ export default function initMap2Events() {
 
     switch (wave) {
       case 1:
-        spawnSpeechBubble("Goblins on a farm… that tracks.", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Goblins on a farm… sounds about right.", pos.x, pos.y, 3500);
         break;
       case 2:
-        spawnSpeechBubble("More? I just got here!", pos.x, pos.y, 3500);
+        spawnSpeechBubble("More goblins? I just got here!", pos.x, pos.y, 3500);
         break;
       case 3:
         spawnSpeechBubble("They’re multiplying again…", pos.x, pos.y, 3500);
         break;
       case 4:
-        spawnSpeechBubble("Wait— is that an Elite? HERE?!", pos.x, pos.y, 4000);
+        spawnSpeechBubble("Wait— is that an Elite? On a farm?!", pos.x, pos.y, 4000);
         break;
       case 5:
-        spawnSpeechBubble("Bragg would be furious if he saw this mess.", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Bragg would have a meltdown if he saw this mess.", pos.x, pos.y, 3500);
         break;
       case 6:
         spawnSpeechBubble("Worgs? Who let wolves onto a farm?", pos.x, pos.y, 3500);
@@ -113,13 +113,13 @@ export default function initMap2Events() {
         spawnSpeechBubble("This is getting ridiculous.", pos.x, pos.y, 3500);
         break;
       case 8:
-        spawnSpeechBubble("Spires, don’t fail me now!", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Spires… please don’t fail me now.", pos.x, pos.y, 3500);
         break;
       case 9:
-        spawnSpeechBubble("Okay Glitter, focus. Almost there.", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Focus… almost through this.", pos.x, pos.y, 3500);
         break;
       case 10:
-        spawnSpeechBubble("This farm needs a holiday.", pos.x, pos.y, 4000);
+        spawnSpeechBubble("This farm needs a week off.", pos.x, pos.y, 4000);
         break;
       case 11:
         spawnSpeechBubble("Why is wave eleven so intense?!", pos.x, pos.y, 4000);
@@ -138,16 +138,16 @@ export default function initMap2Events() {
 
     const lines = {
       1: "Farm’s quiet… too quiet.",
-      2: "Should grab Echoes while I can.",
-      3: "My Spires are carrying, actually.",
-      4: "An Elite on a farm… fantastic.",
-      5: "Shards mean upgrades. Don’t forget.",
-      6: "Worgs shouldn’t be this close to humans…",
+      2: "Should grab more Echoes while I can.",
+      3: "My spires are actually doing great.",
+      4: "An Elite on a farm… amazing.",
+      5: "Shards mean upgrades… don’t forget.",
+      6: "Worgs shouldn’t be this close to a settlement…",
       7: "Quick breather. Very quick.",
-      8: "This is a LOT for Bragg’s Farm.",
+      8: "This is a LOT for one farm.",
       9: "Nearly through… I hope.",
-      10: "No boss here… right? RIGHT?",
-      11: "Glitter… why did you say that.",
+      10: "No boss here… right? Right?",
+      11: "Why did I say that…"
     };
 
     if (lines[wave]) {
@@ -165,7 +165,7 @@ export default function initMap2Events() {
     firstGoblin = true;
 
     const pos = p();
-    spawnSpeechBubble("Yep. Still got it.", pos.x, pos.y, 4000);
+    spawnSpeechBubble("Yep… still got it.", pos.x, pos.y, 4000);
   });
 
   // ------------------------------------------------------------
@@ -179,13 +179,13 @@ export default function initMap2Events() {
 
     const pos = p();
     spawnSpeechBubble(
-      "Poor wolves… they’re being forced into this.",
+      "Poor wolves… someone’s forcing them into this.",
       pos.x, pos.y, 4500
     );
   });
 
   // ------------------------------------------------------------
-  // 6) FIRST ELITE KILL (Map 2's big moment)
+  // 6) FIRST ELITE KILL
   // ------------------------------------------------------------
   let firstElite = false;
 
@@ -211,7 +211,7 @@ export default function initMap2Events() {
     braveryFull = true;
 
     const pos = p();
-    spawnSpeechBubble("Bravery charged! Press Q!", pos.x, pos.y, 4500);
+    spawnSpeechBubble("Bravery is full… press Q to release the aura!", pos.x, pos.y, 4500);
   });
 
   mapOn(2, E.braveryActivated, () => {
@@ -219,11 +219,11 @@ export default function initMap2Events() {
     braveryUsed = true;
 
     const pos = p();
-    spawnSpeechBubble("Guardian mode! Let’s clear this farm!", pos.x, pos.y, 4500);
+    spawnSpeechBubble("Bravery Aura unleashed! Let’s clear this farm!", pos.x, pos.y, 4500);
   });
 
   // ------------------------------------------------------------
-  // 8) FIRST SPIRE DESTROYED
+  // 8) FIRST SPIRE DEPLETED
   // ------------------------------------------------------------
   let spireDown = false;
 
@@ -233,7 +233,7 @@ export default function initMap2Events() {
 
     const pos = p();
     spawnSpeechBubble(
-      "My Spire! They're actually breaking them?!",
+      "A spire faded… I need to keep replacing them.",
       pos.x, pos.y, 4800
     );
   });
@@ -258,7 +258,7 @@ export default function initMap2Events() {
   });
 
   // ------------------------------------------------------------
-  // 10) LIFE LOSS CALLOUTS (reuse Map1 lines)
+  // 10) LIFE LOSS CALLOUTS (shared rules)
 // ------------------------------------------------------------
   const thresholds = Object.keys(lifeLossLines)
     .map(Number)
@@ -285,7 +285,7 @@ export default function initMap2Events() {
 
   // ------------------------------------------------------------
   // 11) OPTIONAL RESOURCE REMINDER (SHARDS)
-  // ------------------------------------------------------------
+// ------------------------------------------------------------
   let shardReminder = false;
 
   mapOn(2, "resourceUpdate", () => {

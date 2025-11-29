@@ -1,14 +1,15 @@
 // ============================================================
-// enemySpeech.js - Random Enemy Flavour Dialogue
+// enemySpeech.js - Random Enemy Flavour Dialogue (Expanded)
 // ------------------------------------------------------------
-// - Each enemy type has 5 personality lines
-// - Small chance to speak every few seconds
-// - Uses speechBubble FX for rendering
+// - Each enemy type now has 15 personality lines
+// - Still low chance to speak (unchanged logic)
+// - Lines reinforce map/world lore without breaking tone
 // ============================================================
+
 import { spawnSpeechBubble } from "../../fx/speechBubble.js";
 
 // -------------------------------------------
-// Dialogue pools
+// Dialogue pools (15 lines each)
 // -------------------------------------------
 
 const ENEMY_LINES = {
@@ -17,7 +18,19 @@ const ENEMY_LINES = {
     "Shiny! Give it!",
     "You can't run forever!",
     "Stab stab stab!",
-    "Mine! Mine! Mine!"
+    "Mine! Mine! Mine!",
+
+    // Added lines
+    "Get back here!",
+    "The chief wants your stuff!",
+    "Goblins rule! You drool!",
+    "So much shiny everywhere!",
+    "Feet hurt! Still chasing!",
+    "You look squishy!",
+    "This place ours now!",
+    "Heeheehee—chaos time!",
+    "Watch me trip! (Don’t laugh!)",
+    "Give us crystals or else!"
   ],
 
   emberGoblin: [
@@ -25,7 +38,19 @@ const ENEMY_LINES = {
     "Hot enough for ya!?",
     "I'll roast ya alive!",
     "Burn! Burn!",
-    "Fire solves everything!"
+    "Fire solves everything!",
+
+    // Added lines
+    "Everything’s better crispy!",
+    "Flame tribe rise!",
+    "Hot hot hot hot HOT!",
+    "Your shoes look flammable!",
+    "Fire makes me faster!",
+    "Ember chief says charge!",
+    "Smoke in your eyes yet?",
+    "This land belongs to the flame!",
+    "I’m basically a torch!",
+    "Hope you like sizzle!"
   ],
 
   iceGoblin: [
@@ -33,7 +58,19 @@ const ENEMY_LINES = {
     "Cold enough?",
     "Shiver for me!",
     "Ice bite incoming!",
-    "Brrr... heh heh heh!"
+    "Brrr... heh heh heh!",
+
+    // Added lines
+    "Snow in your boots yet?",
+    "Cold tribe marches!",
+    "Your nose looks freezing!",
+    "Ice makes everything better!",
+    "Slip! Slip! Slip!",
+    "Stay frosty!",
+    "I’m not shivering—you’re shivering!",
+    "Frozen toes don’t stop us!",
+    "Crystal ice tastes yummy!",
+    "Snowball to the FACE!"
   ],
 
   ashGoblin: [
@@ -41,7 +78,19 @@ const ENEMY_LINES = {
     "Rise again!",
     "We endure forever!",
     "The dust remembers!",
-    "Mend and rise!"
+    "Mend and rise!",
+
+    // Added lines
+    "Dust heals all wounds!",
+    "Ritual begins!",
+    "Stand still! We’re helping!",
+    "Glowing dust… don’t breathe it in!",
+    "Heal the tribe!",
+    "Light burns us! Stay close!",
+    "Ash tribe protect!",
+    "The rites demand victory!",
+    "We glow in the dark!",
+    "Our dust watches you!"
   ],
 
   voidGoblin: [
@@ -49,7 +98,19 @@ const ENEMY_LINES = {
     "Silence your light...",
     "You are unmade...",
     "Collapse into void...",
-    "We are infinite..."
+    "We are infinite...",
+
+    // Added lines
+    "Your shape… bends wrong.",
+    "Spire cannot see us.",
+    "The shadows call your name.",
+    "Light breaks here.",
+    "We walk unseen.",
+    "Nothingness whispers.",
+    "Your fear tastes bright.",
+    "The void sighs for home.",
+    "Your spark is fragile.",
+    "This land remembers darkness."
   ],
 
   troll: [
@@ -57,7 +118,19 @@ const ENEMY_LINES = {
     "Crunch time!",
     "Troll hungry!",
     "Little human squish!",
-    "This gonna hurt!"
+    "This gonna hurt!",
+
+    // Added lines
+    "Troll strongest!",
+    "Move or squish!",
+    "Troll tired of walking!",
+    "Where is snack?!",
+    "You tiny. Troll big.",
+    "Stomp stomp stomp!",
+    "Road too small for troll!",
+    "Troll protect tribe!",
+    "Spires taste bad!",
+    "Heavy club coming through!"
   ],
 
   elite: [
@@ -65,7 +138,19 @@ const ENEMY_LINES = {
     "You are prey.",
     "For the tribe!",
     "Swift and silent.",
-    "Your fear smells sweet."
+    "Your fear smells sweet.",
+
+    // Added lines
+    "We track you.",
+    "You cannot hide.",
+    "The wind guides us.",
+    "Strong prey. Good.",
+    "Our arrows fly true.",
+    "The hunt sharpens us.",
+    "Your path ends here.",
+    "The tribe watches.",
+    "Move well… or fall.",
+    "We strike without miss."
   ],
 
   crossbow: [
@@ -73,25 +158,30 @@ const ENEMY_LINES = {
     "Straight through!",
     "Bullseye!",
     "Don't blink.",
-    "One shot, one drop."
+    "One shot, one drop.",
+
+    // Added lines
+    "Reload—fast!",
+    "Crossbow troll best troll!",
+    "Hold still! Makes aiming easier!",
+    "Twang! Heehee!",
+    "Long range means no walking!",
+    "Troll’s got a bow! FEAR ME!",
+    "Spires can't hide from arrows!",
+    "Aim for shiny thing!",
+    "Got you lined up!",
+    "Arrow storm incoming!"
   ]
 };
 
-
 // -------------------------------------------
-// CONFIG
+// CONFIG (unchanged)
 // -------------------------------------------
 
-// 1 in 800 chance per update tick (~1.3%/sec at 60fps)
 const SPEECH_CHANCE = 0.00025;
-
-// Enemy cooldown so each one doesn't spam
 const COOLDOWN_MS = 8000;
-
-// Keep only one enemy speech alive at a time; others wait their turn
 const SPEECH_DURATION = 5000;
 let enemySpeechActiveUntil = 0;
-
 
 // -------------------------------------------
 // Attempt speech for one enemy
@@ -107,10 +197,8 @@ export function tryEnemySpeech(e) {
   if (now < enemySpeechActiveUntil) return;
   if (e._nextSpeechTime && now < e._nextSpeechTime) return;
 
-  // Random trigger
   if (Math.random() > SPEECH_CHANCE) return;
 
-  // Pick a random line
   const lines = ENEMY_LINES[type];
   const line = lines[Math.floor(Math.random() * lines.length)];
 
@@ -118,14 +206,11 @@ export function tryEnemySpeech(e) {
     line,
     e.x,
     e.y - 70,
-    SPEECH_DURATION,    // fade duration
-    e,                  // anchor to THIS enemy
-    { category: "enemy", clearExisting: false } // keep other speakers intact
+    SPEECH_DURATION,
+    e,
+    { category: "enemy", clearExisting: false }
   );
 
-  // Block other enemy speech until this one finishes
   enemySpeechActiveUntil = now + SPEECH_DURATION;
-
-  // Set cooldown on the enemy itself
   e._nextSpeechTime = now + COOLDOWN_MS;
 }

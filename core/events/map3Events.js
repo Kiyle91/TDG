@@ -1,19 +1,18 @@
 // ============================================================
-// 🌵 map3Events.js — Drylands Story Script (FULL VERSION)
+// 🌵 map3Events.js — Drylands Story Script (Rewritten Final)
 // ------------------------------------------------------------
-// Map 3: Troll territory. Dry, hot, miserable. Glitter hates it.
-// Introduces Trolls (big HP brutes), first Ogres near the end.
+// Map 3: Troll territory. Dry, hot, miserable.
+// Introduces Trolls (big HP brutes) and first Ogres.
+// No Seraphine / No boss events here.
 //
 // Covers:
-//   • Timed introduction (humorous + environmental context)
-//   • Wave start/end flavour text (10+ waves)
-//   • First troll kill reaction
-//   • First ogre kill reaction
+//   • Timed environmental intro
+//   • Wave start/end flavour text
+//   • First troll kill + first ogre kill
 //   • First pickups (Shards, Diamonds, Hearts, Mana, Bravery)
-//   • Spire destruction (one-time)
-//   • Echo half + complete narrative
+//   • Spire depletion (one-time)
+//   • Echo half + complete dialogue
 //   • Life-loss callouts
-//   • No boss here — Seraphine returns later.
 // ============================================================
 
 import { Events, EVENT_NAMES as E, loadTimedEventsForMap, mapOn, mapOnce } from "../eventEngine.js";
@@ -26,29 +25,29 @@ import { gameState } from "../../utils/gameState.js";
 const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 
 // ------------------------------------------------------------
-// LIFE-LOSS CALLOUT LINES
+// LIFE-LOSS CALLOUTS (updated to remove names + lore errors)
 // ------------------------------------------------------------
 const lifeLossLines = {
   80: [
-    "One slipped past—ugh, the dust is blinding!",
-    "Stay sharp Glitter—dry air’s no excuse!"
+    "One slipped past—this dust is brutal!",
+    "Ugh… dry air doesn’t help, but stay focused!"
   ],
   60: [
-    "These trolls hit harder than they smell!",
-    "Focus! Reinforce the paths!"
+    "These trolls hit harder than the heat!",
+    "Focus… reinforce the paths!"
   ],
   40: [
-    "We’re losing ground! Hold them back!",
-    "If any more get through I’m blaming the heat!"
+    "They’re pushing through! Hold them back!",
+    "If any more slip past, I’m blaming the sun!"
   ],
   20: [
-    "Princess, we’re almost out of room here!",
-    "This is looking bad… don’t give up!"
+    "Almost out of room here!",
+    "This is looking rough… don’t give up!"
   ]
 };
 
 // ------------------------------------------------------------
-// TIMED INTRO — 45s (Humour + Environmental Setup)
+// TIMED INTRO — 45s (Environmental + humour)
 // ------------------------------------------------------------
 const TIMED_EVENTS = [
   {
@@ -56,7 +55,10 @@ const TIMED_EVENTS = [
     timeRequired: 3,
     action: () => {
       const pos = p();
-      spawnSpeechBubble("Ugh… dry, dusty, hot… welcome to the Drylands.", pos.x, pos.y, 4500);
+      spawnSpeechBubble(
+        "Dry, dusty, hot… yep. Welcome to the Drylands.",
+        pos.x, pos.y, 4500
+      );
     }
   },
   {
@@ -64,7 +66,10 @@ const TIMED_EVENTS = [
     timeRequired: 10,
     action: () => {
       const pos = p();
-      spawnSpeechBubble("Troll territory. Perfect. Just perfect.", pos.x, pos.y, 4200);
+      spawnSpeechBubble(
+        "Troll territory… of course it is.",
+        pos.x, pos.y, 4200
+      );
     }
   },
   {
@@ -72,7 +77,10 @@ const TIMED_EVENTS = [
     timeRequired: 18,
     action: () => {
       const pos = p();
-      spawnSpeechBubble("Echoes still appear out here… somehow.", pos.x, pos.y, 4200);
+      spawnSpeechBubble(
+        "Crystal Echoes still appear out here… somehow.",
+        pos.x, pos.y, 4200
+      );
     }
   },
   {
@@ -80,7 +88,10 @@ const TIMED_EVENTS = [
     timeRequired: 26,
     action: () => {
       const pos = p();
-      spawnSpeechBubble("Place your Spires close to the paths—trolls don’t fall for tricks.", pos.x, pos.y, 4500);
+      spawnSpeechBubble(
+        "Spires near the path… trolls don’t fall for tricks.",
+        pos.x, pos.y, 4500
+      );
     }
   },
   {
@@ -88,7 +99,10 @@ const TIMED_EVENTS = [
     timeRequired: 40,
     action: () => {
       const pos = p();
-      spawnSpeechBubble("Heat’s rising… something’s coming.", pos.x, pos.y, 4000);
+      spawnSpeechBubble(
+        "Feels like something heavy is headed this way…",
+        pos.x, pos.y, 4000
+      );
     }
   }
 ];
@@ -106,26 +120,24 @@ export default function initMap3Events() {
     const pos = p();
 
     const lines = {
-      1: "First wave… let’s see how trolls handle arrows.",
-      2: "More goblins? How’d they survive out here?",
-      3: "I hear stomping. That’s… not reassuring.",
-      4: "Heat and goblins… worst combination.",
-      5: "Okay, now they're getting organised. Bad sign.",
-      6: "Is that… a troll? Yep. That’s a troll.",
-      7: "They're pushing hard… stay close to your Spires.",
-      8: "Drylands aren’t slowing them down… why?!",
-      9: "Something massive is rumbling out there…",
-      10: "These footsteps… that better not be an ogre.",
-      11: "Here they come—big ones too.",
+      1:  "First wave… let’s see how trolls handle arrows.",
+      2:  "More goblins… how do they survive out here?",
+      3:  "I hear stomping… not reassuring.",
+      4:  "Heat and goblins… perfect combination.",
+      5:  "Great… now they’re getting organised.",
+      6:  "Is that a troll? Yep. That’s a troll.",
+      7:  "They’re pushing hard… stay close to the spires.",
+      8:  "Drylands aren’t slowing them down… why?",
+      9:  "Something massive is rumbling out there…",
+      10: "Those footsteps… please don’t be an ogre.",
+      11: "Okay… looks like the bigger ones are here.",
       12: "I refuse to get flattened today.",
-      13: "Almost at the end… stay sharp!",
+      13: "Almost through… stay focused.",
       14: "This heat is making everything worse.",
-      15: "One last push—Drylands won’t beat me!"
+      15: "Last push… Drylands won’t beat me!"
     };
 
-    if (lines[wave]) {
-      spawnSpeechBubble(lines[wave], pos.x, pos.y, 4200);
-    }
+    if (lines[wave]) spawnSpeechBubble(lines[wave], pos.x, pos.y, 4200);
   });
 
   // ------------------------------------------------------------
@@ -135,25 +147,23 @@ export default function initMap3Events() {
     const pos = p();
 
     const lines = {
-      1: "Okay… that wasn’t too bad.",
-      2: "Why does everything taste like sand?",
-      3: "Someone’s definitely watching us.",
-      4: "Heat’s getting worse… great.",
-      5: "Trolls incoming soon. I can feel it.",
-      6: "Troll down! They’re tough but slow.",
-      7: "My Spires are working overtime out here.",
-      8: "We’re getting closer… stay cautious.",
-      9: "Those footsteps sounded… large.",
+      1:  "Okay… that wasn’t too bad.",
+      2:  "Everything tastes like sand.",
+      3:  "I swear someone’s watching from the cliffs.",
+      4:  "Heat’s getting worse… of course it is.",
+      5:  "Trolls incoming soon… I can feel it.",
+      6:  "Troll down… tough but slow.",
+      7:  "Spires are working overtime out here.",
+      8:  "Getting closer… stay cautious.",
+      9:  "Those footsteps were definitely large.",
       10: "If that wasn’t an ogre… what was it?",
       11: "They just keep coming…",
-      12: "Everything hurts and it's too hot.",
-      13: "Nearly done! I can taste victory… or sand.",
-      14: "One more wave… let's end this!",
+      12: "Everything hurts and it’s too hot.",
+      13: "Nearly done… I can taste victory. Or sand.",
+      14: "One more wave… let's end this."
     };
 
-    if (lines[wave]) {
-      spawnSpeechBubble(lines[wave], pos.x, pos.y, 4200);
-    }
+    if (lines[wave]) spawnSpeechBubble(lines[wave], pos.x, pos.y, 4200);
   });
 
   // ------------------------------------------------------------
@@ -166,7 +176,10 @@ export default function initMap3Events() {
     firstTrollKill = true;
 
     const pos = p();
-    spawnSpeechBubble("Troll defeated! That took way too long.", pos.x, pos.y, 4800);
+    spawnSpeechBubble(
+      "Troll defeated… took long enough.",
+      pos.x, pos.y, 4800
+    );
   });
 
   // ------------------------------------------------------------
@@ -179,11 +192,43 @@ export default function initMap3Events() {
     firstOgreKill = true;
 
     const pos = p();
-    spawnSpeechBubble("An ogre… fell?! I’m stronger than I thought!", pos.x, pos.y, 5000);
+    spawnSpeechBubble(
+      "An ogre… fell?! I’m stronger than I thought.",
+      pos.x, pos.y, 5000
+    );
   });
 
   // ------------------------------------------------------------
-  // FIRST PICKUPS (Shards, Diamonds, Hearts, Mana, Bravery)
+  // BRAVERY TRIGGERS
+  // ------------------------------------------------------------
+  let braveryFull = false;
+  let braveryUsed = false;
+
+  mapOn(3, E.braveryFull, () => {
+    if (braveryFull) return;
+    braveryFull = true;
+
+    const pos = p();
+    spawnSpeechBubble(
+      "My Bravery is full… press Q to release the aura!",
+      pos.x, pos.y, 4500
+    );
+  });
+
+  mapOn(3, E.braveryActivated, () => {
+    if (braveryUsed) return;
+    braveryUsed = true;
+
+    const pos = p();
+    spawnSpeechBubble(
+      "Drylands won’t break me—Aura, let’s go!",
+      pos.x, pos.y, 4800
+    );
+  });
+
+
+  // ------------------------------------------------------------
+  // FIRST PICKUPS
   // ------------------------------------------------------------
   let lastGold = 0;
   let lastDiamonds = 0;
@@ -202,17 +247,17 @@ export default function initMap3Events() {
 
     if (!saidShard && gameState.gold > lastGold) {
       saidShard = true;
-      spawnSpeechBubble("Shards! Perfect—more Spires for the field.", pos.x, pos.y, 5000);
+      spawnSpeechBubble("Shards! More spires for the field.", pos.x, pos.y, 5000);
     }
 
     if (!saidDiamond && gameState.diamonds > lastDiamonds) {
       saidDiamond = true;
-      spawnSpeechBubble("Diamonds! Upgrade time!", pos.x, pos.y, 5000);
+      spawnSpeechBubble("Diamonds… upgrade time.", pos.x, pos.y, 5000);
     }
 
     if (!saidHeart && gameState.hearts > lastHearts) {
       saidHeart = true;
-      spawnSpeechBubble("Heart essence—much needed in this heat.", pos.x, pos.y, 5000);
+      spawnSpeechBubble("Heart essence… desperately needed.", pos.x, pos.y, 5000);
     }
 
     if (!saidMana && gameState.mana > lastMana) {
@@ -222,7 +267,7 @@ export default function initMap3Events() {
 
     if (!saidBravery && gameState.bravery > lastBravery) {
       saidBravery = true;
-      spawnSpeechBubble("Bravery shards… I feel stronger already.", pos.x, pos.y, 5000);
+      spawnSpeechBubble("Bravery shards… my Aura feels stronger.", pos.x, pos.y, 5000);
     }
 
     lastGold = gameState.gold;
@@ -233,7 +278,7 @@ export default function initMap3Events() {
   });
 
   // ------------------------------------------------------------
-  // SPIRE DESTROYED — FIRST TIME
+  // FIRST SPIRE DEPLETION
   // ------------------------------------------------------------
   let firstSpireDown = false;
 
@@ -242,7 +287,10 @@ export default function initMap3Events() {
     firstSpireDown = true;
 
     const pos = p();
-    spawnSpeechBubble("My Spire! Ugh—trolls hit like wagons!", pos.x, pos.y, 5000);
+    spawnSpeechBubble(
+      "A spire faded… trolls hit too hard to rely on one.",
+      pos.x, pos.y, 5000
+    );
   });
 
   // ------------------------------------------------------------
@@ -250,27 +298,39 @@ export default function initMap3Events() {
   // ------------------------------------------------------------
   mapOn(3, E.echoHalf, ({ found, total }) => {
     const pos = p();
-    spawnSpeechBubble("Half the Echoes… even out here they shine.", pos.x, pos.y, 4500);
+    spawnSpeechBubble(
+      "Half the Echoes… even in the Drylands they shine.",
+      pos.x, pos.y, 4500
+    );
   });
 
   mapOnce(3, E.echoComplete, () => {
     const pos = p();
-    spawnSpeechBubble("All the Echoes… glowing together again.", pos.x, pos.y, 5500);
+    spawnSpeechBubble(
+      "All the Echoes… glowing together again.",
+      pos.x, pos.y, 5500
+    );
 
     setTimeout(() => {
-      spawnSpeechBubble("Drylands or not… the crystals still trust me.", pos.x, pos.y, 5200);
+      spawnSpeechBubble(
+        "Drylands or not… the crystals still trust me.",
+        pos.x, pos.y, 5200
+      );
     }, 2500);
   });
 
   // ------------------------------------------------------------
   // LIFE LOSS CALLOUTS
   // ------------------------------------------------------------
-  const thresholds = Object.keys(lifeLossLines).map(Number).sort((a, b) => b - a);
+  const thresholds = Object.keys(lifeLossLines)
+    .map(Number)
+    .sort((a, b) => b - a);
+
   const triggered = new Set();
 
   mapOn(3, E.playerLifeLost, ({ lives }) => {
-    const total = 10;
-    const pct = (lives / total) * 100;
+    const totalLives = 10;
+    const pct = (lives / totalLives) * 100;
     const pos = p();
 
     for (const t of thresholds) {
@@ -284,6 +344,7 @@ export default function initMap3Events() {
     }
   });
 }
+
 
 // ============================================================
 // END OF FILE

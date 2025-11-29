@@ -1,5 +1,5 @@
 // ============================================================
-// 🐸 map7Events.js — The Swamplands Story Script (Full)
+// 🐸 map7Events.js — The Swamplands Story Script (Rewritten Final)
 // ------------------------------------------------------------
 // Map 7: The Swamplands
 // Theme: muddy detour before the Voidlands,
@@ -12,9 +12,9 @@
 //   • First Crossbow Troll kill
 //   • Seraphine (Phase 3) introduction + mid-fight reactions
 //   • Pickup lines (swamp-themed humour)
-//   • Bravery lines
+//   • Bravery Aura lines
 //   • Life-loss lines (swamp panic)
-//   • First spire destroyed (mud-rage)
+//   • First spire depletion
 //   • Echo completion (mushroom sparkle nonsense)
 // ============================================================
 
@@ -56,7 +56,7 @@ export function initMap7Events() {
         break;
 
       case 6:
-        spawnSpeechBubble("Those trolls can shoot! ERRATICALLY!", pos.x, pos.y, 4800);
+        spawnSpeechBubble("Those trolls can shoot! They’re moving all over the place!", pos.x, pos.y, 4800);
         break;
 
       case 7:
@@ -77,7 +77,7 @@ export function initMap7Events() {
   });
 
   // ============================================================
-  // 🐸 2) WAVE END — Glitter’s swamp suffering continues
+  // 🐸 2) WAVE END — Swamp suffering continues
   // ============================================================
 
   mapOn(7, E.waveEnd, ({ wave }) => {
@@ -191,10 +191,10 @@ export function initMap7Events() {
       spawnSpeechBubble("She’s faster this time!", pos.x, pos.y, 4800);
     }
     if (threshold === 50) {
-      spawnSpeechBubble("Seraphine why are you so MAD?!", pos.x, pos.y, 4800);
+      spawnSpeechBubble("Why is she so MAD today?!", pos.x, pos.y, 4800);
     }
     if (threshold === 25) {
-      spawnSpeechBubble("Stop dodging!! Fight me properly!!", pos.x, pos.y, 4500);
+      spawnSpeechBubble("Stop dodging!! Fight properly!!", pos.x, pos.y, 4500);
     }
   });
 
@@ -229,7 +229,7 @@ export function initMap7Events() {
 
     if (!saidDiamond && gameState.diamonds > lastDiamonds) {
       saidDiamond = true;
-      spawnSpeechBubble("Shiny diamonds! A welcome change from… swamp muck.", pos.x, pos.y, 5000);
+      spawnSpeechBubble("Shiny diamonds! A nice break from swamp muck.", pos.x, pos.y, 5000);
     }
 
     if (!saidShard && gameState.gold > lastGold) {
@@ -260,7 +260,7 @@ export function initMap7Events() {
   });
 
   // ============================================================
-  // 🐸 7) BRAVERY EVENTS
+  // 🐸 7) BRAVERY EVENTS — Aura, not form
   // ============================================================
 
   let braveFull = false;
@@ -279,18 +279,21 @@ export function initMap7Events() {
     braveUse = true;
 
     const pos = p();
-    spawnSpeechBubble("Guardian Form! I WILL NOT BE DEFEATED BY MUSHROOMS!", pos.x, pos.y, 5200);
+    spawnSpeechBubble(
+      "Bravery Aura—push through the muck and fight harder!",
+      pos.x, pos.y, 5200
+    );
   });
 
   // ============================================================
-  // 🐸 8) FIRST SPIRE DESTROYED
+  // 🐸 8) FIRST SPIRE DEPLETED
   // ============================================================
 
-  let spireBreak = false;
+  let spireDepleted = false;
 
   mapOn(7, "spireDestroyed", () => {
-    if (spireBreak) return;
-    spireBreak = true;
+    if (spireDepleted) return;
+    spireDepleted = true;
 
     const pos = p();
     spawnSpeechBubble(
@@ -300,25 +303,25 @@ export function initMap7Events() {
   });
 
   // ============================================================
-  // 🐸 9) LIFE LOSS — Swamp panic
+  // 🐸 9) LIFE LOSS — Swamp Panic
   // ============================================================
 
   const swampLoss = {
     80: [
-      "They got through—probably slipping in the mud!",
+      "They got through—probably slipped in the mud!",
       "Oops—lost one. Blame the mushrooms."
     ],
     60: [
       "We’re losing ground! And probably sinking!",
-      "Stay calm Glitter! Even if the swamp isn't!"
+      "Stay calm… even if the swamp isn’t!"
     ],
     40: [
       "This swamp is CURSED! I swear!",
       "Everything is moist AND dangerous!"
     ],
     20: [
-      "We’re nearly done for! SQUELCH FASTER!!",
-      "If we lose here I'm never entering a swamp again!"
+      "We’re nearly done for! Move faster!!",
+      "If we lose here I’m never entering a swamp again!"
     ]
   };
 
@@ -339,14 +342,14 @@ export function initMap7Events() {
   });
 
   // ============================================================
-  // 🐸 10) ALL CRYSTAL ECHOES — Swamp sparkle chaos
+  // 🐸 10) ALL CRYSTAL ECHOES — Swamp Sparkle Chaos
   // ============================================================
 
   mapOnce(7, "echoComplete", () => {
     const pos = p();
 
     spawnSpeechBubble(
-      "All Crystal Echoes collected! They smell… slightly… swampy?",
+      "All Crystal Echoes collected! They smell… slightly swampy?",
       pos.x, pos.y, 5500
     );
 

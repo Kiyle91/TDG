@@ -1,9 +1,9 @@
 // ============================================================
-// ⭐ map6Events.js — Lightlands Story Script (Full)
+// ⭐ map6Events.js — Lightlands Story Script (Rewritten Final)
 // ------------------------------------------------------------
 // Map 6: The Lightlands
 // Tone: Sparkly sarcasm, "too bright", holy magic humour,
-//       furious Glitter dealing with healer goblins.
+//       furious hero dealing with healer goblins.
 //
 // Includes:
 //   • Wave start flavour
@@ -11,8 +11,8 @@
 //   • First Ash Goblin intro
 //   • First Ash Goblin kill
 //   • Pickup lines reflavoured for Lightlands
-//   • Bravery events (kept)
-//   • Spire destruction (kept)
+//   • Bravery Aura events
+//   • Spire depletion callout
 //   • Life-loss with light-themed panic
 //   • Echo Complete messages (holy flare)
 // No Seraphine.
@@ -28,7 +28,7 @@ const p = () => gameState.player?.pos ?? { x: 0, y: 0 };
 export function initMap6Events() {
 
   // ============================================================
-  // ⭐ 1) WAVE START — Glitter blinded & annoyed
+  // ⭐ 1) WAVE START — Blinded & Annoyed
   // ============================================================
 
   mapOn(6, E.waveStart, ({ wave }) => {
@@ -40,7 +40,7 @@ export function initMap6Events() {
         break;
 
       case 2:
-        spawnSpeechBubble("Bright goblins? Really? Really??", pos.x, pos.y, 3800);
+        spawnSpeechBubble("More goblins… and somehow it’s even brighter out here.", pos.x, pos.y, 3800);
         break;
 
       case 3:
@@ -48,7 +48,7 @@ export function initMap6Events() {
         break;
 
       case 4:
-        spawnSpeechBubble("Okay who turned the saturation to 300%?", pos.x, pos.y, 3800);
+        spawnSpeechBubble("Okay, who turned the saturation up to 300%?", pos.x, pos.y, 3800);
         break;
 
       case 5:
@@ -56,19 +56,19 @@ export function initMap6Events() {
         break;
 
       case 6:
-        spawnSpeechBubble("Ash Goblins! Illegal medics! Stop healing each other!", pos.x, pos.y, 4800);
+        spawnSpeechBubble("Ash Goblins. Rituals AND healing? Absolutely not.", pos.x, pos.y, 4800);
         break;
 
       case 7:
-        spawnSpeechBubble("It's so bright I can’t even see my own panic.", pos.x, pos.y, 4000);
+        spawnSpeechBubble("It’s so bright I can barely see my own panic.", pos.x, pos.y, 4000);
         break;
 
       case 8:
-        spawnSpeechBubble("Hold on Glitter… just pretend the light isn’t judging you.", pos.x, pos.y, 4200);
+        spawnSpeechBubble("Hold on… just pretend the light isn’t judging.", pos.x, pos.y, 4200);
         break;
 
       case 9:
-        spawnSpeechBubble("Last wave! Then I’m buying sunglasses the size of my face.", pos.x, pos.y, 4500);
+        spawnSpeechBubble("Last wave! Then it’s sunglasses and a very long nap.", pos.x, pos.y, 4500);
         break;
 
       default:
@@ -78,7 +78,7 @@ export function initMap6Events() {
   });
 
   // ============================================================
-  // ⭐ 2) WAVE END — Sparkly exhaustion
+  // ⭐ 2) WAVE END — Sparkly Exhaustion
   // ============================================================
 
   mapOn(6, E.waveEnd, ({ wave }) => {
@@ -90,7 +90,7 @@ export function initMap6Events() {
         break;
 
       case 2:
-        spawnSpeechBubble("I miss the forest. At least trees don’t blind you.", pos.x, pos.y, 4000);
+        spawnSpeechBubble("Miss the forest already. At least trees don’t blind you.", pos.x, pos.y, 4000);
         break;
 
       case 3:
@@ -106,7 +106,7 @@ export function initMap6Events() {
         break;
 
       case 6:
-        spawnSpeechBubble("STOP HEALING! STOP BEING HELPFUL! FOR THE ENEMY!", pos.x, pos.y, 5200);
+        spawnSpeechBubble("STOP HEALING! Stop helping the wrong side!", pos.x, pos.y, 5200);
         break;
 
       case 7:
@@ -114,7 +114,7 @@ export function initMap6Events() {
         break;
 
       case 8:
-        spawnSpeechBubble("Nearly done… stay strong Glitter… literally.", pos.x, pos.y, 4500);
+        spawnSpeechBubble("Nearly done… stay strong… just a little longer.", pos.x, pos.y, 4500);
         break;
 
       case 9:
@@ -124,7 +124,7 @@ export function initMap6Events() {
   });
 
   // ============================================================
-  // ⭐ 3) FIRST ASH GOBLIN INTRO — Healer panic
+  // ⭐ 3) FIRST ASH GOBLIN INTRO — Healer Panic
   // ============================================================
 
   let ashIntro = false;
@@ -135,13 +135,13 @@ export function initMap6Events() {
 
     const pos = p();
     spawnSpeechBubble(
-      "WAIT—are they healing each other?! No. No healing!!",
+      "Wait—are those goblins healing each other? No. No healing.",
       pos.x, pos.y, 5400
     );
   });
 
   // ============================================================
-  // ⭐ 4) FIRST ASH GOBLIN KILL — Glitter is DONE
+  // ⭐ 4) FIRST ASH GOBLIN KILL — Done With Medics
   // ============================================================
 
   let ashKill = false;
@@ -152,13 +152,13 @@ export function initMap6Events() {
 
     const pos = p();
     spawnSpeechBubble(
-      "Finally! Take THAT, you glow-in-the-dark nurse gremlin!",
+      "Finally! Take that, you creepy little ritual nurse goblin.",
       pos.x, pos.y, 5200
     );
   });
 
   // ============================================================
-  // ⭐ 5) PICKUPS — Lightlands variants
+  // ⭐ 5) PICKUPS — Lightlands Variants
   // ============================================================
 
   let lastGold = 0;
@@ -178,27 +178,42 @@ export function initMap6Events() {
 
     if (!saidDiamond && gameState.diamonds > lastDiamonds) {
       saidDiamond = true;
-      spawnSpeechBubble("Diamonds! Even brighter than this whole region!", pos.x, pos.y, 4800);
+      spawnSpeechBubble(
+        "Diamonds! Somehow they’re less blinding than this place.",
+        pos.x, pos.y, 4800
+      );
     }
 
     if (!saidShard && gameState.gold > lastGold) {
       saidShard = true;
-      spawnSpeechBubble("Shards! Perfect—my Spires need divine assistance.", pos.x, pos.y, 4800);
+      spawnSpeechBubble(
+        "Shards! Perfect—Spires need all the help they can get here.",
+        pos.x, pos.y, 4800
+      );
     }
 
     if (!saidHeart && gameState.hearts > lastHearts) {
       saidHeart = true;
-      spawnSpeechBubble("A Heart! Finally, something warm in this glowing nightmare.", pos.x, pos.y, 5000);
+      spawnSpeechBubble(
+        "A Heart! Finally, something warm in this glowing nightmare.",
+        pos.x, pos.y, 5000
+      );
     }
 
     if (!saidMana && gameState.mana > lastMana) {
       saidMana = true;
-      spawnSpeechBubble("Mana essence! I could really use some holy fire.", pos.x, pos.y, 4800);
+      spawnSpeechBubble(
+        "Mana essence—yes please. Holy fire spells, coming right up.",
+        pos.x, pos.y, 4800
+      );
     }
 
     if (!saidBravery && gameState.bravery > lastBravery) {
       saidBravery = true;
-      spawnSpeechBubble("Bravery shards! They sparkle less than this place… thank goodness.", pos.x, pos.y, 5000);
+      spawnSpeechBubble(
+        "Bravery shards… steady, calm, and not nearly as flashy as this sky.",
+        pos.x, pos.y, 5000
+      );
     }
 
     lastGold = gameState.gold;
@@ -209,7 +224,7 @@ export function initMap6Events() {
   });
 
   // ============================================================
-  // ⭐ 6) BRAVERY — Holy empowerment
+  // ⭐ 6) BRAVERY — Lightlands Aura
   // ============================================================
 
   let braveryFull = false;
@@ -220,7 +235,10 @@ export function initMap6Events() {
     braveryFull = true;
 
     const pos = p();
-    spawnSpeechBubble("Bravery is full—time for Glitter to shine brighter!", pos.x, pos.y, 4800);
+    spawnSpeechBubble(
+      "Bravery is full… time to let this aura shine.",
+      pos.x, pos.y, 4800
+    );
   });
 
   mapOn(6, E.braveryActivated, () => {
@@ -228,28 +246,31 @@ export function initMap6Events() {
     braveryUse = true;
 
     const pos = p();
-    spawnSpeechBubble("Guardian Form! LET’S OUT-SHINE THEM!", pos.x, pos.y, 4500);
+    spawnSpeechBubble(
+      "Bravery Aura—outshine their rituals and push them back!",
+      pos.x, pos.y, 4600
+    );
   });
 
   // ============================================================
-  // ⭐ 7) FIRST SPIRE DESTROYED — Lightlands sass
+  // ⭐ 7) FIRST SPIRE DEPLETED — Lightlands Sass
   // ============================================================
 
-  let spireDestroyed = false;
+  let spireDepleted = false;
 
   mapOn(6, "spireDestroyed", () => {
-    if (spireDestroyed) return;
-    spireDestroyed = true;
+    if (spireDepleted) return;
+    spireDepleted = true;
 
     const pos = p();
     spawnSpeechBubble(
-      "HEY! That Spire was glowing beautifully! Rude!",
+      "Hey! That Spire just burned through all its light… I’ll need another.",
       pos.x, pos.y, 5200
     );
   });
 
   // ============================================================
-  // ⭐ 8) LIFE LOSS — Holy panic
+  // ⭐ 8) LIFE LOSS — Holy Panic
   // ============================================================
 
   const lightLoss = {
@@ -258,16 +279,16 @@ export function initMap6Events() {
       "Oops—lost one! The Lightlands giveth and taketh!"
     ],
     60: [
-      "We’re losing ground—LIGHTLY losing ground!",
+      "We’re losing ground—brightly losing ground!",
       "They’re pushing through! This light is distracting!"
     ],
     40: [
-      "This is bad—VERY shiny and VERY bad!",
-      "We’re slipping—HOLY HELP!"
+      "This is bad—very shiny and very bad!",
+      "We’re slipping—could use a miracle right about now!"
     ],
     20: [
-      "We're nearly out! Glitter in distress! SEND HELP!",
-      "If we lose here I’m haunting the sun!"
+      "We’re nearly out! This is not the place to fail!",
+      "If this goes wrong, I’m haunting the nearest sunbeam."
     ]
   };
 
@@ -277,7 +298,7 @@ export function initMap6Events() {
     const pct = (lives / 10) * 100;
     const pos = p();
 
-    for (const t of Object.keys(lightLoss).map(Number).sort((a,b)=>b-a)) {
+    for (const t of Object.keys(lightLoss).map(Number).sort((a, b) => b - a)) {
       if (pct <= t && !triggered.has(t)) {
         triggered.add(t);
         const line = lightLoss[t][Math.floor(Math.random() * lightLoss[t].length)];
@@ -288,20 +309,20 @@ export function initMap6Events() {
   });
 
   // ============================================================
-  // ⭐ 9) ALL CRYSTAL ECHOES COLLECTED — Holy resonance
+  // ⭐ 9) ALL CRYSTAL ECHOES COLLECTED — Holy Resonance
   // ============================================================
 
   mapOnce(6, "echoComplete", () => {
     const pos = p();
 
     spawnSpeechBubble(
-      "All Echoes collected… they’re glowing like tiny suns…",
+      "All the Echoes collected… they’re glowing like gentle suns.",
       pos.x, pos.y, 5200
     );
 
     setTimeout(() => {
       spawnSpeechBubble(
-        "I can feel the Lightlands humming through them… beautiful.",
+        "The Lightlands are humming through them… calm and steady.",
         pos.x, pos.y, 5000
       );
     }, 2600);
