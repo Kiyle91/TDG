@@ -32,7 +32,7 @@ import { gameState } from "../utils/gameState.js";
 // ------------------------------------------------------------
 
 const spireData = {
-  1: { name: "Crystal Defender",  level: 2,  cost: 50,  key: "1" },
+  1: { name: "Crystal Defender",  level: 1,  cost: 50,  key: "1" },
   2: { name: "Frost Sentinel",    level: 5,  cost: 100, key: "2" },
   3: { name: "Flameheart",        level: 10, cost: 150, key: "3" },
   4: { name: "Arcane Spire",      level: 15, cost: 200, key: "4" },

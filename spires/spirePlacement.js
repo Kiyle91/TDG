@@ -52,7 +52,7 @@ const SPIRE_COST = 50;
 const SPIRE_RADIUS = 75; // minimum spacing between spires
 
 const SPIRE_UNLOCKS = {
-  1: { name: "Crystal Defender",  key: "basic_spire",  unlock: 2,  projectile: "crystal" },
+  1: { name: "Crystal Defender",  key: "basic_spire",  unlock: 1,  projectile: "crystal" },
   2: { name: "Frost Sentinel",    key: "frost_spire",  unlock: 5,  projectile: "frost"   },
   3: { name: "Flameheart",        key: "flame_spire",  unlock: 10, projectile: "flame"   },
   4: { name: "Arcane Spire",      key: "arcane_spire", unlock: 15, projectile: "arcane"  },
