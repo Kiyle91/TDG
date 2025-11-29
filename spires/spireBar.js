@@ -98,7 +98,7 @@ export function updateSpireBar() {
     // --------------------------------------------------------
     
     slot.classList.add("unlocked");
-    label.textContent = `🪙 ${data.cost}`;
+    label.textContent = `🪨 ${data.cost}`;
     label.style.color = "#fff";
     label.style.textShadow = "0 0 6px #000000ff, 0 0 12px #000000ff";
     slot.title = `${data.name} — Cost: ${data.cost} Gold`;

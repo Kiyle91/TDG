@@ -405,20 +405,19 @@
 /* Charging fill (JS controls height %) */
 #bravery-fill {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
 
-  width: 100%;
-  height: 0%; /* JS-controlled */
+  width: 0%;   /* JS updates THIS horizontally */
+  height: 100%;
 
-  background: linear-gradient(180deg, #ffe37f, #ff9ad4, #d9b3ff);
+  background: linear-gradient(90deg, #ffe37f, #ff9ad4, #d9b3ff);
   box-shadow:
     0 0 16px rgba(255, 200, 255, 0.8),
     inset 0 0 12px rgba(255, 255, 255, 0.5);
 
   transition: width 0.25s ease-out;
 }
-
 /* When bravery is full, JS adds .full for constant glow */
 #bravery-fill.full {
   animation: braveryGlow 1.2s ease-in-out infinite;
