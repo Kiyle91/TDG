@@ -63,12 +63,24 @@ function createModal() {
   document.body.appendChild(modal);
 }
 
+function resetAlertButtons() {
+  if (!modal) return;
+
+  const ok = modal.querySelector("#ow-alert-ok");
+  const cancel = modal.querySelector("#ow-alert-cancel");
+
+  // Restore normal displays (JS will hide/show depending on modal type)
+  ok.style.display = "inline-flex";
+  cancel.style.display = "inline-flex";
+}
+
 // ------------------------------------------------------------
 // 💖 SHOW ALERT
 // ------------------------------------------------------------
 
 export function showAlert(message, callback = null) {
   if (!modal) createModal();
+  resetAlertButtons();
 
   const text = modal.querySelector("#ow-alert-text");
   const extra = modal.querySelector("#ow-alert-extra");
@@ -95,6 +107,7 @@ export function showAlert(message, callback = null) {
 
 export function showConfirm(message, onYes, onNo = null, options = {}) {
   if (!modal) createModal();
+  resetAlertButtons();
 
   const text = modal.querySelector("#ow-alert-text");
   const extra = modal.querySelector("#ow-alert-extra");
@@ -182,6 +195,45 @@ export function showInput(message, onSubmit, placeholder = "Type here...") {
     modal.style.display = "none";
   };
 }
+
+export function showDifficultySelect(onSelect) {
+  if (!modal) createModal();
+
+  const text = modal.querySelector("#ow-alert-text");
+  const extra = modal.querySelector("#ow-alert-extra");
+  const ok = modal.querySelector("#ow-alert-ok");
+  const cancel = modal.querySelector("#ow-alert-cancel");
+
+  // Title
+  text.textContent = "Choose your difficulty:";
+
+  // Hide both OK and Cancel for this modal
+  ok.style.display = "none";
+  cancel.style.display = "none";
+
+  // Difficulty buttons container
+  extra.innerHTML = `
+    <div class="difficulty-select">
+      <button class="diff-btn" data-diff="easy">Easy</button>
+      <button class="diff-btn" data-diff="normal">Normal</button>
+      <button class="diff-btn" data-diff="hard">Hard</button>
+    </div>
+  `;
+
+  modal.style.display = "flex";
+
+  // Click handlers for each difficulty option
+  extra.querySelectorAll(".diff-btn").forEach(btn => {
+    btn.onclick = () => {
+      const diff = btn.dataset.diff;
+      playFairySprinkle();
+      modal.style.display = "none";
+      if (onSelect) onSelect(diff);
+    };
+  });
+}
+
+
 
 // ============================================================
 // 🌟 END OF FILE

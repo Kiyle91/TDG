@@ -224,6 +224,81 @@
 }
 
 
+/* ============================================================
+   🌟 DIFFICULTY SELECTOR — Pastel Crystal Buttons
+   ============================================================ */
+
+.difficulty-select {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+/* Base style for each difficulty button */
+.difficulty-select .diff-btn {
+  min-width: 90px;
+  padding: 8px 16px;
+
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+
+  font-family: "Princess Sofia", "Comic Sans MS", cursive;
+  font-size: 0.9rem;
+  color: #ffffff;
+
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  cursor: pointer;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+
+  box-shadow:
+    0 0 14px rgba(135, 210, 255, 0.6),
+    inset 0 0 10px rgba(255, 255, 255, 0.35);
+
+  transition: all 0.2s ease;
+}
+
+/* Pastel flavour per difficulty */
+.difficulty-select .diff-btn[data-diff="easy"] {
+  background: linear-gradient(
+    135deg,
+    rgba(180, 255, 180, 0.4),
+    rgba(210, 255, 210, 0.25)
+  );
+}
+
+.difficulty-select .diff-btn[data-diff="normal"] {
+  background: linear-gradient(
+    135deg,
+    rgba(190, 215, 255, 0.4),
+    rgba(225, 240, 255, 0.25)
+  );
+}
+
+.difficulty-select .diff-btn[data-diff="hard"] {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 190, 190, 0.4),
+    rgba(255, 215, 215, 0.25)
+  );
+}
+
+/* Hover / press */
+.difficulty-select .diff-btn:hover {
+  transform: scale(1.05);
+  filter: brightness(1.08);
+  box-shadow:
+    0 0 22px rgba(140, 200, 255, 0.95),
+    inset 0 0 14px rgba(255, 255, 255, 0.5);
+}
+
+.difficulty-select .diff-btn:active {
+  transform: scale(0.96);
+  filter: brightness(0.95);
+}
 
 /* ============================================================
    🌟 END OF FILE

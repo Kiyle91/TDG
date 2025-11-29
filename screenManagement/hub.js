@@ -58,6 +58,8 @@ import { getSlotSummaries } from "../save/saveSystem.js";
 
 import { initSpireUpgrades, refreshSpireUpgradeFromHub } from "../spires/spireUpgrades.js";
 
+import { showDifficultySelect } from "./alert.js";
+
 let hubListenersBound = false;
 
 
@@ -163,28 +165,45 @@ export function initHub() {
 
   newStoryBtn.addEventListener("click", () => {
     playFairySprinkle();
+
+    // Step 1 — “Begin your adventure?”
     showConfirm("Are you ready to begin your adventure?", () => {
-      const startStory = (resetProgress) => {
-        if (gameActive) stopGameplay("restart");
 
-        document.querySelectorAll("#end-screen, .end-overlay")
-          .forEach(el => el.remove());
+      // ⭐ Step 2 — Choose Difficulty
+      showDifficultySelect((chosenDiff) => {
 
-        startNewGameStory({ resetProgress });
-      };
+        const profile = getActiveProfile();
+        if (profile) {
+          profile.difficulty = chosenDiff;   // easy | normal | hard
+          saveProfiles();
+        }
 
-      if (hasExistingProgress()) {
-        showConfirm(
-          "Reset your levels and map unlocks too?",
-          () => startStory(true),
-          () => startStory(false),
-          { variant: "danger" }
-        );
-      } else {
-        startStory(true);
-      }
+        // Continue original flow
+        const startStory = (resetProgress) => {
+          if (gameActive) stopGameplay("restart");
+
+          document.querySelectorAll("#end-screen, .end-overlay")
+            .forEach(el => el.remove());
+
+          startNewGameStory({ resetProgress });
+        };
+
+        // Step 3 — If progress exists → ask about reset
+        if (hasExistingProgress()) {
+          showConfirm(
+            "Reset your levels and map unlocks too?",
+            () => startStory(true),
+            () => startStory(false),
+            { variant: "danger" }
+          );
+        } else {
+          startStory(true);
+        }
+      });
     });
   });
+
+
 
   // ============================================================
   // LOAD GAME – FIXED VERSION
