@@ -96,7 +96,7 @@ function tryPlaceSpire(num) {
   // 💰 Gold requirement
   const gold = gameState.profile.currencies?.gold ?? 0;
   if (gold < SPIRE_COST) {
-    spawnFloatingText(player.pos.x, player.pos.y - 40, "Not enough gold", "#ff7aa8");
+    spawnFloatingText(player.pos.x, player.pos.y - 40, "Not enough shards", "#ff7aa8");
     playCancelSound();
     return;
   }

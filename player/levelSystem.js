@@ -61,9 +61,6 @@ export function awardXP(amount = 25) {
 
   p.xp = (p.xp || 0) + amount;
 
-  // Visual feedback
-  spawnFloatingText(p.pos.x, p.pos.y - 50, `+${amount} XP`, "#b3ffb3", 18);
-
   checkLevelUp().catch((err) => {
     console.warn("Level up processing failed:", err);
   });
