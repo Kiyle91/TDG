@@ -570,7 +570,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   initProfiles();
   initSettings();
   initHub();
-  await initGame();
   initSparkles();
   initNavbar();
   initCredits();

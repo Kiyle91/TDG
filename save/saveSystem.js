@@ -121,17 +121,25 @@ function getActiveProfile() {
 function getProfileStorageKeys() {
   const keys = [];
   const profile = getActiveProfile();
-  if (profile?.id) keys.push(`profile_${profile.id}`);
 
-  // Only use numeric index key when index is valid (avoids -1 / empty cases)
+  // Primary: stable unique profile ID
+  if (profile?.id) {
+    keys.push(`profile_${profile.id}`);
+  }
+
+  // Secondary: numeric index key (for old saves / fallback)
   const idx = getProfileIndex();
-  if (idx >= 0) keys.push(`profile_${idx}`);
+  if (Number.isInteger(idx) && idx >= 0) {
+    keys.push(`profile_${idx}`);
+  }
 
+  // De-dupe in case both paths resolve to the same string
   return [...new Set(keys)];
 }
 
 function getPrimaryProfileKey() {
-  return getProfileStorageKeys()[0];
+  const keys = getProfileStorageKeys();
+  return keys && keys.length ? keys[0] : null;
 }
 
 export function clearProfileSaves(profile) {
@@ -159,7 +167,7 @@ function resolveProfileSlots(all, { create = false } = {}) {
     for (const key of fallbacks) {
       if (!all[key]) continue;
       slots = all[key];
-      all[primary] = slots;
+      all[primary] = slots;      // migrate to primary
       if (key !== primary) delete all[key];
       migrated = true;
       break;
@@ -564,8 +572,34 @@ export function deleteSlot(index) {
 
 export function getSlotSummaries() {
   const all = loadAllSaves();
-  const { slots, migrated } = resolveProfileSlots(all);
+
+  // Use the same key resolution as loadFromSlot()
+  let { slots, migrated } = resolveProfileSlots(all);
+
+  if (!slots) {
+    // Fallback: try every possible profile key
+    const keys = getProfileStorageKeys();
+    for (const key of keys) {
+      if (all[key]) {
+        slots = all[key];
+        break;
+      }
+    }
+  }
+
+  // Absolute final fallback: scan all stored keys (safety)
+  if (!slots) {
+    for (const key of Object.keys(all)) {
+      const arr = all[key];
+      if (Array.isArray(arr)) {
+        slots = arr;
+        break;
+      }
+    }
+  }
+
   if (migrated) persistAllSaves(all);
+
   const list = slots || [];
 
   return list.map((snap, index) => {
@@ -584,6 +618,7 @@ export function getSlotSummaries() {
     };
   });
 }
+
 
 export function autoSave() {
   const snap = snapshotGame();
