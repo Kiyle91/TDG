@@ -186,11 +186,9 @@ export function drawFloatingText(ctx) {
     }
 
     // Glow for normal text
-    ctx.shadowColor = t.color;
-    ctx.shadowBlur = 20;
 
-    ctx.strokeStyle = "rgba(255,255,255,0.85)";
-    ctx.lineWidth = 2;
+
+;
     ctx.strokeText(t.value, drawX, drawY);
 
     ctx.fillStyle = t.color;

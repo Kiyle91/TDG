@@ -179,20 +179,22 @@ export function refreshSpireUpgradeFromHub() {
 // Hooks directly into the SAME logic as Hub upgrades.
 // ============================================================
 
-export function upgradeSpireById(spireId) {
-    const cards = document.querySelectorAll("#overlay-spires .spire-card");
-
-    for (const card of cards) {
-        const id = Number(card.dataset.spire);
-        if (id === spireId) {
-            const btn = card.querySelector("[data-upgrade-btn]");
-            if (!btn) return false;
-
-            // Trigger the SAME logic as clicking inside the Hub
-            btn.click();
-            return true;
-        }
+export function tryUpgradeSpireDirect(spireId) {
+    const currencies = gameState.profile?.currencies;
+    if (!currencies || currencies.diamonds < 20) {
+        return false;  // ❌ Not enough diamonds
     }
 
-    return false;
+    currencies.diamonds -= 20;
+    gameState.profile.spires[spireId].diamondsSpent += 20;
+
+    saveProfiles();
+    updateHubCurrencies();
+    refreshSpireUpgradeUI();
+
+    return true; // ✅ Upgrade succeeded
+}
+
+export function upgradeSpireById(spireId) {
+    return tryUpgradeSpireDirect(spireId);
 }

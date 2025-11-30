@@ -149,16 +149,15 @@ export function initSpireClickHandler(canvas) {
         if (!s) return;
 
         const spireId = SPIRE_ID_MAP[s.type] || null;
-        if (spireId) {
-            upgradeSpireById(spireId);
 
-            // 🌟 Floating upgrade feedback (very small, pastel)
-            spawnFloatingText(
-                s.x,
-                s.y - 60,
-                "✨ Upgraded! ✨",
-                "#ffd6ff"
-            );
+        if (spireId) {
+            const ok = upgradeSpireById(spireId);
+
+            if (ok) {
+                spawnFloatingText(s.x, s.y - 60, "✨ Upgraded! +1% Effect ✨", "#ffd6ff");
+            } else {
+                spawnFloatingText(s.x, s.y - 60, "💎 Not enough 💎", "#ff7b7b");
+            }
         }
 
         popup.classList.add("hidden");
@@ -546,11 +545,11 @@ export function drawSpires(ctx) {
       // Outline for readability
       ctx.lineWidth = 3;
       ctx.strokeStyle = "rgba(0,0,0,0.7)";
-      ctx.strokeText(shotsRemaining, spire.x, drawY - 14);
+      ctx.strokeText(shotsRemaining, spire.x, drawY - -63);
 
       // Main text
       ctx.fillStyle = "rgba(255,255,255,0.95)";
-      ctx.fillText(shotsRemaining, spire.x, drawY - 14);
+      ctx.fillText(shotsRemaining, spire.x, drawY - -63);
 
       ctx.restore();
     }

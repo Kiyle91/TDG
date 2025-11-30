@@ -245,7 +245,7 @@ function collectCrystalEcho(crystal, index) {
 
   playEchoCollect();
 
-  addGold (10);
+  addGold (5);
 
   updateHUD();
 
