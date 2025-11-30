@@ -243,6 +243,8 @@ import {
 
 import { applyGoblinAuras } from "../entities/goblinAuras.js";  
 
+import { initSpireClickHandler } from "../spires/spires.js";
+
 
 export {
   waveConfigs,
@@ -669,6 +671,7 @@ export async function initGame(mode = "new") {
 
   initPlayerController(canvas);
   initUI();
+  initSpireClickHandler(canvas);
 
   const current = gameState.progress?.currentMap ?? gameState.currentMap ?? 1;
   gameState.currentMap = current;

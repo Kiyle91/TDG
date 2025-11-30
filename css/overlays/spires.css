@@ -238,6 +238,47 @@
     z-index: 12000 !important;
 }
 
+#spire-upgrade-popup {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    background: rgba(255,255,255,0.75);
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.85);
+    backdrop-filter: blur(4px);
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: #333;
+    pointer-events: auto;
+    z-index: 99999;
+    transition: opacity 0.15s ease-out;
+}
+
+#spire-upgrade-popup.show {
+    opacity: 1;
+    display: block;
+}
+
+#spire-upgrade-popup.hidden {
+    opacity: 0;
+    display: none;
+}
+
+#spire-upgrade-popup .popup-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#spire-upgrade-popup .label {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+#spire-upgrade-popup .cost {
+    font-size: 13px;
+}
+
 /* ============================================================
    🌟 END OF FILE
 ============================================================ */

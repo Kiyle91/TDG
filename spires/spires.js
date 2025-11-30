@@ -34,6 +34,9 @@ import { getElites } from "../entities/elite.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { gameState } from "../utils/gameState.js";
 import { Events } from "../core/eventEngine.js";
+import { upgradeSpireById } from "../spires/spireUpgrades.js";
+
+
 // ------------------------------------------------------------
 // INTERNAL STATE
 // ------------------------------------------------------------
@@ -104,6 +107,65 @@ async function loadSpireSprites() {
 // ------------------------------------------------------------
 // INIT
 // ------------------------------------------------------------
+
+export function initSpireClickHandler(canvas) {
+    const popup = document.getElementById("spire-upgrade-popup");
+
+    canvas.addEventListener("click", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const mx = (e.clientX - rect.left) * window.canvasScaleX + window.cameraX;
+        const my = (e.clientY - rect.top) * window.canvasScaleY + window.cameraY;
+
+        const all = getSpires();
+        let chosen = null;
+
+        for (const s of all) {
+            if (Math.hypot(mx - s.x, my - s.y) < 40) {
+                chosen = s;
+                break;
+            }
+        }
+
+        if (!chosen) {
+            popup.classList.add("hidden");
+            popup.classList.remove("show");
+            window.__selectedSpire = null;
+            return;
+        }
+
+        window.__selectedSpire = chosen;
+
+        // Position popup ABOVE tower (camera-aware)
+        popup.style.left = `${chosen.x - window.cameraX}px`;
+        popup.style.top = `${chosen.y - 60 - window.cameraY}px`;
+
+        popup.classList.add("show");
+        popup.classList.remove("hidden");
+    });
+
+    // Click popup → perform actual upgrade
+    popup.addEventListener("click", () => {
+        const s = window.__selectedSpire;
+        if (!s) return;
+
+        const spireId = SPIRE_ID_MAP[s.type] || null;
+        if (spireId) {
+            upgradeSpireById(spireId);
+
+            // 🌟 Floating upgrade feedback (very small, pastel)
+            spawnFloatingText(
+                s.x,
+                s.y - 60,
+                "✨ Upgraded! ✨",
+                "#ffd6ff"
+            );
+        }
+
+        popup.classList.add("hidden");
+        popup.classList.remove("show");
+        window.__selectedSpire = null;
+    });
+}
 
 export async function initSpires() {
   spires.length = 0;

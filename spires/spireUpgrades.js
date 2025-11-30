@@ -172,3 +172,27 @@ export function initSpireUpgrades() {
 export function refreshSpireUpgradeFromHub() {
   refreshSpireUpgradeUI();
 }
+
+// ============================================================
+// 🌟 Map-click upgrade entry point
+// Called when clicking the in-game spire popup.
+// Hooks directly into the SAME logic as Hub upgrades.
+// ============================================================
+
+export function upgradeSpireById(spireId) {
+    const cards = document.querySelectorAll("#overlay-spires .spire-card");
+
+    for (const card of cards) {
+        const id = Number(card.dataset.spire);
+        if (id === spireId) {
+            const btn = card.querySelector("[data-upgrade-btn]");
+            if (!btn) return false;
+
+            // Trigger the SAME logic as clicking inside the Hub
+            btn.click();
+            return true;
+        }
+    }
+
+    return false;
+}
