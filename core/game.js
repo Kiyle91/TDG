@@ -948,50 +948,91 @@ export function renderGame() {
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
 
-    // Simple, readable pulse (solid fill + subtle ring + dark rim)
+    // Simple, readable pulse focused on edges (strip-based, clear center)
     const now = performance.now();
-    const pulse = 0.5 + 0.5 * Math.sin(now / 120);
-    const ringPulse = 0.5 + 0.5 * Math.sin(now / 70);
-    const edgeAlpha = Math.min(0.85, Math.max(0.25, 0.25 + flash * 0.5 + 0.25 * pulse));
+    const pulse = 0.5 + 0.5 * Math.sin(now / 100);
+    const flashPhase = 0.5 + 0.5 * Math.sin(now / 180);
+    // Keep it very visible but still bound to the edges
+    const edgeAlpha = Math.min(1, Math.max(0.6, flash * 0.9 + 0.25 * pulse + 0.2 * flashPhase));
 
-    // Solid purple wash
+    const thickness = Math.max(28, Math.min(w, h) * 0.14);
+
     ctx.save();
     ctx.globalCompositeOperation = "screen";
-    ctx.globalAlpha = edgeAlpha;
-    ctx.fillStyle = "rgba(140,0,200,1)";
-    ctx.fillRect(0, 0, w, h);
+
+    // Helper to draw one edge with a quick fade inward
+    const drawEdge = (makeGrad, x, y, width, height) => {
+      const grad = makeGrad();
+      grad.addColorStop(0.0, `rgba(220,0,255,${edgeAlpha})`);
+      grad.addColorStop(0.6, `rgba(190,0,230,${edgeAlpha * 0.55})`);
+      grad.addColorStop(1.0, "rgba(180,0,230,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, y, width, height);
+    };
+
+    // Top
+    drawEdge(
+      () => {
+        const g = ctx.createLinearGradient(0, 0, 0, thickness);
+        return g;
+      },
+      0, 0, w, thickness
+    );
+    // Bottom
+    drawEdge(
+      () => {
+        const g = ctx.createLinearGradient(0, h, 0, h - thickness);
+        return g;
+      },
+      0, h - thickness, w, thickness
+    );
+    // Left
+    drawEdge(
+      () => {
+        const g = ctx.createLinearGradient(0, 0, thickness, 0);
+        return g;
+      },
+      0, 0, thickness, h
+    );
+    // Right
+    drawEdge(
+      () => {
+        const g = ctx.createLinearGradient(w, 0, w - thickness, 0);
+        return g;
+      },
+      w - thickness, 0, thickness, h
+    );
+
     ctx.restore();
 
-    // Thin strobing ring near the edge for contrast
+    // Thin strobing ring to add motion at the edge
+    const ringPulse = 0.5 + 0.5 * Math.sin(now / 60);
     ctx.save();
     ctx.globalCompositeOperation = "screen";
-    ctx.globalAlpha = Math.min(0.6, edgeAlpha * (0.7 + 0.6 * ringPulse));
+    ctx.globalAlpha = Math.min(0.85, edgeAlpha * (0.7 + 0.7 * ringPulse));
     const ring = ctx.createRadialGradient(
-      w / 2, h / 2, Math.min(w, h) * 0.82,
-      w / 2, h / 2, Math.max(w, h) * 0.98
+      w / 2, h / 2, Math.min(w, h) * 0.8,
+      w / 2, h / 2, Math.max(w, h) * 0.995
     );
     ring.addColorStop(0.0, "rgba(0,0,0,0)");
-    ring.addColorStop(0.5, "rgba(220,0,255,0.55)");
-    ring.addColorStop(0.8, "rgba(255,200,255,0.9)");
-    ring.addColorStop(1.0, "rgba(255,255,255,0.1)");
+    ring.addColorStop(0.4, "rgba(220,0,255,0.65)");
+    ring.addColorStop(0.75, "rgba(255,200,255,0.95)");
+    ring.addColorStop(1.0, "rgba(255,255,255,0.2)");
     ctx.fillStyle = ring;
     ctx.fillRect(0, 0, w, h);
     ctx.restore();
 
-    // Dark rim to enhance contrast at the very edges
+    // Light dark rim to frame without flooding center
     ctx.save();
     ctx.globalCompositeOperation = "multiply";
-    ctx.globalAlpha = edgeAlpha * 0.4;
-
+    ctx.globalAlpha = edgeAlpha * 0.2;
     const gradDark = ctx.createRadialGradient(
-      w / 2, h / 2, Math.min(w, h) * 0.26,
-      w / 2, h / 2, Math.max(w, h) * 1.08
+      w / 2, h / 2, Math.min(w, h) * 0.3,
+      w / 2, h / 2, Math.max(w, h) * 1.05
     );
-
     gradDark.addColorStop(0.0, "rgba(0,0,0,0)");
-    gradDark.addColorStop(0.6, "rgba(20,0,40,0.35)");
-    gradDark.addColorStop(1.0, "rgba(6,0,12,0.65)");
-
+    gradDark.addColorStop(0.6, "rgba(12,0,24,0.15)");
+    gradDark.addColorStop(1.0, "rgba(4,0,8,0.4)");
     ctx.fillStyle = gradDark;
     ctx.fillRect(0, 0, w, h);
     ctx.restore();

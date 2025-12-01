@@ -49,7 +49,8 @@ import { playSeraphineSpawn } from "../core/soundtrack.js";
 let seraphines = [];
 let sprites = null;
 let darkOrbs = [];
-let seraphineEdgeFlash = 0; // 0–1 intensity
+let seraphineEdgeFlash = 0; // 0–1 intensity (raw)
+let seraphineEdgeFlashDisplay = 0; // smoothed for UI
 
 // Which maps she appears on: 1, 4, 7, 9
 // Tune these numbers however you like.
@@ -272,6 +273,8 @@ export function spawnSeraphineBoss(phase = 1, x, y, options = {}) {
 
   seraphines.push(boss);
   seraphineEdgeFlash = 1; // force an immediate edge flash on spawn
+  // keep display lagging slightly for a softer fade-in
+  seraphineEdgeFlashDisplay = Math.min(seraphineEdgeFlashDisplay, seraphineEdgeFlash * 0.5);
 
   Events.emit(E.bossSpawn, {
     boss: "seraphine",
@@ -379,6 +382,7 @@ function drawDarkOrbs(ctx) {
 export function updateSeraphine(delta = 16) {
   if (!seraphines.length || !gameState.player) {
     seraphineEdgeFlash *= 0.9; // softly fade out glow when she isn't present
+    seraphineEdgeFlashDisplay += (seraphineEdgeFlash - seraphineEdgeFlashDisplay) * 0.08;
     updateDarkOrbs(delta);
     return;
   }
@@ -438,7 +442,7 @@ export function updateSeraphine(delta = 16) {
         // smooth transition
         seraphineEdgeFlash += (intensity - seraphineEdgeFlash) * 0.1;
         // ensure a minimum presence cue while she is alive
-        seraphineEdgeFlash = Math.max(seraphineEdgeFlash, 0.6);
+        seraphineEdgeFlash = Math.max(seraphineEdgeFlash, 0.8);
       } else {
         // fade out when defeated / removed
       seraphineEdgeFlash *= 0.92;
@@ -886,7 +890,9 @@ export function clearSeraphines() {
 }
 
 export function getSeraphinesEdgeFlash() {
-  return seraphineEdgeFlash;
+  // ease display toward target for smoother fade-in/out
+  seraphineEdgeFlashDisplay += (seraphineEdgeFlash - seraphineEdgeFlashDisplay) * 0.08;
+  return seraphineEdgeFlashDisplay;
 }
 // ============================================================
 // 🌟 END OF FILE — seraphine.js
