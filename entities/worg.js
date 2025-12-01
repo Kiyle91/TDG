@@ -8,7 +8,7 @@
 // ============================================================
 
 import { gameState, addGold } from "../utils/gameState.js";
-import { addBravery } from "../player/bravery.js";
+import { addBravery, applyBraveryAuraEffects } from "../player/bravery.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { awardXP } from "../player/levelSystem.js";
 import { updateHUD } from "../screenManagement/ui.js";
@@ -159,6 +159,7 @@ export function updateWorg(delta = 16) {
     }
 
     handleWorgElementalEffects(w, dt);
+    applyBraveryAuraEffects(w);
 
     if (w.flashTimer > 0) {
       w.flashTimer -= delta;
