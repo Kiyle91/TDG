@@ -41,7 +41,7 @@
 // ------------------------------------------------------------ 
 
 import { playFairySprinkle } from "../core/soundtrack.js";
-import { stopGameplay, resetGameplay } from "../main.js";
+import { stopGameplay, resetGameplay, startGameplay } from "../main.js";
 import { pauseGame, resumeGame, showOverlay, closeOverlay } from "./ui.js";
 import { renderSlots } from "../save/saveSlots.js";
 import { loadFromSlot, applySnapshot } from "../save/saveSystem.js";
@@ -214,7 +214,7 @@ function handleNavAction(action) {
   
 }
 
-function handleInGameSlotClick(evt) {
+async function handleInGameSlotClick(evt) {
   const loadBtn = evt.target.closest(".load-btn");
   if (!loadBtn) return;
 
@@ -226,9 +226,27 @@ function handleInGameSlotClick(evt) {
   const snap = loadFromSlot(slotIndex);
   if (!snap) return;
 
+  // Align map to snapshot before reinitializing the game
+  const targetMap = snap.progress?.currentMap
+    ? Math.min(Math.max(snap.progress.currentMap, 1), 9)
+    : snap.meta?.map
+      ? Math.min(Math.max(snap.meta.map, 1), 9)
+      : 1;
+
+  gameState.progress.currentMap = targetMap;
+  gameState.currentMap = targetMap;
+  if (gameState.profile?.progress) {
+    gameState.profile.progress.currentMap = targetMap;
+  }
+
+  // Re-init the game for the new map context, then apply snapshot
+  const gameMod = await import("../core/game.js");
+  await gameMod.initGame("load");
+
   applySnapshot(snap);
   ensureSkin(gameState.player);
   saveProfiles();
+  startGameplay?.();
 
   const overlay = document.getElementById("overlay-save-game");
   if (overlay) {

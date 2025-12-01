@@ -649,14 +649,13 @@ export function drawGoblins(context) {
       ctx.globalAlpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
     }
 
+    const sw = img.width;
+    const sh = img.height;
+
     ctx.drawImage(
       img,
-      0,
-      0,
-      1024,
-      1024,
-      drawX,
-      drawY,
+      0, 0, sw, sh,
+      drawX, drawY,
       GOBLIN_SIZE,
       GOBLIN_SIZE
     );
