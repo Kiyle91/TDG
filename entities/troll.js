@@ -524,13 +524,34 @@ export function drawTrolls(ctx) {
       ctx.filter = `brightness(${1 + alpha * 0.4}) saturate(${1 + alpha})`;
     }
 
+    // ===========================
+    // 🎨 Dynamic Troll Scaling
+    // ===========================
+    let renderSize = SIZE;
+
+    // Detect attack / melee frames
+    const isAttack = t.attacking && trollSprites.attack[t.attackDir].includes(img);
+    const isMelee  = t.attacking && img === trollSprites.attack[t.attackDir][1];
+
+    // Scale rules:
+    //  - Attack frames = +15%
+    //  - Melee frames  = +7%
+    if (isAttack) {
+      renderSize = SIZE * 1.07;
+    } else if (isMelee) {
+      renderSize = SIZE * 1.0;
+    }
+
+    // Center the enlarged sprite so it doesn't shift position
+    const offset = (renderSize - SIZE) / 2;
+
     ctx.drawImage(
       img,
       0, 0, img.width, img.height,
-      drawX,
-      drawY,
-      SIZE,
-      SIZE
+      drawX - offset,
+      drawY - offset,
+      renderSize,
+      renderSize
     );
 
     ctx.filter = "none";
