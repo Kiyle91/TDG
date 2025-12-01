@@ -492,10 +492,26 @@ export function drawElites(ctx) {
 
     // Draw
     if (!e.alive) {
-      const deadOffset = size * 0.15;
-      ctx.drawImage(img, drawX, drawY + deadOffset, size, size);
+      const srcW = img.width;
+      const srcH = img.height;
+
+      ctx.drawImage(
+        img,
+        0, 0, srcW, srcH,
+        drawX, drawY, size, size
+      );
+
     } else {
-      ctx.drawImage(img, drawX, drawY, size, size);
+            // All elite sprites are now 512x512, scale them down
+      const srcW = img.width;
+      const srcH = img.height;
+
+      ctx.drawImage(
+        img,
+        0, 0, srcW, srcH,
+        drawX, drawY, size, size
+      );
+
     }
 
     // Burn effect

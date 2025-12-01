@@ -786,6 +786,12 @@ export function getSlotSummaries() {
 
 
 export function autoSave() {
+  const player = gameState.player;
+  // Do not snapshot defeat states so Continue won't resume from a fail screen
+  if (player && (player.dead || (player.hp ?? 1) <= 0 || (player.lives ?? 1) <= 0)) {
+    return null;
+  }
+
   const snap = snapshotGame();
 
   const all = loadAllSaves();
