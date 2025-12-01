@@ -44,7 +44,7 @@ import { spawnLoot } from "./loot.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { addBravery, applyBraveryAuraEffects } from "../player/bravery.js"
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
-import { tryEnemySpeech } from "../core/events/enemySpeech.js";
+import { tryEnemySpeech, tryEnemyHitSpeech } from "../core/events/enemySpeech.js";
 
 
 // ============================================================
@@ -546,6 +546,7 @@ export function damageCrossbow(c, amount) {
   c.hp -= amount;
   spawnFloatingText(c.x, c.y - 40, `-${amount}`, "#ff8080");
   playGoblinDamage();
+  tryEnemyHitSpeech(c);
 
   if (c.hp <= 0) {
     killCrossbow(c);

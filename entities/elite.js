@@ -45,7 +45,7 @@ import { slideRect } from "../utils/mapCollision.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 import { addBravery } from "../player/bravery.js";
 import { applyBraveryAuraEffects } from "../player/bravery.js";
-import { tryEnemySpeech } from "../core/events/enemySpeech.js";
+import { tryEnemySpeech, tryEnemyHitSpeech } from "../core/events/enemySpeech.js";
 // ============================================================
 // 🧩 INTERNAL STATE
 // ============================================================
@@ -407,6 +407,7 @@ export function damageElite(e, amount) {
 
   spawnFloatingText(e.x, e.y - 40, `-${amount}`, "#ff3355");
   playGoblinDamage();
+  tryEnemyHitSpeech(e);
 
   if (e.hp <= 0) {
     e.hp = 0;

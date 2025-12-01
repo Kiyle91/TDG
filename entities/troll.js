@@ -43,7 +43,7 @@ import { awardXP } from "../player/levelSystem.js";
 import { slideRect } from "../utils/mapCollision.js";
 import { addBravery, applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
-import { tryEnemySpeech } from "../core/events/enemySpeech.js";
+import { tryEnemySpeech, tryEnemyHitSpeech } from "../core/events/enemySpeech.js";
 // ------------------------------------------------------------
 // 🗺️ INTERNAL STATE
 // ------------------------------------------------------------
@@ -459,6 +459,7 @@ export function damageTroll(t, amount) {
 
   spawnFloatingText(t.x, t.y - 40, `-${Math.round(amount)}`, "#ff7777");
   playGoblinDamage();
+  tryEnemyHitSpeech(t);
 
   if (t.hp <= 0) {
     t.hp = 0;

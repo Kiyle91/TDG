@@ -175,6 +175,35 @@ const ENEMY_LINES = {
 };
 
 // -------------------------------------------
+// Attempt hit reaction speech
+// -------------------------------------------
+
+export function tryEnemyHitSpeech(e) {
+  if (!e || !e.alive) return;
+  const lines = ENEMY_HIT_LINES[e.type];
+  if (!lines) return;
+
+  const now = performance.now();
+  if (now < enemyHitSpeechActiveUntil) return;
+  if (e._nextHitSpeech && now < e._nextHitSpeech) return;
+  if (Math.random() > HIT_SPEECH_CHANCE) return;
+
+  const line = lines[Math.floor(Math.random() * lines.length)];
+
+  spawnSpeechBubble(
+    line,
+    e.x,
+    e.y - 70,
+    HIT_SPEECH_DURATION,
+    e,
+    { category: "enemy-hit", clearExisting: false }
+  );
+
+  enemyHitSpeechActiveUntil = now + HIT_SPEECH_DURATION;
+  e._nextHitSpeech = now + HIT_COOLDOWN_MS;
+}
+
+// -------------------------------------------
 // CONFIG (unchanged)
 // -------------------------------------------
 
@@ -182,6 +211,12 @@ const SPEECH_CHANCE = 0.00025;
 const COOLDOWN_MS = 8000;
 const SPEECH_DURATION = 5000;
 let enemySpeechActiveUntil = 0;
+
+// Hit reactions: short, rare barks when enemies take damage
+const HIT_SPEECH_CHANCE = 0.06;
+const HIT_COOLDOWN_MS = 2500;
+const HIT_SPEECH_DURATION = 2800;
+let enemyHitSpeechActiveUntil = 0;
 
 // -------------------------------------------
 // Attempt speech for one enemy
@@ -214,7 +249,6 @@ export function tryEnemySpeech(e) {
   enemySpeechActiveUntil = now + SPEECH_DURATION;
   e._nextSpeechTime = now + COOLDOWN_MS;
 }
-
 
 const ENEMY_HIT_LINES = {
   goblin: [

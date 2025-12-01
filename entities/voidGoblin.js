@@ -40,7 +40,7 @@ import { getAllPaths } from "../maps/map.js";
 import { applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 import { GOBLIN_AURA_RADIUS } from "./goblinAuraConstants.js";
-import { tryEnemySpeech } from "../core/events/enemySpeech.js";
+import { tryEnemySpeech, tryEnemyHitSpeech } from "../core/events/enemySpeech.js";
 
 
 // ============================================================
@@ -565,6 +565,7 @@ export function damageGoblin(goblin, amount) {
   goblin.hp -= dmg;
   goblin.flashTimer = 150;
   playGoblinDamage();
+  tryEnemyHitSpeech(goblin);
 
   if (goblin.hp <= 0) {
     goblin.hp = 0;
