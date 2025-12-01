@@ -789,36 +789,23 @@ export function autoSave() {
   const snap = snapshotGame();
 
   const all = loadAllSaves();
-  const profile = getActiveProfile();
-  const activeId = profile?.id || null;
-  const activeName = (profile?.name || "").toLowerCase();
+  const activeProfile = getActiveProfile();
+  const activeId = activeProfile?.id || null;
+  const activeName = (activeProfile?.name || "").toLowerCase();
   const { slots, primary, key } = resolveProfileSlots(all, { create: true, activeId, activeName });
   if (!slots || !primary) return snap;
 
   if (activeId) snap.profileId = activeId;
   snap.profileKey = key || primary;
 
-  // Always use slot 0 for autosave, but avoid downgrading progress (by map/wave)
-  const existing = slots[0];
-  const newMap = snap.meta?.map ?? 1;
-  const existingMap = existing?.meta?.map ?? 1;
-  const newWave = snap.meta?.wave ?? 1;
-  const existingWave = existing?.meta?.wave ?? 1;
+  // Always overwrite slot 0 with the current session state.
+  // Previously we skipped "downgrade" saves (lower map/wave) which left stale
+  // autosaves around after resets and made Continue jump to later maps.
+  slots[0] = snap;
 
-  const isDowngrade =
-    existing &&
-    (
-      existingMap > newMap ||
-      (existingMap === newMap && existingWave > newWave)
-    );
-
-  if (!isDowngrade) {
-    slots[0] = snap;
-
-    // Update lastSave pointer
-    const profile = gameState.profile;
-    if (profile) profile.lastSave = 0;
-  }
+  // Update lastSave pointer
+  const profileState = gameState.profile;
+  if (profileState) profileState.lastSave = 0;
 
   persistAllSaves(all);
   saveProfiles();
