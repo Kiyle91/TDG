@@ -150,9 +150,21 @@ export function clearProfileSaves(profile) {
   const index = gameState.profiles.indexOf(profile);
   if (index >= 0) ids.push(`profile_${index}`);
 
-  // Ensure we delete the save data for this profile
+  // Remove known keys first
   for (const key of ids) {
-    if (all[key]) delete all[key];  // Deletes the profile's save data
+    if (all[key]) delete all[key];
+  }
+
+  // Remove any other slot arrays that contain this profile's saves
+  if (profile?.id) {
+    const targetId = profile.id;
+    for (const key of Object.keys(all)) {
+      const arr = all[key];
+      if (!Array.isArray(arr)) continue;
+      if (arr.some(snap => snap?.profileId === targetId)) {
+        delete all[key];
+      }
+    }
   }
 
   // Clear all save slots for this profile
@@ -160,22 +172,150 @@ export function clearProfileSaves(profile) {
   persistAllSaves(all);  // Persist changes to the save data
 }
 
-function resolveProfileSlots(all, { create = false } = {}) {
-  const profileKey = getPrimaryProfileKey();  // Use profile key for each active profile
+function resolveProfileSlots(all, { create = false, activeId = null, activeName = "" } = {}) {
+  const keys = getProfileStorageKeys();
+  const primary = keys[0] || null;
+  let allowRetag = false;
 
-  let slots = all[profileKey];  // Ensure each profile has its own set of slots
+  // No profile available yet
+  if (!primary && !create) return { slots: null, migrated: false, primary: null, key: null };
+
+  const ownsSlots = (arr, { allowUntyped = false } = {}) => {
+    if (!Array.isArray(arr)) return false;
+    let hasActive = false;
+    for (const snap of arr) {
+      if (!snap) continue;
+      if (snap.profileId && activeId && snap.profileId !== activeId) return false;
+      if (snap.profileId === activeId) hasActive = true;
+      const metaName = snap.meta?.profileName?.toLowerCase?.();
+      if (!snap.profileId && allowUntyped && activeName && metaName && metaName === activeName) {
+        hasActive = true;
+      }
+    }
+    if (hasActive) return true;
+    if (allowUntyped) {
+      return arr.length === 0 || arr.every(snap => !snap?.profileId);
+    }
+    return false;
+  };
+
+  let chosenKey = null;
+  let slots = null;
   let migrated = false;
 
-  // Fallback if no slots are found for the current profile
-  if (!slots) {
-    if (create) {
-      slots = [];
-      all[profileKey] = slots;  // Create a new slot list for this profile
-      migrated = true;
+  // 1) Prefer arrays under our expected keys (id first, then index)
+  for (const key of keys) {
+    const candidate = all[key];
+    const allowUntyped = key === primary;
+    if (ownsSlots(candidate, { allowUntyped })) {
+      slots = candidate;
+      chosenKey = key;
+      break;
     }
   }
 
-  return { slots: slots || [], migrated, primary: profileKey };
+  // 2) If still nothing and we have an activeId, look for any array that already contains saves for this profile
+  if (!slots && activeId) {
+    for (const key of Object.keys(all)) {
+      const candidate = all[key];
+      if (!Array.isArray(candidate)) continue;
+      const hasActive = candidate.some(snap => snap?.profileId === activeId);
+      const hasForeign = candidate.some(snap => snap?.profileId && snap.profileId !== activeId);
+      if (hasActive && !hasForeign) {
+        slots = candidate;
+        chosenKey = key;
+        break;
+      }
+    }
+  }
+
+  // 2b) As a final migration step, if still nothing, adopt arrays whose profileName matches and have no foreign ids
+  if (!slots && activeName) {
+    const targetName = activeName.toLowerCase();
+    for (const key of Object.keys(all)) {
+      const candidate = all[key];
+      if (!Array.isArray(candidate)) continue;
+      let consistentId = null;
+      let foreignId = false;
+      let nameCompatible = true;
+      for (const snap of candidate) {
+        if (!snap) continue;
+        const metaName = snap.meta?.profileName?.toLowerCase?.();
+        if (metaName && metaName !== targetName) {
+          nameCompatible = false;
+          break;
+        }
+        if (snap.profileId) {
+          if (!consistentId) consistentId = snap.profileId;
+          if (snap.profileId !== consistentId) {
+            foreignId = true;
+            break;
+          }
+        }
+      }
+      if (nameCompatible && !foreignId) {
+        slots = candidate;
+        chosenKey = key;
+        // If ids don't match, allow retagging to activeId
+        if (activeId && consistentId && consistentId !== activeId) {
+          allowRetag = true;
+        }
+        break;
+      }
+    }
+  }
+
+  // 3) Create if requested
+  if (!Array.isArray(slots) && create && primary) {
+    slots = [];
+    all[primary] = slots;
+    chosenKey = primary;
+    migrated = true;
+  }
+
+  // 4) If we found slots under a non-primary key that belongs to this profile, copy into primary for stability
+  if (slots && primary && chosenKey && chosenKey !== primary && keys.includes(chosenKey)) {
+    const allowUntyped = true;
+    if (ownsSlots(slots, { allowUntyped })) {
+      all[primary] = slots;
+      migrated = true;
+      chosenKey = primary;
+    }
+  }
+
+  // 5) Stamp ownership for compatible slots and drop foreign ones
+  if (Array.isArray(slots) && activeId) {
+    let touched = false;
+    slots.forEach((snap, idx) => {
+      if (!snap) return;
+      if (snap.profileId && snap.profileId !== activeId) {
+        if (allowRetag) {
+          snap.profileId = activeId;
+          touched = true;
+        } else {
+          slots[idx] = null;
+          touched = true;
+          return;
+        }
+      }
+      if (!snap.profileId) {
+        snap.profileId = activeId;
+        touched = true;
+      }
+      if (!snap.profileKey) {
+        snap.profileKey = chosenKey || primary;
+        touched = true;
+      }
+    });
+    if (touched) migrated = true;
+  }
+
+  return {
+    slots: Array.isArray(slots) ? slots : null,
+    migrated,
+    primary: primary,
+    key: chosenKey,
+  };
 }
 
 
@@ -286,6 +426,17 @@ export function applySnapshot(snapshot) {
     gameState.progress = sanitizeProgress(snapshot.progress);
   } else {
     gameState.progress = sanitizeProgress(gameState.progress);
+  }
+
+  // Keep all map pointers aligned to the loaded snapshot
+  if (gameState.progress) {
+    gameState.currentMap = gameState.progress.currentMap ?? 1;
+    if (gameState.profile) {
+      gameState.profile.progress = {
+        ...(gameState.profile.progress || {}),
+        ...gameState.progress,
+      };
+    }
   }
 
   // ----------------------------------------------------------
@@ -487,20 +638,30 @@ export function saveToSlot(index) {
   }
 
   const all = loadAllSaves();
-  const { slots } = resolveProfileSlots(all, { create: true });
+  const profile = getActiveProfile();
+  const activeId = profile?.id || null;
+  const activeName = (profile?.name || "").toLowerCase();
+  const { slots, primary, key, migrated } = resolveProfileSlots(all, {
+    create: true,
+    activeId,
+    activeName,
+  });
   
-  if (!slots) {
+  // If we don't have an active profile, bail instead of writing to a null key
+  if (!slots || !primary) {
     throw new Error("Unable to resolve save slots for active profile");
   }
 
   const snap = snapshotGame();  // Take a snapshot of the game state
+  if (activeId) snap.profileId = activeId;
+  snap.profileKey = key || primary;
   slots[slot] = snap;  // Save to the specific profile's slot
   persistAllSaves(all);  // Persist the changes
 
   // Save the last save slot in the active profile
-  const profile = gameState.profile;
-  if (profile) {
-    profile.lastSave = slot;
+  const profileState = gameState.profile;
+  if (profileState) {
+    profileState.lastSave = slot;
     saveProfiles();  // Write it back to localStorage
   }
 
@@ -516,28 +677,31 @@ export function loadFromSlot(index) {
   }
 
   const all = loadAllSaves();
-  let { slots, migrated } = resolveProfileSlots(all);  // Resolve the correct profile slots
-
-  if (!slots) {
-    const keys = getProfileStorageKeys();
-    for (const key of keys) {
-      if (all[key]) {
-        slots = all[key];
-        break;
-      }
-    }
-  }
+  const profile = getActiveProfile();
+  const activeId = profile?.id || null;
+  const activeName = (profile?.name || "").toLowerCase();
+  let { slots, migrated, primary, key } = resolveProfileSlots(all, { activeId, activeName });  // Resolve the correct profile slots
+  const primaryMatchesActive =
+    activeId && primary === `profile_${activeId}`;
 
   if (migrated) persistAllSaves(all);
 
-  const list = slots || [];
+  const list = Array.isArray(slots) ? slots : [];
 
+  // Hide foreign saves for other profiles
+  const filtered = list.map((snap) => {
+    if (!snap) return null;
+    if (activeId && snap.profileId && snap.profileId !== activeId) return null;
+    return snap;
+  });
+
+  // Filter to active profile only; adopt untagged saves stored under the active key
   // Ensure we're loading from the correct profile's slot
-  const chosen = list[slot] || null;
-  if (chosen) return chosen;
+  const inSlot = filtered[slot] || null;
+  if (inSlot) return inSlot;
 
-  // Fallback: check for any non-null save in the current profile
-  for (const snap of list) {
+  // Fallback: any save for this profile
+  for (const snap of filtered) {
     if (snap) return snap;
   }
 
@@ -552,8 +716,11 @@ export function deleteSlot(index) {
   }
 
   const all = loadAllSaves();
-  const { slots } = resolveProfileSlots(all, { create: true });
-  if (!slots) return;
+  const profile = getActiveProfile();
+  const activeId = profile?.id || null;
+  const activeName = (profile?.name || "").toLowerCase();
+  const { slots, primary } = resolveProfileSlots(all, { create: true, activeId, activeName });
+  if (!slots || !primary) return;
 
   slots[slot] = null;
   persistAllSaves(all);
@@ -563,38 +730,23 @@ export function getSlotSummaries() {
   const all = loadAllSaves();
 
   // Use the same key resolution as loadFromSlot()
-  let { slots, migrated } = resolveProfileSlots(all);
+  const profile = getActiveProfile();
+  const activeId = profile?.id || null;
+  const activeName = (profile?.name || "").toLowerCase();
+  let { slots, migrated, primary } = resolveProfileSlots(all, { activeId, activeName });
+  const primaryMatchesActive =
+    activeId && primary === `profile_${activeId}`;
 
   console.log("Loaded slot summaries:", slots);  // Debugging line to confirm loaded slots
 
-  if (!slots) {
-    // Fallback: try every possible profile key
-    const keys = getProfileStorageKeys();
-    for (const key of keys) {
-      if (all[key]) {
-        slots = all[key];
-        break;
-      }
-    }
-  }
-
-  // Absolute final fallback: scan all stored keys (safety)
-  if (!slots) {
-    for (const key of Object.keys(all)) {
-      const arr = all[key];
-      if (Array.isArray(arr)) {
-        slots = arr;
-        break;
-      }
-    }
-  }
+  const list = Array.isArray(slots) ? slots : [];
 
   if (migrated) persistAllSaves(all);
 
-  const list = slots || [];
-
-  return list.map((snap, index) => {
+  return list
+    .map((snap, index) => {
     if (!snap) return null;
+    if (activeId && snap.profileId && snap.profileId !== activeId) return null;
 
     const meta = snap.meta || {};
     return {
@@ -607,7 +759,8 @@ export function getSlotSummaries() {
       gold: meta.gold ?? 0,
       diamonds: meta.diamonds ?? 0,
     };
-  });
+    })
+    .filter(Boolean);
 }
 
 
@@ -616,8 +769,14 @@ export function autoSave() {
   const snap = snapshotGame();
 
   const all = loadAllSaves();
-  const { slots } = resolveProfileSlots(all, { create: true });
-  if (!slots) return snap;
+  const profile = getActiveProfile();
+  const activeId = profile?.id || null;
+  const activeName = (profile?.name || "").toLowerCase();
+  const { slots, primary, key } = resolveProfileSlots(all, { create: true, activeId, activeName });
+  if (!slots || !primary) return snap;
+
+  if (activeId) snap.profileId = activeId;
+  snap.profileKey = key || primary;
 
   // Always use slot 0 for autosave, but avoid downgrading progress (by map/wave)
   const existing = slots[0];

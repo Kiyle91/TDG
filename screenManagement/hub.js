@@ -138,12 +138,17 @@ export function initHub() {
         return;
       }
 
-      if (snap.progress?.currentMap) {
-        gameState.progress.currentMap = Math.min(Math.max(snap.progress.currentMap, 1), 9);
-      } else if (snap.meta?.map) {
-        gameState.progress.currentMap = Math.min(Math.max(snap.meta.map, 1), 9);
-      } else {
-        gameState.progress.currentMap = 1;
+      const targetMap = snap.progress?.currentMap
+        ? Math.min(Math.max(snap.progress.currentMap, 1), 9)
+        : snap.meta?.map
+          ? Math.min(Math.max(snap.meta.map, 1), 9)
+          : 1;
+
+      // Keep all map pointers in sync before loading
+      gameState.progress.currentMap = targetMap;
+      gameState.currentMap = targetMap;
+      if (gameState.profile?.progress) {
+        gameState.profile.progress.currentMap = targetMap;
       }
 
       showScreen("game-container");
@@ -219,12 +224,16 @@ export function initHub() {
     const snap = loadFromSlot(slotIndex);
     if (!snap) return;
 
-    if (snap.progress?.currentMap) {
-      gameState.progress.currentMap = Math.min(snap.progress.currentMap, 9);
-    } else if (snap.meta?.map) {
-      gameState.progress.currentMap = Math.min(snap.meta.map, 9);
-    } else {
-      gameState.progress.currentMap = 1;
+    const targetMap = snap.progress?.currentMap
+      ? Math.min(Math.max(snap.progress.currentMap, 1), 9)
+      : snap.meta?.map
+        ? Math.min(Math.max(snap.meta.map, 1), 9)
+        : 1;
+
+    gameState.progress.currentMap = targetMap;
+    gameState.currentMap = targetMap;
+    if (gameState.profile?.progress) {
+      gameState.profile.progress.currentMap = targetMap;
     }
 
     const ov = document.getElementById("overlay-load");

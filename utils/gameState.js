@@ -180,6 +180,7 @@ export function setProfile(profile) {
   migrateProfile(profile);
 
   gameState.progress = { ...profile.progress };
+  gameState.currentMap = gameState.progress?.currentMap ?? 1;
 
   gameState.player = hydratePlayerFromProfile(profile);
   syncRuntimePlayerIntoProfile();
@@ -452,6 +453,7 @@ export function saveProfiles() {
 export function initProfiles() {
   let stored = [];
   const storedActiveIndex = parseInt(localStorage.getItem("ow_active_profile_index"), 10);
+  let mutatedIds = false;
 
   try {
     const rawOw = window.localStorage.getItem("ow_profiles_v1");
@@ -469,7 +471,11 @@ export function initProfiles() {
   if (!Array.isArray(stored)) {
     stored = [];
   } else if (stored.length > 0) {
-    stored.forEach((p) => migrateProfile(p));
+    stored.forEach((p) => {
+      const beforeId = p?.id;
+      migrateProfile(p);
+      if (!beforeId && p?.id) mutatedIds = true;
+    });
   }
 
   gameState.profiles = stored;
@@ -481,6 +487,9 @@ export function initProfiles() {
 
   gameState.activeProfileIndex = idx;
   gameState.profile = stored[idx] || null;
+  if (gameState.profile?.progress) {
+    gameState.currentMap = gameState.profile.progress.currentMap ?? 1;
+  }
 
   // Persist index back (safety)
   localStorage.setItem("ow_active_profile_index", idx);
@@ -495,6 +504,15 @@ export function initProfiles() {
   }
   if (gameState.profile?.bravery) {
     gameState.bravery = { ...(gameState.profile.bravery || defaultBraveryState()) };
+  }
+
+  // Persist any newly assigned ids so profile/save keys stay stable across reloads
+  if (mutatedIds) {
+    try {
+      localStorage.setItem("ow_profiles_v1", JSON.stringify(stored));
+    } catch {
+      /* ignore */
+    }
   }
 }
 
