@@ -81,7 +81,7 @@ const ATTACK_COOLDOWN = 1500;
 const GOBLIN_DAMAGE = 6;
 const ATTACK_WINDUP_MS = 250;
 const ATTACK_TOTAL_MS = 700;
-const ATTACK_IMPACT_MS = ATTACK_TOTAL_MS - 60;
+const ATTACK_IMPACT_MS = Math.max(0, ATTACK_WINDUP_MS - 20); // land hit just before swapping to melee frame
 const DEATH_LAY_DURATION = 600;
 
 const CROWD_COLLISION_INTERVAL = 100;
@@ -541,7 +541,7 @@ function attackPlayer(goblin, player) {
 
     spawnDamageSparkles(player.pos.x, player.pos.y);
     playPlayerDamage();
-  }, ATTACK_IMPACT_MS); // land damage near the end of the melee frame
+  }, ATTACK_IMPACT_MS); // land damage at end of attack frame (before melee frame)
 
   setTimeout(() => {
     if (goblin.alive) goblin.attacking = false;

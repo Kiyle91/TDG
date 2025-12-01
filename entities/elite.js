@@ -69,7 +69,7 @@ const ATTACK_RANGE = 55;
 const ATTACK_DAMAGE = 14;
 const ATTACK_TOTAL_TIME = 700;  // lengthen full attack animation
 const ATTACK_WINDUP = 250;      // keep attack frame visible longer
-const ATTACK_IMPACT_TIME = ATTACK_TOTAL_TIME - 60;
+const ATTACK_IMPACT_TIME = Math.max(0, ATTACK_WINDUP - 20); // land hit at end of attack frame
 const ATTACK_COOLDOWN = 1500;   // delay between swings
 
 const FADE_OUT = 900;

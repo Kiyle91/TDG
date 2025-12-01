@@ -69,7 +69,7 @@ const RETURN_RANGE = 260;
 const ATTACK_COOLDOWN = 1000;
 const ATTACK_WINDUP_MS = 150;
 const ATTACK_TOTAL_MS = 400;
-const ATTACK_IMPACT_MS = ATTACK_TOTAL_MS - 50;
+const ATTACK_IMPACT_MS = Math.max(0, ATTACK_WINDUP_MS - 20); // land hit just before swapping to melee frame
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT = 900;
 
@@ -241,7 +241,7 @@ function attackPlayer(t, player) {
 
     spawnDamageSparkles(player.pos.x, player.pos.y);
     playPlayerDamage();
-  }, ATTACK_IMPACT_MS); // hit at end of melee frame
+  }, ATTACK_IMPACT_MS); // hit at end of attack frame (before melee frame)
 
   setTimeout(() => {
     if (t.alive) t.attacking = false;
