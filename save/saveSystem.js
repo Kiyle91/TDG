@@ -89,6 +89,7 @@ function sanitizeBravery(bravery) {
 function loadAllSaves() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
+    console.log("Loaded all saves:", raw); // Debugging line to check localStorage contents
     if (!raw) return {};
     const parsed = JSON.parse(raw);
     return typeof parsed === "object" ? parsed : {};
@@ -96,6 +97,7 @@ function loadAllSaves() {
     return {};
   }
 }
+
 
 function persistAllSaves(all) {
   try {
@@ -122,18 +124,15 @@ function getProfileStorageKeys() {
   const keys = [];
   const profile = getActiveProfile();
 
-  // Primary: stable unique profile ID
   if (profile?.id) {
     keys.push(`profile_${profile.id}`);
   }
 
-  // Secondary: numeric index key (for old saves / fallback)
   const idx = getProfileIndex();
   if (Number.isInteger(idx) && idx >= 0) {
     keys.push(`profile_${idx}`);
   }
 
-  // De-dupe in case both paths resolve to the same string
   return [...new Set(keys)];
 }
 
@@ -151,40 +150,34 @@ export function clearProfileSaves(profile) {
   const index = gameState.profiles.indexOf(profile);
   if (index >= 0) ids.push(`profile_${index}`);
 
+  // Ensure we delete the save data for this profile
   for (const key of ids) {
-    if (all[key]) delete all[key];
+    if (all[key]) delete all[key];  // Deletes the profile's save data
   }
 
-  persistAllSaves(all);
+  // Clear all save slots for this profile
+  localStorage.removeItem("ow_active_profile_index");
+  persistAllSaves(all);  // Persist changes to the save data
 }
 
 function resolveProfileSlots(all, { create = false } = {}) {
-  const [primary, ...fallbacks] = getProfileStorageKeys();
-  let slots = all[primary];
+  const profileKey = getPrimaryProfileKey();  // Use profile key for each active profile
+
+  let slots = all[profileKey];  // Ensure each profile has its own set of slots
   let migrated = false;
 
+  // Fallback if no slots are found for the current profile
   if (!slots) {
-    for (const key of fallbacks) {
-      if (!all[key]) continue;
-      slots = all[key];
-      all[primary] = slots;      // migrate to primary
-      if (key !== primary) delete all[key];
+    if (create) {
+      slots = [];
+      all[profileKey] = slots;  // Create a new slot list for this profile
       migrated = true;
-      break;
     }
   }
 
-  if (!slots && create) {
-    slots = [];
-    all[primary] = slots;
-    migrated = true;
-    for (const key of fallbacks) {
-      if (key !== primary) delete all[key];
-    }
-  }
-
-  return { slots: slots || null, migrated, primary };
+  return { slots: slots || [], migrated, primary: profileKey };
 }
+
 
 
 // ------------------------------------------------------------
@@ -495,23 +488,26 @@ export function saveToSlot(index) {
 
   const all = loadAllSaves();
   const { slots } = resolveProfileSlots(all, { create: true });
+  
   if (!slots) {
     throw new Error("Unable to resolve save slots for active profile");
   }
 
-  const snap = snapshotGame();
-  slots[slot] = snap;
-  persistAllSaves(all);
+  const snap = snapshotGame();  // Take a snapshot of the game state
+  slots[slot] = snap;  // Save to the specific profile's slot
+  persistAllSaves(all);  // Persist the changes
 
-  // ??? Persist last save slot into the active profile
+  // Save the last save slot in the active profile
   const profile = gameState.profile;
   if (profile) {
     profile.lastSave = slot;
-    saveProfiles(); // <- this writes it to td_profiles
+    saveProfiles();  // Write it back to localStorage
   }
 
+  console.log("Saved to slot", slot, snap); // Debugging line to confirm save
   return snap;
 }
+
 
 export function loadFromSlot(index) {
   const slot = Number(index);
@@ -520,10 +516,9 @@ export function loadFromSlot(index) {
   }
 
   const all = loadAllSaves();
-  let { slots, migrated } = resolveProfileSlots(all);
+  let { slots, migrated } = resolveProfileSlots(all);  // Resolve the correct profile slots
 
   if (!slots) {
-    // Fallback: try any slot list keyed by current profile id/index
     const keys = getProfileStorageKeys();
     for (const key of keys) {
       if (all[key]) {
@@ -534,27 +529,21 @@ export function loadFromSlot(index) {
   }
 
   if (migrated) persistAllSaves(all);
+
   const list = slots || [];
 
+  // Ensure we're loading from the correct profile's slot
   const chosen = list[slot] || null;
   if (chosen) return chosen;
 
-  // Graceful fallback within this profile: return the first non-null slot (typically autosave slot 0)
+  // Fallback: check for any non-null save in the current profile
   for (const snap of list) {
     if (snap) return snap;
   }
 
-  // Final fallback: scan all stored profile slot lists for any available save
-  for (const key of Object.keys(all)) {
-    const arr = all[key];
-    if (Array.isArray(arr)) {
-      const found = arr.find(Boolean);
-      if (found) return found;
-    }
-  }
-
-  return null;
+  return null;  // No save found for this profile
 }
+
 
 export function deleteSlot(index) {
   const slot = Number(index);
@@ -575,6 +564,8 @@ export function getSlotSummaries() {
 
   // Use the same key resolution as loadFromSlot()
   let { slots, migrated } = resolveProfileSlots(all);
+
+  console.log("Loaded slot summaries:", slots);  // Debugging line to confirm loaded slots
 
   if (!slots) {
     // Fallback: try every possible profile key
@@ -618,6 +609,7 @@ export function getSlotSummaries() {
     };
   });
 }
+
 
 
 export function autoSave() {

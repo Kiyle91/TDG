@@ -214,7 +214,11 @@ export function setProfile(profile) {
   gameState.echoPowerActive = false;
 
   saveProfiles();
+
+  // Persist active profile index to localStorage
+  localStorage.setItem("ow_active_profile_index", gameState.activeProfileIndex);
 }
+
 
 // ============================================================
 // 🧬 SAFE PROFILE MIGRATION
@@ -344,7 +348,6 @@ export function addProfile(name) {
       draining: false,
     },
 
-    // 💎 NEW — Spire Upgrade Data
     spires: {
       1: { diamondsSpent: 0 },
       2: { diamondsSpent: 0 },
@@ -361,6 +364,7 @@ export function addProfile(name) {
   saveProfiles();
   return newProfile;
 }
+
 
 // ============================================================
 // 💾 SAVE ALL PROFILES
@@ -447,6 +451,7 @@ export function saveProfiles() {
 
 export function initProfiles() {
   let stored = [];
+  const storedActiveIndex = parseInt(localStorage.getItem("ow_active_profile_index"), 10);
 
   try {
     const rawOw = window.localStorage.getItem("ow_profiles_v1");
@@ -468,8 +473,17 @@ export function initProfiles() {
   }
 
   gameState.profiles = stored;
-  gameState.activeProfileIndex = stored.length > 0 ? 0 : -1;
-  gameState.profile = stored[0] || null;
+  let idx = (!isNaN(storedActiveIndex)) ? storedActiveIndex : 0;
+
+  // Clamp index to valid range
+  if (idx < 0) idx = 0;
+  if (idx >= stored.length) idx = stored.length - 1;
+
+  gameState.activeProfileIndex = idx;
+  gameState.profile = stored[idx] || null;
+
+  // Persist index back (safety)
+  localStorage.setItem("ow_active_profile_index", idx);
 
   // 🔁 restore player into runtime when a profile exists
   gameState.player = gameState.profile?.player
@@ -485,7 +499,19 @@ export function initProfiles() {
 }
 
 export function loadProfiles() {
-  initProfiles();
+  const storedProfiles = JSON.parse(localStorage.getItem("ow_profiles_v1")) || [];
+  gameState.profiles = storedProfiles;
+
+  // Ensure active profile is correctly loaded
+  const storedActiveIndex = parseInt(localStorage.getItem("ow_active_profile_index"), 10) || 0;
+  gameState.activeProfileIndex = storedActiveIndex;
+
+  // Load the active profile based on the stored index
+  gameState.profile = gameState.profiles[gameState.activeProfileIndex] || null;
+
+  // Log to ensure profiles are being loaded correctly
+  console.log('Loaded profiles:', gameState.profiles);
+  console.log('Active profile index:', gameState.activeProfileIndex);
 }
 
 // ============================================================

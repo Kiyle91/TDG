@@ -1,14 +1,3 @@
-// ============================================================
-// 🌸 main.js — Olivia’s World: Crystal Keep (Polished Edition)
-// ------------------------------------------------------------
-// ✦ Fixed timestep 60Hz game loop
-// ✦ Full multi-map system (1 → 9 + Credits)
-// ✦ Clean retry cycle, victory flow, safe exit
-// ✦ Unified goblin reset logic
-// ✦ Fully stable story, HUD, navbar, overlays
-// ✦ All console logs removed for production
-// ============================================================
-
 import { 
   initGame, 
   updateGame, 
@@ -18,7 +7,7 @@ import {
 } from "./core/game.js";
 
 import { initLanding } from "./screenManagement/landing.js";
-import { initProfiles } from "./screenManagement/profile.js";
+import { initProfiles } from "./screenManagement/profile.js"; // Make sure this is imported
 import { initHub } from "./screenManagement/hub.js";
 import { initSparkles } from "./fx/sparkles.js";
 import { initSettings } from "./screenManagement/settings.js";
@@ -46,11 +35,9 @@ import { initGoblins } from "./entities/goblin.js";
 
 import { showOpeningStory } from "./core/story.js";
 
-
 import { VICTORY_SUBTITLES, VICTORY_MESSAGES } from "./core/game.js";
 
 import { isPreloadComplete, preloadAllAssets } from "./core/preloader.js";
-
 
 // ============================================================
 // 🎮 GLOBAL GAME LOOP STATE
@@ -89,7 +76,6 @@ function gameLoop(timestamp) {
   window.__gameLoopID = requestAnimationFrame(gameLoop);
 }
 
-
 function showLoadingOverlay() {
   const el = document.getElementById("game-loading-overlay");
   if (el) el.style.display = "flex";
@@ -99,7 +85,6 @@ function hideLoadingOverlay() {
   const el = document.getElementById("game-loading-overlay");
   if (el) el.style.display = "none";
 }
-
 
 // ============================================================
 // ▶️ SAFE GAME START (waits for preloader + shows cover)
@@ -123,7 +108,6 @@ export async function startGameWithPreload(mode = "new") {
   startGameplay();
 }
 
-
 // ============================================================
 // ▶️ START GAMEPLAY
 // ============================================================
@@ -138,7 +122,6 @@ export function startGameplay() {
   accumulator = 0;
 
   window.__gameLoopID = requestAnimationFrame(gameLoop);
-
 }
 
 // ============================================================
@@ -281,7 +264,6 @@ export function fullNewGameReset() {
   saveProfiles();
 }
 
-
 // ============================================================
 // 🌟 START NEW GAME STORY
 // ============================================================
@@ -317,8 +299,6 @@ export async function startNewGameStory({ resetProgress = true } = {}) {
   gameState.paused = false;
   startGameplay("new");
 }
-
-
 
 // ============================================================
 // 🔁 RESET GAMEPLAY (Try Again)
@@ -360,7 +340,6 @@ export async function resetGameplay() {
 
   const gameMod = await import("./core/game.js");
   await startGameWithPreload("retry");
-
 
   lastTimestamp = performance.now();
   accumulator = 0;

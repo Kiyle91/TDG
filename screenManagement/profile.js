@@ -1,66 +1,38 @@
 // ============================================================
 // 🌸 profile.js — Olivia’s World: Crystal Keep
 // ------------------------------------------------------------
-// ✦ Player profile creation, selection, deletion
-// ✦ Each profile contains full Glitter Guardian data
-// ✦ Integrated with pastel modal system + hub transitions
+// ✦ Profile creation, selection and deletion
+// ✦ Works with new stable gameState.js
+// ✦ Zero side-effects, fully isolated profiles
+// ✦ Smooth UI transitions + pastel modals
 // ============================================================
-/* ------------------------------------------------------------
- * MODULE: profile.js
- * PURPOSE:
- *   Handles profile creation, selection, deletion, and loading.
- *   Each profile maintains its own player data, currencies,
- *   progress, and unlocked systems. This module manages the
- *   profile screen UI, modal interactions, and transitions
- *   into the Hub screen.
- *
- * SUMMARY:
- *   • initProfiles() — entry point for rendering slots, binding
- *     events, and loading stored profiles.
- *   • Profiles support: create, delete, select, persistence.
- *   • Creates a fresh Glitter Guardian (player.js) for each
- *     new profile.
- *   • Smooth pastel transitions + custom alert/confirm/input.
- *
- * FEATURES:
- *   • Up to 6 profiles stored in localStorage
- *   • Automatic activeProfileIndex tracking
- *   • Uses Hub UI updates immediately after selection
- *   • Fully integrated with skins, currencies, story system
- *
- * TECHNICAL NOTES:
- *   • saveProfiles() must be called after any modification
- *   • restorePlayer() reinstalls the saved player object
- *   • Profile name syncs directly to gameState.player.name
- * ------------------------------------------------------------ */
-
 
 // ------------------------------------------------------------
-// ↪️ Imports
+// Imports
 // ------------------------------------------------------------
-
 import {
   gameState,
   addProfile,
   setProfile,
   saveProfiles,
-  loadProfiles
+  initProfiles as loadProfileData
 } from "../utils/gameState.js";
 
 import { createPlayer, restorePlayer } from "../player/player.js";
 import { clearProfileSaves } from "../save/saveSystem.js";
+
 import { showAlert, showConfirm, showInput } from "./alert.js";
 import {
   updateHubProfile,
   updateHubCurrencies,
   updateContinueButton
 } from "./hub.js";
+
 import { playFairySprinkle } from "../core/soundtrack.js";
 
 // ------------------------------------------------------------
-// 🌷 INITIALIZATION
+// INITIALISATION ENTRY POINT
 // ------------------------------------------------------------
-
 export function initProfiles() {
   const profileScreen = document.getElementById("profile-screen");
   const slotsContainer = document.querySelector(".profile-slots");
@@ -69,13 +41,15 @@ export function initProfiles() {
 
   if (!profileScreen || !slotsContainer || !createBtn) return;
 
-  loadProfiles();
+  // 🔥 LOAD SAVED PROFILES FROM STORAGE
+  loadProfileData();
+
+  // 🔥 Populate UI
   renderProfileSlots(slotsContainer);
 
   // ------------------------------------------------------------
-  // 💖 CREATE NEW PROFILE
+  // CREATE NEW PROFILE
   // ------------------------------------------------------------
-
   createBtn.addEventListener("click", () => {
     playFairySprinkle();
 
@@ -96,18 +70,23 @@ export function initProfiles() {
         return;
       }
 
+      // Assign a player to profile
       profile.player = createPlayer();
       saveProfiles();
+
+      // Re-render slots to show new profile
       renderProfileSlots(slotsContainer);
 
+      // Activate new profile
       gameState.activeProfileIndex = gameState.profiles.length - 1;
-
       setProfile(profile);
+
       restorePlayer(profile.player);
       gameState.player.name = profile.name;
 
       playFairySprinkle();
 
+      // Transition into Hub
       profileScreen.style.opacity = 0;
 
       setTimeout(() => {
@@ -118,22 +97,19 @@ export function initProfiles() {
         updateHubProfile();
         updateHubCurrencies();
         updateContinueButton();
-
-        
       }, 600);
     });
   });
 
   // ------------------------------------------------------------
-  // ✨ PROFILE SLOT INTERACTIONS
+  // PROFILE SLOT INTERACTION
   // ------------------------------------------------------------
-
   slotsContainer.addEventListener("click", (e) => {
     playFairySprinkle();
 
-    // Delete
+    // DELETE PROFILE
     if (e.target.classList.contains("profile-delete")) {
-      const index = e.target.dataset.index;
+      const index = Number(e.target.dataset.index);
       const profile = gameState.profiles[index];
       if (!profile) return;
 
@@ -143,13 +119,13 @@ export function initProfiles() {
           clearProfileSaves(profile);
           gameState.profiles.splice(index, 1);
 
-          // If the active profile was deleted, clear runtime links
+          // Clear runtime references if needed
           if (gameState.profile === profile) {
             gameState.profile = null;
             gameState.player = null;
           }
 
-          // Reset active index to a valid slot (or -1 if none remain)
+          // Fix active index
           if (gameState.profiles.length === 0) {
             gameState.activeProfileIndex = -1;
           } else if (gameState.activeProfileIndex >= gameState.profiles.length) {
@@ -158,14 +134,14 @@ export function initProfiles() {
 
           saveProfiles();
           renderProfileSlots(slotsContainer);
-          playFairySprinkle()
+          playFairySprinkle();
         },
         () => playFairySprinkle()
       );
       return;
     }
 
-    // Select
+    // SELECT PROFILE
     const slot = e.target.closest(".profile-slot");
     if (!slot || slot.classList.contains("empty")) return;
 
@@ -176,7 +152,9 @@ export function initProfiles() {
     gameState.activeProfileIndex = index;
 
     setProfile(profile);
+    saveProfiles();
     restorePlayer(profile.player);
+
     gameState.player.name = profile.name;
 
     profileScreen.style.opacity = 0;
@@ -184,6 +162,7 @@ export function initProfiles() {
     setTimeout(() => {
       profileScreen.style.display = "none";
       hub.style.display = "flex";
+
       fadeIn(hub);
       updateHubProfile();
       updateHubCurrencies();
@@ -193,9 +172,8 @@ export function initProfiles() {
 }
 
 // ------------------------------------------------------------
-// 🧩 RENDER PROFILE SLOTS
+// RENDER PROFILE LIST
 // ------------------------------------------------------------
-
 function renderProfileSlots(container) {
   container.innerHTML = "";
 
@@ -207,6 +185,7 @@ function renderProfileSlots(container) {
 
     if (profile) {
       const date = new Date(profile.created).toLocaleDateString();
+
       slot.innerHTML = `
         <strong>${profile.name}</strong><br>
         <small>Created: ${date}</small>
@@ -222,9 +201,8 @@ function renderProfileSlots(container) {
 }
 
 // ------------------------------------------------------------
-// 🌈 FADE-IN UTILITY
+// FADE-IN
 // ------------------------------------------------------------
-
 function fadeIn(element) {
   element.style.opacity = 0;
   element.style.transition = "opacity 0.8s ease";
@@ -232,5 +210,5 @@ function fadeIn(element) {
 }
 
 // ============================================================
-// 🌟 END OF FILE
+// END OF FILE
 // ============================================================

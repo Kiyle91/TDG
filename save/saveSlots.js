@@ -36,7 +36,7 @@ import { resumeGame } from "../screenManagement/ui.js";
 import { showScreen } from "../screenManagement/screens.js";
 import { gameState, saveProfiles } from "../utils/gameState.js";
 import { ensureSkin } from "../screenManagement/skins.js";
-
+import { setProfile } from "../utils/gameState.js";  // Ensure setProfile is imported
 
 // ------------------------------------------------------------
 // 🧱 RENDER SAVE SLOTS
@@ -89,6 +89,11 @@ export function renderSlots(containerEl, allowSave = true) {
       loadBtn.className = "load-btn";
       loadBtn.textContent = "Load";
       loadBtn.dataset.index = 0;
+      loadBtn.addEventListener("click", () => {
+        // Ensure correct profile is loaded
+        setProfile(gameState.profiles[gameState.activeProfileIndex]);
+        loadFromSlot(0);  // Load from slot 0 (autosave)
+      });
       btnRow.appendChild(loadBtn);
     }
 
@@ -98,24 +103,13 @@ export function renderSlots(containerEl, allowSave = true) {
   }
 
   // ============================================================
-  // ⭐ HEADER: MANUAL SAVES (Slots 1–9)
-  // ============================================================
-  const header = document.createElement("h3");
-  header.className = "save-header";
-  header.textContent = "Manual Saves";
-  container.appendChild(header);
-
-  // ============================================================
-  // ⭐ MANUAL SAVE SLOTS 1–9
+  // ⭐ MANUAL SAVE SLOTS (Slots 1–9)
   // ============================================================
   for (let i = 1; i < 10; i++) {
     const summary = summaries[i];
     const slotEl = document.createElement("div");
     slotEl.className = "save-slot";
 
-    // -----------------------------
-    // TITLE
-    // -----------------------------
     const titleEl = document.createElement("div");
     titleEl.className = "save-slot-title";
 
@@ -136,13 +130,10 @@ export function renderSlots(containerEl, allowSave = true) {
         `${timeStr}`;
     }
 
-    // -----------------------------
-    // BUTTONS
-    // -----------------------------
     const btnRow = document.createElement("div");
     btnRow.className = "save-slot-buttons";
 
-    // SAVE/OVERWRITE
+    // Save/Overwrite
     if (allowSave) {
       const saveBtn = document.createElement("button");
       saveBtn.className = "save-btn";
@@ -150,28 +141,29 @@ export function renderSlots(containerEl, allowSave = true) {
       saveBtn.dataset.index = i;
 
       saveBtn.addEventListener("click", () => {
-        playFairySprinkle();
-        try {
-          saveToSlot(i);
-          renderSlots(container, allowSave);
-        } catch (err) {
-          console.error("Error saving slot", err);
-        }
+        // Ensure the correct profile is active before saving
+        setProfile(gameState.profiles[gameState.activeProfileIndex]);
+        saveToSlot(i);  // Save to the slot
+        renderSlots(container, allowSave);
       });
 
       btnRow.appendChild(saveBtn);
     }
 
-    // LOAD
+    // Load
     if (summary) {
       const loadBtn = document.createElement("button");
       loadBtn.className = "load-btn";
       loadBtn.textContent = "Load";
       loadBtn.dataset.index = i;
+      loadBtn.addEventListener("click", () => {
+        setProfile(gameState.profiles[gameState.activeProfileIndex]);
+        loadFromSlot(i);  // Load from the selected slot
+      });
       btnRow.appendChild(loadBtn);
     }
 
-    // DELETE
+    // Delete
     if (summary) {
       const delBtn = document.createElement("button");
       delBtn.className = "delete-btn";
@@ -194,7 +186,6 @@ export function renderSlots(containerEl, allowSave = true) {
 
   return container;
 }
-
 
 // ============================================================
 // 🌟 END OF FILE
