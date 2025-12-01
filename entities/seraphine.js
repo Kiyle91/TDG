@@ -271,6 +271,7 @@ export function spawnSeraphineBoss(phase = 1, x, y, options = {}) {
   };
 
   seraphines.push(boss);
+  seraphineEdgeFlash = 1; // force an immediate edge flash on spawn
 
   Events.emit(E.bossSpawn, {
     boss: "seraphine",
@@ -377,6 +378,7 @@ function drawDarkOrbs(ctx) {
 
 export function updateSeraphine(delta = 16) {
   if (!seraphines.length || !gameState.player) {
+    seraphineEdgeFlash *= 0.9; // softly fade out glow when she isn't present
     updateDarkOrbs(delta);
     return;
   }
@@ -428,17 +430,19 @@ export function updateSeraphine(delta = 16) {
     // ============================================================
     // 🌌 SCREEN EDGE PURPLE FLASH INTENSITY
     // ============================================================
-    if (b.alive && !b.defeated) {
-      // stronger flash when close, weaker when far
-      const maxDist = 1200; 
-      const intensity = Math.max(0, 1 - dist / maxDist);
+      if (b.alive && !b.defeated) {
+        // stronger flash when close, weaker when far
+        const maxDist = 1200; 
+        const intensity = Math.max(0, 1 - dist / maxDist);
 
-      // smooth transition
-      seraphineEdgeFlash += (intensity - seraphineEdgeFlash) * 0.08;
-    } else {
-      // fade out when defeated / removed
+        // smooth transition
+        seraphineEdgeFlash += (intensity - seraphineEdgeFlash) * 0.1;
+        // ensure a minimum presence cue while she is alive
+        seraphineEdgeFlash = Math.max(seraphineEdgeFlash, 0.6);
+      } else {
+        // fade out when defeated / removed
       seraphineEdgeFlash *= 0.92;
-    }
+      }
 
     // If currently casting spell, just let its timer run
     if (b.castingSpell) {

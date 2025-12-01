@@ -1,27 +1,27 @@
-﻿// ============================================================
-// ðŸŒ¸ game.js â€” Olivia's World: Crystal Keep (OPTIMIZED + Multi-Map Spawns)
+// ============================================================
+// 🌸 game.js — Olivia's World: Crystal Keep (OPTIMIZED + Multi-Map Spawns)
 // ------------------------------------------------------------
-// âœ¦ Core game controller & system orchestration
-// âœ¦ Initializes and coordinates all core modules
-// âœ¦ Runs update + render loops (called by main.js)
-// âœ¦ Player + Goblins + Spires rendered between layers
-// âœ¦ Victory/Defeat system + resetCombatState()
-// âœ¦ Floating combat text support (damage/heal popups)
-// âœ¦ Pegasus ambient flight drawn above all layers
-// âœ¦ ðŸ†• PERFORMANCE OPTIMIZATIONS:
+// ✦ Core game controller & system orchestration
+// ✦ Initializes and coordinates all core modules
+// ✦ Runs update + render loops (called by main.js)
+// ✦ Player + Goblins + Spires rendered between layers
+// ✦ Victory/Defeat system + resetCombatState()
+// ✦ Floating combat text support (damage/heal popups)
+// ✦ Pegasus ambient flight drawn above all layers
+// ✦ 🆕 PERFORMANCE OPTIMIZATIONS:
 //    - Throttled HUD updates (every 100ms instead of 16ms)
 //    - Cached getBoundingClientRect() (expensive DOM call)
 //    - Paused-state early exit
-// âœ¦ ðŸ†• MAP-AWARE SPAWN:
+// ✦ 🆕 MAP-AWARE SPAWN:
 //    - Spawns player differently per map (map_one / map_two / others)
-// âœ¦ ðŸ†• WAVE SYSTEM (Maps 1â€“9):
+// ✦ 🆕 WAVE SYSTEM (Maps 1–9):
 //    - Wave configs per map
 //    - Global spawn queue with 4s spacing per goblin
 //    - Unified victory after final wave clear
 // ============================================================
 
 // ------------------------------------------------------------
-// ðŸ—ºï¸ MAP & LAYERS
+// 🗺️ MAP & LAYERS
 // ------------------------------------------------------------
 
 // ------------------------------------------------------------
@@ -39,7 +39,7 @@ import {
 const MAP_LAYERS_BELOW_ENTITIES = ["groundLayer", "road", "props", "propsTwo"];
 const MAP_LAYERS_ABOVE_ENTITIES = ["trees", "clouds"];
 // ------------------------------------------------------------
-// ðŸ‘¹ ENEMIES (Goblin / Troll / Ogre / Worg / Elite / Crossbow)
+// 👹 ENEMIES (Goblin / Troll / Ogre / Worg / Elite / Crossbow)
 // ------------------------------------------------------------
 
 import {
@@ -92,7 +92,7 @@ import {
 } from "../entities/crossbow.js";
 
 // ------------------------------------------------------------
-// ðŸ¹ SPIRES & PROJECTILES
+// 🏹 SPIRES & PROJECTILES
 // ------------------------------------------------------------
 
 import {
@@ -108,7 +108,7 @@ import {
 } from "../spires/projectiles.js";
 
 // ------------------------------------------------------------
-// ðŸŽ UNIFIED LOOT SYSTEM
+// 🎁 UNIFIED LOOT SYSTEM
 // ------------------------------------------------------------
 
 import {
@@ -119,7 +119,7 @@ import {
 } from "../entities/loot.js";
 
 // ------------------------------------------------------------
-// ðŸ§­ PLAYER CONTROLLER
+// 🧭 PLAYER CONTROLLER
 // ------------------------------------------------------------
 
 import {
@@ -129,7 +129,7 @@ import {
 } from "../player/playerController.js";
 
 // ------------------------------------------------------------
-// ðŸ§© UI / HUD
+// 🧩 UI / HUD
 // ------------------------------------------------------------
 
 import {
@@ -139,7 +139,7 @@ import {
 } from "../screenManagement/ui.js";
 
 // ------------------------------------------------------------
-// ðŸ’¬ FLOATING COMBAT TEXT
+// 💬 FLOATING COMBAT TEXT
 // ------------------------------------------------------------
 
 import {
@@ -150,7 +150,7 @@ import {
 import { updateAndDrawSpeechBubbles, clearSpeechBubbles } from "../fx/speechBubble.js";
 
 // ------------------------------------------------------------
-// ðŸª½ PEGASUS (ambient flight only)
+// 🪽 PEGASUS (ambient flight only)
 // ------------------------------------------------------------
 
 import {
@@ -161,7 +161,7 @@ import {
 } from "../entities/pegasus.js";
 
 // ------------------------------------------------------------
-// âœ¨ CRYSTAL ECHOES (ambient sparkle bursts)
+// ✨ CRYSTAL ECHOES (ambient sparkle bursts)
 // ------------------------------------------------------------
 
 import {
@@ -171,7 +171,7 @@ import {
 } from "./crystalEchoes.js";
 
 // ------------------------------------------------------------
-// âš™ï¸ GLOBAL STATE & STORY
+// ⚙️ GLOBAL STATE & STORY
 // ------------------------------------------------------------
 
 import { gameState } from "../utils/gameState.js";
@@ -205,7 +205,7 @@ import { buildSpatialGrid, getNeighbors, getIndex } from "../utils/spatialGrid.j
 import { getSeraphinesEdgeFlash } from "../entities/seraphine.js";
 
 
-// ❄ Ice goblin
+// ? Ice goblin
 import {
   initGoblins as initIceGoblins,
   spawnGoblin as spawnIceGoblin,
@@ -214,7 +214,7 @@ import {
   getGoblins as getIceGoblins,
 } from "../entities/iceGoblin.js";
 
-// 🔥 Ember goblin
+// ?? Ember goblin
 import {
   initGoblins as initEmberGoblins,
   spawnGoblin as spawnEmberGoblin,
@@ -223,7 +223,7 @@ import {
   getGoblins as getEmberGoblins,
 } from "../entities/emberGoblin.js";
 
-// 🌫 Ash goblin
+// ?? Ash goblin
 import {
   initGoblins as initAshGoblins,
   spawnGoblin as spawnAshGoblin,
@@ -232,7 +232,7 @@ import {
   getGoblins as getAshGoblins,
 } from "../entities/ashGoblin.js";
 
-// 🌑 Void goblin
+// ?? Void goblin
 import {
   initGoblins as initVoidGoblins,
   spawnGoblin as spawnVoidGoblin,
@@ -258,7 +258,7 @@ export {
 
 
 // ------------------------------------------------------------
-// ðŸŽ¥ LOCAL CAMERA STATE
+// 🎥 LOCAL CAMERA STATE
 // ------------------------------------------------------------
 
 let canvas = null;
@@ -530,7 +530,7 @@ function resolveEnemyCollisions(spatial, enemies) {
 }
 
 // ------------------------------------------------------------
-// ðŸ§­ MAP-AWARE PLAYER SPAWN (Maps 1â€“9)
+// 🧭 MAP-AWARE PLAYER SPAWN (Maps 1–9)
 // ------------------------------------------------------------
 
 function applyMapSpawn() {
@@ -562,7 +562,7 @@ function applyMapSpawn() {
 }
 
 // ============================================================
-// ðŸŒ· INIT â€” called once when entering the Game screen
+// 🌷 INIT — called once when entering the Game screen
 // ============================================================
 
 export async function initGame(mode = "new") {
@@ -702,7 +702,7 @@ export async function initGame(mode = "new") {
 }
 
 // ============================================================
-// ðŸ” UPDATE â€” synchronized world logic (OPTIMIZED)
+// 🔁 UPDATE — synchronized world logic (OPTIMIZED)
 // ============================================================
 
 export function updateGame(delta) {
@@ -745,7 +745,7 @@ export function updateGame(delta) {
     console.warn("updateWaveSystem failed:", err);
   }
 
-  // ðŸ”® UPDATE SEEKER ORBS
+  // 🔮 UPDATE SEEKER ORBS
   if (gameState.fx?.seekers) {
     for (let i = gameState.fx.seekers.length - 1; i >= 0; i--) {
       const o = gameState.fx.seekers[i];
@@ -815,7 +815,7 @@ export function updateGame(delta) {
 }
 
 // ============================================================
-// ðŸŽ¨ RENDER â€” ordered by layer depth + camera offset
+// 🎨 RENDER — ordered by layer depth + camera offset
 // ============================================================
 
 export function renderGame() {
@@ -867,7 +867,7 @@ export function renderGame() {
 
 
 
-  // ðŸš€ PULSE RINGS
+  // 🚀 PULSE RINGS
   if (gameState.fx?.pulses) {
     for (let i = gameState.fx.pulses.length - 1; i >= 0; i--) {
       const p = gameState.fx.pulses[i];
@@ -890,7 +890,7 @@ export function renderGame() {
     }
   }
 
-  // ðŸ”® DRAW SEEKER ORBS
+  // 🔮 DRAW SEEKER ORBS
   if (gameState.fx?.seekers) {
     for (const o of gameState.fx.seekers) {
       if (!o.alive) continue;
@@ -917,33 +917,6 @@ export function renderGame() {
   ctx.restore();
 
   // ============================================================
-  // 🌌 SCREEN EDGE PURPLE FLASH (Seraphine presence cue)
-  // ============================================================
-  const flash = getSeraphinesEdgeFlash();
-  if (flash > 0.01) {
-      const w = ctx.canvas.width;
-      const h = ctx.canvas.height;
-
-      ctx.save();
-      ctx.globalCompositeOperation = "lighter";
-      ctx.globalAlpha = flash * 0.55;
-
-      // Purple radial gradient centered off-screen for edge glow
-      const grad = ctx.createRadialGradient(
-          w/2, h/2, Math.min(w,h) * 0.25,
-          w/2, h/2, Math.max(w,h) * 0.9
-      );
-
-      grad.addColorStop(0.0, "rgba(0,0,0,0)");
-      grad.addColorStop(0.55, "rgba(90,0,140,0.1)");
-      grad.addColorStop(1.0, "rgba(180,70,255,0.85)");
-
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, w, h);
-
-      ctx.restore();
-  }
-
   for (const layer of MAP_LAYERS_ABOVE_ENTITIES) {
     drawMapLayered(ctx, layer, cameraX, cameraY, canvas.width, canvas.height);
   }
@@ -966,10 +939,67 @@ export function renderGame() {
   lastSpeechBubbleTime = nowBubble;
   updateAndDrawSpeechBubbles(ctx, bubbleDelta);
   ctx.restore();
+
+  // ============================================================
+  // ?? SCREEN EDGE PURPLE FLASH (Seraphine presence cue)
+  // ============================================================
+  const flash = getSeraphinesEdgeFlash();
+  if (flash > 0.01) {
+    const w = ctx.canvas.width;
+    const h = ctx.canvas.height;
+
+    // Simple, readable pulse (solid fill + subtle ring + dark rim)
+    const now = performance.now();
+    const pulse = 0.5 + 0.5 * Math.sin(now / 120);
+    const ringPulse = 0.5 + 0.5 * Math.sin(now / 70);
+    const edgeAlpha = Math.min(0.85, Math.max(0.25, 0.25 + flash * 0.5 + 0.25 * pulse));
+
+    // Solid purple wash
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    ctx.globalAlpha = edgeAlpha;
+    ctx.fillStyle = "rgba(140,0,200,1)";
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+
+    // Thin strobing ring near the edge for contrast
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    ctx.globalAlpha = Math.min(0.6, edgeAlpha * (0.7 + 0.6 * ringPulse));
+    const ring = ctx.createRadialGradient(
+      w / 2, h / 2, Math.min(w, h) * 0.82,
+      w / 2, h / 2, Math.max(w, h) * 0.98
+    );
+    ring.addColorStop(0.0, "rgba(0,0,0,0)");
+    ring.addColorStop(0.5, "rgba(220,0,255,0.55)");
+    ring.addColorStop(0.8, "rgba(255,200,255,0.9)");
+    ring.addColorStop(1.0, "rgba(255,255,255,0.1)");
+    ctx.fillStyle = ring;
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+
+    // Dark rim to enhance contrast at the very edges
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    ctx.globalAlpha = edgeAlpha * 0.4;
+
+    const gradDark = ctx.createRadialGradient(
+      w / 2, h / 2, Math.min(w, h) * 0.26,
+      w / 2, h / 2, Math.max(w, h) * 1.08
+    );
+
+    gradDark.addColorStop(0.0, "rgba(0,0,0,0)");
+    gradDark.addColorStop(0.6, "rgba(20,0,40,0.35)");
+    gradDark.addColorStop(1.0, "rgba(6,0,12,0.65)");
+
+    ctx.fillStyle = gradDark;
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+  }
 }
 
 // ============================================================
-// ðŸ§  VICTORY / DEFEAT CHECK
+// 🧠 VICTORY / DEFEAT CHECK
 // ============================================================
 
 function checkVictoryDefeat() {
@@ -1001,7 +1031,7 @@ function checkVictoryDefeat() {
 }
 
 // ============================================================
-// â™»ï¸ RESET COMBAT STATE â€” Try Again / Continue / New Map
+// ♻️ RESET COMBAT STATE — Try Again / Continue / New Map
 // ============================================================
 
 export function resetCombatState() {
@@ -1083,7 +1113,7 @@ export function resetCombatState() {
 }
 
 // ============================================================
-// ðŸ” RESET PLAYER STATE â€” used by "Try Again"
+// 🔁 RESET PLAYER STATE — used by "Try Again"
 // ============================================================
 
 export function resetPlayerState() {
@@ -1112,7 +1142,7 @@ export function resetPlayerState() {
   hudUpdateTimer = 0;
 }
 
-// Resize â†’ invalidate rect cache (production-safe)
+// Resize → invalidate rect cache (production-safe)
 let resizeListenerBound = false;
 function bindResizeListener() {
   if (resizeListenerBound) return;
@@ -1153,18 +1183,18 @@ function updatePerfOverlay(fps, enemies) {
 export { applyMapSpawn };
 
 // ============================================================
-// ðŸŒŸ END OF FILE
+// 🌟 END OF FILE
 // ============================================================
 
 // ============================================================
-// ðŸ› ï¸ DEBUG TOOL â€” Instant Victory (temporary, safe to remove)
+// 🛠️ DEBUG TOOL — Instant Victory (temporary, safe to remove)
 // ============================================================
 window.debugVictory = function () {
   try {
-    console.log("âš¡ DEBUG: Forcing immediate victoryâ€¦");
+    console.log("⚡ DEBUG: Forcing immediate victory…");
     stopGameplay("victory");
   } catch (err) {
-    console.warn("âš ï¸ debugVictory failed:", err);
+    console.warn("⚠️ debugVictory failed:", err);
   }
 };
 
@@ -1174,6 +1204,6 @@ window.spawnSeraphine = (phase = 3, x, y) => {
   const px = x ?? p?.pos.x ?? 0;
   const py = y ?? p?.pos.y ?? 0;
 
-  console.log("⚡ Spawning Seraphine (phase:", phase, ") at", px, py);
+  console.log("? Spawning Seraphine (phase:", phase, ") at", px, py);
   spawnSeraphineBoss(phase, px, py);
 };
