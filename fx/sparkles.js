@@ -82,6 +82,19 @@ export function spawnDamageSparkles(x, y) {
   spawnCanvasSparkleBurst(x, y, 10, 50, palette);
 }
 
+// Player-specific hit sparkles with a brighter, varied palette
+export function spawnPlayerHitSparkles(x, y) {
+  const palette = [
+    "#ff4d4d",
+    "#ff954d",
+    "#ffd24d",
+    "#7dff6b",
+    "#6bd8ff",
+    "#b26bff",
+  ];
+  spawnCanvasSparkleBurst(x, y, 14, 70, palette);
+}
+
 // Legacy init hook retained for compatibility (sparkles are stateless)
 export function initSparkles() {
   // No initialization required; sparkle storage is module-scoped.

@@ -77,7 +77,7 @@ import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 import {
   updateAndDrawSparkles,
-  spawnDamageSparkles
+  spawnPlayerHitSparkles
 } from "../fx/sparkles.js";
 
 import { performMelee, drawSlashArc } from "../combat/melee.js";
@@ -748,7 +748,7 @@ export function updatePlayer(delta, enemyContext) {
 
           spawnFloatingText(p.pos.x, p.pos.y - 30, `-${damage}`, "#ff7aa8");
           playPlayerDamage();
-          spawnDamageSparkles(p.pos.x, p.pos.y);
+          spawnPlayerHitSparkles(p.pos.x, p.pos.y);
 
           break;
         }
@@ -810,6 +810,7 @@ export function drawPlayer(ctx) {
   ensurePlayerRuntime();
 
   const p = gameState.player;
+  const flashAlpha = p.flashTimer > 0 ? Math.min(1, p.flashTimer / 200) : 0;
   const { x, y } = p.pos;
 
   let img = sprites.idle;
@@ -909,6 +910,12 @@ export function drawPlayer(ctx) {
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
 
+  if (flashAlpha > 0) {
+    ctx.filter = `contrast(${1 + flashAlpha * 0.2}) brightness(${1 + flashAlpha * 0.35}) saturate(${1 + flashAlpha * 0.6})`;
+  } else {
+    ctx.filter = "none";
+  }
+
   // Player sprite (melee first frame exaggerated)
   if (isAttacking && attackType === "melee" && currentFrame === 0) {
     const scale = 1.5;
@@ -946,8 +953,21 @@ export function drawPlayer(ctx) {
     }
   }
 
+  ctx.filter = "none";
+
+  if (flashAlpha > 0) {
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    ctx.globalAlpha = flashAlpha * 0.55;
+    ctx.fillStyle = "rgba(255, 64, 64, 1)";
+    ctx.beginPath();
+    ctx.arc(x, y, SPRITE_SIZE * 0.55, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
   // ---------------------------------------------
-  // 🗡️ Slash Arc FX (Tier-scaled, first attack frame only)
+  // Slash Arc FX (Tier-scaled, first attack frame only)
   // ---------------------------------------------
   if (isAttacking && attackType === "melee" && currentFrame === 0) {
     const tier = p.lastMeleeTier || 1;
