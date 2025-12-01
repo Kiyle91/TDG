@@ -67,6 +67,9 @@ const AGGRO_RANGE = 150;
 const RETURN_RANGE = 260;
 
 const ATTACK_COOLDOWN = 1000;
+const ATTACK_WINDUP_MS = 150;
+const ATTACK_TOTAL_MS = 400;
+const ATTACK_IMPACT_MS = ATTACK_TOTAL_MS - 50;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT = 900;
 
@@ -206,42 +209,44 @@ function attackPlayer(t, player) {
     return;
   }
 
-  // Bravery: ignore all damage while invincible
-  if (player.invincible === true) {
-    t.attacking = false;
-    return;
-  }
-
   playGoblinAttack();
-
-  let damage = 8;
-  const def = player.defense || 5;
-  const reduction = Math.min(0.5, def / 100);
-  damage *= (1 - reduction);
-
-  player.hp = Math.max(0, player.hp - damage);
-  player.flashTimer = 200;
-
-  updateHUD();
-
-  spawnFloatingText(
-    player.pos.x,
-    player.pos.y - 40,
-    `-${Math.round(damage)}`,
-    "#ff6fb1"
-  );
-
-  spawnDamageSparkles(player.pos.x, player.pos.y);
-  playPlayerDamage();
 
   t.attackFrame = 0;
   t.attackDir = t.dir === "left" ? "left" : "right";
 
-  setTimeout(() => { if (t.alive) t.attackFrame = 1; }, 150);
-  setTimeout(() => { if (t.alive) t.attacking = false; }, 400);
+  setTimeout(() => {
+    if (t.alive) t.attackFrame = 1;
+  }, ATTACK_WINDUP_MS);
+
+  setTimeout(() => {
+    if (!t.alive || !t.attacking) return;
+    if (!player || player.dead || player.invincible === true) return;
+
+    let damage = 8;
+    const def = player.defense || 5;
+    const reduction = Math.min(0.5, def / 100);
+    damage *= (1 - reduction);
+
+    player.hp = Math.max(0, player.hp - damage);
+    player.flashTimer = 200;
+
+    updateHUD();
+
+    spawnFloatingText(
+      player.pos.x,
+      player.pos.y - 40,
+      `-${Math.round(damage)}`,
+      "#ff6fb1"
+    );
+
+    spawnDamageSparkles(player.pos.x, player.pos.y);
+    playPlayerDamage();
+  }, ATTACK_IMPACT_MS); // hit at end of melee frame
+
+  setTimeout(() => {
+    if (t.alive) t.attacking = false;
+  }, ATTACK_TOTAL_MS);
 }
-
-
 // ------------------------------------------------------------
 // 🔁 UPDATE — Path → Chase → Attack → Return
 // ------------------------------------------------------------
@@ -579,3 +584,4 @@ export function clearTrolls() {
 // ============================================================
 // 🌟 END OF FILE
 // ============================================================
+

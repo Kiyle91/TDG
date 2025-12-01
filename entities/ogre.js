@@ -79,8 +79,8 @@ const OGRE_HITBOX = OGRE_HIT_RADIUS * 1.4;
 
 // Attack animation timings
 const PHASE_SWITCH_TIME = 140;
-const HIT_DELAY_TIME    = 220;
 const END_ATTACK_TIME   = 600;
+const HIT_DELAY_TIME    = END_ATTACK_TIME - 80;
 
 
 // ------------------------------------------------------------

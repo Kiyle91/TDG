@@ -78,6 +78,9 @@ const AGGRO_RANGE = 150;
 const RETURN_DELAY = 1200;
 const ATTACK_COOLDOWN = 1500;
 const GOBLIN_DAMAGE = 6;
+const ATTACK_WINDUP_MS = 250;
+const ATTACK_TOTAL_MS = 700;
+const ATTACK_IMPACT_MS = ATTACK_TOTAL_MS - 60;
 const DEATH_LAY_DURATION = 600;
 
 const CROWD_COLLISION_INTERVAL = 100;
@@ -506,48 +509,45 @@ function attackPlayer(goblin, player) {
     return;
   }
 
-  // ⭐ BRAVERY INVULNERABILITY
-  if (player.invincible === true) {
-    goblin.attacking = false;
-    return;
-  }
-
   playGoblinAttack();
-
-  let damage = GOBLIN_DAMAGE;
-  const def = player.defense || 5;
-  const reduction = Math.min(0.5, def / 100);
-  damage *= (1 - reduction);
-
-  player.hp = Math.max(0, player.hp - damage);
-  player.flashTimer = 200;
-
-  updateHUD();
-
-  spawnFloatingText(
-    player.pos.x,
-    player.pos.y - 40,
-    `-${Math.round(damage)}`,
-    "#ff6fb1",
-    20
-  );
-
-  spawnDamageSparkles(player.pos.x, player.pos.y);
-  playPlayerDamage();
 
   goblin.attackFrame = 0;
   goblin.attackDir = goblin.dir === "left" ? "left" : "right";
 
   setTimeout(() => {
     if (goblin.alive) goblin.attackFrame = 1;
-  }, 250); // hold wind-up frame a bit longer
+  }, ATTACK_WINDUP_MS); // hold wind-up frame a bit longer
+
+  setTimeout(() => {
+    if (!goblin.alive || !goblin.attacking) return;
+    if (!player || player.dead || player.invincible === true) return;
+
+    let damage = GOBLIN_DAMAGE;
+    const def = player.defense || 5;
+    const reduction = Math.min(0.5, def / 100);
+    damage *= (1 - reduction);
+
+    player.hp = Math.max(0, player.hp - damage);
+    player.flashTimer = 200;
+
+    updateHUD();
+
+    spawnFloatingText(
+      player.pos.x,
+      player.pos.y - 40,
+      `-${Math.round(damage)}`,
+      "#ff6fb1",
+      20
+    );
+
+    spawnDamageSparkles(player.pos.x, player.pos.y);
+    playPlayerDamage();
+  }, ATTACK_IMPACT_MS); // land damage near the end of the melee frame
 
   setTimeout(() => {
     if (goblin.alive) goblin.attacking = false;
-  }, 700); // keep swing frame visible longer
+  }, ATTACK_TOTAL_MS); // keep swing frame visible longer
 }
-
-
 // ============================================================
 // 🎯 DAMAGE
 // ============================================================
@@ -826,3 +826,4 @@ export function getGoblins() {
 // ============================================================
 // 🌟 END OF FILE — goblin.js
 // ============================================================
+
