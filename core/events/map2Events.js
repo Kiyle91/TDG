@@ -301,6 +301,17 @@ export default function initMap2Events() {
   });
 }
 
+// ------------------------------------------------------------
+// Pegasus Loot Lines — Map 2 (Farmer Bragg’s Fields)
+// ------------------------------------------------------------
+
+export const pegasusLootLines_Map2 = [
+  "Loot delivery! She must’ve spotted trouble from above.",
+  "There it is—fresh supplies from my flying unicorn!",
+  "She always finds me in these big fields. Good girl!"
+];
+
+
 // ============================================================
 // END OF FILE
 // ============================================================

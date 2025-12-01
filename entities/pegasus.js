@@ -41,6 +41,10 @@
 import { gameState } from "../utils/gameState.js";
 import { spawnLoot } from "./loot.js";
 import { playPegasusSpawn } from "../core/soundtrack.js";
+import { spawnSpeechBubble } from "../fx/speechBubble.js";
+import { pegasusLootLines_Map1 } from "../core/events/map1Events.js";
+import { pegasusLootLines_Map2 } from "../core/events/map2Events.js";
+import { pegasusLootLines_Map3 } from "../core/events/map3Events.js";
 
 // ------------------------------------------------------------
 // 🗺️ MODULE-LEVEL VARIABLES
@@ -136,6 +140,7 @@ export function updatePegasus(delta = 16) {
       (pegasus.direction === -1 && pegasus.x < mid))
   ) {
     spawnLoot("pegasus", pegasus.x, pegasus.y + 80);
+    emitPegasusLootLine();
     pegasus.hasDropped = true;
   }
 
@@ -174,6 +179,24 @@ function startPegasusFlight() {
   pegasus.hasDropped = false;
 
   active = true;
+  flightTimer = 0;
+  nextFlightDelay = 60000 + Math.random() * 60000; // 60-120s
+}
+
+function emitPegasusLootLine() {
+  const map = gameState.progress?.currentMap ?? 1;
+  const pos = gameState.player?.pos;
+  if (!pos) return;
+
+  let pool = null;
+  if (map === 1) pool = pegasusLootLines_Map1;
+  else if (map === 2) pool = pegasusLootLines_Map2;
+  else if (map === 3) pool = pegasusLootLines_Map3;
+
+  if (!pool || !pool.length) return;
+
+  const line = pool[Math.floor(Math.random() * pool.length)];
+  spawnSpeechBubble(line, pos.x, pos.y, 4000);
 }
 
 // ------------------------------------------------------------

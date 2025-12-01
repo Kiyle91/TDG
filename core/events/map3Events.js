@@ -345,6 +345,15 @@ export default function initMap3Events() {
   });
 }
 
+// ------------------------------------------------------------
+// Pegasus Loot Lines — Map 3 (Drylands)
+// ------------------------------------------------------------
+
+export const pegasusLootLines_Map3 = [
+  "Finally—supplies! Even she hates the Drylands.",
+  "Thank you! It’s too hot to fight without help…",
+  "She swooped through the dust just to drop this. Legend."
+];
 
 // ============================================================
 // END OF FILE

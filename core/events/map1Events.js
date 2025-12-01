@@ -432,6 +432,17 @@ export function initMap1Events() {
   });
 }
 
+// ------------------------------------------------------------
+// Pegasus Loot Lines — Map 1 (Whispering Meadow)
+// ------------------------------------------------------------
+
+export const pegasusLootLines_Map1 = [
+  "Thanks girl! My flying unicorn always knows when I need help.",
+  "Oh! Another drop? She really looks out for me.",
+  "Ariana calls her a pegasus… but she drops loot like a magical unicorn."
+];
+
+
 // ============================================================
 // END OF FILE
 // ============================================================
