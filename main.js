@@ -554,14 +554,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   initCredits();
 });
 
-// �YO� Capture a fresh autosave before the page unloads/reloads
-window.addEventListener("beforeunload", () => {
-  try {
-    autoSave();
-  } catch {
-    /* ignore */
-  }
-});
 
 
 // ============================================================
