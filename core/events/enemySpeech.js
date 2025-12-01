@@ -214,3 +214,110 @@ export function tryEnemySpeech(e) {
   enemySpeechActiveUntil = now + SPEECH_DURATION;
   e._nextSpeechTime = now + COOLDOWN_MS;
 }
+
+
+const ENEMY_HIT_LINES = {
+  goblin: [
+    "Ow! Watch it!",
+    "Hey! That hurt!",
+    "Oof—my ribs!",
+    "Stop poking me!",
+    "Unfair hit!",
+    "Ow ow ow!",
+    "You’re mean!",
+    "That one stung!",
+    "Gonna tell the chief!",
+    "My shiny spot!"
+  ],
+
+  emberGoblin: [
+    "Hot—HEY!",
+    "Ow! I'm burning ME now!",
+    "That smarts!",
+    "Quit it!",
+    "Hey! Careful with that!",
+    "Sparks in my eyes!",
+    "Ow ow—fire bad?!",
+    "Heat… wobbling…",
+    "You hit ember tribe!",
+    "I’ll roast you for that!"
+  ],
+
+  iceGoblin: [
+    "Cold cracks!",
+    "Ouch! Frost bruise!",
+    "Ow! That’s not cool!",
+    "My ice is chipped!",
+    "Hey! No melting me!",
+    "Brittle spot—HEY!",
+    "Shiver—OW!",
+    "My toes!!",
+    "You’re warming me!",
+    "Snowballs don’t hurt THAT much!"
+  ],
+
+  ashGoblin: [
+    "Dust spills!",
+    "The rites feel that!",
+    "Healing! Healing!—Ow!",
+    "Careful with the relics!",
+    "That shook my dust!",
+    "Agh—focus fading!",
+    "The ashes tremble!",
+    "My glow! You dimmed it!",
+    "We endure… mostly!",
+    "Dust not invincible!"
+  ],
+
+  voidGoblin: [
+    "Reality… bends… OUCH.",
+    "The void recoils!",
+    "You fracture our shape!",
+    "Light burns…",
+    "You distort the shadow!",
+    "Pain… interesting.",
+    "That stings across timelines.",
+    "Your spark cuts deep…",
+    "The emptiness shakes.",
+    "Fragments… slipping…"
+  ],
+
+  troll: [
+    "OW! That hurt!",
+    "Who hit troll?!",
+    "Stop poking troll!",
+    "Troll bruise now!",
+    "Mean tiny human!",
+    "That sting! BAD!",
+    "OWW! No fair!",
+    "Troll not like that!",
+    "Hey! Troll sensitive!",
+    "OW! Shoulder hurts!"
+  ],
+
+  elite: [
+    "Hrr—solid hit.",
+    "Good strike.",
+    "I felt that.",
+    "You’re skilled.",
+    "Sharp pain… noted.",
+    "You cut deep.",
+    "Good form!",
+    "Strike landed.",
+    "Swift… but not enough.",
+    "The hunt tests me."
+  ],
+
+  crossbow: [
+    "Ow—bow slip!",
+    "HEY! Watch the aim!",
+    "My fingers!!",
+    "That shook the bolt pouch!",
+    "Unfair—range fighter!",
+    "Oof—reload interrupted!",
+    "Stop jostling troll archer!",
+    "Arrow spilled everywhere!",
+    "OW! My bow hand!",
+    "Twang—ouch!"
+  ]
+};

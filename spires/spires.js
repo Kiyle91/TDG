@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // 💎 spires.js — Optimized Multi-Spire Combat Engine
 // ============================================================
 /* ------------------------------------------------------------
@@ -77,6 +77,39 @@ function getSpireIdFor(spire) {
   return SPIRE_ID_MAP[spire.type] ?? null;
 }
 
+// Popup positioning helpers
+let spirePopup = null;
+const POPUP_OFFSET_Y = 60;
+
+function hideSpirePopup() {
+  if (spirePopup) {
+    spirePopup.classList.add("hidden");
+    spirePopup.classList.remove("show");
+  }
+  window.__selectedSpire = null;
+}
+
+function updateSpirePopupPosition() {
+  const s = window.__selectedSpire;
+  if (!spirePopup || !s) return;
+
+  spirePopup.style.left = `${s.x - window.cameraX}px`;
+  spirePopup.style.top = `${s.y - POPUP_OFFSET_Y - window.cameraY}px`;
+}
+
+function syncSpirePopup() {
+  const selected = window.__selectedSpire;
+  if (!selected) return;
+
+  const stillExists = spires.includes(selected) && !(selected.fadeOut > 0);
+  if (!stillExists) {
+    hideSpirePopup();
+    return;
+  }
+
+  updateSpirePopupPosition();
+}
+
 // ------------------------------------------------------------
 // ASSET LOADING
 // ------------------------------------------------------------
@@ -109,7 +142,7 @@ async function loadSpireSprites() {
 // ------------------------------------------------------------
 
 export function initSpireClickHandler(canvas) {
-    const popup = document.getElementById("spire-upgrade-popup");
+    spirePopup = document.getElementById("spire-upgrade-popup");
 
     canvas.addEventListener("click", (e) => {
         const rect = canvas.getBoundingClientRect();
@@ -127,24 +160,21 @@ export function initSpireClickHandler(canvas) {
         }
 
         if (!chosen) {
-            popup.classList.add("hidden");
-            popup.classList.remove("show");
-            window.__selectedSpire = null;
+            hideSpirePopup();
             return;
         }
 
         window.__selectedSpire = chosen;
 
         // Position popup ABOVE tower (camera-aware)
-        popup.style.left = `${chosen.x - window.cameraX}px`;
-        popup.style.top = `${chosen.y - 60 - window.cameraY}px`;
+        updateSpirePopupPosition();
 
-        popup.classList.add("show");
-        popup.classList.remove("hidden");
+        spirePopup.classList.add("show");
+        spirePopup.classList.remove("hidden");
     });
 
-    // Click popup → perform actual upgrade
-    popup.addEventListener("click", () => {
+    // Click popup to perform actual upgrade
+    spirePopup.addEventListener("click", () => {
         const s = window.__selectedSpire;
         if (!s) return;
 
@@ -154,21 +184,20 @@ export function initSpireClickHandler(canvas) {
             const ok = upgradeSpireById(spireId);
 
             if (ok) {
-                spawnFloatingText(s.x, s.y - 60, "✨ Upgraded! +1% Effect ✨", "#ffd6ff");
+                spawnFloatingText(s.x, s.y - 60, "Upgraded! +1% Effect", "#ffd6ff");
             } else {
-                spawnFloatingText(s.x, s.y - 60, "💎 Not enough 💎", "#ff7b7b");
+                spawnFloatingText(s.x, s.y - 60, "Not enough diamonds", "#ff7b7b");
             }
         }
 
-        popup.classList.add("hidden");
-        popup.classList.remove("show");
-        window.__selectedSpire = null;
+        hideSpirePopup();
     });
 }
 
 export async function initSpires() {
   spires.length = 0;
   spirePulses.length = 0;
+  hideSpirePopup();
   await loadSpireSprites();
 }
 
@@ -407,6 +436,9 @@ export function updateSpires(delta) {
     }
   }
 
+  // Keep upgrade popup pinned to the selected spire (or clear if gone)
+  syncSpirePopup();
+
   // Update pulse ages
   updateSpirePulses(delta);
 }
@@ -571,3 +603,5 @@ export function getSpires() {
 // ============================================================
 // END OF FILE
 // ============================================================
+
+
