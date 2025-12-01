@@ -979,11 +979,13 @@ function checkVictoryDefeat() {
   const hp = p.hp ?? 100;
   const lives = p.lives ?? 3;
 
+  const defeatDelay = 2000;
+
   if (hp <= 0) {
     p.dead = true;
     gameState.paused = true;
     clearSpeechBubbles();
-    setTimeout(() => stopGameplay("defeat"), 1500);
+    setTimeout(() => stopGameplay("defeat"), defeatDelay);
     return;
   }
 
@@ -991,7 +993,7 @@ function checkVictoryDefeat() {
     p.dead = true;
     gameState.paused = true;
     clearSpeechBubbles();
-    setTimeout(() => stopGameplay("lives"), 1500);
+    setTimeout(() => stopGameplay("lives"), defeatDelay);
     return;
   }
 
