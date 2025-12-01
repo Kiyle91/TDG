@@ -471,8 +471,9 @@ export function drawSpires(ctx) {
 
   // Then: draw spires themselves
   for (const spire of spires) {
-    const base = spire.type.replace("_spire", "");
+    const base = spire?.type ? spire.type.replace("_spire", "") : "basic";
     const sprites = spireSprites[base] || spireSprites.basic;
+    if (!sprites || !sprites.idle || !sprites.active) continue;
     const img = spire.activeFrameTimer > 0 ? sprites.active : sprites.idle;
 
     // Size tweaks
