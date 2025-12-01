@@ -150,18 +150,38 @@ export function clearProfileSaves(profile) {
   const index = gameState.profiles.indexOf(profile);
   if (index >= 0) ids.push(`profile_${index}`);
 
-  // Remove known keys first
+  const targetId = profile?.id || null;
+  const targetName = (profile?.name || "").toLowerCase();
+
+  // Remove known keys first (entire array)
   for (const key of ids) {
     if (all[key]) delete all[key];
   }
 
-  // Remove any other slot arrays that contain this profile's saves
-  if (profile?.id) {
-    const targetId = profile.id;
-    for (const key of Object.keys(all)) {
-      const arr = all[key];
-      if (!Array.isArray(arr)) continue;
-      if (arr.some(snap => snap?.profileId === targetId)) {
+  // Scrub any remaining slot arrays that contain this profile's saves (id match or name match)
+  for (const key of Object.keys(all)) {
+    const arr = all[key];
+    if (!Array.isArray(arr)) continue;
+
+    let touched = false;
+    for (let i = 0; i < arr.length; i++) {
+      const snap = arr[i];
+      if (!snap) continue;
+
+      const metaName = snap.meta?.profileName?.toLowerCase?.();
+      const nameMatch = targetName && metaName && metaName === targetName;
+      const idMatch = targetId && snap.profileId === targetId;
+
+      if (idMatch || nameMatch) {
+        arr[i] = null;
+        touched = true;
+      }
+    }
+
+    // If all entries are now null/empty, drop the key entirely
+    if (touched) {
+      const hasAny = arr.some(Boolean);
+      if (!hasAny) {
         delete all[key];
       }
     }
