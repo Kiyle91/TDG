@@ -84,7 +84,7 @@ export const waveConfigs = {
   // Wave 5: + 1 voidGoblin
   // ============================================================
   1: [
-    { goblins: 2,  worgs: 0 , elites: 3 },   // Wave 1 - intr
+    { goblins: 2,  worgs: 10 , elites: 0 },   // Wave 1 - intr
     { goblins: 12, worgs: 0 },   // Wave 2
     { goblins: 16, worgs: 0 },   // Wave 3
     { goblins: 18, worgs: 1 },   // Wave 4 - first worg
