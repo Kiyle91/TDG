@@ -577,7 +577,7 @@ export function damageGoblin(goblin, amount) {
     goblin.fading = false;
     goblin.fadeTimer = 0;
     playGoblinDeath();
-    awardXP(30);
+    awardXP(5);
     addGold(1);
     addBravery(1);
     updateHUD();
