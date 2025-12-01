@@ -77,7 +77,8 @@ import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 
 import {
   updateAndDrawSparkles,
-  spawnPlayerHitSparkles
+  spawnPlayerHitSparkles,
+  spawnSprintSparkles
 } from "../fx/sparkles.js";
 
 import { performMelee, drawSlashArc } from "../combat/melee.js";
@@ -115,6 +116,7 @@ const LOW_HP_THRESHOLD = 0.3;
 const LOW_HP_RESET = 0.36;
 const SPRINT_SPEED_MULTIPLIER = 1.5;
 const SPRINT_MANA_COST_PER_SEC = 2;
+const SPRINT_SPARKLE_INTERVAL = 70; // ms between footstep sparkles while sprinting
 
 // Attack / animation state
 let attackCooldown = 0;
@@ -128,6 +130,7 @@ let currentFrame = 0;
 let currentDir = "down";
 let isMoving = false;
 let lowHpAlerted = false;
+let sprintSparkleTimer = 0;
 
 // Walk anim timer
 let frameTimer = 0;
@@ -601,6 +604,7 @@ export function updatePlayer(delta, enemyContext) {
   const dt = Math.max(0, delta) / 1000;
   const speed = p.speed ?? DEFAULT_SPEED;
   let speedMultiplier = 1;
+  let sprinting = false;
 
   if (p.slowAuraTimer > 0) {
     p.slowAuraTimer -= delta;     // ms count-down
@@ -678,6 +682,7 @@ export function updatePlayer(delta, enemyContext) {
     if (p.mana > sprintManaCost) {
       p.mana = Math.max(0, p.mana - sprintManaCost);
       speedMultiplier *= SPRINT_SPEED_MULTIPLIER;
+      sprinting = true;
     }
   }
 
@@ -702,13 +707,31 @@ export function updatePlayer(delta, enemyContext) {
 
       const moved = Math.hypot(p.pos.x - prevX, p.pos.y - prevY);
       if (moved > 0) {
+        if (sprinting) {
+          sprintSparkleTimer += delta;
+          if (sprintSparkleTimer >= SPRINT_SPARKLE_INTERVAL) {
+            const footX = p.pos.x - dx * SPRITE_SIZE * 0.2;
+            const footY = p.pos.y + SPRITE_SIZE * 0.35;
+            spawnSprintSparkles(footX, footY, dx, dy);
+            sprintSparkleTimer = 0;
+          }
+        } else {
+          sprintSparkleTimer = 0;
+        }
+
         p.stepDistance += moved;
         while (p.stepDistance >= STEP_LENGTH_PX) {
           p.steps += 1;
           p.stepDistance -= STEP_LENGTH_PX;
         }
+      } else {
+        sprintSparkleTimer = 0;
       }
+    } else {
+      sprintSparkleTimer = 0;
     }
+  } else {
+    sprintSparkleTimer = 0;
   }
 
   // Facing

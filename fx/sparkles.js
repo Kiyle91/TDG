@@ -5,7 +5,7 @@
 // ============================================================
 
 const sparkles = [];
-const MAX_SPARKLES = 60;
+const MAX_SPARKLES = 90;
 
 // ------------------------------------------------------------
 // 🌈 Burst of canvas sparkles
@@ -98,4 +98,35 @@ export function spawnPlayerHitSparkles(x, y) {
 // Legacy init hook retained for compatibility (sparkles are stateless)
 export function initSparkles() {
   // No initialization required; sparkle storage is module-scoped.
+}
+
+// ------------------------------------------------------------
+// �YO^ Player sprint trail
+// ------------------------------------------------------------
+export function spawnSprintSparkles(x, y, dirX = 0, dirY = 0) {
+  const palette = ["#fff4ff", "#dff7ff", "#ffeac4"];
+  const baseAngle =
+    dirX !== 0 || dirY !== 0
+      ? Math.atan2(dirY, dirX) + Math.PI // opposite of movement for a trailing look
+      : Math.random() * Math.PI * 2;
+
+  for (let i = 0; i < 3; i++) {
+    if (sparkles.length >= MAX_SPARKLES) {
+      sparkles.shift();
+    }
+
+    const ang = baseAngle + (Math.random() - 0.5) * 0.7;
+    const speed = 50 + Math.random() * 60;
+
+    sparkles.push({
+      x: x + (Math.random() - 0.5) * 8,
+      y: y + (Math.random() - 0.5) * 6,
+      vx: Math.cos(ang) * speed,
+      vy: Math.sin(ang) * speed,
+      life: 240 + Math.random() * 180,
+      age: 0,
+      size: 1 + Math.random() * 1.2,
+      color: palette[Math.floor(Math.random() * palette.length)],
+    });
+  }
 }
