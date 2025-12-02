@@ -453,8 +453,13 @@ function onMouseDown(e) {
     "#center-stats",
     "#spire-bar",
     "#spire-upgrade-popup",
-    ".overlay:not(.hidden)"
+    ".overlay",
+    ".end-overlay",
+    "#end-screen"
   ];
+
+  // If any overlay (settings, stats, confirm, victory/defeat) is open, block firing
+  if (document.querySelector(".overlay.active, .overlay[style*='display: flex'], .end-overlay, #end-screen")) return;
 
   if (target && target !== canvasRef) {
     for (const sel of hudSelectors) {
