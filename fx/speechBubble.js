@@ -3,6 +3,7 @@
 // ============================================================
 
 import { gameState } from "../utils/gameState.js";
+import { getSettings } from "../screenManagement/settings.js";
 
 export const speechBubbles = [];
 
@@ -103,8 +104,13 @@ function wrapText(ctx, text, maxWidth) {
 
 
 function drawSpeechBubble(ctx, bubble, x, y) {
-  ctx.font = "20px Poppins";
+  const settings = getSettings ? getSettings() : {};
+  const large = settings.largeSpeechText === true;
+
+  const fontSize = large ? 24 : 20;
+  const lineHeight = large ? 28 : 22;
   const padding = 14;
+  ctx.font = `${fontSize}px Poppins`;
   const maxWidth = 280; // maximum bubble width before wrapping
 
   // --- WORD WRAP ---
@@ -118,7 +124,6 @@ function drawSpeechBubble(ctx, bubble, x, y) {
   }
 
   const w = longest + padding * 2;
-  const lineHeight = 22;
   const h = lines.length * lineHeight + padding * 2;
 
   // Bubble background

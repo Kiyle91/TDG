@@ -54,6 +54,7 @@ let settings = {
   sfxVolume: 0.8,
   visualsEnabled: true,
   miniControlsEnabled: true,
+  largeSpeechText: false,
   difficulty: "normal",
 };
 
@@ -112,11 +113,13 @@ function applySettingsToUI() {
   const sfxRange = document.getElementById("sfx-volume");
   const visualsToggle = document.getElementById("visuals-toggle");
   const miniToggle = document.getElementById("mini-controls-toggle");
+  const speechToggle = document.getElementById("speech-large-toggle");
 
   if (musicRange) musicRange.value = settings.musicVolume * 100;
   if (sfxRange) sfxRange.value = settings.sfxVolume * 100;
   if (visualsToggle) visualsToggle.checked = settings.visualsEnabled;
   if (miniToggle) miniToggle.checked = settings.miniControlsEnabled;
+  if (speechToggle) speechToggle.checked = settings.largeSpeechText;
   syncDifficultyRadios();
 
   updateLabels();
@@ -141,10 +144,12 @@ function setupListeners() {
   const sfxRange = document.getElementById("sfx-volume");
   const visualsToggle = document.getElementById("visuals-toggle");
   const miniToggle = document.getElementById("mini-controls-toggle");
+  const speechToggle = document.getElementById("speech-large-toggle");
 
   const musicLabel = document.getElementById("music-value");
   const sfxLabel = document.getElementById("sfx-value");
   const miniLabel = miniToggle?.nextElementSibling;
+  const speechLabel = speechToggle?.nextElementSibling;
 
   // Music volume
   musicRange?.addEventListener("input", (e) => {
@@ -170,6 +175,13 @@ function setupListeners() {
     saveSettings();
     if (miniLabel) miniLabel.textContent = enabled ? "Enabled" : "Disabled";
     applyMiniControlsVisibility(enabled);
+  });
+
+  speechToggle?.addEventListener("change", (e) => {
+    const enabled = e.target.checked;
+    settings.largeSpeechText = enabled;
+    saveSettings();
+    if (speechLabel) speechLabel.textContent = enabled ? "Enabled" : "Disabled";
   });
 
   const diffRadios = document.querySelectorAll("input[name='difficulty']");
@@ -202,6 +214,8 @@ function updateLabels() {
   const sfxLabel = document.getElementById("sfx-value");
   const miniToggle = document.getElementById("mini-controls-toggle");
   const miniLabel = miniToggle?.nextElementSibling;
+  const speechToggle = document.getElementById("speech-large-toggle");
+  const speechLabel = speechToggle?.nextElementSibling;
 
   if (musicLabel)
     musicLabel.textContent = `${Math.round(settings.musicVolume * 100)}%`;
@@ -211,6 +225,9 @@ function updateLabels() {
 
   if (miniLabel)
     miniLabel.textContent = settings.miniControlsEnabled ? "Enabled" : "Disabled";
+
+  if (speechLabel)
+    speechLabel.textContent = settings.largeSpeechText ? "Enabled" : "Disabled";
 }
 
 
@@ -227,12 +244,14 @@ export function initGameSettings() {
   const sfxRange = document.getElementById("sfx-volume-game");
   const visualsToggle = document.getElementById("visuals-toggle-game");
   const miniToggle = document.getElementById("mini-controls-toggle-game");
+  const speechToggle = document.getElementById("speech-large-toggle-game");
 
   // Sync UI from settings
   musicRange.value = settings.musicVolume * 100;
   sfxRange.value = settings.sfxVolume * 100;
   visualsToggle.checked = settings.visualsEnabled;
   if (miniToggle) miniToggle.checked = settings.miniControlsEnabled;
+  if (speechToggle) speechToggle.checked = settings.largeSpeechText;
 
   document.getElementById("music-value-game").textContent =
     `${Math.round(settings.musicVolume * 100)}%`;
@@ -268,6 +287,13 @@ export function initGameSettings() {
       settings.miniControlsEnabled = enabled;
       saveSettings();
       applyMiniControlsVisibility(enabled);
+    };
+  }
+
+  if (speechToggle) {
+    speechToggle.onchange = (e) => {
+      settings.largeSpeechText = e.target.checked;
+      saveSettings();
     };
   }
 
