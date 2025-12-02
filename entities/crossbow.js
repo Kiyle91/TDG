@@ -102,7 +102,7 @@ async function loadCrossbowSprites() {
   const base = "./assets/images/sprites/crossbow";
 
   const [
-    idle,
+    idleRight, idleLeft,
     walkR1, walkR2,
     walkL1, walkL2,
     walkU1, walkU2,
@@ -113,7 +113,8 @@ async function loadCrossbowSprites() {
     lowerR, lowerL,
     slain
   ] = await Promise.all([
-    loadImage(`${base}/crossbow_idle.png`),
+    loadImage(`${base}/crossbow_idle_right.png`),
+    loadImage(`${base}/crossbow_idle_left.png`),
 
     loadImage(`${base}/crossbow_D1.png`),
     loadImage(`${base}/crossbow_D2.png`),
@@ -139,8 +140,15 @@ async function loadCrossbowSprites() {
     loadImage(`${base}/crossbow_slain.png`),
   ]);
 
+  const fallbackIdle = await loadImage(`${base}/crossbow_idle.png`);
+
   crossbowSprites = {
-    idle: { right: idle, left: idle, up: idle, down: idle },
+    idle: {
+      right: idleRight || fallbackIdle,
+      left: idleLeft || fallbackIdle,
+      up: fallbackIdle,
+      down: fallbackIdle,
+    },
     walk: {
       right: [walkR1, walkR2].filter(Boolean),
       left: [walkL1, walkL2].filter(Boolean),
