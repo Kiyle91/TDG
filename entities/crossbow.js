@@ -105,6 +105,8 @@ async function loadCrossbowSprites() {
     idle,
     walkR1, walkR2,
     walkL1, walkL2,
+    walkU1, walkU2,
+    walkD1, walkD2,
     shootR,
     shootL,
     raiseR, raiseL,
@@ -119,6 +121,12 @@ async function loadCrossbowSprites() {
     loadImage(`${base}/crossbow_A1.png`),
     loadImage(`${base}/crossbow_A2.png`),
 
+    loadImage(`${base}/crossbow_W1.png`),
+    loadImage(`${base}/crossbow_W2.png`),
+
+    loadImage(`${base}/crossbow_S1.png`),
+    loadImage(`${base}/crossbow_S2.png`),
+
     loadImage(`${base}/crossbow_shoot_right.png`),
     loadImage(`${base}/crossbow_shoot_left.png`),
 
@@ -132,10 +140,12 @@ async function loadCrossbowSprites() {
   ]);
 
   crossbowSprites = {
-    idle: { right: idle, left: idle },
+    idle: { right: idle, left: idle, up: idle, down: idle },
     walk: {
       right: [walkR1, walkR2].filter(Boolean),
       left: [walkL1, walkL2].filter(Boolean),
+      up: [walkU1, walkU2].filter(Boolean),
+      down: [walkD1, walkD2].filter(Boolean),
     },
     attack: {
       right: [raiseR, shootR, lowerR].filter(Boolean),
@@ -207,6 +217,8 @@ export function spawnCrossbow() {
     attacking: false,
     attackFrame: 0,
     attackTimer: 0,
+    facing: "right",
+    moveDir: "right",
   });
 
   return crossbowList[crossbowList.length - 1];   // ← FIXED
@@ -270,7 +282,16 @@ export function updateCrossbows(delta) {
     const dy = py - c.y;
     const dist = Math.hypot(dx, dy) || 1;
 
-    c.dir = dx < 0 ? "left" : "right";
+    const absDx = Math.abs(dx);
+    const absDy = Math.abs(dy);
+
+    c.facing = dx < 0 ? "left" : "right";
+    c.dir = c.facing; // legacy fallback
+    if (absDy > absDx * 1.1) {
+      c.moveDir = dy < 0 ? "up" : "down";
+    } else {
+      c.moveDir = c.facing;
+    }
 
     // Attack cooldown
     if (c.attackTimer > 0) c.attackTimer -= delta;
@@ -486,16 +507,24 @@ export function drawCrossbows(ctx) {
     const drawY = c.y - size / 2;
 
     let img = null;
-    const dir = c.dir === "left" ? "left" : "right";
+    const facing = c.facing === "left" ? "left" : "right";
+    const moveDir = c.moveDir || facing;
 
     if (!c.alive || c.dead) {
       img = crossbowSprites.slain;
-    } else if (c.attacking && crossbowSprites.attack[dir]?.length) {
-      img = crossbowSprites.attack[dir][c.attackFrame % crossbowSprites.attack[dir].length];
-    } else if (crossbowSprites.walk[dir]?.length) {
-      img = crossbowSprites.walk[dir][c.walkFrame % crossbowSprites.walk[dir].length];
+    } else if (c.attacking && crossbowSprites.attack[facing]?.length) {
+      const frames = crossbowSprites.attack[facing];
+      img = frames[c.attackFrame % frames.length];
     } else {
-      img = crossbowSprites.idle[dir];
+      const walkFrames =
+        (crossbowSprites.walk[moveDir]?.length ? crossbowSprites.walk[moveDir] : null) ||
+        (crossbowSprites.walk[facing]?.length ? crossbowSprites.walk[facing] : null);
+
+      if (walkFrames && walkFrames.length) {
+        img = walkFrames[c.walkFrame % walkFrames.length];
+      } else {
+        img = crossbowSprites.idle[moveDir] || crossbowSprites.idle[facing];
+      }
     }
 
     // Shadow
