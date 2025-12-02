@@ -453,13 +453,17 @@ function onMouseDown(e) {
     "#center-stats",
     "#spire-bar",
     "#spire-upgrade-popup",
-    ".overlay",
+    ".overlay:not(#overlay-story)", // block all overlays except story overlay (see exception below)
     ".end-overlay",
     "#end-screen"
   ];
 
-  // If any overlay (settings, stats, confirm, victory/defeat) is open, block firing
-  if (document.querySelector(".overlay.active, .overlay[style*='display: flex'], .end-overlay, #end-screen")) return;
+  // If any blocking overlay is open (settings, stats, confirm, victory/defeat), block firing.
+  // Story overlay is exempt so its Continue button can be clicked without suppressing arrows.
+  const blockingOverlay = document.querySelector(
+    ".overlay.active:not(#overlay-story), .overlay[style*='display: flex']:not(#overlay-story), .end-overlay, #end-screen"
+  );
+  if (blockingOverlay) return;
 
   if (target && target !== canvasRef) {
     for (const sel of hudSelectors) {

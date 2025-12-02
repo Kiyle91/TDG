@@ -93,7 +93,11 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
     const nextBtn = overlay.querySelector("#story-next");
     nextBtn.disabled = false;
 
-    nextBtn.addEventListener("click", () => {
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+
       overlay.classList.add("fade-out");
 
       setTimeout(() => {
@@ -106,6 +110,14 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
 
         resolve();
       }, 400);
+    };
+
+    // Auto-close safeguard after 45 seconds
+    const autoCloseTimer = setTimeout(finish, 45000);
+
+    nextBtn.addEventListener("click", () => {
+      clearTimeout(autoCloseTimer);
+      finish();
     });
   });
 }
