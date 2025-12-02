@@ -402,8 +402,8 @@ function ensureKillListener() {
   killListenerAttached = true;
 }
 
-const FIRST_WAVE_DELAY = 5000;
-const BETWEEN_WAVES_DELAY = 5000;
+const FIRST_WAVE_DELAY = 15000;
+const BETWEEN_WAVES_DELAY = 15000;
 const VICTORY_DELAY = 50;
 
 let betweenWaveTimer = 0;
@@ -444,10 +444,11 @@ export function resetWaveSystem() {
   firstWaveStarted = false;
   window.firstWaveStarted = false;
 
+  // Intro delay: 60s on Map 1, 15s elsewhere
   if (mapId === 1) {
-    betweenWaveTimer = 45000; // 30 seconds intro delay for Map 1
+    betweenWaveTimer = 60000;
   } else {
-    betweenWaveTimer = 30000;  // default 5 seconds for other maps
+    betweenWaveTimer = FIRST_WAVE_DELAY;
   }
 }
 
