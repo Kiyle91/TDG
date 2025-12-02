@@ -45,7 +45,7 @@ import { spawnCrossbow, getCrossbows } from "../entities/crossbow.js";
 import { spawnSeraphineBoss, getSeraphines } from "../entities/seraphine.js";
 import { Events, EVENT_NAMES as E } from "./eventEngine.js";
 import { addBravery } from "../player/bravery.js";
-import { addShardsForWaveBonus, resetWaveKillCount } from "../utils/rewards.js";
+import { addShardsForWaveBonus, resetWaveKillCount, incrementWaveKillCount } from "../utils/rewards.js";
 
 // ============================================================
 // WAVE CONFIGS
@@ -94,9 +94,9 @@ export const waveConfigs = {
     { goblins: 18, worgs: 1 },   // Wave 4 - first worg
     { goblins: 20, worgs: 2 },   // Wave 5
     { goblins: 24, worgs: 2 },   // Wave 6
-    { goblins: 26, goblins: 15, worgs: 10, worgs: 3 },   // Wave 7
-    { goblins: 26, goblins: 20, worgs: 15, worgs: 10 }, 
-    { goblins: 26, goblins: 35, goblins: 20, goblins: 10, worgs: 20, worgs: 10 },    // Wave 9
+    { goblins: 26, worgs: 3 },   // Wave 7
+    { goblins: 30, worgs: 4 },   // Wave 8
+    { goblins: 34, worgs: 5 },   // Wave 9
     { boss: "seraphine", phase: 1, goblins: 20, worgs: 4 } // Wave 10 boss
   ],
 
@@ -407,14 +407,6 @@ const BETWEEN_WAVES_DELAY = 5000;
 const VICTORY_DELAY = 50;
 
 let betweenWaveTimer = 0;
-
-if (!window.__killListenerAttached) {
-  Events.on(E.waveKillRegistered, () => {
-    waveKillCount += 1;
-    gameState.waveKillCount = waveKillCount;
-  });
-  window.__killListenerAttached = true;
-}
 
 if (typeof gameState.victoryPending !== "boolean") {
   gameState.victoryPending = false;

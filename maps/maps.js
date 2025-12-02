@@ -76,8 +76,9 @@ export function initMapSelect() {
       }
 
       // Reset shards for the new map (gameplay reset)
-      if (gameState.profile?.currencies) {
-        gameState.profile.currencies.shards = 0;
+      if (gameState.profile) {
+        const currencies = gameState.profile.currencies || (gameState.profile.currencies = { gold: 0, diamonds: 0 });
+        currencies.gold = 0;
       }
 
       saveProfiles();

@@ -664,8 +664,8 @@ export async function initGame(mode = "new") {
     gameState.player.stepDistance = 0;
   }
 
-  // NEW: Only apply map spawn on NEW game
-  if (mode === "new") {
+  // Apply map spawn on new or retry runs so the player isn't left at the previous death spot
+  if (mode === "new" || mode === "retry") {
     applyMapSpawn();
   }
 
