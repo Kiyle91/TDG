@@ -53,6 +53,7 @@ let settings = {
   musicVolume: 0.8,
   sfxVolume: 0.8,
   visualsEnabled: true,
+  miniControlsEnabled: true,
   difficulty: "normal",
 };
 
@@ -110,10 +111,12 @@ function applySettingsToUI() {
   const musicRange = document.getElementById("music-volume");
   const sfxRange = document.getElementById("sfx-volume");
   const visualsToggle = document.getElementById("visuals-toggle");
+  const miniToggle = document.getElementById("mini-controls-toggle");
 
   if (musicRange) musicRange.value = settings.musicVolume * 100;
   if (sfxRange) sfxRange.value = settings.sfxVolume * 100;
   if (visualsToggle) visualsToggle.checked = settings.visualsEnabled;
+  if (miniToggle) miniToggle.checked = settings.miniControlsEnabled;
   syncDifficultyRadios();
 
   updateLabels();
@@ -126,6 +129,7 @@ function applySettingsToUI() {
 function applySettingsToGame() {
   setMusicVolume(settings.musicVolume);
   setSfxVolume(settings.sfxVolume);
+  applyMiniControlsVisibility(settings.miniControlsEnabled !== false);
 }
 
 // ------------------------------------------------------------
@@ -136,9 +140,11 @@ function setupListeners() {
   const musicRange = document.getElementById("music-volume");
   const sfxRange = document.getElementById("sfx-volume");
   const visualsToggle = document.getElementById("visuals-toggle");
+  const miniToggle = document.getElementById("mini-controls-toggle");
 
   const musicLabel = document.getElementById("music-value");
   const sfxLabel = document.getElementById("sfx-value");
+  const miniLabel = miniToggle?.nextElementSibling;
 
   // Music volume
   musicRange?.addEventListener("input", (e) => {
@@ -158,12 +164,25 @@ function setupListeners() {
     saveSettings();
   });
 
+  miniToggle?.addEventListener("change", (e) => {
+    const enabled = e.target.checked;
+    settings.miniControlsEnabled = enabled;
+    saveSettings();
+    if (miniLabel) miniLabel.textContent = enabled ? "Enabled" : "Disabled";
+    applyMiniControlsVisibility(enabled);
+  });
+
   const diffRadios = document.querySelectorAll("input[name='difficulty']");
   diffRadios.forEach(radio => {
     radio.addEventListener("change", (e) => {
       setDifficulty(e.target.value);
     });
   });
+}
+
+function applyMiniControlsVisibility(enabled) {
+  const hud = document.getElementById("hud-controls-mini");
+  if (hud) hud.style.display = enabled ? "flex" : "none";
 }
 
 // ------------------------------------------------------------
@@ -181,12 +200,17 @@ function saveSettings() {
 function updateLabels() {
   const musicLabel = document.getElementById("music-value");
   const sfxLabel = document.getElementById("sfx-value");
+  const miniToggle = document.getElementById("mini-controls-toggle");
+  const miniLabel = miniToggle?.nextElementSibling;
 
   if (musicLabel)
     musicLabel.textContent = `${Math.round(settings.musicVolume * 100)}%`;
 
   if (sfxLabel)
     sfxLabel.textContent = `${Math.round(settings.sfxVolume * 100)}%`;
+
+  if (miniLabel)
+    miniLabel.textContent = settings.miniControlsEnabled ? "Enabled" : "Disabled";
 }
 
 
@@ -202,11 +226,13 @@ export function initGameSettings() {
 
   const sfxRange = document.getElementById("sfx-volume-game");
   const visualsToggle = document.getElementById("visuals-toggle-game");
+  const miniToggle = document.getElementById("mini-controls-toggle-game");
 
   // Sync UI from settings
   musicRange.value = settings.musicVolume * 100;
   sfxRange.value = settings.sfxVolume * 100;
   visualsToggle.checked = settings.visualsEnabled;
+  if (miniToggle) miniToggle.checked = settings.miniControlsEnabled;
 
   document.getElementById("music-value-game").textContent =
     `${Math.round(settings.musicVolume * 100)}%`;
@@ -235,6 +261,15 @@ export function initGameSettings() {
     saveSettings();
     playFairySprinkle();
   };
+
+  if (miniToggle) {
+    miniToggle.onchange = (e) => {
+      const enabled = e.target.checked;
+      settings.miniControlsEnabled = enabled;
+      saveSettings();
+      applyMiniControlsVisibility(enabled);
+    };
+  }
 
   syncDifficultyRadios();
   document.querySelectorAll("input[name='difficulty-game']").forEach(radio => {
