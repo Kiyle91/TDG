@@ -479,6 +479,35 @@
   }
 }
 
+#bravery-prompt {
+  position: absolute;
+  bottom: 0.25%;
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+
+  padding: 6px 14px;
+  border-radius: 12px;
+
+  font-family: "Comic Sans MS", cursive;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.6), 0 0 10px rgba(255, 200, 255, 0.8);
+
+
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10000;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#bravery-prompt.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+
+
 #hud-controls-mini {
   position: fixed;
   top: 60px; /* sits above the bottom nav icons */
@@ -515,7 +544,7 @@
 .gold-glow {
     color: #ffd900 !important;
     /* Keep a warm outline while the text itself stays white */
-    text-shadow: 0 0 6px rgba(255, 200, 255, 0.8), 0 0 12px rgba(255, 200, 255, 0.8),
+    text-shadow: 0 0 6px rgba(255, 200, 255, 0.8), 0 0 12px rgba(255, 200, 255, 0.8);
 }
 
 

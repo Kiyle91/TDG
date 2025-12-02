@@ -376,6 +376,7 @@ export function updatePlayerStatsOverlay() {
 export function updateBraveryBar() {
   const bar = document.getElementById("bravery-bar");
   const fill = document.getElementById("bravery-fill");
+  const prompt = document.getElementById("bravery-prompt");
   if (!bar || !fill) return;
 
   const b = gameState.bravery;
@@ -386,6 +387,9 @@ export function updateBraveryBar() {
 
   if (b.charged && !b.draining) {
     fill.classList.add("full");
+    prompt?.classList.add("show");
+  } else {
+    prompt?.classList.remove("show");
   }
 }
 

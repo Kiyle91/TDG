@@ -95,7 +95,6 @@
 ------------------------------------------------------------ */
 .spire-slot.affordable {
   box-shadow:
-    0 0 12px rgba(0, 0, 0, 0.6) !important,
     0 0 16px rgba(var(--afford-glow, 255, 255, 255), 1),
     0 0 34px rgba(var(--afford-glow, 255, 255, 255), 0.9),
     inset 0 0 12px rgba(255, 255, 255, 0.65);
