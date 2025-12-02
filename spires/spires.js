@@ -341,7 +341,7 @@ export function updateSpires(delta) {
         }
 
         case "arcane_spire": {
-          const filtered = combinedEnemiesCache.filter(e => !e.insideVoidAura);
+          const filtered = combinedEnemiesCache.filter(e => true); // Arcane ignores void cloak
           spire.cachedTarget = findNearestEnemy(spire, filtered, SPIRE_RANGE * 1.5);
           break;
         }
@@ -378,7 +378,7 @@ export function updateSpires(delta) {
     // ============================================================
     // VOID-AURA PATCH: Spire must NOT fire if target protected
     // ============================================================
-    if (target.insideVoidAura) {
+    if (target.insideVoidAura && spire.type !== "arcane_spire") {
       spire.cachedTarget = null;
       continue;
     }
