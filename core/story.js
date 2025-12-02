@@ -408,7 +408,7 @@ export async function triggerEndOfWave1Story(mapId) {
   if (!waveStoryFlags[mapId] || waveStoryFlags[mapId][1]) return;
 
   waveStoryFlags[mapId][1] = true;
-  gameState.paused = true;
+  
 
   await showStory({
     text: wave1Text[mapId] || "The battle continues...",
@@ -426,7 +426,6 @@ export async function triggerEndOfWave5Story(mapId) {
   if (!waveStoryFlags[mapId] || waveStoryFlags[mapId][5]) return;
 
   waveStoryFlags[mapId][5] = true;
-  gameState.paused = true;
 
   await showStory({
     text: wave5Text[mapId] || "You stand victorious, Guardian.",

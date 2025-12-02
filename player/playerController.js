@@ -473,7 +473,7 @@ function onMouseDown(e) {
 
   const rect = canvasRef.getBoundingClientRect();
   const relativeY = e.clientY - rect.top;
-  if (relativeY < 140) return; // top HUD region guard
+  if (relativeY < 50) return; // top HUD/navbar guard (raised to free more play area)
 
   if (!isAttacking && attackCooldown <= 0) {
     performRangedAttack(e);
