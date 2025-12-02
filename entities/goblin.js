@@ -106,6 +106,33 @@ function moveGoblinWithCollision(e, dx, dy) {
   return moved;
 }
 
+// Try a perpendicular sidestep if stuck (used for chase + return)
+function sidestepIfStuck(e, delta, dt) {
+  if (e.state !== "chase" && e.state !== "return") return;
+  if (e.attacking) return;
+
+  e.stuckTimer = (e.stuckTimer || 0) + delta;
+  if (e.movedThisFrame) {
+    e.stuckTimer = 0;
+    return;
+  }
+
+  if (e.stuckTimer < 350) return;
+
+  const gx = e.lastGoalX || 1;
+  const gy = e.lastGoalY || 0;
+  const mag = Math.hypot(gx, gy) || 1;
+  const nx = gx / mag;
+  const ny = gy / mag;
+
+  e.stuckFlip = -(e.stuckFlip || 1);
+  const sidestep = e.speed * (e.slowTimer > 0 ? 0.5 : 1) * 0.55 * dt;
+  moveGoblinWithCollision(e, -ny * sidestep * e.stuckFlip, nx * sidestep * e.stuckFlip);
+
+  e.stuckTimer = 0;
+  e.movedThisFrame = true;
+}
+
 
 // ============================================================
 // 🧩 SPRITE LOADING
@@ -219,6 +246,10 @@ export function spawnGoblin() {
     flashTimer: 0,
     slowTimer: 0,
     stunTimer: 0,
+    stuckTimer: 0,
+    stuckFlip: 1,
+    lastGoalX: 0,
+    lastGoalY: 0,
     stunned: false,
     preStunState: null,
     burnTimer: 0,
@@ -340,6 +371,8 @@ export function updateGoblins(delta) {
       }
 
       if (distToPlayer > attackRange) {
+        e.lastGoalX = dxp;
+        e.lastGoalY = dyp;
         const stepX = (dxp / distToPlayer) * moveSpeed * dt;
         const stepY = (dyp / distToPlayer) * moveSpeed * dt;
         moveGoblinWithCollision(e, stepX, stepY);
@@ -401,6 +434,8 @@ export function updateGoblins(delta) {
       const dx = target.x - e.x;
       const dy = target.y - e.y;
       const dist = Math.hypot(dx, dy);
+      e.lastGoalX = dx;
+      e.lastGoalY = dy;
 
       if (dist < 6) {
         e.state = "path";
@@ -468,6 +503,9 @@ export function updateGoblins(delta) {
       e.frameTimer = 0;
       e.frame = 0;
     }
+
+    // If stuck while chasing or returning, try a quick sidestep (same logic used by chasers)
+    sidestepIfStuck(e, delta, dt);
 
     if (e.flashTimer > 0) e.flashTimer -= delta;
   }
