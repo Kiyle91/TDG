@@ -30,14 +30,11 @@
   position: relative;
   width: 100vw;
   height: 100vh;
-
-  border-radius: 20px;
   overflow: hidden;
 
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(8px);
 
-  border: 4px solid rgba(91, 139, 230, 0.8);
 
   box-shadow:
     0 0 30px rgba(181, 226, 255, 0.8),

@@ -49,7 +49,6 @@
   position: absolute;
   top: 0;
   left: 0;
-
   width: 100%;
   height: 60px;
 
@@ -57,15 +56,60 @@
   align-items: center;
   justify-content: center;
 
-  background: linear-gradient(180deg, #ffe4f7 0%, #e3caff 100%);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+  /* BASE pastel gradient (same palette as hub) */
+  background: linear-gradient(120deg, #91c9ff, #d7b7ff, #ffbde3);
+  background-size: 300% 300%;
+
+  /* Animated swirl */
+  animation: hudGradientShift 10s ease-in-out infinite;
+
+  border-bottom: 2px solid #ffbde3;
+
+  box-shadow:
+    0 4px 12px rgba(255, 255, 255, 0.15),
+    0 0 16px rgba(181, 226, 255, 0.45);
+
+  pointer-events: none;
+  z-index: 20;
+}
+
+#hud-console {
+  display: flex;
+  position: fixed;
+  bottom: -2%;
+  left: 35%;
+  width: 30%;
+  height: 100px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+
+  /* BASE pastel gradient (same palette as hub) */
+  background: linear-gradient(120deg, #91c9ff, #d7b7ff, #ffbde3);
+  background-size: 300% 300%;
+  opacity: 0.5;
+
+  /* Animated swirl */
+  animation: hudGradientShift 10s ease-in-out infinite;
+
+  border: 3px solid #ffffff;
 
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.15),
     0 0 16px rgba(181, 226, 255, 0.45);
 
-  pointer-events: none; /* HUD is informational; gameplay clicks go to canvas/nav */
-  z-index: 20;
+  pointer-events: none;
+  z-index: 15;
+}
+
+
+/* ✨ Gradient swirl animation */
+@keyframes hudGradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 
@@ -180,7 +224,7 @@
   color: #fff;
 
   background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(0, 0, 0, 0.6);
+  border: 1px solid rgb(255, 255, 255);
   border-radius: 10px;
 
   box-shadow: 0 0 10px rgba(224, 187, 255, 0.5);

@@ -55,8 +55,8 @@
 ============================================================ */
 .landing-frame {
   position: relative;
-  width: 95vw;
-  height: 95vh;
+  width: 99vw;
+  height: 99vh;
   border: 8px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
   overflow: hidden;
