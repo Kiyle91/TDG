@@ -142,6 +142,12 @@ export function initCrystalEchoes(mapData) {
     const forcedColors = MAP_ECHO_COLORS[mapIdForced] || null;
 
     for (const e of echoes) {
+      e.baseY = e.y;
+      e.floatHeight = 12 + Math.random() * 6;   // how far off the ground the crystal hovers
+      e.bobAmp = 3 + Math.random() * 2;         // gentle bob amplitude
+      e.bobSpeed = 0.8 + Math.random() * 0.6;   // radians per second
+      e.bobPhase = Math.random() * Math.PI * 2; // keeps the group desynchronised
+
       if (forcedColors && forcedColors.length) {
         const color = forcedColors[Math.floor(Math.random() * forcedColors.length)];
         const index = COLOR_TO_INDEX[color];
@@ -173,9 +179,11 @@ export function updateCrystalEchoes(ctx, player) {
   if (!player) return;
 
   const size = 74;
+  const now = performance.now() / 1000;
 
   for (let i = echoes.length - 1; i >= 0; i--) {
     const c = echoes[i];
+    const anchorY = c.baseY ?? c.y;
 
     // ---------------------------------------
     // SHADOW
@@ -189,7 +197,7 @@ export function updateCrystalEchoes(ctx, player) {
     ctx.beginPath();
     ctx.ellipse(
       c.x,
-      c.y + SHADOW_OFFSET,
+      anchorY + SHADOW_OFFSET,
       SHADOW_W,
       SHADOW_H,
       0,
@@ -204,7 +212,14 @@ export function updateCrystalEchoes(ctx, player) {
     // CRYSTAL IMAGE
     // ---------------------------------------
 
-    ctx.drawImage(c.img, c.x - size / 2, c.y - size / 2, size, size);
+    const floatHeight = c.floatHeight ?? 12;
+    const bobAmp = c.bobAmp ?? 3.5;
+    const bobSpeed = c.bobSpeed ?? 1;
+    const bobPhase = c.bobPhase ?? 0;
+    const bobOffset = Math.sin(now * bobSpeed + bobPhase) * bobAmp;
+    const renderY = anchorY - floatHeight + bobOffset;
+
+    ctx.drawImage(c.img, c.x - size / 2, renderY - size / 2, size, size);
 
     // ---------------------------------------
     // COLLECTION CHECK
@@ -214,7 +229,7 @@ export function updateCrystalEchoes(ctx, player) {
     const py = player.pos?.y ?? player.y;
 
     const dx = px - c.x;
-    const dy = py - c.y;
+    const dy = py - anchorY;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
     if (dist < 48) {
