@@ -194,6 +194,7 @@ export function updateWorg(delta = 16) {
 
         w.alive = false;
         Events.emit(E.enemyKilled, { type: "worg", x: w.x, y: w.y });
+        Events.emit(E.waveKillRegistered, { type: "worg" });
         w.fade = 0;
       }
     } else {
@@ -257,6 +258,7 @@ export function damageWorg(w, amount) {
     updateHUD();
     playWorgDeath();
     Events.emit(E.enemyKilled, { type: "worg", x: w.x, y: w.y });
+    Events.emit(E.waveKillRegistered, { type: "worg" });
   }
 }
 

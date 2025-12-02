@@ -561,6 +561,7 @@ function killCrossbow(c) {
   c.fade = 1;
   c.fading = true;
   Events.emit(E.enemyKilled, { type: "crossbow", x: c.x, y: c.y });
+  Events.emit(E.waveKillRegistered, { type: "crossbow" });
 
   awardXP(5);
   addGold(2);

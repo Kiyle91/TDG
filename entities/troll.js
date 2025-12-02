@@ -464,6 +464,7 @@ export function damageTroll(t, amount) {
   if (t.hp <= 0) {
     t.hp = 0;
     Events.emit(E.enemyKilled, { type: "troll", x: t.x, y: t.y });
+    Events.emit(E.waveKillRegistered, { type: "troll" });
     t.alive = false;
     t.fadeTimer = 0;
 

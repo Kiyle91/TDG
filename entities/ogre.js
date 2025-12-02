@@ -424,6 +424,7 @@ export function damageOgre(o, amount) {
     o.hp = 0;
     o.alive = false;
     Events.emit(E.enemyKilled, { type: "ogre", x: o.x, y: o.y });
+    Events.emit(E.waveKillRegistered, { type: "ogre" });
     o.fading = true;
 
     spawnLoot("ogre", o.x, o.y);

@@ -96,6 +96,7 @@ export const EVENT_NAMES = {
   waveEnd: "waveEnd",
   enemySpawn: "enemySpawn",
   enemyKilled: "enemyKilled",
+  waveKillRegistered: "waveKillRegistered",
   bossSpawn: "bossSpawn",
   bossKilled: "bossKilled",
   bossHpThreshold: "bossHpThreshold",

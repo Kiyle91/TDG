@@ -414,6 +414,7 @@ export function damageElite(e, amount) {
     e.alive = false;
     e.fade = 0;    
     Events.emit(E.enemyKilled, { type: "elite", x: e.x, y: e.y });
+    Events.emit(E.waveKillRegistered, { type: "elite" });
 
     
 

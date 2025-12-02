@@ -44,6 +44,8 @@ import { spawnOgre, getOgres } from "../entities/ogre.js";
 import { spawnCrossbow, getCrossbows } from "../entities/crossbow.js";
 import { spawnSeraphineBoss, getSeraphines } from "../entities/seraphine.js";
 import { Events, EVENT_NAMES as E } from "./eventEngine.js";
+import { addBravery } from "../player/bravery.js";
+import { addShardsForWaveBonus, resetWaveKillCount } from "../utils/rewards.js";
 
 // ============================================================
 // WAVE CONFIGS
@@ -71,6 +73,8 @@ let lifeWarnings = {
   "40": false,
   "20": false
 };
+let killListenerAttached = false;
+let waveKillCount = 0;
 
 export const waveConfigs = {
 
@@ -388,11 +392,29 @@ window.firstWaveStarted = false;
 
 window.betweenWaveTimerActive = false;
 
+function ensureKillListener() {
+  if (killListenerAttached) return;
+  Events.on(E.waveKillRegistered, () => {
+    waveKillCount += 1;
+    gameState.waveKillCount = waveKillCount;
+    incrementWaveKillCount();
+  });
+  killListenerAttached = true;
+}
+
 const FIRST_WAVE_DELAY = 5000;
 const BETWEEN_WAVES_DELAY = 5000;
 const VICTORY_DELAY = 50;
 
 let betweenWaveTimer = 0;
+
+if (!window.__killListenerAttached) {
+  Events.on(E.waveKillRegistered, () => {
+    waveKillCount += 1;
+    gameState.waveKillCount = waveKillCount;
+  });
+  window.__killListenerAttached = true;
+}
 
 if (typeof gameState.victoryPending !== "boolean") {
   gameState.victoryPending = false;
@@ -412,6 +434,10 @@ export function resetWaveSystem() {
   waveCleared = false;
   justStartedWave = true;
   waveTransitionInProgress = false;
+  waveKillCount = 0;
+  gameState.waveKillCount = 0;
+  ensureKillListener();
+  resetWaveKillCount();
 
   window.betweenWaveTimerActive = true;
 
@@ -905,6 +931,7 @@ export function updateWaveSystem(delta) {
 }
 
 async function handleWaveCleared(waveNumber, mapId) {
+  addShardsForWaveBonus(updateHUD);
   Events.emit(E.waveEnd, { wave: waveNumber });
 
   try {
@@ -918,6 +945,9 @@ async function handleWaveCleared(waveNumber, mapId) {
     console.warn("Wave-end sequence failed:", err);
   } finally {
     betweenWaveTimer = BETWEEN_WAVES_DELAY;
+    waveKillCount = 0;
+    gameState.waveKillCount = 0;
+    resetWaveKillCount();
     window.betweenWaveTimerActive = true;
     waveTransitionInProgress = false;
   }

@@ -575,6 +575,7 @@ export function damageGoblin(goblin, amount) {
     goblin.alive = false;
 
     Events.emit(E.enemyKilled, { type: "ashGoblin", x: goblin.x, y: goblin.y });
+    Events.emit(E.waveKillRegistered, { type: "ashGoblin" });
 
     goblin.deathTimer = 0;
     goblin.fading = false;
