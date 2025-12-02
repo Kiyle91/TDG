@@ -466,6 +466,9 @@ export function getWaveSnapshotState() {
 export function restoreWaveFromSnapshot(meta, snapshot) {
   if (!meta) return;
 
+  const mapId = gameState.progress?.currentMap ?? 1;
+  const firstWaveDelayMs = mapId === 1 ? 60000 : FIRST_WAVE_DELAY;
+
   waveTransitionInProgress = false;
 
   if (typeof meta.wave === "number") {
@@ -515,7 +518,7 @@ export function restoreWaveFromSnapshot(meta, snapshot) {
     if (typeof waveState.betweenWaveTimer === "number") {
       restoredTimer = Math.max(0, waveState.betweenWaveTimer);
     } else if (!firstWaveStarted) {
-      restoredTimer = FIRST_WAVE_DELAY;
+      restoredTimer = firstWaveDelayMs;
     }
   }
 
@@ -530,7 +533,7 @@ export function restoreWaveFromSnapshot(meta, snapshot) {
 
   if (!waveActive && betweenWaveTimer <= 0) {
     if (!firstWaveStarted) {
-      betweenWaveTimer = FIRST_WAVE_DELAY;
+      betweenWaveTimer = firstWaveDelayMs;
       restoredTimerActive = true;
     } else {
       restoredTimerActive = false;
