@@ -443,6 +443,27 @@ function onKeyUp(e) {
 }
 
 function onMouseDown(e) {
+  if (!canvasRef) return;
+
+  // Ignore clicks on HUD/overlays (navbar, stats, spire bar, overlays, top padding)
+  const target = e.target;
+  const hudSelectors = [
+    "#game-navbar",
+    "#center-stats",
+    "#spire-bar",
+    ".overlay:not(.hidden)"
+  ];
+
+  if (target && target !== canvasRef) {
+    for (const sel of hudSelectors) {
+      if (target.closest(sel)) return;
+    }
+  }
+
+  const rect = canvasRef.getBoundingClientRect();
+  const relativeY = e.clientY - rect.top;
+  if (relativeY < 140) return; // top HUD region guard
+
   if (!isAttacking && attackCooldown <= 0) {
     performRangedAttack(e);
   }
