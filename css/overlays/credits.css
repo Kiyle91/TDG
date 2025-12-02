@@ -247,8 +247,8 @@
 ============================================================ */
 #credits-btn {
   position: absolute;
-  bottom: 7%;
-  right: 11%;
+  bottom: 8%;
+  right: 10.2%;
   width: 100px;
 
   padding: 4px 18px;
@@ -291,33 +291,7 @@
     inset 0 0 8px rgba(255, 255, 255, 0.35);
 }
 
-.credits-btn {
-  position: relative !important;   /* make sure pseudo-element can attach */
-  z-index: 5 !important;           /* keep button in front */
-}
 
-/* Glowing panel behind the Credits button */
-.credits-btn::before {
-  content: "" !important;
-  position: absolute !important;
-  top: -50px !important;
-  left: -70px !important;
-  width: 300px !important;
-  height: 160px !important;
-
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 2px solid rgba(91, 139, 230, 0.4) !important;
-  border-radius: 20px !important;
-
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-
-  box-shadow:
-    0 0 15px rgba(181, 226, 255, 0.5),
-    inset 0 0 15px rgba(255, 255, 255, 0.3) !important;
-
-  z-index: -1 !important; /* behind the button */
-}
 
 /* ============================================================
    🌟 END OF FILE
