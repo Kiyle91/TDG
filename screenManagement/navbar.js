@@ -52,6 +52,8 @@ import {
   refreshSpireUpgradeFromHub,
 } from "../spires/spireUpgrades.js";
 
+let pauseBtn = null;
+
 // ------------------------------------------------------------
 // 🌸 INIT NAVBAR
 // ------------------------------------------------------------
@@ -60,9 +62,30 @@ export function initNavbar() {
   const nav = document.getElementById("game-navbar");
   if (!nav) return;
 
+  pauseBtn = nav.querySelector('button[data-action="pauseplay"]') || null;
+  if (!pauseBtn) {
+    pauseBtn = document.createElement("button");
+    pauseBtn.dataset.action = "pauseplay";
+    pauseBtn.title = "Pause / Play";
+    pauseBtn.textContent = "⏯";
+    const insertAfter = nav.querySelector('button[data-action="restart"]');
+    if (insertAfter?.nextSibling) {
+      nav.insertBefore(pauseBtn, insertAfter.nextSibling);
+    } else {
+      nav.appendChild(pauseBtn);
+    }
+  }
+  setPauseButtonState(!!gameState.paused);
+
   nav.querySelectorAll("button").forEach((btn) => {
     btn.addEventListener("click", () => handleNavAction(btn.dataset.action));
   });
+}
+
+function setPauseButtonState(paused) {
+  if (!pauseBtn) return;
+  pauseBtn.textContent = paused ? "▶" : "⏸";
+  pauseBtn.title = paused ? "Resume" : "Pause";
 }
 
 // ------------------------------------------------------------
@@ -113,6 +136,16 @@ function handleNavAction(action) {
   playFairySprinkle();
 
   switch (action) {
+    case "pauseplay": {
+      const nowPaused = !gameState.paused;
+      if (nowPaused) {
+        pauseGame();
+      } else {
+        resumeGame();
+      }
+      setPauseButtonState(nowPaused);
+      break;
+    }
     // --------------------------------------------------------
     // 🏠 HOME — Safe exit to Hub
     // --------------------------------------------------------

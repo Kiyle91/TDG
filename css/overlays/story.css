@@ -29,8 +29,6 @@
 
   background: none !important;
   backdrop-filter: none !important;
-
-  animation: storyOverlayFadeIn 0.35s ease;
 }
 
 /* ------------------------------------------------------------
@@ -39,15 +37,17 @@
 .story-box {
   pointer-events: auto;  /* clickable */
 
-  width: 400px;
-  max-height: 300px;
+  width: 380px;
+  max-height: 260px;
 
   display: flex;
+  flex-direction: row;
+  align-items: flex-start;
   gap: 14px;
 
   padding: 18px 20px;
 
-  background: rgb(255, 0, 234);
+  background: rgba(255, 255, 255, 0.25);
   border: 2px solid rgba(160, 200, 255, 0.7);
   border-radius: 16px;
 
@@ -56,14 +56,6 @@
     inset 0 0 10px rgba(255, 255, 255, 0.35);
 
   animation: storySlideUp 0.35s ease;
-}
-
-#overlay-story.fade-out {
-  animation: storyOverlayFadeOut 0.35s ease forwards;
-}
-
-#overlay-story.fade-out .story-box {
-  animation: storyBoxFadeOut 0.35s ease forwards;
 }
 
 /* ------------------------------------------------------------
@@ -161,19 +153,4 @@
     transform: translateY(0);
     opacity: 1;
   }
-}
-
-@keyframes storyOverlayFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes storyOverlayFadeOut {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-
-@keyframes storyBoxFadeOut {
-  from { opacity: 1; transform: translateY(0); }
-  to   { opacity: 0; transform: translateY(8px); }
 }
