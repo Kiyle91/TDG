@@ -408,128 +408,27 @@ export async function triggerEndOfWave1Story(mapId) {
   if (!waveStoryFlags[mapId] || waveStoryFlags[mapId][1]) return;
 
   waveStoryFlags[mapId][1] = true;
-  
 
-  await showStory({
+  showStory({
     text: wave1Text[mapId] || "The battle continues...",
     useAriana: true,
+    autoStart: false,
   });
-
-  gameState.paused = false;
 }
-
-// ------------------------------------------------------------
-// ⭐ END OF WAVE 5 STORY
-// ------------------------------------------------------------
 
 export async function triggerEndOfWave5Story(mapId) {
   if (!waveStoryFlags[mapId] || waveStoryFlags[mapId][5]) return;
 
   waveStoryFlags[mapId][5] = true;
 
-  await showStory({
+  showStory({
     text: wave5Text[mapId] || "You stand victorious, Guardian.",
     useAriana: true,
-  });
-
-  gameState.paused = false;
-}
-
-// ------------------------------------------------------------
-// 💖 OPENING STORY (2-PAGE INTRO)
-// ------------------------------------------------------------
-
-export async function showOpeningStory() {
-  const guardian = gameState?.player?.name || "Guardian";
-
-  // PAGE 1 — Goblins, Echoes, first hints of Void/Seraphine
-  await showStory({
-    text: `
-  <div style="text-align:center; font-size:2rem;"><u><b>PRINCESS ARIANA</b></u></div>
-
-  Princess ${guardian}! You’re there — the Crystal Link is stable!
-
-  I wish I had better news.
-
-  The Whispering Meadows have started… twitching. Paths shifting,
-  flowers blooming out of season, and worst of all — goblin tracks.
-
-  Goblins haven’t dared come near the Crystal Isles in generations.
-
-  Our scouts saw them carrying something that glowed — not torches,
-  not loot. Crystal Echoes.
-
-  Echoes are fragments of the Heart itself. If they’re being moved,
-  someone is stirring up old powers that should have stayed asleep.
-
-  You’re the closest Guardian we have. And… you’re my best friend.
-
-  Please be careful, ${guardian}. The Meadows may look gentle,
-  but when goblins arrive, disasters tend to follow.
-    `.trim(),
-    useAriana: true
-  });
-
-  // PAGE 2 — Architect, Void, Seraphine as “legend”
-  await showStory({
-    text: `
-  Before you go, you should know what we’re afraid of.
-
-  Long ago, the Crystal Heart wasn’t alone. It was surrounded by
-  guardians of every element — including the Void.
-
-  The Void Guardians watched the spaces between worlds, making sure
-  nothing crawled out that shouldn’t.
-
-  But one of them — a being called the <b>Shadow Architect</b> —
-  tried to twist the Heart, turning all that magic into a weapon.
-
-  The legends say the Void Guardians stopped him… but they vanished
-  in the process. Some scrolls whisper of one last Guardian who
-  never returned from the Void.
-
-  Lately, my readings keep picking up a strange signature.
-  Strong. Elegant. Old. It doesn’t feel like goblin magic at all.
-
-  If a fallen Void Guardian is involved in these attacks…
-
-  No. We’ll face that if we have to. For now:
-
-  Collect every Echo you find. Use them to power your Spires.
-  Protect the Isles one map at a time.
-
-  I’ll guide you through the Crystal Link as you move from place
-  to place.
-
-  Go, Princess ${guardian}… and may the Crystals remember
-  whose side you’re on.
-    `.trim(),
-    useAriana: true
+    autoStart: false,
   });
 }
 
-// ------------------------------------------------------------
-// 🏆 VICTORY STORY (Optional)
-// ------------------------------------------------------------
 
-export async function showVictoryStory() {
-  await showStory({
-    text: `
-💎 The final wave breaks.
-
-The goblins scatter, Echoes hum softly, and the Crystal Heart’s
-light steadies — for now.
-
-Somewhere beyond the Isles, in the quiet between worlds, a fallen
-Void Guardian feels that light… and turns away.
-
-This isn’t the end of the story, Princess.
-
-But it is a victory worth resting on.
-    `.trim(),
-    useAriana: false,
-  });
-}
 
 // ============================================================
 // 🌟 END OF FILE

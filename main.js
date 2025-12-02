@@ -33,8 +33,6 @@ import { getWorg } from "./entities/worg.js";
 import { getCrossbows } from "./entities/crossbow.js";
 import { initGoblins } from "./entities/goblin.js";
 
-import { showOpeningStory } from "./core/story.js";
-
 import { VICTORY_SUBTITLES, VICTORY_MESSAGES } from "./core/game.js";
 
 import { isPreloadComplete, preloadAllAssets } from "./core/preloader.js";
@@ -324,9 +322,6 @@ export async function startNewGameStory({ resetProgress = true } = {}) {
 
   // The world is now rendered — safe to pause
   gameState.paused = true;
-
-  // Show the intro story
-  await showOpeningStory();
 
   // After story ends, unpause + start loop normally
   gameState.paused = false;
