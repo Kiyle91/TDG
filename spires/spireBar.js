@@ -26,6 +26,7 @@
 // ------------------------------------------------------------
 
 import { gameState } from "../utils/gameState.js";
+import { handleSpireKey } from "./spirePlacement.js";
 
 // ------------------------------------------------------------
 // ⚙️ SPIRE CONFIG
@@ -56,6 +57,15 @@ export function initSpireBar() {
       key.textContent = data?.key ?? id;
       slot.appendChild(key);
     }
+
+    // Click to attempt placement (mirrors hotkey DigitN)
+    slot.addEventListener("click", () => {
+      handleSpireKey(`Digit${id}`);
+    });
+
+    // Hover highlight
+    slot.addEventListener("mouseenter", () => slot.classList.add("hover"));
+    slot.addEventListener("mouseleave", () => slot.classList.remove("hover"));
   });
 
   updateSpireBar();
