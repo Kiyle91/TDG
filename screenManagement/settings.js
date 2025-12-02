@@ -68,6 +68,9 @@ export function getSettings() {
 
 export function setVisualsEnabled(enabled) {
   settings.visualsEnabled = !!enabled;
+  if (gameState.settings) {
+    gameState.settings.visualsEnabled = settings.visualsEnabled;
+  }
   saveSettings();
 }
 
@@ -104,6 +107,10 @@ export function initSettings() {
 
 }
 
+export function areVisualsEnabled() {
+  return settings.visualsEnabled !== false;
+}
+
 // ------------------------------------------------------------
 // 🩵 APPLY SETTINGS TO UI
 // ------------------------------------------------------------
@@ -133,6 +140,9 @@ function applySettingsToGame() {
   setMusicVolume(settings.musicVolume);
   setSfxVolume(settings.sfxVolume);
   applyMiniControlsVisibility(settings.miniControlsEnabled !== false);
+  if (gameState.settings) {
+    gameState.settings.visualsEnabled = settings.visualsEnabled;
+  }
 }
 
 // ------------------------------------------------------------

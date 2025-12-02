@@ -38,6 +38,7 @@ import { getGoblins as getEmberGoblins } from "../entities/emberGoblin.js";
 import { getGoblins as getAshGoblins } from "../entities/ashGoblin.js";
 import { getGoblins as getVoidGoblins } from "../entities/voidGoblin.js";
 import { playBraveryCharge } from "../core/soundtrack.js";
+import { areVisualsEnabled } from "../screenManagement/settings.js";
 // ------------------------------------------------------------
 // 🟪 ADD BRAVERY
 // ------------------------------------------------------------
@@ -180,7 +181,7 @@ function triggerBraveryPower() {
   p.defense *= 1.4;
   p.invincible = true;
 
-  braveryFlashEffect();
+  if (areVisualsEnabled()) braveryFlashEffect();
   playBraveryCharge();
 
   const watchEnd = () => {

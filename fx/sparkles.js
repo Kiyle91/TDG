@@ -7,10 +7,13 @@
 const sparkles = [];
 const MAX_SPARKLES = 90;
 
+import { areVisualsEnabled } from "../screenManagement/settings.js";
+
 // ------------------------------------------------------------
 // 🌈 Burst of canvas sparkles
 // ------------------------------------------------------------
 export function spawnCanvasSparkleBurst(x, y, count = 50, radius = 140, colors) {
+  if (!areVisualsEnabled()) return;
   colors ??= ["#ffd6eb", "#b5e2ff", "#fff2b3"];
 
   for (let i = 0; i < count; i++) {
@@ -78,12 +81,14 @@ export function updateAndDrawSparkles(ctx, delta) {
 // ❤️ Hit Sparkles (re-export)
 // ------------------------------------------------------------
 export function spawnDamageSparkles(x, y) {
+  if (!areVisualsEnabled()) return;
   const palette = ["#ff7aa8", "#ff99b9", "#ffb3c6", "#ffccd5"];
   spawnCanvasSparkleBurst(x, y, 10, 50, palette);
 }
 
 // Player-specific hit sparkles with a brighter, varied palette
 export function spawnPlayerHitSparkles(x, y) {
+  if (!areVisualsEnabled()) return;
   const palette = [
     "#ff4d4d",
     "#ff954d",
@@ -104,6 +109,7 @@ export function initSparkles() {
 // �YO^ Player sprint trail
 // ------------------------------------------------------------
 export function spawnSprintSparkles(x, y, dirX = 0, dirY = 0) {
+  if (!areVisualsEnabled()) return;
   const palette = ["#fff4ff", "#dff7ff", "#ffeac4"];
   const baseAngle =
     dirX !== 0 || dirY !== 0
