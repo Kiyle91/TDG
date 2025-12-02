@@ -522,8 +522,9 @@ export function drawCrossbows(ctx) {
     ctx.globalAlpha = c.fade ?? 1;
 
     const size = CROSSBOW_SIZE;
-    const drawX = c.x - size / 2;
-    const drawY = c.y - size / 2;
+    const drawSize = c.alive ? size * 1.1 : size; // 10% larger when alive/active
+    const drawX = c.x - drawSize / 2;
+    const drawY = c.y - drawSize / 2;
 
     let img = null;
     const facing = c.facing === "left" ? "left" : "right";
@@ -563,7 +564,7 @@ export function drawCrossbows(ctx) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    if (img) ctx.drawImage(img, drawX, drawY, size, size);
+    if (img) ctx.drawImage(img, drawX, drawY, drawSize, drawSize);
 
     // HP BAR
     if (c.alive) {
