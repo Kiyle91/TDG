@@ -479,7 +479,7 @@ function refreshSkinsMenu() {
 
 export function updateHubCurrencies() {
   const { gold, diamonds } = getCurrencies();
-  document.getElementById("hub-diamonds").textContent = `Diamonds: ${diamonds}`;
+  document.getElementById("hub-diamonds").textContent = `${diamonds}`;
 }
 
 export function updateHubProfile() {

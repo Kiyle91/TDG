@@ -247,12 +247,12 @@
 ============================================================ */
 #credits-btn {
   position: absolute;
-  bottom: 14%;
-  left: 3%;
-  width: 200px;
+  bottom: 7%;
+  right: 11%;
+  width: 100px;
 
-  padding: 12px 38px;
-  font-size: 1.15rem;
+  padding: 4px 18px;
+  font-size: 1rem;
 
   font-family: "Comic Sans MS", cursive;
   font-weight: bold;
