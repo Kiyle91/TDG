@@ -82,6 +82,7 @@ export function updateAndDrawSpeechBubbles(ctx, delta) {
 }
 
 function wrapText(ctx, text, maxWidth) {
+  if (typeof text !== "string") return [];
   const words = text.split(" ");
   const lines = [];
   let current = "";

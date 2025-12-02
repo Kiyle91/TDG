@@ -35,6 +35,7 @@ import { spawnFloatingText } from "../fx/floatingText.js";
 import { gameState } from "../utils/gameState.js";
 import { Events } from "../core/eventEngine.js";
 import { upgradeSpireById } from "../spires/spireUpgrades.js";
+import { tryPlayerSpeech } from "../core/events/playerSpeech.js";
 
 
 // ------------------------------------------------------------
@@ -75,6 +76,17 @@ const SPIRE_ID_MAP = {
 
 function getSpireIdFor(spire) {
   return SPIRE_ID_MAP[spire.type] ?? null;
+}
+
+function speechKeyFromType(type) {
+  if (!type) return "default";
+  const t = String(type);
+  if (t.includes("flame")) return "fire";
+  if (t.includes("frost") || t.includes("ice")) return "ice";
+  if (t.includes("light")) return "light";
+  if (t.includes("moon")) return "moon";
+  if (t.includes("arcane")) return "arcane";
+  return "default";
 }
 
 // Popup positioning helpers
@@ -185,6 +197,9 @@ export function initSpireClickHandler(canvas) {
 
             if (ok) {
                 spawnFloatingText(s.x, s.y - 60, "Upgraded! +1% Effect", "#ffd6ff");
+                const speechKey = speechKeyFromType(s.type);
+                if (gameState.player) gameState.player.lastSpireType = speechKey;
+                tryPlayerSpeech("upgrade", gameState.player, speechKey);
             } else {
                 spawnFloatingText(s.x, s.y - 60, "Not enough diamonds", "#ff7b7b");
             }
@@ -215,6 +230,12 @@ export function addSpire(data) {
     lastTargetUpdate: 0,
     cachedTarget: null,
   });
+
+  // Player flavor line on placement
+  const p = gameState.player;
+  const speechKey = speechKeyFromType(data.type);
+  if (p) p.lastSpireType = speechKey;
+  tryPlayerSpeech("place", p, speechKey);
 }
 
 // ------------------------------------------------------------
