@@ -10,7 +10,7 @@
 
 import { gameState, unlockMap, saveProfiles } from "../utils/gameState.js";
 import { stopGameplay } from "../main.js";
-import { triggerEndOfWave1Story, triggerEndOfWave5Story } from "./story.js";
+import { triggerEndOfWave1Story, triggerEndOfWave5Story, resetWaveStoryFlags } from "./story.js";
 import { getDifficultyHpMultiplier } from "../screenManagement/settings.js";
 import { updateHUD } from "../screenManagement/ui.js";
 
@@ -439,6 +439,7 @@ export function resetWaveSystem() {
   gameState.victoryPending = false;
   gameState.wave = 1;
   const mapId = gameState.progress?.currentMap ?? 1;
+  resetWaveStoryFlags(mapId);
   const waves = waveConfigs[mapId];
   gameState.totalWaves = Array.isArray(waves) ? waves.length : 0;
   firstWaveStarted = false;

@@ -400,6 +400,19 @@ for (let i = 1; i <= 9; i++) {
   waveStoryFlags[i] = { 1: false, 5: false };
 }
 
+export function resetWaveStoryFlags(mapId) {
+  if (typeof mapId === "number" && waveStoryFlags[mapId]) {
+    waveStoryFlags[mapId][1] = false;
+    waveStoryFlags[mapId][5] = false;
+    return;
+  }
+
+  Object.keys(waveStoryFlags).forEach((key) => {
+    waveStoryFlags[key][1] = false;
+    waveStoryFlags[key][5] = false;
+  });
+}
+
 // ------------------------------------------------------------
 // ⭐ END OF WAVE 1 STORY
 // ------------------------------------------------------------
