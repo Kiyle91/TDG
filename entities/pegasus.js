@@ -133,13 +133,22 @@ export function updatePegasus(delta = 16) {
   }
 
   // Mid-flight loot drop (once)
-  const mid = canvas.width * 0.5;
+  const playerPos = gameState.player?.pos;
+  const targetX = playerPos?.x ?? canvas.width * 0.5;
   if (
     !pegasus.hasDropped &&
-    ((pegasus.direction === 1 && pegasus.x > mid) ||
-      (pegasus.direction === -1 && pegasus.x < mid))
+    ((pegasus.direction === 1 && pegasus.x > targetX) ||
+      (pegasus.direction === -1 && pegasus.x < targetX))
   ) {
-    spawnLoot("pegasus", pegasus.x, pegasus.y + 80);
+    const px = playerPos?.x ?? pegasus.x;
+    const py = playerPos?.y ?? pegasus.y;
+    const dropRadius = 120;
+    const ang = Math.random() * Math.PI * 2;
+    const dist = 40 + Math.random() * dropRadius;
+    const dropX = px + Math.cos(ang) * dist;
+    const dropY = py + Math.sin(ang) * dist;
+
+    spawnLoot("pegasus", dropX, dropY + 60);
     emitPegasusLootLine();
     pegasus.hasDropped = true;
   }
@@ -167,7 +176,9 @@ function startPegasusFlight() {
 
   const minY = canvas.height * 0.1;
   const maxY = canvas.height * 0.5;
-  pegasus.baseY = minY + Math.random() * (maxY - minY);
+  const playerY = gameState.player?.pos?.y ?? (canvas.height * 0.4);
+  const targetY = Math.max(minY, Math.min(maxY, playerY + (Math.random() - 0.5) * 120));
+  pegasus.baseY = targetY;
   pegasus.y = pegasus.baseY;
 
   pegasus.speed = 400 + Math.random() * 250;
