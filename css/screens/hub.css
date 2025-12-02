@@ -604,7 +604,7 @@
 
 #start-btn {
   position: absolute;
-  bottom: 43.5%; /* adjust so it appears above Continue */
+  bottom: 41.5%; /* adjust so it appears above Continue */
   left: 50%;
   transform: translateX(-50%);
 
@@ -683,6 +683,42 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+#hub-socials {
+  position: absolute;
+  bottom: 8%;
+  left: 8.5%;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 icons per row */
+  gap: 14px;
+
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(91, 139, 230, 0.4);
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+
+  box-shadow:
+    0 0 15px rgba(181, 226, 255, 0.4),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+
+  z-index: 50;
+  animation: fadeIn 1s ease forwards;
+}
+
+.social-icon {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+
+  filter: drop-shadow(0 0 10px rgba(224, 187, 255, 0.6));
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.social-icon:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 15px rgba(255, 182, 224, 1));
+}
 /* ============================================================
    🌟 END OF FILE
 ============================================================ */
