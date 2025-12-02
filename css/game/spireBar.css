@@ -1,12 +1,12 @@
 /* ============================================================
    🏰 SPIRE BAR HUD — Crystal Glass Vertical HUD
    ------------------------------------------------------------
-   ✦ Matches the entire aesthetic theme (story, levelup, overlays)
-   ✦ Soft pastel glow, glass panel, gold highlight on unlock
+   • Matches the entire aesthetic theme (story, levelup, overlays)
+   • Soft pastel glow, glass panel, gold highlight on unlock
 ============================================================ */
 
 /* ------------------------------------------------------------
-   🌟 BAR CONTAINER
+   HUB BAR CONTAINER
 ------------------------------------------------------------ */
 .spire-bar {
   position: absolute;
@@ -15,22 +15,16 @@
   transform: translateY(-50%);
   height: 50px;
 
-  
-
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 20px;
 
-
-
-
-
   z-index: 9999;
 }
 
 /* ------------------------------------------------------------
-   💎 SPIRE SLOTS
+   SPIRE SLOTS
 ------------------------------------------------------------ */
 .spire-slot {
   width: 50px;
@@ -57,10 +51,12 @@
   height: 50px;
   object-fit: contain;
   pointer-events: none;
+  position: relative;
+  z-index: 2; /* keep the icon above the glow/sparkles */
 }
 
 /* ------------------------------------------------------------
-   🔢 QUANTITY LABEL
+   QUANTITY / COST LABEL
 ------------------------------------------------------------ */
 .spire-slot span {
   position: absolute;
@@ -72,10 +68,11 @@
 
   color: #fff;
   text-shadow: 0 0 3px #000;
+  z-index: 4; /* keep cost text above icon and effects */
 }
 
 /* ------------------------------------------------------------
-   ✨ UNLOCKED STATE — Gold Glow
+   UNLOCKED STATE — Gold Glow
 ------------------------------------------------------------ */
 .spire-slot.unlocked {
   filter: none;
@@ -94,7 +91,86 @@
 }
 
 /* ------------------------------------------------------------
-   🔢 HOTKEY LABELS
+   AFFORDABLE STATE — Colored Glow Per Spire
+------------------------------------------------------------ */
+.spire-slot.affordable {
+  box-shadow:
+    0 0 12px rgba(0, 0, 0, 0.6) !important,
+    0 0 16px rgba(var(--afford-glow, 255, 255, 255), 1),
+    0 0 34px rgba(var(--afford-glow, 255, 255, 255), 0.9),
+    inset 0 0 12px rgba(255, 255, 255, 0.65);
+  transform: scale(1.08);
+}
+
+.spire-slot.affordable::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 12px;
+
+  background:
+    radial-gradient(circle at 50% 50%, rgba(var(--afford-glow, 255, 255, 255), 0.75) 0%, rgba(var(--afford-glow, 255, 255, 255), 0) 60%),
+    radial-gradient(circle at 50% 50%, rgba(var(--afford-glow, 255, 255, 255), 0.4) 10%, rgba(var(--afford-glow, 255, 255, 255), 0) 75%);
+
+  pointer-events: none;
+  filter: blur(2px) brightness(1);
+  mix-blend-mode: screen;
+  opacity: 1;
+  z-index: 0;
+  will-change: transform, opacity, filter;
+  animation:
+    spireAffordPulse 1.6s ease-in-out infinite alternate,
+    spireAffordFlash 1.2s ease-in-out infinite;
+}
+
+.spire-slot.affordable::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 0;
+
+  /* Soft sparkles that shimmer around the icon */
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.8) 0, rgba(255, 255, 255, 0) 35%),
+    radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.7) 0, rgba(255, 255, 255, 0) 35%),
+    radial-gradient(circle at 45% 75%, rgba(255, 255, 255, 0.65) 0, rgba(255, 255, 255, 0) 40%);
+  filter: drop-shadow(0 0 6px rgba(var(--afford-glow, 255, 255, 255), 0.8));
+
+  animation:
+    spireSparkleDrift 2s ease-in-out infinite,
+    spireAffordFlash 1.2s ease-in-out infinite;
+}
+
+.spire-slot.affordable span,
+.spire-slot.affordable .key-label {
+  text-shadow:
+    0 0 6px rgba(var(--afford-glow, 255, 255, 255), 0.9),
+    0 0 12px rgba(var(--afford-glow, 255, 255, 255), 0.7);
+}
+
+@keyframes spireAffordPulse {
+  from { transform: scale(0.96); opacity: 0.6; }
+  to   { transform: scale(1.08); opacity: 1; }
+}
+
+@keyframes spireAffordFlash {
+  0%   { filter: blur(2px) brightness(1);   opacity: 0.8; transform: scale(1.0); }
+  25%  { filter: blur(2px) brightness(1.9); opacity: 1;   transform: scale(1.1); }
+  50%  { filter: blur(2px) brightness(1);   opacity: 0.85; transform: scale(1.02); }
+  75%  { filter: blur(2px) brightness(1.9); opacity: 1;   transform: scale(1.1); }
+  100% { filter: blur(2px) brightness(1);   opacity: 0.8; transform: scale(1.0); }
+}
+
+@keyframes spireSparkleDrift {
+  0%   { transform: translateY(0) scale(1); opacity: 0.9; }
+  50%  { transform: translateY(-1px) scale(1.03); opacity: 1; }
+  100% { transform: translateY(1px) scale(0.98); opacity: 0.85; }
+}
+
+/* ------------------------------------------------------------
+   HOTKEY LABELS
 ------------------------------------------------------------ */
 .key-label {
   position: absolute;
@@ -125,7 +201,7 @@
     inset 0 0 6px rgba(255, 255, 255, 0.4);
 
   pointer-events: none;
-  z-index: 2;
+  z-index: 4; /* above icon and sparkles */
 }
 
 /* Gold hotkey for unlocked spires */
@@ -145,5 +221,5 @@
 }
 
 /* ============================================================
-   🌟 END OF FILE
+   END OF FILE
 ============================================================ */

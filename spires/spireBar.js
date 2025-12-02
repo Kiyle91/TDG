@@ -1,5 +1,5 @@
 // ============================================================
-// 🏰 spireBar.js — Hotkey Labels + Unlock Indicators
+// spireBar.js — Hotkey Labels + Unlock Indicators
 // ============================================================
 /* ------------------------------------------------------------
  * MODULE: spireBar.js
@@ -13,23 +13,23 @@
  *   • initSpireBar() — injects the hotkey labels + performs
  *     the first full UI update.
  *   • updateSpireBar() — refreshes locked/unlocked states
- *     based on the player’s current level.
+ *     based on the player’s current level and gold.
  *
  * DESIGN NOTES:
- *   • This file handles *UI only* — no gameplay logic.
+ *   • This file handles UI only — no gameplay logic.
  *   • Spire purchase logic exists inside spires.js.
  *   • Hotkey labels are added once, then managed visually.
  * ------------------------------------------------------------ */
 
 // ------------------------------------------------------------
-// ↪️ Imports
+// Imports
 // ------------------------------------------------------------
 
 import { gameState } from "../utils/gameState.js";
 import { handleSpireKey } from "./spirePlacement.js";
 
 // ------------------------------------------------------------
-// ⚙️ SPIRE CONFIG
+// SPIRE CONFIG
 // ------------------------------------------------------------
 
 const spireData = {
@@ -41,8 +41,18 @@ const spireData = {
   6: { name: "Moonlight Aegis",   level: 25, cost: 300, key: "6" },
 };
 
+// Affordability glow colors (RGB strings for rgba(var()))
+const affordGlow = {
+  1: "255, 255, 255", // basic - white
+  2: "150, 240, 255", // frost - icy cyan
+  3: "255, 165, 80",  // flame - ember orange
+  4: "150, 140, 255", // arcane - bluey purple
+  5: "255, 215, 110", // light - gold
+  6: "255, 190, 230", // gravity/moon - light pink
+};
+
 // ------------------------------------------------------------
-// 🌸 INITIALIZE — inject hotkey labels + initial refresh
+// INITIALIZE — inject hotkey labels + initial refresh
 // ------------------------------------------------------------
 
 export function initSpireBar() {
@@ -72,11 +82,12 @@ export function initSpireBar() {
 }
 
 // ------------------------------------------------------------
-// 🔄 UPDATE VISUAL STATE (locked → unlocked)
+// UPDATE VISUAL STATE (locked ↔ unlocked + affordability glow)
 // ------------------------------------------------------------
 
 export function updateSpireBar() {
   const level = gameState.player?.level ?? 1;
+  const gold = gameState.profile?.currencies?.gold ?? 0;
 
   document.querySelectorAll(".spire-slot").forEach(slot => {
     const id = Number(slot.dataset.id);
@@ -87,26 +98,21 @@ export function updateSpireBar() {
     const label = slot.querySelector("span");
     const keyLabel = slot.querySelector(".key-label");
 
-    // --------------------------------------------------------
-    // 🌑 LOCKED STATE
-    // --------------------------------------------------------
-
+    // LOCKED STATE
     if (level < data.level) {
-      slot.classList.remove("unlocked");
+      slot.classList.remove("unlocked", "affordable");
       label.textContent = `Lv ${data.level}`;
       label.style.color = "#fff";
       label.style.textShadow = "0 0 4px #000";
       slot.title = `${data.name} — Unlocks at Level ${data.level}`;
       img.style.filter = "grayscale(1) brightness(0.6)";
       slot.style.boxShadow = "none";
+      slot.style.removeProperty("--afford-glow");
       keyLabel?.classList.remove("unlocked");
       return;
     }
 
-    // --------------------------------------------------------
-    // 🌕 UNLOCKED STATE
-    // --------------------------------------------------------
-    
+    // UNLOCKED STATE
     slot.classList.add("unlocked");
     label.textContent = `🪨 ${data.cost}`;
     label.style.color = "#fff";
@@ -116,9 +122,20 @@ export function updateSpireBar() {
     img.style.filter = "none";
     slot.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.6)";
     keyLabel?.classList.add("unlocked");
+
+    // Affordability glow when player has enough gold
+    const canAfford = gold >= data.cost;
+    slot.classList.toggle("affordable", canAfford);
+
+    if (canAfford) {
+      const color = affordGlow[id] || "255, 255, 255";
+      slot.style.setProperty("--afford-glow", color);
+    } else {
+      slot.style.removeProperty("--afford-glow");
+    }
   });
 }
 
 // ============================================================
-// 🌟 END OF FILE
+// END OF FILE
 // ============================================================
