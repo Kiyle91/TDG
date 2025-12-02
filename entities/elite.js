@@ -151,7 +151,7 @@ function moveEliteWithCollision(e, dx, dy) {
   const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
   e.x = moved.x + w / 2;
   e.y = moved.y + h / 2 - ELITE_SIZE * 0.25;
-  return moved;
+  return moved.blocked === true;
 }
 
 
@@ -329,7 +329,19 @@ export function updateElites(delta = 16) {
       if (dist > 5) {
         const stepX = (dx / dist) * moveSpeed * dt;
         const stepY = (dy / dist) * moveSpeed * dt;
-        moveEliteWithCollision(e, stepX, stepY);
+        const blocked = moveEliteWithCollision(e, stepX, stepY);
+
+        // Fast sidestep when path is blocked to slip around corners
+        if (blocked) {
+          const sidestep = moveSpeed * 0.6 * dt;
+          const perpX = -stepY;
+          const perpY = stepX;
+          moveEliteWithCollision(
+            e,
+            perpX > 0 ? sidestep : -sidestep,
+            perpY > 0 ? sidestep : -sidestep
+          );
+        }
 
         if (p.invincible === true) {
             applyBraveryAuraEffects(e);

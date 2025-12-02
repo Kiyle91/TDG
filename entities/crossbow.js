@@ -185,7 +185,7 @@ function moveCrossbowWithCollision(c, dx, dy) {
   const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
   c.x = moved.x + w / 2;
   c.y = moved.y + h / 2 - CROSSBOW_SIZE * 0.25;
-  return moved;
+  return moved.blocked === true;
 }
 
 
@@ -350,13 +350,27 @@ export function updateCrossbows(delta) {
       if (dist > ATTACK_RANGE * 1.05) {
         const stepX = (dx / dist) * CROSSBOW_SPEED * dt;
         const stepY = (dy / dist) * CROSSBOW_SPEED * dt;
-        moveCrossbowWithCollision(c, stepX, stepY);
+        const blocked = moveCrossbowWithCollision(c, stepX, stepY);
+
+        // If path is blocked, try a quick perpendicular sidestep to get around corners
+        if (blocked) {
+          const sidestep = CROSSBOW_SPEED * 0.6 * dt;
+          const perpX = -stepY;
+          const perpY = stepX;
+          moveCrossbowWithCollision(c, perpX > 0 ? sidestep : -sidestep, perpY > 0 ? sidestep : -sidestep);
+        }
       }
       else if (dist < IDEAL_MIN_RANGE) {
         const backSpeed = CROSSBOW_SPEED * 0.7;
         const stepX = -(dx / dist) * backSpeed * dt;
         const stepY = -(dy / dist) * backSpeed * dt;
-        moveCrossbowWithCollision(c, stepX, stepY);
+        const blocked = moveCrossbowWithCollision(c, stepX, stepY);
+        if (blocked) {
+          const sidestep = backSpeed * 0.6 * dt;
+          const perpX = -stepY;
+          const perpY = stepX;
+          moveCrossbowWithCollision(c, perpX > 0 ? sidestep : -sidestep, perpY > 0 ? sidestep : -sidestep);
+        }
 
         if (player.invincible === true) {
             applyBraveryAuraEffects(c);

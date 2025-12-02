@@ -104,7 +104,7 @@ export const waveConfigs = {
   // MAP 2 - Early Worg Pressure (Introduced Mid-Map)
   // ============================================================
   2: [
-    { goblins: 18, worgs: 0,  elites: 0 },
+    { goblins: 18, worgs: 0,  elites: 5, crossbows: 5 },
     { goblins: 22, worgs: 1,  elites: 0 },
     { goblins: 26, worgs: 2,  elites: 0 },
     { goblins: 30, worgs: 3,  elites: 1 }, // elite intro

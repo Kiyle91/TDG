@@ -150,7 +150,7 @@ function moveOgreWithCollision(o, dx, dy) {
   const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
   o.x = moved.x + w / 2;
   o.y = moved.y + h / 2 - OGRE_SIZE * 0.2;
-  return moved;
+  return moved.blocked === true;
 }
 
 
@@ -325,7 +325,18 @@ export function updateOgres(delta = 16) {
       const dist = Math.sqrt(distSq);
       const stepX = (dx / dist) * OGRE_SPEED * dt;
       const stepY = (dy / dist) * OGRE_SPEED * dt;
-      moveOgreWithCollision(o, stepX, stepY);
+      const blocked = moveOgreWithCollision(o, stepX, stepY);
+
+      if (blocked) {
+        const sidestep = OGRE_SPEED * 0.55 * dt;
+        const perpX = -stepY;
+        const perpY = stepX;
+        moveOgreWithCollision(
+          o,
+          perpX > 0 ? sidestep : -sidestep,
+          perpY > 0 ? sidestep : -sidestep
+        );
+      }
             
       if (p.invincible === true) {
         const aura = 130; // same radius as bravery glow

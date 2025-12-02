@@ -183,6 +183,7 @@ function moveWithCollision(b, dx, dy) {
   const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
   b.x = moved.x + w / 2;
   b.y = moved.y + h / 2 - SERAPHINE_SIZE * 0.25;
+  return moved.blocked === true;
 }
 
 
@@ -534,7 +535,17 @@ export function updateSeraphine(delta = 16) {
       if (dist > 4) {
         const stepX = (dx / dist) * moveSpeed * dt;
         const stepY = (dy / dist) * moveSpeed * dt;
-        moveWithCollision(b, stepX, stepY);
+        const blocked = moveWithCollision(b, stepX, stepY);
+        if (blocked) {
+          const sidestep = moveSpeed * 0.6 * dt;
+          const perpX = -stepY;
+          const perpY = stepX;
+          moveWithCollision(
+            b,
+            perpX > 0 ? sidestep : -sidestep,
+            perpY > 0 ? sidestep : -sidestep
+          );
+        }
       }
 
       if (gameState.player.invincible === true && b.alive && !b.defeated) {
