@@ -8,6 +8,7 @@
 
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { spawnDamageSparkles, spawnCanvasSparkleBurst } from "../fx/sparkles.js";
+import { slideRect } from "../utils/mapCollision.js";
 import { getGoblins, damageGoblin } from "../entities/goblin.js";
 import { getGoblins as getIceGoblins, damageGoblin as damageIceGoblin } from "../entities/iceGoblin.js";
 import { getGoblins as getEmberGoblins, damageGoblin as damageEmberGoblin } from "../entities/emberGoblin.js";
@@ -187,8 +188,22 @@ export function performMelee(player) {
     if (t.type !== "ogre") {
       const push = 40 + tier * 8;
       const len = Math.max(1, dist);
-      t.x += (dx / len) * push;
-      t.y += (dy / len) * push;
+      const nx = dx / len;
+      const ny = dy / len;
+
+      // Use slideRect to avoid shoving into collision
+      const dims = getEnemyCollisionBox(t);
+      const moved = slideRect(
+        t.x - dims.w / 2,
+        t.y - dims.h / 2,
+        dims.w,
+        dims.h,
+        nx * push,
+        ny * push,
+        { ignoreBounds: true }
+      );
+      t.x = moved.x + dims.w / 2;
+      t.y = moved.y + dims.h / 2;
     }
 
     spawnDamageSparkles(t.x, t.y);
@@ -217,4 +232,14 @@ export function performMelee(player) {
     crit: isCrit,
     stun: perks.stun
   };
+}
+
+function getEnemyCollisionBox(enemy) {
+  const approx = {
+    goblin: 42, iceGoblin: 42, emberGoblin: 42, ashGoblin: 42, voidGoblin: 42,
+    worg: 44, elite: 48, troll: 55, ogre: 64, crossbow: 44, seraphine: 96,
+  };
+  const w = enemy.hitbox || enemy.width || approx[enemy.type] || 48;
+  const h = enemy.height || w;
+  return { w, h };
 }

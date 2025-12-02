@@ -38,6 +38,7 @@ import { getGoblins as getEmberGoblins } from "../entities/emberGoblin.js";
 import { getGoblins as getAshGoblins } from "../entities/ashGoblin.js";
 import { getGoblins as getVoidGoblins } from "../entities/voidGoblin.js";
 import { playBraveryCharge } from "../core/soundtrack.js";
+import { slideRect } from "../utils/mapCollision.js";
 import { areVisualsEnabled } from "../screenManagement/settings.js";
 // ------------------------------------------------------------
 // 🟪 ADD BRAVERY
@@ -127,8 +128,19 @@ export function applyBraveryAuraEffects(enemy) {
     const nx = dx / dist;
     const ny = dy / dist;
 
-    enemy.x += nx * push;
-    enemy.y += ny * push;
+    // Keep pushback out of collision tiles: slide the enemy rect safely
+    const dims = getEnemyCollisionBox(enemy);
+    const result = slideRect(
+      enemy.x - dims.w / 2,
+      enemy.y - dims.h / 2,
+      dims.w,
+      dims.h,
+      nx * push,
+      ny * push,
+      { ignoreBounds: true }
+    );
+    enemy.x = result.x + dims.w / 2;
+    enemy.y = result.y + dims.h / 2;
   }
 
 
@@ -158,6 +170,16 @@ export function applyBraveryAuraEffects(enemy) {
     enemy.flashTimer = 150;
     auraTickNext = now + AURA_TICK_MS;
 
+}
+
+function getEnemyCollisionBox(enemy) {
+  const approx = {
+    goblin: 42, iceGoblin: 42, emberGoblin: 42, ashGoblin: 42, voidGoblin: 42,
+    worg: 44, elite: 48, troll: 55, ogre: 64, crossbow: 44, seraphine: 96,
+  };
+  const w = enemy.hitbox || enemy.width || approx[enemy.type] || 48;
+  const h = enemy.height || w;
+  return { w, h };
 }
 
 
