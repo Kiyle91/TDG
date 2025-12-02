@@ -498,7 +498,6 @@
   opacity: 0;
   pointer-events: none;
   z-index: 10000;
-  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 #bravery-prompt.show {
