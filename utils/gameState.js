@@ -565,6 +565,9 @@ export function addXP(amount) {
 export function addGold(amount, x = null, y = null) {
     if (!gameState.profile) return;
 
+    const diffMult = getDifficultyEconomyMultiplier();
+    amount = Math.round(amount * diffMult);
+
     // Apply Echo Power bonus
     if (gameState.echoPowerActive) {
         amount = Math.round(amount * 1.5);
@@ -615,6 +618,15 @@ export function getCurrencies() {
 }
 
 // ============================================================
+// Difficulty economy helpers (loot chance + gold amount scaling)
+export function getDifficultyEconomyMultiplier() {
+  const diff = gameState.settings?.difficulty || "normal";
+  if (diff === "easy") return 2;
+  if (diff === "hard") return 0.7;
+  return 1;
+}
+
+
 // 💎 ECHO BUFF RESET
 // ============================================================
 

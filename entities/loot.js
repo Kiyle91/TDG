@@ -37,7 +37,7 @@
 // ↪️ Imports
 // ------------------------------------------------------------
 
-import { gameState, addGold, addDiamonds } from "../utils/gameState.js";
+import { gameState, addGold, addDiamonds, getDifficultyEconomyMultiplier } from "../utils/gameState.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
 import { playFairySprinkle } from "../core/soundtrack.js";
 import { updateHUD } from "../screenManagement/ui.js";
@@ -183,7 +183,9 @@ export function spawnLoot(source, x, y) {
   if (!table) return;
   if (!isFinite(x) || !isFinite(y)) return;
 
-  if (Math.random() > table.chance) return;
+  const lootMult = getDifficultyEconomyMultiplier();
+  const effectiveChance = Math.min(1, table.chance * lootMult);
+  if (Math.random() > effectiveChance) return;
 
   const rolls = table.rolls ?? 1;
 
