@@ -147,10 +147,10 @@ function moveEliteWithCollision(e, dx, dy) {
   const w = ELITE_HITBOX;
   const h = ELITE_HITBOX;
   const rectX = e.x - w / 2;
-  const rectY = e.y - h / 2;
+  const rectY = e.y - h / 2 + ELITE_SIZE * 0.25;
   const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
   e.x = moved.x + w / 2;
-  e.y = moved.y + h / 2;
+  e.y = moved.y + h / 2 - ELITE_SIZE * 0.25;
   return moved;
 }
 

@@ -146,10 +146,10 @@ function moveOgreWithCollision(o, dx, dy) {
   const w = OGRE_HITBOX;
   const h = OGRE_HITBOX;
   const rectX = o.x - w / 2;
-  const rectY = o.y - h / 2;
+  const rectY = o.y - h / 2 + OGRE_SIZE * 0.2;
   const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
   o.x = moved.x + w / 2;
-  o.y = moved.y + h / 2;
+  o.y = moved.y + h / 2 - OGRE_SIZE * 0.2;
   return moved;
 }
 

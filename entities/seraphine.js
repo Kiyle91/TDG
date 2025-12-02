@@ -179,10 +179,10 @@ function moveWithCollision(b, dx, dy) {
   const w = SERAPHINE_HITBOX;
   const h = SERAPHINE_HITBOX;
   const rectX = b.x - w / 2;
-  const rectY = b.y - h / 2;
+  const rectY = b.y - h / 2 + SERAPHINE_SIZE * 0.25;
   const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
   b.x = moved.x + w / 2;
-  b.y = moved.y + h / 2;
+  b.y = moved.y + h / 2 - SERAPHINE_SIZE * 0.25;
 }
 
 

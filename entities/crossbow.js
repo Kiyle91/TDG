@@ -163,10 +163,10 @@ function moveCrossbowWithCollision(c, dx, dy) {
   const w = CROSSBOW_HITBOX;
   const h = CROSSBOW_HITBOX;
   const rectX = c.x - w / 2;
-  const rectY = c.y - h / 2;
+  const rectY = c.y - h / 2 + CROSSBOW_SIZE * 0.25;
   const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
   c.x = moved.x + w / 2;
-  c.y = moved.y + h / 2;
+  c.y = moved.y + h / 2 - CROSSBOW_SIZE * 0.25;
   return moved;
 }
 

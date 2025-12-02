@@ -147,10 +147,10 @@ function moveTrollWithCollision(t, dx, dy) {
   const w = HITBOX;
   const h = HITBOX;
   const rectX = t.x - w / 2;
-  const rectY = t.y - h / 2;
+  const rectY = t.y - h / 2 + SIZE * 0.25;
   const moved = slideRect(rectX, rectY, w, h, dx, dy, { ignoreBounds: true });
   t.x = moved.x + w / 2;
-  t.y = moved.y + h / 2;
+  t.y = moved.y + h / 2 - SIZE * 0.25;
   return moved;
 }
 

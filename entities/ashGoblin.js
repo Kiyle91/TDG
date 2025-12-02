@@ -82,10 +82,10 @@ const SPATIAL_GRID_SIZE = 128;
 
 function moveGoblinWithCollision(e, dx, dy) {
   const rectX = e.x - e.width / 2;
-  const rectY = e.y - e.height / 2;
+  const rectY = e.y - e.height / 2 + (e.hitboxOffsetY || 0);
   const moved = slideRect(rectX, rectY, e.width, e.height, dx, dy, { ignoreBounds: true });
   e.x = moved.x + e.width / 2;
-  e.y = moved.y + e.height / 2;
+  e.y = moved.y + e.height / 2 - (e.hitboxOffsetY || 0);
   return moved;
 }
 

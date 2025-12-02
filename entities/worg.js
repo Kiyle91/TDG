@@ -84,10 +84,10 @@ export async function initWorg(paths) {
 function moveWorgWithCollision(w, dx, dy) {
   const rectSize = WORG_HITBOX;
   const rectX = w.x - rectSize / 2;
-  const rectY = w.y - rectSize / 2;
+  const rectY = w.y - rectSize / 2 + WORG_SIZE * 0.25;
   const moved = slideRect(rectX, rectY, rectSize, rectSize, dx, dy, { ignoreBounds: true });
   w.x = moved.x + rectSize / 2;
-  w.y = moved.y + rectSize / 2;
+  w.y = moved.y + rectSize / 2 - WORG_SIZE * 0.25;
   return moved;
 }
 
