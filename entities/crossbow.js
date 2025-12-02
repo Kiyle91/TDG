@@ -258,6 +258,9 @@ export function updateCrossbows(delta) {
 
   for (let i = crossbowList.length - 1; i >= 0; i--) {
     const c = crossbowList[i];
+    const startX = c.x;
+    const startY = c.y;
+    c.movedThisFrame = false;
 
     tryEnemySpeech(c);
 
@@ -396,10 +399,18 @@ export function updateCrossbows(delta) {
         }
       }
 
-      c.walkTimer += delta;
-      if (c.walkTimer >= WALK_FRAME_INTERVAL) {
+      const movedDist = Math.hypot(c.x - startX, c.y - startY);
+      c.movedThisFrame = movedDist > 0.25;
+
+      if (c.movedThisFrame) {
+        c.walkTimer += delta;
+        if (c.walkTimer >= WALK_FRAME_INTERVAL) {
+          c.walkTimer = 0;
+          c.walkFrame = (c.walkFrame + 1) % 2;
+        }
+      } else {
         c.walkTimer = 0;
-        c.walkFrame = (c.walkFrame + 1) % 2;
+        c.walkFrame = 0;
       }
 
       updateCrossbowBolts(delta);
@@ -515,6 +526,8 @@ export function drawCrossbows(ctx) {
     } else if (c.attacking && crossbowSprites.attack[facing]?.length) {
       const frames = crossbowSprites.attack[facing];
       img = frames[c.attackFrame % frames.length];
+    } else if (!c.movedThisFrame && crossbowSprites.idle[moveDir]) {
+      img = crossbowSprites.idle[moveDir];
     } else {
       const walkFrames =
         (crossbowSprites.walk[moveDir]?.length ? crossbowSprites.walk[moveDir] : null) ||

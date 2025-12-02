@@ -228,6 +228,9 @@ export function updateElites(delta = 16) {
 
   for (let i = eliteList.length - 1; i >= 0; i--) {
     const e = eliteList[i];
+    const startX = e.x;
+    const startY = e.y;
+    e.movedThisFrame = false;
 
     // Death fade
     if (!e.alive) {
@@ -385,10 +388,18 @@ export function updateElites(delta = 16) {
       }
 
       // Run animation
-      e.frameTimer += delta;
-      if (e.frameTimer >= FRAME_INTERVAL) {
+      const movedDist = Math.hypot(e.x - startX, e.y - startY);
+      e.movedThisFrame = movedDist > 0.25;
+
+      if (e.movedThisFrame) {
+        e.frameTimer += delta;
+        if (e.frameTimer >= FRAME_INTERVAL) {
+          e.frameTimer = 0;
+          e.frame = (e.frame + 1) % 2;
+        }
+      } else {
         e.frameTimer = 0;
-        e.frame = (e.frame + 1) % 2;
+        e.frame = 0;
       }
     }
   }
@@ -465,6 +476,8 @@ export function drawElites(ctx) {
     } else if (e.attacking) {
       const dir = e.dir === "left" ? "left" : "right";
       img = eliteSprites.attack[dir][e.attackFrame];
+    } else if (!e.movedThisFrame) {
+      img = eliteSprites.idle;
     } else {
       img = eliteSprites.run[e.dir]?.[e.frame] || eliteSprites.idle;
     }

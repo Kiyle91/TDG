@@ -243,6 +243,9 @@ export function updateOgres(delta = 16) {
 
   for (let i = ogres.length - 1; i >= 0; i--) {
       const o = ogres[i];
+      const startX = o.x;
+      const startY = o.y;
+      o.movedThisFrame = false;
 
       
 
@@ -382,10 +385,18 @@ export function updateOgres(delta = 16) {
     }
 
     // Walk animation
-    o.frameTimer += delta;
-    if (o.frameTimer >= 220) {
+    const movedDist = Math.hypot(o.x - startX, o.y - startY);
+    o.movedThisFrame = movedDist > 0.25;
+
+    if (o.movedThisFrame) {
+      o.frameTimer += delta;
+      if (o.frameTimer >= 220) {
+        o.frameTimer = 0;
+        o.frame = (o.frame + 1) % 2;
+      }
+    } else {
       o.frameTimer = 0;
-      o.frame = (o.frame + 1) % 2;
+      o.frame = 0;
     }
   }
 }
@@ -457,6 +468,9 @@ export function drawOgres(ctx) {
         left
           ? (o.attackPhase === 0 ? ogreSprites.attack.left : ogreSprites.melee.left)
           : (o.attackPhase === 0 ? ogreSprites.attack.right : ogreSprites.melee.right);
+    }
+    else if (!o.movedThisFrame) {
+      img = ogreSprites.idle;
     }
     else if (ogreSprites.walk[o.dir]) {
       img = ogreSprites.walk[o.dir][o.frame] || ogreSprites.idle;

@@ -394,6 +394,9 @@ export function updateSeraphine(delta = 16) {
 
   for (let i = seraphines.length - 1; i >= 0; i--) {
     const b = seraphines[i];
+    const startX = b.x;
+    const startY = b.y;
+    b.movedThisFrame = false;
 
     // Death fade + removal
     if (!b.alive) {
@@ -588,11 +591,18 @@ export function updateSeraphine(delta = 16) {
         }
       }
 
-      // Run animation
-      b.frameTimer += delta;
-      if (b.frameTimer >= FRAME_INTERVAL) {
+      const movedDist = Math.hypot(b.x - startX, b.y - startY);
+      b.movedThisFrame = movedDist > 0.25;
+
+      if (b.movedThisFrame) {
+        b.frameTimer += delta;
+        if (b.frameTimer >= FRAME_INTERVAL) {
+          b.frameTimer = 0;
+          b.frame = (b.frame + 1) % 2;
+        }
+      } else {
         b.frameTimer = 0;
-        b.frame = (b.frame + 1) % 2;
+        b.frame = 0;
       }
     }
   }
@@ -791,6 +801,8 @@ export function drawSeraphine(ctx) {
     } else if (b.attacking) {
       const dir = b.dir === "left" ? "left" : "right";
       img = sprites.attack[dir][b.meleeFrame];
+    } else if (!b.movedThisFrame) {
+      img = sprites.idle;
     } else {
       const runSet = sprites.walk[b.dir] || sprites.walk.down;
       img = runSet[b.frame] || sprites.idle;

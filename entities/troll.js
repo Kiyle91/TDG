@@ -264,6 +264,9 @@ export function updateTrolls(delta = 16) {
   const py = player.pos.y;
 
   for (const t of trolls) {
+    const startX = t.x;
+    const startY = t.y;
+    t.movedThisFrame = false;
 
     tryEnemySpeech(t);
 
@@ -375,6 +378,13 @@ export function updateTrolls(delta = 16) {
     // Player ↔ Troll pushback
     // (only when not invincible — bravery handles aura instead)
     // ------------------------------
+    const movedDist = Math.hypot(t.x - startX, t.y - startY);
+    t.movedThisFrame = movedDist > 0.25;
+    if (!t.movedThisFrame && !t.attacking) {
+      t.frameTimer = 0;
+      t.frame = 0;
+    }
+
     if (!player.invincible && distP < 50 && distP > 0) {
       const overlap = (50 - distP) / 3;
       const nx = dxp / distP;
@@ -586,6 +596,7 @@ export function drawTrolls(ctx) {
 function getSprite(t) {
   if (!t.alive) return trollSprites.slain;
   if (t.attacking) return trollSprites.attack[t.attackDir][t.attackFrame];
+  if (!t.movedThisFrame) return trollSprites.idle;
   if (t.dir && trollSprites.walk[t.dir]) return trollSprites.walk[t.dir][t.frame];
   return trollSprites.idle;
 }

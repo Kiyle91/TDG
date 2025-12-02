@@ -286,6 +286,9 @@ export function updateGoblins(delta) {
   const py = player.pos?.y ?? player.y ?? 0;
 
   for (const e of goblins) {
+    const startX = e.x;
+    const startY = e.y;
+    e.movedThisFrame = false;
 
     tryEnemySpeech(e);
 
@@ -457,6 +460,13 @@ export function updateGoblins(delta) {
         e.frameTimer = 0;
         e.frame = (e.frame + 1) % 2;
       }
+    }
+
+    const movedDist = Math.hypot(e.x - startX, e.y - startY);
+    e.movedThisFrame = movedDist > 0.25;
+    if (!e.movedThisFrame && !e.attacking) {
+      e.frameTimer = 0;
+      e.frame = 0;
     }
 
     if (e.flashTimer > 0) e.flashTimer -= delta;
@@ -806,6 +816,7 @@ function getGoblinSprite(e) {
     const dir = e.attackDir || (e.dir === "left" ? "left" : "right");
     return goblinSprites.attack[dir][e.attackFrame || 0];
   }
+  if (!e.movedThisFrame) return goblinSprites.idle;
   switch (e.dir) {
     case "up": return goblinSprites.walk.up[e.frame];
     case "down": return goblinSprites.walk.down[e.frame];

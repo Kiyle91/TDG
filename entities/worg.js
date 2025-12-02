@@ -151,6 +151,9 @@ export function updateWorg(delta = 16) {
 
   for (let i = worgList.length - 1; i >= 0; i--) {
     const w = worgList[i];
+    const startX = w.x;
+    const startY = w.y;
+    w.movedThisFrame = false;
 
     if (!w.alive) {
       w.fade += delta;
@@ -205,10 +208,18 @@ export function updateWorg(delta = 16) {
       w.dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up");
     }
 
-    w.frameTimer += delta;
-    if (w.frameTimer >= WALK_FRAME_INTERVAL) {
+    const movedDist = Math.hypot(w.x - startX, w.y - startY);
+    w.movedThisFrame = movedDist > 0.25;
+
+    if (w.movedThisFrame) {
+      w.frameTimer += delta;
+      if (w.frameTimer >= WALK_FRAME_INTERVAL) {
+        w.frameTimer = 0;
+        w.frame = (w.frame + 1) % 2;
+      }
+    } else {
       w.frameTimer = 0;
-      w.frame = (w.frame + 1) % 2;
+      w.frame = 0;
     }
   }
 }
@@ -276,7 +287,14 @@ export function drawWorg(ctx) {
   ctx.imageSmoothingQuality = "medium";
 
   for (const w of worgList) {
-    const img = w.alive ? (worgSprites.run[w.dir]?.[w.frame] || worgSprites.idle) : worgSprites.slain;
+    let img = null;
+    if (!w.alive) {
+      img = worgSprites.slain;
+    } else if (!w.movedThisFrame) {
+      img = worgSprites.idle;
+    } else {
+      img = worgSprites.run[w.dir]?.[w.frame] || worgSprites.idle;
+    }
     if (!img) continue;
 
     let size = WORG_SIZE;
