@@ -93,10 +93,24 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
     const nextBtn = overlay.querySelector("#story-next");
     nextBtn.disabled = false;
 
+    // Auto-close when player opens any overlay/hub or we lose the game screen
+    const closeWatcher = (evt) => {
+      const targetId = evt.detail || evt.type;
+      if (targetId && typeof targetId === "string") {
+        const lower = targetId.toLowerCase();
+        if (lower.includes("overlay") || lower.includes("hub")) {
+          finish();
+        }
+      }
+    };
+
     let finished = false;
     const finish = () => {
       if (finished) return;
       finished = true;
+
+      window.removeEventListener("showScreen", closeWatcher);
+      window.removeEventListener("showOverlay", closeWatcher);
 
       overlay.classList.add("fade-out");
 
@@ -114,6 +128,9 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
 
     // Auto-close safeguard after 45 seconds
     const autoCloseTimer = setTimeout(finish, 45000);
+
+    window.addEventListener("showScreen", closeWatcher);
+    window.addEventListener("showOverlay", closeWatcher);
 
     nextBtn.addEventListener("click", () => {
       clearTimeout(autoCloseTimer);
