@@ -105,7 +105,7 @@ function drainBraveryBar(duration) {
 
 let auraTickNext = 0;    // per-player global tick throttler
 const AURA_RADIUS = 130;
-const AURA_DAMAGE = 4;   // tweakable
+const AURA_DAMAGE = 4;   // base damage (will scale with player level)
 const AURA_TICK_MS = 150; // damage every 150ms
 
 export function applyBraveryAuraEffects(enemy) {
@@ -135,22 +135,25 @@ export function applyBraveryAuraEffects(enemy) {
     const now = performance.now();
     if (now < auraTickNext) return;
 
-    switch (enemy.type) {
-      case "goblin":      damageGoblin(enemy, AURA_DAMAGE); break;
-      case "iceGoblin":   damageIceGoblin(enemy, AURA_DAMAGE); break;
-      case "emberGoblin": damageEmberGoblin(enemy, AURA_DAMAGE); break;
-      case "ashGoblin":   damageAshGoblin(enemy, AURA_DAMAGE); break;
-      case "voidGoblin":  damageVoidGoblin(enemy, AURA_DAMAGE); break;
+    const lvl = p.level ?? 1;
+    const auraDamage = AURA_DAMAGE + Math.max(0, lvl - 1); // +1 per level up
 
-      case "ogre":        damageOgre(enemy, AURA_DAMAGE); break;
-      case "elite":       damageElite(enemy, AURA_DAMAGE); break;
-      case "troll":       damageTroll(enemy, AURA_DAMAGE); break;
-      case "worg":        damageWorg(enemy, AURA_DAMAGE); break;
-      case "crossbow":    damageCrossbow(enemy, AURA_DAMAGE); break;
-      case "seraphine":   damageSeraphine(enemy, AURA_DAMAGE); break;
+    switch (enemy.type) {
+      case "goblin":      damageGoblin(enemy, auraDamage); break;
+      case "iceGoblin":   damageIceGoblin(enemy, auraDamage); break;
+      case "emberGoblin": damageEmberGoblin(enemy, auraDamage); break;
+      case "ashGoblin":   damageAshGoblin(enemy, auraDamage); break;
+      case "voidGoblin":  damageVoidGoblin(enemy, auraDamage); break;
+
+      case "ogre":        damageOgre(enemy, auraDamage); break;
+      case "elite":       damageElite(enemy, auraDamage); break;
+      case "troll":       damageTroll(enemy, auraDamage); break;
+      case "worg":        damageWorg(enemy, auraDamage); break;
+      case "crossbow":    damageCrossbow(enemy, auraDamage); break;
+      case "seraphine":   damageSeraphine(enemy, auraDamage); break;
     }
 
-    spawnFloatingText(enemy.x, enemy.y - 40, `-${AURA_DAMAGE}`, "#ff55ff");
+    spawnFloatingText(enemy.x, enemy.y - 40, `-${auraDamage}`, "#ff55ff");
     enemy.flashTimer = 150;
     auraTickNext = now + AURA_TICK_MS;
 
