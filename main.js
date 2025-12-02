@@ -10,7 +10,7 @@ import { initLanding } from "./screenManagement/landing.js";
 import { initProfiles } from "./screenManagement/profile.js"; // Make sure this is imported
 import { initHub } from "./screenManagement/hub.js";
 import { initSparkles } from "./fx/sparkles.js";
-import { initSettings } from "./screenManagement/settings.js";
+import { initSettings, getSettings } from "./screenManagement/settings.js";
 import { initMusic } from "./core/soundtrack.js";
 import { showScreen } from "./screenManagement/screens.js";
 
@@ -84,6 +84,39 @@ function showLoadingOverlay() {
 function hideLoadingOverlay() {
   const el = document.getElementById("game-loading-overlay");
   if (el) el.style.display = "none";
+}
+
+// ============================================================
+// MAGIC SPARKLE BACKGROUND (landing/profile/hub)
+// ============================================================
+function seedMagicSparkles() {
+  const settings = getSettings ? getSettings() : { visualsEnabled: true };
+  const enabled = settings?.visualsEnabled !== false;
+
+  document.querySelectorAll(".magic-sparkle").forEach((layer) => {
+    if (layer.dataset.sparklesSeeded === "1") return;
+    layer.dataset.sparklesSeeded = "1";
+
+    const count = 60;
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement("div");
+      p.className = "magic-particle";
+      const size = 6 + Math.random() * 8;
+      p.style.width = `${size}px`;
+      p.style.height = `${size}px`;
+      p.style.left = `${Math.random() * 100}%`;
+      p.style.top = `${Math.random() * 100}%`;
+      p.style.animationDelay = `${Math.random() * 8}s`;
+      p.style.animationDuration = `${14 + Math.random() * 10}s`;
+      p.style.filter = `hue-rotate(${Math.random() * 40 - 20}deg)`;
+      layer.appendChild(p);
+    }
+
+    if (!enabled) {
+      layer.style.opacity = "0";
+      layer.style.pointerEvents = "none";
+    }
+  });
 }
 
 // ============================================================
@@ -549,6 +582,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   initProfiles();
   initSettings();
   initHub();
+  seedMagicSparkles();
   initSparkles();
   initNavbar();
   initCredits();
