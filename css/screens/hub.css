@@ -74,7 +74,7 @@
 ============================================================ */
 #hub-container {
   position: fixed;
-  bottom: 5%;
+  bottom: 2%;
 
   text-align: center;
 
@@ -144,8 +144,8 @@
 ============================================================ */
 .hub-frame {
   position: relative;
-  width: 95vw;
-  height: 95vh;
+  width: 99vw;
+  height: 99vh;
 
   border: 8px solid rgba(91, 139, 230, 0.6);
   border-radius: 20px;
@@ -219,11 +219,11 @@
 .hub-logo {
   display: flex;
   position: fixed;
-  top: 1%;
-  width: 35vw;
+  top: -4%;
+  width: 25vw;
   height: auto;
 
-  margin: 0 auto 40px auto;
+  
 
   transform: scale(1.15);
   transform-origin: center;
@@ -429,8 +429,8 @@
 ============================================================ */
 #hub-currencies {
   position: absolute;
-  bottom: 46%;
-  right: 45.5%;
+  top: 8%;
+  right: 22%;
 
   padding: 10px 16px;
 
@@ -464,7 +464,7 @@
   flex-direction: column;
   gap: 6px;
   width: 25%;
-  height: 20%;
+  height: 31%;
 
   position: absolute;
   bottom: 15%; /* visually centered */
@@ -473,20 +473,14 @@
 
   padding: 10px 16px;
 
-  font-size: 1.6rem;
+  font-size: 2.5rem;
   font-weight: 600;
   color: #fff;
-  text-shadow: 0 0 10px rgba(91, 139, 230, 0.4);
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.753);
 
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(91, 139, 230, 0.4);
-  border-radius: 12px;
+
 
   z-index: 12;
-
-  box-shadow:
-    0 0 15px rgba(91, 139, 230, 0.4),
-    inset 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
 
@@ -570,11 +564,11 @@
 ============================================================ */
 #continue-btn {
   position: absolute;
-  bottom: 26.5%;
+  bottom: 40.5%;
   left: 50%;
   transform: translateX(-50%);
 
-  padding: 12px 38px;
+  padding: 8px 28px;
   font-size: 1.15rem;
 
   font-family: "Comic Sans MS", cursive;
@@ -615,7 +609,7 @@
 
 #start-btn {
   position: absolute;
-  bottom: 26.5%; /* adjust so it appears above Continue */
+  bottom: 40.5%; /* adjust so it appears above Continue */
   left: 50%;
   transform: translateX(-50%);
 
