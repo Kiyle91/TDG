@@ -91,7 +91,7 @@ function speechKeyFromType(type) {
 
 // Popup positioning helpers
 let spirePopup = null;
-const POPUP_OFFSET_Y = 60;
+const POPUP_OFFSET_Y = 90;
 
 function hideSpirePopup() {
   if (spirePopup) {
@@ -105,7 +105,7 @@ function updateSpirePopupPosition() {
   const s = window.__selectedSpire;
   if (!spirePopup || !s) return;
 
-  spirePopup.style.left = `${s.x - window.cameraX}px`;
+  spirePopup.style.left = `${s.x - window.cameraX - 35}px`;
   spirePopup.style.top = `${s.y - POPUP_OFFSET_Y - window.cameraY}px`;
 }
 

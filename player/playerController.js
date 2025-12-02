@@ -88,6 +88,7 @@ import { performHeal as castHeal } from "../combat/heal.js";
 
 import { spawnArrow } from "../combat/arrow.js";
 import { getNeighbors } from "../utils/spatialGrid.js";
+import { getSpires } from "../spires/spires.js";
 
 
 // ------------------------------------------------------------
@@ -451,6 +452,7 @@ function onMouseDown(e) {
     "#game-navbar",
     "#center-stats",
     "#spire-bar",
+    "#spire-upgrade-popup",
     ".overlay:not(.hidden)"
   ];
 
@@ -458,6 +460,15 @@ function onMouseDown(e) {
     for (const sel of hudSelectors) {
       if (target.closest(sel)) return;
     }
+  }
+
+  // If clicking directly on a spire (tower), let the spire handler run and suppress firing
+  if (typeof getSpires === "function" && window.canvasScaleX && window.canvasScaleY) {
+    const rect = canvasRef.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * window.canvasScaleX + (window.cameraX || 0);
+    const my = (e.clientY - rect.top) * window.canvasScaleY + (window.cameraY || 0);
+    const hitSpire = getSpires()?.some((s) => Math.hypot(mx - s.x, my - s.y) < 40);
+    if (hitSpire) return;
   }
 
   const rect = canvasRef.getBoundingClientRect();
