@@ -20,10 +20,6 @@
   /* No blocking gameplay */
   pointer-events: none;
 
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-
   padding: 20px;
   z-index: 99999;
 
@@ -35,10 +31,12 @@
    MINI STORY BOX (actual visible message)
 ------------------------------------------------------------ */
 .story-box {
-  pointer-events: auto;  /* clickable */
+  position: fixed;
+  pointer-events: auto;
+  top: 8%; /* clickable */
 
-  width: 380px;
-  max-height: 260px;
+  width: 780px;
+  max-height: 300px;
 
   display: flex;
   flex-direction: row;
@@ -47,7 +45,7 @@
 
   padding: 18px 20px;
 
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.4);
   border: 2px solid rgba(160, 200, 255, 0.7);
   border-radius: 16px;
 
@@ -62,8 +60,8 @@
    PORTRAIT IMAGE
 ------------------------------------------------------------ */
 .story-portrait {
-  width: 70px;
-  height: 90px;
+  width: 200px;
+  height: 200px;
   object-fit: contain;
 
   border-radius: 8px;
@@ -80,42 +78,36 @@
    TEXT AREA
 ------------------------------------------------------------ */
 .story-text {
-  flex: 1;
-  max-height: 120px;
+  position: absolute;
+  top: 20%;
+  right: 9%;
+  max-height: 160px;
+  max-width: 500px;
 
   overflow-y: auto;
 
   white-space: pre-line;
-  font-size: 0.95rem;
-  line-height: 1.38;
+  font-size: 1.6rem;
+  text-align: center;
   color: #ffffff;
 
   font-family: "Comic Sans MS", cursive;
   text-shadow: 0 0 6px rgba(230, 200, 255, 0.8);
 }
 
-/* Scrollbar aesthetic */
-.story-text::-webkit-scrollbar {
-  width: 6px;
-}
-.story-text::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #a8cfff, #e3bdff);
-  border-radius: 6px;
-}
-.story-text::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-}
+
 
 /* ------------------------------------------------------------
    CONTINUE BUTTON
 ------------------------------------------------------------ */
 .story-next-btn {
-  display: inline-block;
-  margin-top: 6px;
+  position: absolute;
+  bottom: 10%;
+  left: 55%;
+  margin-top: 3px;
   padding: 6px 18px;
 
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: bold;
   font-family: "Comic Sans MS", cursive;
 

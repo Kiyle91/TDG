@@ -938,6 +938,9 @@ async function handleWaveCleared(waveNumber, mapId) {
     if (waveNumber === 5) {
       await triggerEndOfWave5Story(mapId);
     }
+    if (waveNumber === 9) {
+      await triggerEndOfWave9Story(mapId);
+    }
   } catch (err) {
     console.warn("Wave-end sequence failed:", err);
   } finally {
