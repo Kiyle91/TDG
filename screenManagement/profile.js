@@ -135,6 +135,10 @@ export function initProfiles() {
           saveProfiles();
           renderProfileSlots(slotsContainer);
           playFairySprinkle();
+
+          // Stay on profile screen after deletion; do not auto-navigate to hub
+          profileScreen.style.display = "flex";
+          profileScreen.style.opacity = 1;
         },
         () => playFairySprinkle()
       );
