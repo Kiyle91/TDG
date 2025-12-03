@@ -246,6 +246,7 @@ export function updateOgres(delta = 16) {
       const startX = o.x;
       const startY = o.y;
       o.movedThisFrame = false;
+      o.holdingAtRange = false;
 
       
 
@@ -357,9 +358,16 @@ export function updateOgres(delta = 16) {
 
 
     } else {
+      if (!o.attacking && o.attackCooldown > 0) {
+        o.holdingAtRange = true;
+        o.frameTimer = 0;
+        o.frame = 0;
+      }
+
       // Attack if cooled down
       o.attackCooldown -= delta;
       if (o.attackCooldown <= 0) {
+        o.holdingAtRange = false;
         startOgreAttack(o, dx);
         o.attackCooldown = ATTACK_COOLDOWN;
       }
@@ -406,6 +414,12 @@ export function updateOgres(delta = 16) {
         o.frame = (o.frame + 1) % 2;
       }
     } else {
+      o.frameTimer = 0;
+      o.frame = 0;
+    }
+
+    if (o.holdingAtRange) {
+      o.movedThisFrame = false;
       o.frameTimer = 0;
       o.frame = 0;
     }

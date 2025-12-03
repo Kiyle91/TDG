@@ -267,6 +267,7 @@ export function updateTrolls(delta = 16) {
     const startX = t.x;
     const startY = t.y;
     t.movedThisFrame = false;
+    t.holdingAtRange = false;
 
     tryEnemySpeech(t);
 
@@ -295,8 +296,14 @@ export function updateTrolls(delta = 16) {
 
       // Attack window
       if (distP < ATTACK_RANGE) {
+        if (t.attackCooldown > 0 && !t.attacking) {
+          t.holdingAtRange = true;
+          t.frameTimer = 0;
+          t.frame = 0;
+        }
         if (t.attackCooldown === 0) {
           t.attacking = true;
+          t.holdingAtRange = false;
           attackPlayer(t, player);
           t.attackCooldown = ATTACK_COOLDOWN;
         }
@@ -381,6 +388,10 @@ export function updateTrolls(delta = 16) {
     const movedDist = Math.hypot(t.x - startX, t.y - startY);
     t.movedThisFrame = movedDist > 0.25;
     if (!t.movedThisFrame && !t.attacking) {
+      t.frameTimer = 0;
+      t.frame = 0;
+    } else if (t.holdingAtRange) {
+      t.movedThisFrame = false;
       t.frameTimer = 0;
       t.frame = 0;
     }
