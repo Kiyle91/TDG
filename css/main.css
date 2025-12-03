@@ -117,7 +117,11 @@ body {
   box-shadow: 0 0 20px rgba(255, 182, 224, 0.9);
 }
 
-
+#game-loading-overlay {
+  content: fill;
+  height: 100%;
+  width: 100%;
+}
 
 /* ============================================================
    🌟 END OF FILE

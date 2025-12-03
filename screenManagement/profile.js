@@ -41,6 +41,23 @@ export function initProfiles() {
 
   if (!profileScreen || !slotsContainer || !createBtn) return;
 
+  let deleteConfirmOpen = false;
+
+  const lockProfileScreen = () => {
+    deleteConfirmOpen = true;
+    profileScreen.style.pointerEvents = "none";
+  };
+
+  const unlockProfileScreen = () => {
+    deleteConfirmOpen = false;
+    profileScreen.style.pointerEvents = "";
+  };
+
+  const isAlertModalVisible = () => {
+    const modalEl = document.getElementById("ow-alert-modal");
+    return modalEl && modalEl.style.display === "flex";
+  };
+
   // 🔥 LOAD SAVED PROFILES FROM STORAGE
   loadProfileData();
 
@@ -51,6 +68,7 @@ export function initProfiles() {
   // CREATE NEW PROFILE
   // ------------------------------------------------------------
   createBtn.addEventListener("click", () => {
+    if (deleteConfirmOpen) return;
     playFairySprinkle();
 
     showInput("Enter your profile name:", (name) => {
@@ -105,6 +123,8 @@ export function initProfiles() {
   // PROFILE SLOT INTERACTION
   // ------------------------------------------------------------
   slotsContainer.addEventListener("click", (e) => {
+    if (deleteConfirmOpen || isAlertModalVisible()) return;
+
     playFairySprinkle();
 
     // DELETE PROFILE
@@ -113,35 +133,49 @@ export function initProfiles() {
       const profile = gameState.profiles[index];
       if (!profile) return;
 
-      showConfirm(
-        "Are you sure you want to DELETE this profile?",
-        () => {
-          clearProfileSaves(profile);
-          gameState.profiles.splice(index, 1);
+      lockProfileScreen();
 
-          // Clear runtime references if needed
-          if (gameState.profile === profile) {
-            gameState.profile = null;
-            gameState.player = null;
+      try {
+        showConfirm(
+          "Are you sure you want to DELETE this profile?",
+          () => {
+            try {
+              clearProfileSaves(profile);
+              gameState.profiles.splice(index, 1);
+
+              // Clear runtime references if needed
+              if (gameState.profile === profile) {
+                gameState.profile = null;
+                gameState.player = null;
+              }
+
+              // Fix active index
+              if (gameState.profiles.length === 0) {
+                gameState.activeProfileIndex = -1;
+              } else if (gameState.activeProfileIndex >= gameState.profiles.length) {
+                gameState.activeProfileIndex = gameState.profiles.length - 1;
+              }
+
+              saveProfiles();
+              renderProfileSlots(slotsContainer);
+              playFairySprinkle();
+
+              // Stay on profile screen after deletion; do not auto-navigate to hub
+              profileScreen.style.display = "flex";
+              profileScreen.style.opacity = 1;
+            } finally {
+              unlockProfileScreen();
+            }
+          },
+          () => {
+            unlockProfileScreen();
+            playFairySprinkle();
           }
-
-          // Fix active index
-          if (gameState.profiles.length === 0) {
-            gameState.activeProfileIndex = -1;
-          } else if (gameState.activeProfileIndex >= gameState.profiles.length) {
-            gameState.activeProfileIndex = gameState.profiles.length - 1;
-          }
-
-          saveProfiles();
-          renderProfileSlots(slotsContainer);
-          playFairySprinkle();
-
-          // Stay on profile screen after deletion; do not auto-navigate to hub
-          profileScreen.style.display = "flex";
-          profileScreen.style.opacity = 1;
-        },
-        () => playFairySprinkle()
-      );
+        );
+      } catch (err) {
+        unlockProfileScreen();
+        throw err;
+      }
       return;
     }
 
