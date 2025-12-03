@@ -17,7 +17,7 @@
 
 import { gameState, setCurrentMap, saveProfiles } from "../utils/gameState.js";
 import { showScreen } from "../screenManagement/screens.js";
-import { startGameplay } from "../main.js";
+import { startGameplay, withLoadingOverlay } from "../main.js";
 import { initGame } from "../core/game.js";
 import { applyMapSpawn } from "../core/game.js";
 import { resetCombatState } from "../core/game.js";
@@ -99,13 +99,13 @@ export function initMapSelect() {
         closeOverlay(ov);
       }
 
-      // 6️⃣ Show game
-      showScreen("game-container");
+      // 6️⃣ Show game + re-init under loading screen
+      await withLoadingOverlay(async () => {
+        showScreen("game-container");
+        await initGame();
+      });
 
-      // 7️⃣ Full init of combat/map systems
-      await initGame();
-
-      // 8️⃣ Start gameplay
+      // 7️⃣ Start gameplay
       startGameplay();
     });
   });

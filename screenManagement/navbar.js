@@ -41,7 +41,7 @@
 // ------------------------------------------------------------ 
 
 import { playFairySprinkle } from "../core/soundtrack.js";
-import { stopGameplay, resetGameplay, startGameplay } from "../main.js";
+import { stopGameplay, resetGameplay, startGameplay, withLoadingOverlay } from "../main.js";
 import { pauseGame, resumeGame, showOverlay, closeOverlay } from "./ui.js";
 import { renderSlots } from "../save/saveSlots.js";
 import { loadFromSlot, applySnapshot } from "../save/saveSystem.js";
@@ -273,12 +273,14 @@ async function handleInGameSlotClick(evt) {
   }
 
   // Re-init the game for the new map context, then apply snapshot
-  const gameMod = await import("../core/game.js");
-  await gameMod.initGame("load");
+  await withLoadingOverlay(async () => {
+    const gameMod = await import("../core/game.js");
+    await gameMod.initGame("load");
 
-  applySnapshot(snap);
-  ensureSkin(gameState.player);
-  saveProfiles();
+    applySnapshot(snap);
+    ensureSkin(gameState.player);
+    saveProfiles();
+  });
   startGameplay?.();
 
   const overlay = document.getElementById("overlay-save-game");

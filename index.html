@@ -1153,23 +1153,8 @@
 
     </section> <!-- end game-container -->
 
-    <div id="game-loading-overlay" style="
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.45);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        font-size: 26px;
-        color: white;
-        z-index: 999999;
-        backdrop-filter: blur(4px);
-        font-family: 'Comic Sans MS', sans-serif;">
-
-      <div>
-        <img src="./assets/images/backgrounds/loading_screen.png" id="game-loading-overlay">
-      </div>
-
+    <div id="game-loading-overlay" aria-hidden="true">
+      <img src="./assets/images/backgrounds/loading_screen.png" alt="Loading" class="game-loading-image">
     </div>
     
     <!-- ============================================================

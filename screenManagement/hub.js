@@ -23,7 +23,8 @@ import {
   gameActive,
   stopGameplay,
   fullNewGameReset,
-  startNewGameStory
+  startNewGameStory,
+  withLoadingOverlay
 } from "../main.js";
 
 import {
@@ -151,14 +152,16 @@ export function initHub() {
         gameState.profile.progress.currentMap = targetMap;
       }
 
-      showScreen("game-container");
+      await withLoadingOverlay(async () => {
+        showScreen("game-container");
 
-      const gameMod = await import("../core/game.js");
-      await gameMod.initGame("load");
+        const gameMod = await import("../core/game.js");
+        await gameMod.initGame("load");
 
-      applySnapshot(snap);
-      ensureSkin(gameState.player);
-      saveProfiles();
+        applySnapshot(snap);
+        ensureSkin(gameState.player);
+        saveProfiles();
+      });
 
       startGameplay?.();
   });
@@ -242,14 +245,16 @@ export function initHub() {
       ov.style.display = "none";
     }
 
-    showScreen("game-container");
+    await withLoadingOverlay(async () => {
+      showScreen("game-container");
 
-    const gameMod = await import("../core/game.js");
-    await gameMod.initGame("load");
+      const gameMod = await import("../core/game.js");
+      await gameMod.initGame("load");
 
-    applySnapshot(snap);
-    ensureSkin(gameState.player);
-    saveProfiles();
+      applySnapshot(snap);
+      ensureSkin(gameState.player);
+      saveProfiles();
+    });
 
     startGameplay?.();
   };

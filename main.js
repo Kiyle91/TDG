@@ -50,6 +50,9 @@ export let gameActive = false;
 let lastTimestamp = 0;
 let accumulator = 0;
 const FIXED_DT = 1000 / 60;
+const MIN_LOADING_OVERLAY_MS = 2000;
+let loadingOverlayUsers = 0;
+const wait = (ms = 0) => new Promise((res) => setTimeout(res, ms));
 
 // ============================================================
 // 🎯 MAIN GAME LOOP
@@ -74,14 +77,49 @@ function gameLoop(timestamp) {
   window.__gameLoopID = requestAnimationFrame(gameLoop);
 }
 
-function showLoadingOverlay() {
-  const el = document.getElementById("game-loading-overlay");
-  if (el) el.style.display = "flex";
+function getLoadingOverlay() {
+  return document.getElementById("game-loading-overlay");
 }
 
-function hideLoadingOverlay() {
-  const el = document.getElementById("game-loading-overlay");
-  if (el) el.style.display = "none";
+export function showLoadingOverlay() {
+  loadingOverlayUsers += 1;
+  const overlay = getLoadingOverlay();
+  const startedAt = performance.now();
+
+  if (overlay) {
+    overlay.style.display = "flex";
+  }
+
+  return startedAt;
+}
+
+export async function hideLoadingOverlay(
+  startedAt = performance.now(),
+  minDuration = MIN_LOADING_OVERLAY_MS
+) {
+  const elapsed = performance.now() - startedAt;
+  if (elapsed < minDuration) {
+    await wait(minDuration - elapsed);
+  }
+
+  loadingOverlayUsers = Math.max(loadingOverlayUsers - 1, 0);
+
+  if (loadingOverlayUsers === 0) {
+    const overlay = getLoadingOverlay();
+    if (overlay) {
+      overlay.style.display = "none";
+    }
+  }
+}
+
+export async function withLoadingOverlay(task, minDuration = MIN_LOADING_OVERLAY_MS) {
+  const startedAt = showLoadingOverlay();
+
+  try {
+    return await task();
+  } finally {
+    await hideLoadingOverlay(startedAt, minDuration);
+  }
 }
 
 // ============================================================
@@ -122,20 +160,19 @@ function seedMagicSparkles() {
 // ============================================================
 
 export async function startGameWithPreload(mode = "new") {
-  showLoadingOverlay();
+  await withLoadingOverlay(async () => {
+    // 🔥 ensure preloadAllAssets() runs if not triggered yet
+    preloadAllAssets();
 
-  // 🔥 ensure preloadAllAssets() runs if not triggered yet
-  preloadAllAssets();
+    // 🔄 Wait until preload is fully done
+    while (!isPreloadComplete()) {
+      await wait(50);
+    }
 
-  // 🔄 Wait until preload is fully done
-  while (!isPreloadComplete()) {
-    await new Promise(res => setTimeout(res, 50));
-  }
+    // ⭐ Proceed to load actual map
+    await initGame(mode);
+  });
 
-  // ⭐ Proceed to load actual map
-  await initGame(mode);
-
-  hideLoadingOverlay();
   startGameplay();
 }
 
