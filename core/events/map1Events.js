@@ -73,7 +73,7 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "If anything gets close, I can swing my weapon with SPACEBAR.",
+        "These glowing fragments are Crystal Echoes. I should collect as many as I can.",
         pos.x, pos.y, 4000
       );
     }
@@ -138,7 +138,7 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "These glowing fragments are Crystal Echoes. I should collect as many as I can.",
+        "If anything gets close, I can swing my weapon with SPACEBAR.",
         pos.x, pos.y, 4200
       );
     }
@@ -187,13 +187,13 @@ export function initMap1Events() {
 
     switch (wave) {
       case 1:
-        spawnSpeechBubble("Whats that?… That might be a goblin!", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Whats that smell?!… ", pos.x, pos.y, 3500);
         break;
       case 2:
-        spawnSpeechBubble("More goblins… still pushing forward.", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Ok Arianas right, lets collect all the crystals we can see and get some defenses up!", pos.x, pos.y, 3500);
         break;
       case 3:
-        spawnSpeechBubble("Something feels strange in these woods…", pos.x, pos.y, 4000);
+        spawnSpeechBubble("More goblins… I was going to wash my hair today…", pos.x, pos.y, 4000);
         break;
       case 4:
         spawnSpeechBubble("They’re not slowing down… keep moving.", pos.x, pos.y, 3500);
@@ -233,7 +233,7 @@ export function initMap1Events() {
         spawnSpeechBubble("No idea why goblins are here, but im getting some Crystal Spires down fast!", pos.x, pos.y, 3500);
         break;
       case 3:
-        spawnSpeechBubble("Feels like something is watching me…", pos.x, pos.y, 3800);
+        spawnSpeechBubble("Is that howling? ", pos.x, pos.y, 3800);
         break;
       case 4:
         spawnSpeechBubble("Ariana better have answers…", pos.x, pos.y, 3500);

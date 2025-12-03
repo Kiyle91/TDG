@@ -37,6 +37,9 @@ import { startGameplay } from "../main.js";
 import { gameState } from "../utils/gameState.js";
 import { SKINS, ensureSkin } from "../screenManagement/skins.js";
 
+const STORY_DELAY_MS = 5000;
+const wait = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // ------------------------------------------------------------
 // 🌟 RESOLVE PORTRAIT (player skin OR Ariana override)
 // ------------------------------------------------------------
@@ -127,7 +130,7 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
     };
 
     // Auto-close safeguard after 45 seconds
-    const autoCloseTimer = setTimeout(finish, 10000);
+    const autoCloseTimer = setTimeout(finish, 7000);
 
     window.addEventListener("showScreen", closeWatcher);
     window.addEventListener("showOverlay", closeWatcher);
@@ -153,7 +156,7 @@ export const wave1Text = {
   1: `
 Is this thing working? Guardian ?
 So there ARE goblins in the meadows!
-Quickly, - Press 1 to place a SPIRE!
+Place some Crystal Spires quickly!
   `.trim(),
 
   2: `
@@ -351,6 +354,8 @@ export async function triggerEndOfWave1Story(mapId) {
 
   waveStoryFlags[mapId][1] = true;
 
+  await wait(STORY_DELAY_MS);
+
   showStory({
     text: wave1Text[mapId] || "The battle continues...",
     useAriana: true,
@@ -362,6 +367,8 @@ export async function triggerEndOfWave5Story(mapId) {
   if (!waveStoryFlags[mapId] || waveStoryFlags[mapId][5]) return;
 
   waveStoryFlags[mapId][5] = true;
+
+  await wait(STORY_DELAY_MS);
 
   showStory({
     text: wave5Text[mapId] || "You stand victorious, Guardian.",
@@ -375,6 +382,8 @@ export async function triggerEndOfWave9Story(mapId) {
   if (!waveStoryFlags[mapId] || waveStoryFlags[mapId][9]) return;
 
   waveStoryFlags[mapId][9] = true;
+
+  await wait(STORY_DELAY_MS);
 
   showStory({
     text: wave9Text[mapId] || "Final wave, Princess.",
