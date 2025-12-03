@@ -43,6 +43,8 @@ export function spawnSpeechBubble(text, x, y, duration = 10000, anchor, options 
 }
 
 export function updateAndDrawSpeechBubbles(ctx, delta) {
+  const paused = gameState.paused === true;
+
   for (let i = speechBubbles.length - 1; i >= 0; i--) {
     const b = speechBubbles[i];
 
@@ -57,7 +59,9 @@ export function updateAndDrawSpeechBubbles(ctx, delta) {
       continue;
     }
 
-    b.age += delta;
+    if (!paused) {
+      b.age += delta;
+    }
 
     if (b.age >= b.life) {
       speechBubbles.splice(i, 1);

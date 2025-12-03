@@ -37,8 +37,31 @@ import { startGameplay } from "../main.js";
 import { gameState } from "../utils/gameState.js";
 import { SKINS, ensureSkin } from "../screenManagement/skins.js";
 
-const STORY_DELAY_MS = 5000;
+const STORY_DELAY_MS = 7000;
+const AUTO_CLOSE_MS = 10000;
 const wait = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function createPauseAwareTimer(durationMs, onDone) {
+  let elapsed = 0;
+  let cancelled = false;
+
+  const step = () => {
+    if (cancelled) return;
+    if (!gameState.paused) {
+      elapsed += 100;
+    }
+    if (elapsed >= durationMs) {
+      onDone();
+      return;
+    }
+    setTimeout(step, 100);
+  };
+
+  setTimeout(step, 100);
+  return () => {
+    cancelled = true;
+  };
+}
 
 // ------------------------------------------------------------
 // 🌟 RESOLVE PORTRAIT (player skin OR Ariana override)
@@ -108,12 +131,15 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
     };
 
     let finished = false;
+    let cancelAutoClose = null;
+
     const finish = () => {
       if (finished) return;
       finished = true;
 
       window.removeEventListener("showScreen", closeWatcher);
       window.removeEventListener("showOverlay", closeWatcher);
+      cancelAutoClose?.();
 
       overlay.classList.add("fade-out");
 
@@ -129,14 +155,14 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
       }, 400);
     };
 
-    // Auto-close safeguard after 45 seconds
-    const autoCloseTimer = setTimeout(finish, 7000);
+    // Auto-close safeguard after 10s (paused aware)
+    cancelAutoClose = createPauseAwareTimer(AUTO_CLOSE_MS, finish);
 
     window.addEventListener("showScreen", closeWatcher);
     window.addEventListener("showOverlay", closeWatcher);
 
     nextBtn.addEventListener("click", () => {
-      clearTimeout(autoCloseTimer);
+      cancelAutoClose?.();
       finish();
     });
   });
