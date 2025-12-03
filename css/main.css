@@ -166,6 +166,22 @@ body {
   100% { transform: translateX(220%); opacity: 0.1; }
 }
 
+#game-paused-banner {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(32px, 4vw, 56px);
+  font-family: "Comic Sans MS", "Princess Sofia", cursive;
+  color: #fff;
+  letter-spacing: 4px;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+  z-index: 1000000;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
 /* ============================================================
    🌟 END OF FILE
 ============================================================ */

@@ -36,6 +36,20 @@ export function resumeGame() {
   gameState.paused = false;
 }
 
+export function showPauseBanner() {
+  togglePausedBanner(true);
+}
+
+export function hidePauseBanner() {
+  togglePausedBanner(false);
+}
+
+function togglePausedBanner(show) {
+  const banner = document.getElementById("game-paused-banner");
+  if (!banner) return;
+  banner.style.display = show ? "flex" : "none";
+}
+
 // ------------------------------------------------------------
 // LOCAL STATE
 // ------------------------------------------------------------

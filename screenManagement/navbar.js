@@ -42,7 +42,14 @@
 
 import { playFairySprinkle } from "../core/soundtrack.js";
 import { stopGameplay, resetGameplay, startGameplay, withLoadingOverlay } from "../main.js";
-import { pauseGame, resumeGame, showOverlay, closeOverlay } from "./ui.js";
+import {
+  pauseGame,
+  resumeGame,
+  showOverlay,
+  closeOverlay,
+  showPauseBanner,
+  hidePauseBanner,
+} from "./ui.js";
 import { renderSlots } from "../save/saveSlots.js";
 import { loadFromSlot, applySnapshot } from "../save/saveSystem.js";
 import { ensureSkin } from "./skins.js";
@@ -53,6 +60,7 @@ import {
 } from "../spires/spireUpgrades.js";
 
 let pauseBtn = null;
+let manualPauseActive = false;
 
 // ------------------------------------------------------------
 // 🌸 INIT NAVBAR
@@ -137,13 +145,15 @@ function handleNavAction(action) {
 
   switch (action) {
     case "pauseplay": {
-      const nowPaused = !gameState.paused;
-      if (nowPaused) {
+      manualPauseActive = !manualPauseActive;
+      if (manualPauseActive) {
         pauseGame();
+        showPauseBanner();
       } else {
         resumeGame();
+        hidePauseBanner();
       }
-      setPauseButtonState(nowPaused);
+      setPauseButtonState(manualPauseActive);
       break;
     }
     // --------------------------------------------------------
@@ -154,6 +164,8 @@ function handleNavAction(action) {
       showConfirmOverlay(
         "Return to the Crystal Hub? Your progress will be saved safely.",
         () => {
+          manualPauseActive = false;
+          hidePauseBanner();
           stopGameplay("exit");
         },
         () => {}
@@ -165,6 +177,8 @@ function handleNavAction(action) {
     // --------------------------------------------------------
 
     case "restart":
+      manualPauseActive = false;
+      hidePauseBanner();
       showConfirmOverlay(
         "Restart this map? You’ll keep your player stats, but spires and goblins will reset.",
         () => {
@@ -180,6 +194,8 @@ function handleNavAction(action) {
     // --------------------------------------------------------
 
     case "save": {
+      manualPauseActive = false;
+      hidePauseBanner();
       playFairySprinkle();
 
       const containerEl = document.getElementById("save-slots-ingame");
@@ -198,6 +214,8 @@ function handleNavAction(action) {
     // --------------------------------------------------------
 
     case "settings":
+      manualPauseActive = false;
+      hidePauseBanner();
       playFairySprinkle();
       import("./settings.js").then((mod) => mod.initGameSettings?.());
       import("./ui.js").then((mod) =>
@@ -210,6 +228,8 @@ function handleNavAction(action) {
     // --------------------------------------------------------
 
     case "player":
+      manualPauseActive = false;
+      hidePauseBanner();
       playFairySprinkle();
       import("./ui.js").then((mod) => {
         mod.updatePlayerStatsOverlay?.();
@@ -222,6 +242,8 @@ function handleNavAction(action) {
     // --------------------------------------------------------
 
     case "controls":
+      manualPauseActive = false;
+      hidePauseBanner();
       playFairySprinkle();
       import("./ui.js").then((mod) =>
         mod.showOverlay?.("overlay-controls")
@@ -234,6 +256,8 @@ function handleNavAction(action) {
     // 🔮 SPIRES (In-Game View + Upgrades)
     // --------------------------------------------------------
     case "spires":
+      manualPauseActive = false;
+      hidePauseBanner();
       playFairySprinkle();
       initSpireUpgrades();
       refreshSpireUpgradeFromHub();
