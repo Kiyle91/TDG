@@ -52,51 +52,149 @@ const isActiveMap = () => (gameState.progress?.currentMap ?? 1) === 1;
 // ============================================================
 
 const TIMED_EVENTS = [
+
+  // --- Movement ---
   {
     id: "t_003",
     timeRequired: 3,
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Okay… Lets investigate the Whispering Meadows. I can move with WASD.",
-        pos.x, pos.y, 4000
+        "Okay… Whispering Meadows. Let’s take a look around. I can move with WASD.",
+        pos.x, pos.y, 4200
       );
     }
   },
+
+  // --- Exploring the area ---
+  {
+    id: "t_007",
+    timeRequired: 7,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble(
+        "I should get used to the controls before heading deeper into the fields.",
+        pos.x, pos.y, 4200
+      );
+    }
+  },
+
+  // --- Melee attack ---
   {
     id: "t_010",
     timeRequired: 10,
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "If i press SPACEBAR, I can ATTACK with my weapon.",
+        "If anything gets close, I can swing my weapon with SPACEBAR.",
         pos.x, pos.y, 3800
       );
     }
   },
+
+  // --- Purpose clarity (simple) ---
+  {
+    id: "t_014",
+    timeRequired: 14,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble(
+        "Ariana said the Meadows have been acting strange lately… I’ll check the paths.",
+        pos.x, pos.y, 4300
+      );
+    }
+  },
+
+  // --- Ranged attacks ---
   {
     id: "t_018",
     timeRequired: 18,
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "I can CLICK anywhere to SHOOT an arrow, but it costs mana.",
+        "If I CLICK anywhere, I can shoot an arrow. It uses mana, so I shouldn’t spam it.",
         pos.x, pos.y, 4200
       );
     }
   },
+
+  // --- Mana reminder ---
   {
-    id: "t_042",
-    timeRequired: 42,
+    id: "t_022",
+    timeRequired: 22,
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "If can also cast SPELLS with the F KEY, and HEAL with the R KEY",
-        pos.x, pos.y, 3800
+        "My mana refills slowly over time. I should use ranged shots wisely.",
+        pos.x, pos.y, 4200
       );
     }
-  }
+  },
 
+  // --- Spellcasting ---
+  {
+    id: "t_028",
+    timeRequired: 28,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble(
+        "I can cast my SPELL with the F KEY. It’s powerful, but costs more mana.",
+        pos.x, pos.y, 4100
+      );
+    }
+  },
+
+  // --- Healing ---
+  {
+    id: "t_033",
+    timeRequired: 33,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble(
+        "If I take damage, I can HEAL myself with R. Good to remember!",
+        pos.x, pos.y, 4100
+      );
+    }
+  },
+
+  // --- Sprint ---
+  {
+    id: "t_038",
+    timeRequired: 38,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble(
+        "Holding SHIFT lets me sprint. Perfect for dodging or collecting things faster.",
+        pos.x, pos.y, 4100
+      );
+    }
+  },
+
+  // --- Echo explanation ---
+  {
+    id: "t_045",
+    timeRequired: 45,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble(
+        "These glowing fragments are Crystal Echoes. I should pick up as many as I can.",
+        pos.x, pos.y, 4200
+      );
+    }
+  },
+
+  // --- Purpose summary ---
+  {
+    id: "t_052",
+    timeRequired: 52,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble(
+        "Ariana asked me to sweep the Meadows and make sure everything is normal.",
+        pos.x, pos.y, 4500
+      );
+    }
+  },
   
 ];
 
@@ -155,10 +253,10 @@ export function initMap1Events() {
 
     switch (wave) {
       case 1:
-        spawnSpeechBubble("Goblins in the Whispering Meadows.. Arianas fears were right..", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Goblins in the Whispering Meadows.. Let me try to get Ariana on the Crystal Link", pos.x, pos.y, 3500);
         break;
       case 2:
-        spawnSpeechBubble("Why would goblins wander this deep into the meadows?", pos.x, pos.y, 3500);
+        spawnSpeechBubble("No idea why goblins are here, but im getting some Crystal Spires down fast!", pos.x, pos.y, 3500);
         break;
       case 3:
         spawnSpeechBubble("Feels like something is watching me…", pos.x, pos.y, 3800);
@@ -412,14 +510,11 @@ export function initMap1Events() {
   // ------------------------------------------------------------
   mapOnce(1, "echoComplete", ({ found, total }) => {
     const pos = p();
-    spawnSpeechBubble(
-      "All the Crystal Echoes… they’re resonating. They feel warm—like they’re choosing me.",
-      pos.x, pos.y, 5500
-    );
+    
 
     setTimeout(() => {
       spawnSpeechBubble(
-        "Ariana was right… something ancient is waking.",
+        "All Crystal Echoes collected.. My Crystal Spires are fully powered!",
         pos.x, pos.y, 5200
       );
     }, 2500);

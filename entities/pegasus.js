@@ -92,6 +92,14 @@ export async function loadPegasus() {
 export function initPegasus(canvasContext) {
   ctx = canvasContext;
   flightTimer = 0;
+
+  // Map 1 (Whispering Meadow) - delay the very first spawn for at least 60s
+  const map = gameState.progress?.currentMap ?? 1;
+  if (map === 1) {
+    nextFlightDelay = 60000 + Math.random() * 60000; // 60-120s
+  } else {
+    nextFlightDelay = 30000 + Math.random() * 90000; // 30-120s
+  }
 }
 
 // ------------------------------------------------------------
