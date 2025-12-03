@@ -53,150 +53,124 @@ const isActiveMap = () => (gameState.progress?.currentMap ?? 1) === 1;
 
 const TIMED_EVENTS = [
 
-  // --- Movement ---
+  // 1 — WASD movement
   {
-    id: "t_003",
-    timeRequired: 3,
+    id: "t_006",
+    timeRequired: 6,
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Okay… Whispering Meadows. Let’s take a look around. I can move with WASD.",
+        "Okay… Whispering Meadows. I should look around. I move with WASD.",
         pos.x, pos.y, 4200
       );
     }
   },
 
-  // --- Exploring the area ---
+  // 2 — Sword / Melee
   {
-    id: "t_007",
-    timeRequired: 7,
-    action: () => {
-      const pos = p();
-      spawnSpeechBubble(
-        "I should get used to the controls before heading deeper into the fields.",
-        pos.x, pos.y, 4200
-      );
-    }
-  },
-
-  // --- Melee attack ---
-  {
-    id: "t_010",
-    timeRequired: 10,
+    id: "t_012",
+    timeRequired: 12,
     action: () => {
       const pos = p();
       spawnSpeechBubble(
         "If anything gets close, I can swing my weapon with SPACEBAR.",
-        pos.x, pos.y, 3800
+        pos.x, pos.y, 4000
       );
     }
   },
 
-  // --- Purpose clarity (simple) ---
-  {
-    id: "t_014",
-    timeRequired: 14,
-    action: () => {
-      const pos = p();
-      spawnSpeechBubble(
-        "Ariana said the Meadows have been acting strange lately… I’ll check the paths.",
-        pos.x, pos.y, 4300
-      );
-    }
-  },
-
-  // --- Ranged attacks ---
+  // 3 — Bow / Click to shoot
   {
     id: "t_018",
     timeRequired: 18,
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "If I CLICK anywhere, I can shoot an arrow. It uses mana, so I shouldn’t spam it.",
+        "I can fire an arrow by CLICKING anywhere. It costs mana, so I shouldn’t spam it.",
         pos.x, pos.y, 4200
       );
     }
   },
 
-  // --- Mana reminder ---
+  // 4 — Spellcasting
   {
-    id: "t_022",
-    timeRequired: 22,
+    id: "t_024",
+    timeRequired: 24,
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "My mana refills slowly over time. I should use ranged shots wisely.",
+        "I can cast my SPELL with F. It’s strong, but uses more mana.",
+        pos.x, pos.y, 4000
+      );
+    }
+  },
+
+  // 5 — Healing
+  {
+    id: "t_030",
+    timeRequired: 30,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble(
+        "If I’m hurt, I can HEAL with R. Good to remember.",
+        pos.x, pos.y, 4000
+      );
+    }
+  },
+
+  // 6 — Sprint
+  {
+    id: "t_036",
+    timeRequired: 36,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble(
+        "Holding SHIFT lets me sprint. Great for dodging and collecting things quickly.",
+        pos.x, pos.y, 4100
+      );
+    }
+  },
+
+  // 7 — Crystals (Echoes)
+  {
+    id: "t_042",
+    timeRequired: 42,
+    action: () => {
+      const pos = p();
+      spawnSpeechBubble(
+        "These glowing fragments are Crystal Echoes. I should collect as many as I can.",
         pos.x, pos.y, 4200
       );
     }
   },
 
-  // --- Spellcasting ---
+  // 8 — Bravery Mode
   {
-    id: "t_028",
-    timeRequired: 28,
+    id: "t_048",
+    timeRequired: 48,
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "I can cast my SPELL with the F KEY. It’s powerful, but costs more mana.",
-        pos.x, pos.y, 4100
+        "My Health, Mana and Bravery Bar are at the bottom of the screen",
+        pos.x, pos.y, 4400
       );
     }
   },
 
-  // --- Healing ---
+  // 9 — Spires + objective
   {
-    id: "t_033",
-    timeRequired: 33,
+    id: "t_054",
+    timeRequired: 54,
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "If I take damage, I can HEAL myself with R. Good to remember!",
-        pos.x, pos.y, 4100
-      );
-    }
-  },
-
-  // --- Sprint ---
-  {
-    id: "t_038",
-    timeRequired: 38,
-    action: () => {
-      const pos = p();
-      spawnSpeechBubble(
-        "Holding SHIFT lets me sprint. Perfect for dodging or collecting things faster.",
-        pos.x, pos.y, 4100
-      );
-    }
-  },
-
-  // --- Echo explanation ---
-  {
-    id: "t_045",
-    timeRequired: 45,
-    action: () => {
-      const pos = p();
-      spawnSpeechBubble(
-        "These glowing fragments are Crystal Echoes. I should pick up as many as I can.",
-        pos.x, pos.y, 4200
-      );
-    }
-  },
-
-  // --- Purpose summary ---
-  {
-    id: "t_052",
-    timeRequired: 52,
-    action: () => {
-      const pos = p();
-      spawnSpeechBubble(
-        "Ariana asked me to sweep the Meadows and make sure everything is normal.",
+        "I should put down some Spires and keep an eye out for any goblin activity.",
         pos.x, pos.y, 4500
       );
     }
-  },
-  
-];
+  }
+
+]
 
 // ============================================================
 // INIT
@@ -213,7 +187,7 @@ export function initMap1Events() {
 
     switch (wave) {
       case 1:
-        spawnSpeechBubble("Here they come… stay ready.", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Whats that?… That might be a goblin!", pos.x, pos.y, 3500);
         break;
       case 2:
         spawnSpeechBubble("More goblins… still pushing forward.", pos.x, pos.y, 3500);
