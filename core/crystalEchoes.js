@@ -391,7 +391,7 @@ function awardCrystalBonus(lastCrystal) {
   spawnFloatingText(
     lastCrystal.x,
     lastCrystal.y - 40,
-    "Exploration Complete!",
+    "Spires Powered Up!",
     "#FFFFFF"
   );
 }

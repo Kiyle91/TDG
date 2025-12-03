@@ -93,6 +93,7 @@ function moveGoblinWithCollision(e, dx, dy) {
 function sidestepIfStuck(e, delta, dt) {
   if (e.state !== "chase" && e.state !== "return") return;
   if (e.attacking) return;
+  if (e.holdingAtRange) return; // avoid idle jitter while waiting to re-attack
 
   e.stuckTimer = (e.stuckTimer || 0) + delta;
   if (e.movedThisFrame) {
@@ -300,6 +301,7 @@ export function updateGoblins(delta) {
     const startX = e.x;
     const startY = e.y;
     e.movedThisFrame = false;
+    e.holdingAtRange = false;
 
     tryEnemySpeech(e);
 
@@ -353,6 +355,11 @@ export function updateGoblins(delta) {
     if (e.state === "chase") {
       const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
       const attackRange = ATTACK_RANGE * 1.25;
+
+      if (!e.attacking && e.attackCooldown > 0 && distToPlayer <= attackRange) {
+        e.holdingAtRange = true;
+        e.stuckTimer = 0;
+      }
 
       if (distToPlayer > AGGRO_RANGE * 2.2) {
         e.state = "return";
@@ -409,6 +416,7 @@ export function updateGoblins(delta) {
       } else {
         if (e.attackCooldown === 0) {
           e.attacking = true;
+          e.holdingAtRange = false;
           attackPlayer(e, player);
           e.attackCooldown = ATTACK_COOLDOWN;
         }
@@ -497,6 +505,10 @@ export function updateGoblins(delta) {
     const movedDist = Math.hypot(e.x - startX, e.y - startY);
     e.movedThisFrame = movedDist > 0.25;
     if (!e.movedThisFrame && !e.attacking) {
+      e.frameTimer = 0;
+      e.frame = 0;
+    } else if (e.holdingAtRange) {
+      e.movedThisFrame = false;
       e.frameTimer = 0;
       e.frame = 0;
     }

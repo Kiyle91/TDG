@@ -110,6 +110,7 @@ function moveGoblinWithCollision(e, dx, dy) {
 function sidestepIfStuck(e, delta, dt) {
   if (e.state !== "chase" && e.state !== "return") return;
   if (e.attacking) return;
+  if (e.holdingAtRange) return; // don't sidestep while intentionally holding position
 
   e.stuckTimer = (e.stuckTimer || 0) + delta;
   if (e.movedThisFrame) {
@@ -320,6 +321,7 @@ export function updateGoblins(delta) {
     const startX = e.x;
     const startY = e.y;
     e.movedThisFrame = false;
+    e.holdingAtRange = false; // lock idle sprite when waiting to re-attack
 
     tryEnemySpeech(e);
 
@@ -361,8 +363,14 @@ export function updateGoblins(delta) {
     }
 
     if (e.state === "chase") {
-      const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
-      const attackRange = ATTACK_RANGE * 1.25;
+    const moveSpeed = e.speed * (e.slowTimer > 0 ? 0.5 : 1);
+    const attackRange = ATTACK_RANGE * 1.25;
+
+      // If we're in range but on cooldown, keep the idle sprite even if jostled
+      if (!e.attacking && e.attackCooldown > 0 && distToPlayer <= attackRange) {
+        e.holdingAtRange = true;
+        e.stuckTimer = 0; // prevent sidestep jiggle while waiting
+      }
 
       if (distToPlayer > AGGRO_RANGE * 2.2) {
         e.state = "return";
@@ -418,6 +426,7 @@ export function updateGoblins(delta) {
       } else {
         if (e.attackCooldown === 0) {
           e.attacking = true;
+          e.holdingAtRange = false;
           attackPlayer(e, player);
           e.attackCooldown = ATTACK_COOLDOWN;
         }
@@ -500,6 +509,11 @@ export function updateGoblins(delta) {
     const movedDist = Math.hypot(e.x - startX, e.y - startY);
     e.movedThisFrame = movedDist > 0.25;
     if (!e.movedThisFrame && !e.attacking) {
+      e.frameTimer = 0;
+      e.frame = 0;
+    } else if (e.holdingAtRange) {
+      // When holding in attack range, keep the idle frame even if nudged by crowd collisions
+      e.movedThisFrame = false;
       e.frameTimer = 0;
       e.frame = 0;
     }
