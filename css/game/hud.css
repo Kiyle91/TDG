@@ -541,9 +541,9 @@
    ✨ GOLD GLOW — Active only during Echo Power
    ============================================================ */
 .gold-glow {
-    color: #ffd900 !important;
+    color: #ffde21 !important;
     /* Keep a warm outline while the text itself stays white */
-    text-shadow: 0 0 6px rgba(255, 200, 255, 0.8), 0 0 12px rgba(255, 200, 255, 0.8);
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.8), 0 0 12px rgba(255, 200, 255, 0.8);
 }
 
 

@@ -79,7 +79,7 @@
 ------------------------------------------------------------ */
 .story-text {
   position: absolute;
-  top: 15%;
+  top: 20%;
   right: 9%;
   max-height: 160px;
   max-width: 500px;
@@ -87,7 +87,7 @@
   overflow-y: auto;
 
   white-space: pre-line;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   text-align: center;
   color: #ffffff;
 
@@ -101,6 +101,7 @@
    CONTINUE BUTTON
 ------------------------------------------------------------ */
 .story-next-btn {
+  display: none;
   position: absolute;
   bottom: 10%;
   left: 55%;

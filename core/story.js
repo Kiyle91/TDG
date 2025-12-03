@@ -127,7 +127,7 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
     };
 
     // Auto-close safeguard after 45 seconds
-    const autoCloseTimer = setTimeout(finish, 15000000);
+    const autoCloseTimer = setTimeout(finish, 10000);
 
     window.addEventListener("showScreen", closeWatcher);
     window.addEventListener("showOverlay", closeWatcher);
