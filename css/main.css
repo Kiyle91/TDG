@@ -136,6 +136,36 @@ body {
   display: block;
 }
 
+.game-loading-bar {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  width: min(320px, 80vw);
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+}
+
+.game-loading-bar-fill {
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, #fff, #ffd6ff, #b7f0ff);
+  border-radius: 999px;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+  animation: gameLoadingSweep 1.4s ease-in-out infinite;
+}
+
+@keyframes gameLoadingSweep {
+  0%   { transform: translateX(-60%); opacity: 0.1; }
+  25%  { opacity: 1; }
+  50%  { transform: translateX(140%); opacity: 1; }
+  100% { transform: translateX(220%); opacity: 0.1; }
+}
+
 /* ============================================================
    🌟 END OF FILE
 ============================================================ */
