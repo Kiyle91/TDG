@@ -489,6 +489,7 @@
                             <div class="stat-row"><span class="stat-label">HP:</span><span id="stat-hp">100 / 100</span></div>
                             <div class="stat-row"><span class="stat-label">Mana:</span><span id="stat-mana">50 / 50</span></div>
                             <div class="stat-row"><span class="stat-label">Spell Power:</span><span id="stat-spellPower">10</span></div>
+                            <div class="stat-row"><span class="stat-label">Healing Power:</span><span id="stat-healPower">10</span></div>
                             <div class="stat-row"><span class="stat-label">Ranged Attack:</span><span id="stat-ranged">10</span></div>
                             <div class="stat-row"><span class="stat-label">Attack:</span><span id="stat-attack">15</span></div>
                             <div class="stat-row"><span class="stat-label">Defense:</span><span id="stat-defense">5</span></div>
@@ -1064,6 +1065,7 @@
                         <div class="stat-row"><span class="stat-label">HP:</span><span id="pstat-hp">100 / 100</span></div>
                         <div class="stat-row"><span class="stat-label">Mana:</span><span id="pstat-mana">50 / 50</span></div>
                         <div class="stat-row"><span class="stat-label">Spell Power:</span><span id="pstat-spellPower">10</span></div>
+                        <div class="stat-row"><span class="stat-label">Healing Power:</span><span id="pstat-healPower">10</span></div>
                         <div class="stat-row"><span class="stat-label">Ranged Attack:</span><span id="pstat-ranged">10</span></div>
                         <div class="stat-row"><span class="stat-label">Attack:</span><span id="pstat-attack">15</span></div>
                         <div class="stat-row"><span class="stat-label">Defense:</span><span id="pstat-defense">5</span></div>
@@ -1119,6 +1121,11 @@
                         <span>Spell Power</span>
                     </button>
 
+                    <button class="levelup-btn" data-key="healPower">
+                        <img src="assets/images/icons/heal_level_up.png" class="levelup-icon" />
+                        <span>Healing Power</span>
+                    </button>
+
                     <button class="levelup-btn" data-key="rangedAttack">
                         <img src="assets/images/icons/ranged_level_up.png" class="levelup-icon" />
                         <span>Ranged Attack</span>
@@ -1135,6 +1142,11 @@
                         <div class="summary-row">
                             <span>Spell Power:</span>
                             <span id="sum-spell">0</span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Healing Power:</span>
+                            <span id="sum-heal">0</span>
                         </div>
 
                         <div class="summary-row">

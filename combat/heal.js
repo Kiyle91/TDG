@@ -44,9 +44,9 @@ export function performHeal(player) {
   updateHUD();
 
   // Healing math
-  const sp = Number(player.spellPower) || 0;
+  const healPower = Number(player.healPower) || Number(player.spellPower) || 0;
   const mh = Number(player.maxHp) || 0;
-  const rawHeal = sp * 1.2 + mh * 0.08 + 10;
+  const rawHeal = healPower * 1.2 + mh * 0.08 + 10;
   const amount = Math.max(1, Math.round(rawHeal));
 
   const prevHp = player.hp;

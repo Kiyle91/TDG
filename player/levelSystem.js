@@ -1,6 +1,6 @@
 // ============================================================
 // levelSystem.js - Olivia's World: Crystal Keep
-// (Static Overlay + 3 Choices: Attack / Spell / Ranged)
+// (Static Overlay + 4 Choices: Attack / Spell / Heal / Ranged)
 // ------------------------------------------------------------
 // - Handles XP gain, level-ups, and stat upgrades
 // - HP & Mana auto-increase each level (+10)
@@ -19,7 +19,7 @@
  *   When enemies award XP, the player can level up. Leveling up
  *   restores HP/Mana, increases max HP/Mana by +10 each, grants
  *   stat points, and pauses gameplay while the player chooses a
- *   stat upgrade (Attack, Spell Power, or Ranged Attack).
+ *   stat upgrade (Attack, Spell Power, Healing Power, or Ranged Attack).
  *
  * FEATURES:
  *   - awardXP(): grants XP and triggers level-up checks
@@ -73,6 +73,10 @@ export function awardXP(amount = 25) {
 async function checkLevelUp() {
   const p = gameState.player;
   if (!p) return;
+
+  if (typeof p.healPower !== "number") {
+    p.healPower = 10;
+  }
 
   let leveledUp = false;
 
@@ -155,6 +159,8 @@ function showLevelUpOverlay(p, onClose) {
     btn.onclick = () => handleStatUpgrade(p, key, overlay, onClose);
   });
 
+  updateSummaryPanel(p);
+
   // Show overlay
   overlay.classList.remove("hidden");
   overlay.style.display = "flex";
@@ -174,6 +180,7 @@ function handleStatUpgrade(p, key, overlay, onClose) {
   const labelMap = {
     attack: "Attack",
     spellPower: "Spell Power",
+    healPower: "Healing Power",
     rangedAttack: "Ranged Attack",
   };
 
@@ -201,14 +208,17 @@ function handleStatUpgrade(p, key, overlay, onClose) {
 function updateSummaryPanel(p) {
   const BASE_ATTACK = 15;
   const BASE_SPELL = 10;
+  const BASE_HEAL = 10;
   const BASE_RANGED = 10;
 
   const atk = Number(p.attack || 0);
   const sp = Number(p.spellPower || 0);
+  const heal = Number(p.healPower || 0);
   const rng = Number(p.rangedAttack || 0);
 
   const atkSpent = Math.max(0, Math.floor((atk - BASE_ATTACK) / 5));
   const spSpent = Math.max(0, Math.floor((sp - BASE_SPELL) / 5));
+  const healSpent = Math.max(0, Math.floor((heal - BASE_HEAL) / 5));
   const rngSpent = Math.max(0, Math.floor((rng - BASE_RANGED) / 5));
 
   const set = (id, val) => {
@@ -218,6 +228,7 @@ function updateSummaryPanel(p) {
 
   set("sum-attack", atkSpent);
   set("sum-spell", spSpent);
+  set("sum-heal", healSpent);
   set("sum-ranged", rngSpent);
 }
 

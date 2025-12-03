@@ -70,6 +70,7 @@ function createDefaultPlayer(overrides = {}) {
     defense: 5,
     rangedAttack: 10,
     spellPower: 10,
+    healPower: 10,
   };
 
   return { ...base, ...overrides };

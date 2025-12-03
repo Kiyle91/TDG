@@ -61,6 +61,7 @@ export function createPlayer(overrides = {}) {
     speed: 160,
 
     spellPower: 10,
+    healPower: 10,
     rangedAttack: 10,
     attack: 15,
     defense: 5,

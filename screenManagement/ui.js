@@ -292,6 +292,7 @@ function fillStats(prefix, titleId) {
   const maxMana = p.maxMana ?? 50;
 
   const sp = p.spellPower ?? 10;
+  const heal = p.healPower ?? 10;
   const ranged = p.rangedAttack ?? 10;
   const atk = p.attack ?? 15;
   const def = p.defense ?? 5;
@@ -303,6 +304,7 @@ function fillStats(prefix, titleId) {
   setText(`${prefix}hp`, `${hp} / ${maxHp}`);
   setText(`${prefix}mana`, `${Math.round(mana)} / ${Math.round(maxMana)}`);
   setText(`${prefix}spellPower`, String(sp));
+  setText(`${prefix}healPower`, String(heal));
   setText(`${prefix}ranged`, String(ranged));
   setText(`${prefix}attack`, String(atk));
   setText(`${prefix}defense`, String(def));

@@ -498,6 +498,7 @@ export function applySnapshot(snapshot) {
       const statKeys = [
         "attack",
         "spellPower",
+        "healPower",
         "rangedAttack",
         "defense",
         "critChance",
@@ -517,6 +518,14 @@ export function applySnapshot(snapshot) {
           }
         }
       });
+
+    }
+
+    if (typeof restored.healPower !== "number") {
+      const fallback = profilePlayer && typeof profilePlayer.healPower === "number"
+        ? profilePlayer.healPower
+        : 10;
+      restored.healPower = fallback;
     }
 
     // Ensure current HP/Mana are not stuck at old defaults after stat merges
