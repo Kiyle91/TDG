@@ -131,7 +131,7 @@ body {
 .game-loading-image {
   width: 100vw;
   height: 100vh;
-  object-fit: cover;
+  object-fit: fill;
   max-width: none;
   display: block;
 }
@@ -139,7 +139,7 @@ body {
 .game-loading-bar {
   position: absolute;
   left: 50%;
-  bottom: 6%;
+  bottom: 10%;
   transform: translateX(-50%);
   width: min(320px, 80vw);
   height: 12px;
