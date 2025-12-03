@@ -276,33 +276,42 @@ function setText(id, value) {
   if (el) el.textContent = value;
 }
 
+function roundStat(value, fallback = 0) {
+  const num = Number(value);
+  if (Number.isFinite(num)) return Math.round(num);
+
+  const fb = Number(fallback);
+  return Math.round(Number.isFinite(fb) ? fb : 0);
+}
+
 function fillStats(prefix, titleId) {
   const p = gameState.player || {};
 
   setText(titleId, p.name ? `Princess ${p.name}` : "Princess");
 
-  const level = p.level ?? 1;
-  const xp = p.xp ?? 0;
-  const xpToNext = p.xpToNext ?? 100;
+  const level = roundStat(p.level, 1);
+  const xp = roundStat(p.xp, 0);
+  const xpToNext = roundStat(p.xpToNext, 100);
 
-  const hp = p.hp ?? p.maxHp ?? 100;
-  const maxHp = p.maxHp ?? 100;
+  const hp = roundStat(p.hp, p.maxHp ?? 100);
+  const maxHp = roundStat(p.maxHp, 100);
 
-  const mana = p.mana ?? p.maxMana ?? 50;
-  const maxMana = p.maxMana ?? 50;
+  const mana = roundStat(p.mana, p.maxMana ?? 50);
+  const maxMana = roundStat(p.maxMana, 50);
 
-  const sp = p.spellPower ?? 10;
-  const heal = p.healPower ?? 10;
-  const ranged = p.rangedAttack ?? 10;
-  const atk = p.attack ?? 15;
-  const def = p.defense ?? 5;
-  const critPct = Math.round((p.critChance ?? 0) * 100);
+  const sp = roundStat(p.spellPower, 10);
+  const heal = roundStat(p.healPower, 10);
+  const ranged = roundStat(p.rangedAttack, 10);
+  const atk = roundStat(p.attack, 15);
+  const def = roundStat(p.defense, 5);
+  const critPct = roundStat((p.critChance ?? 0) * 100, 0);
+  const statPoints = roundStat(p.statPoints, 0);
 
   setText(`${prefix}level`, String(level));
   setText(`${prefix}xp`, `${xp} / ${xpToNext}`);
-  setText(`${prefix}statPoints`, String(p.statPoints ?? 0));
+  setText(`${prefix}statPoints`, String(statPoints));
   setText(`${prefix}hp`, `${hp} / ${maxHp}`);
-  setText(`${prefix}mana`, `${Math.round(mana)} / ${Math.round(maxMana)}`);
+  setText(`${prefix}mana`, `${mana} / ${maxMana}`);
   setText(`${prefix}spellPower`, String(sp));
   setText(`${prefix}healPower`, String(heal));
   setText(`${prefix}ranged`, String(ranged));
@@ -344,15 +353,15 @@ export function updateStatsOverlay() {
   }
 
   const map = {
-    "stat-level": p.level ?? 1,
-    "stat-xp": `${p.xp ?? 0} / ${p.xpToNext ?? 100}`,
-    "stat-hp": `${p.hp ?? p.maxHp ?? 100} / ${p.maxHp ?? 100}`,
-    "stat-mana": `${Math.round(p.mana ?? p.maxMana ?? 50)} / ${Math.round(p.maxMana ?? 50)}`,
-    "stat-spellPower": p.spellPower ?? 10,
-    "stat-ranged": p.rangedAttack ?? 10,
-    "stat-attack": p.attack ?? 15,
-    "stat-defense": p.defense ?? 5,
-    "stat-crit": `${Math.round((p.critChance ?? 0) * 100)}%`,
+    "stat-level": roundStat(p.level, 1),
+    "stat-xp": `${roundStat(p.xp, 0)} / ${roundStat(p.xpToNext, 100)}`,
+    "stat-hp": `${roundStat(p.hp, p.maxHp ?? 100)} / ${roundStat(p.maxHp, 100)}`,
+    "stat-mana": `${roundStat(p.mana, p.maxMana ?? 50)} / ${roundStat(p.maxMana, 50)}`,
+    "stat-spellPower": roundStat(p.spellPower, 10),
+    "stat-ranged": roundStat(p.rangedAttack, 10),
+    "stat-attack": roundStat(p.attack, 15),
+    "stat-defense": roundStat(p.defense, 5),
+    "stat-crit": `${roundStat((p.critChance ?? 0) * 100, 0)}%`,
   };
 
   Object.entries(map).forEach(([id, val]) => {
