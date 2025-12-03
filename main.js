@@ -206,8 +206,7 @@ export function stopGameplay(reason = "unknown") {
   clearEndScreens();
 
   if (reason === "exit") {
-    showScreen("hub-screen");
-    setTimeout(initHub, 50);
+    goToHubWithLoading();
     return;
   }
 
@@ -226,6 +225,14 @@ export function stopGameplay(reason = "unknown") {
 function clearEndScreens() {
   document.querySelectorAll(".end-overlay, #end-screen")
     .forEach(el => el.remove?.());
+}
+
+// Show the hub behind the loading cover to keep transitions consistent
+async function goToHubWithLoading() {
+  await withLoadingOverlay(async () => {
+    showScreen("hub-screen");
+    setTimeout(initHub, 50);
+  });
 }
 
 // ============================================================
@@ -590,10 +597,9 @@ function showEndScreen(reason) {
 
     const hub = document.createElement("button");
     hub.textContent = "Return to Hub";
-    hub.onclick = () => {
+    hub.onclick = async () => {
       document.getElementById("end-screen")?.remove();
-      showScreen("hub-screen");
-      setTimeout(initHub, 50);
+      await goToHubWithLoading();
     };
 
     buttons.append(cont, retry, hub);

@@ -154,8 +154,7 @@ function handleNavAction(action) {
       showConfirmOverlay(
         "Return to the Crystal Hub? Your progress will be saved safely.",
         () => {
-          const gameContainer = document.getElementById("game-container");
-          fadeOut(gameContainer, () => stopGameplay("exit"));
+          stopGameplay("exit");
         },
         () => {}
       );
