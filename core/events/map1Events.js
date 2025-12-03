@@ -58,7 +58,7 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Okay… WASD to move. Deep breath.",
+        "Okay… Lets investigate the Whispering Meadows. I can move with WASD.",
         pos.x, pos.y, 4000
       );
     }
@@ -69,7 +69,7 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Crystal Echoes… I should collect them whenever I see one.",
+        "If i press SPACEBAR, I can ATTACK with my weapon.",
         pos.x, pos.y, 3800
       );
     }
@@ -80,7 +80,7 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Spire placement matters… closer to the paths means more hits.",
+        "I can CLICK anywhere to SHOOT an arrow, but it costs mana.",
         pos.x, pos.y, 4200
       );
     }
@@ -91,11 +91,13 @@ const TIMED_EVENTS = [
     action: () => {
       const pos = p();
       spawnSpeechBubble(
-        "Focus… the first wave is nearly here.",
+        "If can also cast SPELLS with the F KEY, and HEAL with the R KEY",
         pos.x, pos.y, 3800
       );
     }
   }
+
+  
 ];
 
 // ============================================================
@@ -153,7 +155,7 @@ export function initMap1Events() {
 
     switch (wave) {
       case 1:
-        spawnSpeechBubble("Okay… that wasn’t too bad.", pos.x, pos.y, 3500);
+        spawnSpeechBubble("Goblins in the Whispering Meadows.. Arianas fears were right..", pos.x, pos.y, 3500);
         break;
       case 2:
         spawnSpeechBubble("Why would goblins wander this deep into the meadows?", pos.x, pos.y, 3500);
@@ -203,7 +205,7 @@ export function initMap1Events() {
 
     const pos = p();
     spawnSpeechBubble(
-      "I… I did it. I can actually do this.",
+      "No mistaking it.. Thats a goblin.. Ewww.",
       pos.x, pos.y, 4200
     );
   });

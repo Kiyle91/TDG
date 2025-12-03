@@ -151,9 +151,9 @@ async function showStory({ text, useAriana = false, autoStart = false }) {
 
 export const wave1Text = {
   1: `
-Something’s wrong in the Meadows.
-Goblins are carrying Echoes.
-Stop them before something wakes.
+Is this thing working? Guardian ?
+So there ARE goblins in the meadows!
+Quickly, - Press 1 to place a SPIRE!
   `.trim(),
 
   2: `
