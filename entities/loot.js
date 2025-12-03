@@ -288,7 +288,7 @@ function applyLootReward(d) {
       if (player) {
         const amount = Number(d.amount) || 0;
         player.hp = Math.min(player.maxHp ?? 100, player.hp + amount);
-        spawnFloatingText(d.x, d.y - 40, `+${amount} HP`, "#ff99bb");
+        spawnFloatingText(d.x, d.y - 40, `+ HP`, "#ff99bb");
 
         if (!saidHeart) {
           saidHeart = true;
@@ -306,7 +306,7 @@ function applyLootReward(d) {
         } else {
           const amount = Number(d.amount) || 0;
           player.mana = Math.min(player.maxMana ?? 100, player.mana + amount);
-          spawnFloatingText(d.x, d.y - 40, `+${amount} Mana`, "#99ddff");
+          spawnFloatingText(d.x, d.y - 40, `+ Mana`, "#99ddff");
         }
 
         if (!saidMana) {
