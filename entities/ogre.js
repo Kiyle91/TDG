@@ -64,7 +64,7 @@ let ogreSprites = null;
 // ------------------------------------------------------------
 
 const OGRE_SIZE   = 160;
-const OGRE_SPEED  = 38;
+const OGRE_SPEED  = 50;
 const BASE_HP     = 1200;
 const OGRE_DAMAGE = 25;
 
@@ -82,6 +82,7 @@ const PHASE_SWITCH_TIME = 140;
 const END_ATTACK_TIME   = 600;
 const HIT_DELAY_TIME    = Math.max(0, PHASE_SWITCH_TIME - 20); // land hit at end of attack frame
 
+const SHADOW_OFFSET_Y   = (OGRE_SIZE / 4.5) * 1.4; // push shadow slightly lower
 
 // ------------------------------------------------------------
 // 🖼️ SPRITE LOADING
@@ -513,7 +514,7 @@ export function drawOgres(ctx) {
     ctx.beginPath();
     ctx.ellipse(
       o.x,
-      o.y + OGRE_SIZE / 4.5,
+      o.y + SHADOW_OFFSET_Y,
       OGRE_SIZE * 0.35,
       OGRE_SIZE * 0.15,
       0, 0, Math.PI * 2
