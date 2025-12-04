@@ -336,6 +336,9 @@ function getAllGoblinVariants() {
 const GOBLIN_TYPES = new Set(["goblin", "iceGoblin", "emberGoblin", "ashGoblin", "voidGoblin"]);
 const isGoblinType = (e) => e && GOBLIN_TYPES.has(e.type);
 
+const OGRE_BODY_RADIUS = 70;
+const OGRE_BODY_Y_OFFSET = -18; // raise collision center so the ogre's head blocks player overlap
+
 function applyEnemyBodyCollision(nextX, nextY, enemyContext) {
   const spatial = enemyContext?.spatial;
   if (spatial) {
@@ -349,15 +352,19 @@ function applyEnemyBodyCollision(nextX, nextY, enemyContext) {
       if (typeof ex !== "number" || typeof ey !== "number") continue;
 
       let radius = 45;
+      let offsetY = 0;
       switch (e.type) {
         case "troll": radius = 55; break;
         case "seraphine": radius = 72; break;
-        case "ogre": radius = 60; break;
+        case "ogre":
+          radius = OGRE_BODY_RADIUS;
+          offsetY = OGRE_BODY_Y_OFFSET;
+          break;
         default: radius = 45; break;
       }
 
       const dx = px - ex;
-      const dy = py - ey;
+      const dy = py - (ey + offsetY);
       const dist = Math.hypot(dx, dy);
 
       if (dist > 0 && dist < radius) {
@@ -827,9 +834,9 @@ export function updatePlayer(delta, enemyContext) {
     if (!o.alive) continue;
 
     const dxo = o.x - p.pos.x;
-    const dyo = o.y - p.pos.y;
+    const dyo = (o.y + OGRE_BODY_Y_OFFSET) - p.pos.y;
     const dist = Math.hypot(dxo, dyo);
-    const combinedRadius = 60;
+    const combinedRadius = OGRE_BODY_RADIUS;
 
     if (dist < combinedRadius && dist > 0) {
       const pushStrength = 4;
