@@ -419,12 +419,17 @@ if (typeof gameState.victoryPending !== "boolean") {
   gameState.victoryPending = false;
 }
 
-const SPAWN_INTERVAL = 450;
+const SPAWN_INTERVAL_MIN = 3000;
+const SPAWN_INTERVAL_MAX = 8000;
 const SPAWN_BATCH_SIZE = 4;
 const MAX_ALIVE_ENEMIES = 140;
 let spawnTimer = 0;
 let spawnPlan = null;
 let spawnSeparationGroups = null;
+
+function nextSpawnInterval() {
+  return SPAWN_INTERVAL_MIN + Math.random() * (SPAWN_INTERVAL_MAX - SPAWN_INTERVAL_MIN);
+}
 
 // ============================================================
 // RESET / SNAPSHOT HELPERS
@@ -676,7 +681,6 @@ function buildSpawnPlan(wave, hpMult) {
       "ogre",
       "crossbow",
     ],
-    cursor: 0,
     escortsRemaining: 0,
   };
 }
@@ -709,18 +713,13 @@ function spawnNextFromPlan() {
     return false;
   }
 
-  const len = order.length;
-  for (let step = 0; step < len; step++) {
-    const idx = (spawnPlan.cursor + step) % len;
-    const type = order[idx];
-    const remaining = counts[type] || 0;
-    if (remaining > 0) {
-      counts[type] = remaining - 1;
-      spawnPlan.cursor = (idx + 1) % len;
-      spawnEnemy(type, spawnPlan);
-      if (!hasPendingSpawns()) spawnPlan = null;
-      return true;
-    }
+  const available = order.filter(t => (counts[t] || 0) > 0);
+  if (available.length > 0) {
+    const chosen = available[Math.floor(Math.random() * available.length)];
+    counts[chosen] -= 1;
+    spawnEnemy(chosen, spawnPlan);
+    if (!hasPendingSpawns()) spawnPlan = null;
+    return true;
   }
 
   spawnPlan = null;
@@ -848,17 +847,18 @@ export function updateWaveSystem(delta) {
   if (spawnPlan && spawnTimer <= 0 && hasPendingSpawns()) {
     if (getAliveEnemyCount() >= MAX_ALIVE_ENEMIES) {
       // Defer spawns if battlefield is overcrowded
-      spawnTimer = SPAWN_INTERVAL * 0.5;
+      spawnTimer = nextSpawnInterval() * 0.5;
       return;
     }
 
     spawnSeparationGroups = getEnemyGroups();
+    const groupSize = 1 + Math.floor(Math.random() * 8); // 1-8 enemies per pulse
     let spawned = 0;
-    while (spawned < SPAWN_BATCH_SIZE && spawnNextFromPlan()) {
+    while (spawned < groupSize && spawnNextFromPlan()) {
       spawned++;
     }
     spawnSeparationGroups = null;
-    spawnTimer = SPAWN_INTERVAL;
+    spawnTimer = nextSpawnInterval();
   }
 
   if (gameState.victoryPending) return;
