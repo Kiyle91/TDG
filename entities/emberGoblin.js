@@ -439,6 +439,7 @@ export function updateGoblins(delta) {
         if (doSeparation && separationGrid) {
           const minDist = 124;
           const minDistSq = minDist * minDist;
+          const maxPush = 8;
           const nearby = getNearbyFromGrid(separationGrid, e.x, e.y);
 
           for (const o of nearby) {
@@ -450,7 +451,7 @@ export function updateGoblins(delta) {
             if (distSq === 0 || distSq >= minDistSq) continue;
 
             const dist = Math.sqrt(distSq);
-            const push = (minDist - dist) * 0.5;
+            const push = Math.min(maxPush, (minDist - dist) * 0.35);
             const inv = 1 / dist;
             const nx = dx * inv;
             const ny = dy * inv;
