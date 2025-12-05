@@ -368,12 +368,14 @@ function applyEnemyBodyCollision(nextX, nextY, enemyContext) {
       const dist = Math.hypot(dx, dy);
 
       if (dist > 0 && dist < radius) {
-        const overlap = (radius - dist) / 3;
         const nx = dx / dist;
         const ny = dy / dist;
-
-        px += nx * overlap * 0.8;
-        py += ny * overlap * 0.8;
+        // Clamp player to enemy boundary instead of pushing through
+        px = ex + nx * radius;
+        py = (ey + offsetY) + ny * radius;
+      } else if (dist === 0) {
+        // Degenerate overlap: nudge straight up
+        py = (ey + offsetY) - radius;
       }
     }
 
@@ -407,12 +409,12 @@ function applyEnemyBodyCollision(nextX, nextY, enemyContext) {
       const dist = Math.hypot(dx, dy);
 
       if (dist > 0 && dist < radius) {
-        const overlap = (radius - dist) / 3;
         const nx = dx / dist;
         const ny = dy / dist;
-
-        px += nx * overlap * 0.8;
-        py += ny * overlap * 0.8;
+        px = ex + nx * radius;
+        py = ey + ny * radius;
+      } else if (dist === 0) {
+        py = ey - radius;
       }
     }
   }
