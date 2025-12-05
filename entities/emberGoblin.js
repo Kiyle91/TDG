@@ -332,6 +332,18 @@ export function updateGoblins(delta) {
   const player = gameState.player;
   if (!player) return;
 
+  // Throttled crowd separation using spatial grid (reduces O(n^2) scanning)
+  crowdCollisionTimer += delta;
+  const doSeparation = crowdCollisionTimer >= CROWD_COLLISION_INTERVAL;
+  let separationGrid = null;
+  if (doSeparation) {
+    crowdCollisionTimer = 0;
+    const ash = getAshGoblins() || [];
+    const ice = getIceGoblins() || [];
+    const voids = getVoidGoblins() || [];
+    separationGrid = buildSpatialGrid([...goblins, ...ash, ...ice, ...voids]);
+  }
+
   const px = player.pos?.x ?? player.x ?? 0;
   const py = player.pos?.y ?? player.y ?? 0;
 
@@ -423,13 +435,32 @@ export function updateGoblins(delta) {
 
         e.attacking = false;
 
-        // --- Crowd collision (priority gap)
-        applyCrowdSeparation(e, [
-          goblins,
-          getAshGoblins(),
-          getIceGoblins(),
-          getVoidGoblins()
-        ], 108);
+        // --- Crowd collision (priority gap) using grid neighbours only
+        if (doSeparation && separationGrid) {
+          const minDist = 108;
+          const minDistSq = minDist * minDist;
+          const nearby = getNearbyFromGrid(separationGrid, e.x, e.y);
+
+          for (const o of nearby) {
+            if (o === e || !o.alive) continue;
+
+            const dx = e.x - o.x;
+            const dy = e.y - o.y;
+            const distSq = dx * dx + dy * dy;
+            if (distSq === 0 || distSq >= minDistSq) continue;
+
+            const dist = Math.sqrt(distSq);
+            const push = (minDist - dist) * 0.5;
+            const inv = 1 / dist;
+            const nx = dx * inv;
+            const ny = dy * inv;
+
+            e.x += nx * push;
+            e.y += ny * push;
+            o.x -= nx * push;
+            o.y -= ny * push;
+          }
+        }
 
         e.frameTimer += delta;
         if (e.frameTimer >= WALK_FRAME_INTERVAL) {

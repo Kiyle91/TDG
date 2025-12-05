@@ -47,6 +47,7 @@ let spires = [];
 
 // Shared enemy cache to avoid per-frame allocations in updateSpires
 const combinedEnemiesCache = [];
+const nonVoidEnemiesCache = [];
 let enemyCacheTimer = 0;
 
 // 💥 Durability + timing
@@ -358,16 +359,14 @@ export function updateSpires(delta) {
         // ============================================================
 
         case "basic_spire": {
-          const filtered = combinedEnemiesCache.filter(e => !e.insideVoidAura);
-          spire.cachedTarget = findNearestEnemy(spire, filtered, SPIRE_RANGE);
+          spire.cachedTarget = findNearestEnemy(spire, nonVoidEnemiesCache, SPIRE_RANGE);
           break;
         }
 
         case "frost_spire": {
-          const filtered = combinedEnemiesCache.filter(e => !e.insideVoidAura);
           spire.cachedTarget = findNearestEnemyWithPriority(
             spire,
-            filtered,
+            nonVoidEnemiesCache,
             SPIRE_RANGE * 0.9,
             (e) => e.type === "emberGoblin"
           );
@@ -375,10 +374,9 @@ export function updateSpires(delta) {
         }
 
         case "flame_spire": {
-          const filtered = combinedEnemiesCache.filter(e => !e.insideVoidAura);
           spire.cachedTarget = findNearestEnemyWithPriority(
             spire,
-            filtered,
+            nonVoidEnemiesCache,
             SPIRE_RANGE * 0.9,
             (e) => e.type === "iceGoblin"
           );
@@ -386,8 +384,7 @@ export function updateSpires(delta) {
         }
 
         case "arcane_spire": {
-          const filtered = combinedEnemiesCache.filter(e => true); // Arcane ignores void cloak
-          spire.cachedTarget = findNearestEnemy(spire, filtered, SPIRE_RANGE * 1.5);
+          spire.cachedTarget = findNearestEnemy(spire, combinedEnemiesCache, SPIRE_RANGE * 1.5);
           break;
         }
 
@@ -404,8 +401,7 @@ export function updateSpires(delta) {
         }
 
         case "moon_spire": {
-          const filtered = combinedEnemiesCache.filter(e => !e.insideVoidAura);
-          spire.cachedTarget = findNearestEnemy(spire, filtered, SPIRE_RANGE);
+          spire.cachedTarget = findNearestEnemy(spire, nonVoidEnemiesCache, SPIRE_RANGE);
           break;
         }
       }
@@ -507,18 +503,30 @@ function refreshEnemyCache(delta) {
 
   enemyCacheTimer = 0;
   combinedEnemiesCache.length = 0;
+  nonVoidEnemiesCache.length = 0;
 
-  combinedEnemiesCache.push(
-    ...getGoblins(),
-    ...getIceGoblins(),
-    ...getEmberGoblins(),
-    ...getAshGoblins(),
-    ...getVoidGoblins(),
-    ...getWorg(),
-    ...getElites(),
-    ...getTrolls(),
-    ...getCrossbows(),
-  );
+  const groups = [
+    getGoblins(),
+    getIceGoblins(),
+    getEmberGoblins(),
+    getAshGoblins(),
+    getVoidGoblins(),
+    getWorg(),
+    getElites(),
+    getTrolls(),
+    getCrossbows(),
+  ];
+
+  for (const group of groups) {
+    if (!Array.isArray(group)) continue;
+    for (const e of group) {
+      if (!e) continue;
+      combinedEnemiesCache.push(e);
+      if (!e.insideVoidAura) {
+        nonVoidEnemiesCache.push(e);
+      }
+    }
+  }
 }
 
 // ------------------------------------------------------------

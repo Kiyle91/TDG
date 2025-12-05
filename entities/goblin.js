@@ -314,6 +314,15 @@ export function updateGoblins(delta) {
   const player = gameState.player;
   if (!player) return;
 
+  // Build spatial grid for separation only on a throttled cadence
+  crowdCollisionTimer += delta;
+  const doSeparation = crowdCollisionTimer >= CROWD_COLLISION_INTERVAL;
+  let crowdGrid = null;
+  if (doSeparation) {
+    crowdCollisionTimer = 0;
+    crowdGrid = buildSpatialGrid(goblins);
+  }
+
   const px = player.pos?.x ?? player.x ?? 0;
   const py = player.pos?.y ?? player.y ?? 0;
 
@@ -397,19 +406,24 @@ export function updateGoblins(delta) {
 
         e.attacking = false;
 
-        for (let j = 0; j < goblins.length; j++) {
-          const o = goblins[j];
-          if (o === e || !o.alive) continue;
-
-          const dx = e.x - o.x;
-          const dy = e.y - o.y;
-          const dist = Math.hypot(dx, dy);
-
+        if (doSeparation && crowdGrid) {
           const minDist = 72;
-          if (dist > 0 && dist < minDist) {
-            const push = (minDist - dist) / 2;
-            const nx = dx / dist;
-            const ny = dy / dist;
+          const minDistSq = minDist * minDist;
+          const nearby = getNearbyFromGrid(crowdGrid, e.x, e.y);
+
+          for (const o of nearby) {
+            if (o === e || !o.alive) continue;
+
+            const dx = e.x - o.x;
+            const dy = e.y - o.y;
+            const distSq = dx * dx + dy * dy;
+            if (distSq === 0 || distSq >= minDistSq) continue;
+
+            const dist = Math.sqrt(distSq);
+            const push = (minDist - dist) * 0.5;
+            const inv = 1 / dist;
+            const nx = dx * inv;
+            const ny = dy * inv;
 
             e.x += nx * push;
             e.y += ny * push;

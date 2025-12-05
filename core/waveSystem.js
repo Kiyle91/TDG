@@ -102,8 +102,8 @@ export const waveConfigs = {
     { goblins: 26, worgs: 3 },   // Wave 7
     { goblins: 30, worgs: 4 },   // Wave 8
     { goblins: 34, worgs: 5 },
-    { goblins: 40, Goblins: 20, worgs: 10, worgs: 10 },
-    { goblins: 50, goblins: 30, worgs: 20, worgs: 15 },   // Wave 9
+    { goblins: 40, worgs: 10 },
+    { goblins: 50, worgs: 20 },   // Wave 9
     { boss: "seraphine", phase: 1, goblins: 20, worgs: 5 } // Wave 10 boss
   ],
 
@@ -419,7 +419,8 @@ if (typeof gameState.victoryPending !== "boolean") {
   gameState.victoryPending = false;
 }
 
-const SPAWN_INTERVAL = 2000;
+const SPAWN_INTERVAL = 450;
+const SPAWN_BATCH_SIZE = 4;
 let spawnTimer = 0;
 let spawnPlan = null;
 
@@ -639,20 +640,18 @@ function buildSpawnPlan(wave, hpMult) {
     return {
       hpMult,
       escortsRemaining: wave.goblins || 0,
-      primaryTotal: 0,
-      primaryIndex: 0,
       counts: null,
-      extras: null,
+      order: null,
+      cursor: 0,
     };
   }
 
-  const goblins = wave.goblins || 0;
   const counts = {
-    goblins,
-    ice: wave.iceGoblins || 0,
-    ember: wave.emberGoblins || 0,
-    ash: wave.ashGoblins || 0,
-    voids: wave.voidGoblins || 0,
+    goblin: wave.goblins || 0,
+    iceGoblin: wave.iceGoblins || 0,
+    emberGoblin: wave.emberGoblins || 0,
+    ashGoblin: wave.ashGoblins || 0,
+    voidGoblin: wave.voidGoblins || 0,
     worg: wave.worgs || 0,
     elite: wave.elites || 0,
     troll: wave.trolls || 0,
@@ -660,23 +659,22 @@ function buildSpawnPlan(wave, hpMult) {
     crossbow: wave.crossbows || 0,
   };
 
-  const extras = {
-    ice: Math.max(0, counts.ice - goblins),
-    ember: Math.max(0, counts.ember - goblins),
-    ash: Math.max(0, counts.ash - goblins),
-    voids: Math.max(0, counts.voids - goblins),
-    worg: Math.max(0, counts.worg - goblins),
-    elite: Math.max(0, counts.elite - goblins),
-    troll: Math.max(0, counts.troll - goblins),
-    crossbow: Math.max(0, counts.crossbow - goblins),
-  };
-
   return {
     hpMult,
     counts,
-    primaryTotal: goblins,
-    primaryIndex: 0,
-    extras,
+    order: [
+      "goblin",
+      "iceGoblin",
+      "emberGoblin",
+      "ashGoblin",
+      "voidGoblin",
+      "worg",
+      "elite",
+      "troll",
+      "ogre",
+      "crossbow",
+    ],
+    cursor: 0,
     escortsRemaining: 0,
   };
 }
@@ -684,19 +682,12 @@ function buildSpawnPlan(wave, hpMult) {
 function hasPendingSpawns() {
   if (!spawnPlan) return false;
   if (spawnPlan.escortsRemaining > 0) return true;
-  if (spawnPlan.counts && spawnPlan.primaryIndex < spawnPlan.primaryTotal) return true;
-  const extras = spawnPlan.extras;
-  if (!extras) return false;
-  return (
-    extras.ice > 0 ||
-    extras.ember > 0 ||
-    extras.ash > 0 ||
-    extras.voids > 0 ||
-    extras.worg > 0 ||
-    extras.elite > 0 ||
-    extras.troll > 0 ||
-    extras.crossbow > 0
-  );
+  const counts = spawnPlan.counts;
+  if (!counts) return false;
+  for (const key of Object.keys(counts)) {
+    if (counts[key] > 0) return true;
+  }
+  return false;
 }
 
 function spawnNextFromPlan() {
@@ -709,45 +700,24 @@ function spawnNextFromPlan() {
     return true;
   }
 
-  if (spawnPlan.counts && spawnPlan.primaryIndex < spawnPlan.primaryTotal) {
-    const i = spawnPlan.primaryIndex++;
-    spawnEnemy("goblin", spawnPlan);
-
-    if (i < spawnPlan.counts.ice) spawnEnemy("iceGoblin", spawnPlan);
-    if (i < spawnPlan.counts.ember) spawnEnemy("emberGoblin", spawnPlan);
-    if (i < spawnPlan.counts.ash) spawnEnemy("ashGoblin", spawnPlan);
-    if (i < spawnPlan.counts.voids) spawnEnemy("voidGoblin", spawnPlan);
-
-    if (i < spawnPlan.counts.worg) spawnEnemy("worg", spawnPlan);
-    if (i < spawnPlan.counts.elite) spawnEnemy("elite", spawnPlan);
-    if (i < spawnPlan.counts.troll) spawnEnemy("troll", spawnPlan);
-    if (i < spawnPlan.counts.ogre) spawnEnemy("ogre", spawnPlan);
-    if (i < spawnPlan.counts.crossbow) spawnEnemy("crossbow", spawnPlan);
-
-    if (!hasPendingSpawns()) spawnPlan = null;
-    return true;
+  const counts = spawnPlan.counts;
+  const order = spawnPlan.order;
+  if (!counts || !order) {
+    spawnPlan = null;
+    return false;
   }
 
-  const extras = spawnPlan.extras;
-  if (extras) {
-    const order = [
-      ["ice", "iceGoblin"],
-      ["ember", "emberGoblin"],
-      ["ash", "ashGoblin"],
-      ["voids", "voidGoblin"],
-      ["worg", "worg"],
-      ["elite", "elite"],
-      ["troll", "troll"],
-      ["crossbow", "crossbow"],
-    ];
-
-    for (const [key, type] of order) {
-      if (extras[key] > 0) {
-        extras[key] -= 1;
-        spawnEnemy(type, spawnPlan);
-        if (!hasPendingSpawns()) spawnPlan = null;
-        return true;
-      }
+  const len = order.length;
+  for (let step = 0; step < len; step++) {
+    const idx = (spawnPlan.cursor + step) % len;
+    const type = order[idx];
+    const remaining = counts[type] || 0;
+    if (remaining > 0) {
+      counts[type] = remaining - 1;
+      spawnPlan.cursor = (idx + 1) % len;
+      spawnEnemy(type, spawnPlan);
+      if (!hasPendingSpawns()) spawnPlan = null;
+      return true;
     }
   }
 
@@ -757,6 +727,10 @@ function spawnNextFromPlan() {
 
 function applySpawnSeparation(enemy) {
   if (!enemy || typeof enemy.x !== "number" || typeof enemy.y !== "number") return;
+
+  // Small random nudge to reduce perfect overlaps before checking
+  enemy.x += (Math.random() - 0.5) * 8;
+  enemy.y += (Math.random() - 0.5) * 8;
 
   const groups = [
     getGoblins(),
@@ -773,9 +747,12 @@ function applySpawnSeparation(enemy) {
   ];
 
   const radius = getSpawnRadiusByType(enemy.type);
+  const radiusSq = radius * radius;
+  const MAX_CHECKS = 16;
 
-  for (let attempts = 0; attempts < 8; attempts++) {
+  for (let attempts = 0; attempts < 3; attempts++) {
     let overlapped = false;
+    let checks = 0;
 
     for (const group of groups) {
       if (!Array.isArray(group)) continue;
@@ -784,22 +761,24 @@ function applySpawnSeparation(enemy) {
         if (!other || other === enemy) continue;
         const dx = enemy.x - other.x;
         const dy = enemy.y - other.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist === 0) {
+        const distSq = dx * dx + dy * dy;
+        const otherR = getSpawnRadiusByType(other.type);
+        const minDist = radius + otherR;
+        const minDistSq = minDist * minDist;
+
+        if (distSq === 0 || distSq < minDistSq) {
           overlapped = true;
-          enemy.x += (Math.random() - 0.5) * 12;
-          enemy.y += (Math.random() - 0.5) * 12;
-          continue;
+          const dist = Math.sqrt(distSq) || 1;
+          const push = (minDist - dist) * 0.45;
+          const inv = 1 / dist;
+          enemy.x += dx * inv * push;
+          enemy.y += dy * inv * push;
         }
 
-        const minDist = radius + getSpawnRadiusByType(other.type);
-        if (dist < minDist) {
-          overlapped = true;
-          const push = (minDist - dist) * 0.6;
-          enemy.x += (dx / dist) * push;
-          enemy.y += (dy / dist) * push;
-        }
+        checks++;
+        if (checks >= MAX_CHECKS) break;
       }
+      if (checks >= MAX_CHECKS) break;
     }
 
     if (!overlapped) break;
@@ -861,11 +840,11 @@ export function updateWaveSystem(delta) {
 
   spawnTimer -= delta;
   if (spawnPlan && spawnTimer <= 0 && hasPendingSpawns()) {
-    if (spawnNextFromPlan()) {
-      spawnTimer = SPAWN_INTERVAL;
-    } else {
-      spawnTimer = 0;
+    let spawned = 0;
+    while (spawned < SPAWN_BATCH_SIZE && spawnNextFromPlan()) {
+      spawned++;
     }
+    spawnTimer = SPAWN_INTERVAL;
   }
 
   if (gameState.victoryPending) return;
