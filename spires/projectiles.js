@@ -183,6 +183,7 @@ export function updateProjectiles(delta) {
         }
 
         let dmg = PROJECTILE_DAMAGE.frost;
+        if (t.type === "emberGoblin") dmg *= 2; // bonus vs ember
         if (gameState.echoPowerActive) dmg *= 2;
 
         // 💎 turret upgrade multiplier

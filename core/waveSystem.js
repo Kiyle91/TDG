@@ -10,7 +10,12 @@
 
 import { gameState, unlockMap, saveProfiles } from "../utils/gameState.js";
 import { stopGameplay } from "../main.js";
-import { triggerEndOfWave1Story, triggerEndOfWave5Story, resetWaveStoryFlags } from "./story.js";
+import {
+  triggerEndOfWave1Story,
+  triggerEndOfWave5Story,
+  triggerEndOfWave9Story,
+  resetWaveStoryFlags,
+} from "./story.js";
 import { getDifficultyHpMultiplier } from "../screenManagement/settings.js";
 import { updateHUD } from "../screenManagement/ui.js";
 
@@ -88,7 +93,7 @@ export const waveConfigs = {
   // Wave 5: + 1 voidGoblin
   // ============================================================
   1: [
-    { goblins: 1,  iceGoblins: 10},   // Wave 1 - intr
+    { goblins: 1,  iceGoblins: 10, emberGoblins: 10},   // Wave 1 - intr
     { goblins: 12, worgs: 0 },   // Wave 2
     { goblins: 16, worgs: 0 },   // Wave 3
     { goblins: 18, worgs: 1 },   // Wave 4 - first worg

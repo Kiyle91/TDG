@@ -365,7 +365,12 @@ export function updateSpires(delta) {
 
         case "frost_spire": {
           const filtered = combinedEnemiesCache.filter(e => !e.insideVoidAura);
-          spire.cachedTarget = findNearestEnemy(spire, filtered, SPIRE_RANGE * 0.9);
+          spire.cachedTarget = findNearestEnemyWithPriority(
+            spire,
+            filtered,
+            SPIRE_RANGE * 0.9,
+            (e) => e.type === "emberGoblin"
+          );
           break;
         }
 
