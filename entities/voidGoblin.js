@@ -41,6 +41,9 @@ import { applyBraveryAuraEffects } from "../player/bravery.js";
 import { Events, EVENT_NAMES as E } from "../core/eventEngine.js";
 import { GOBLIN_AURA_RADIUS } from "./goblinAuraConstants.js";
 import { tryEnemySpeech, tryEnemyHitSpeech } from "../core/events/enemySpeech.js";
+import { getGoblins as getAshGoblins } from "./ashGoblin.js";
+import { getGoblins as getIceGoblins } from "./iceGoblin.js";
+import { getGoblins as getEmberGoblins } from "./emberGoblin.js";
 
 
 // ============================================================
@@ -282,6 +285,29 @@ function getNearbyFromGrid(grid, x, y) {
   return nearby;
 }
 
+function applyCrowdSeparation(e, groups, minDist) {
+  for (const group of groups) {
+    if (!group) continue;
+    for (const o of group) {
+      if (o === e || !o.alive) continue;
+
+      const dx = e.x - o.x;
+      const dy = e.y - o.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > 0 && dist < minDist) {
+        const push = (minDist - dist) / 2;
+        const nx = dx / dist;
+        const ny = dy / dist;
+
+        e.x += nx * push;
+        e.y += ny * push;
+        o.x -= nx * push;
+        o.y -= ny * push;
+      }
+    }
+  }
+}
 
 // ============================================================
 // 🧠 UPDATE — identical behaviour
@@ -383,26 +409,12 @@ export function updateGoblins(delta) {
         e.attacking = false;
 
         // Crowd collision pushback
-        for (let j = 0; j < goblins.length; j++) {
-          const o = goblins[j];
-          if (o === e || !o.alive) continue;
-
-          const dx = e.x - o.x;
-          const dy = e.y - o.y;
-          const dist = Math.hypot(dx, dy);
-
-          const minDist = 72;
-          if (dist > 0 && dist < minDist) {
-            const push = (minDist - dist) / 2;
-            const nx = dx / dist;
-            const ny = dy / dist;
-
-            e.x += nx * push;
-            e.y += ny * push;
-            o.x -= nx * push;
-            o.y -= ny * push;
-          }
-        }
+        applyCrowdSeparation(e, [
+          goblins,
+          getAshGoblins(),
+          getIceGoblins(),
+          getEmberGoblins()
+        ], 108);
 
         e.frameTimer += delta;
         if (e.frameTimer >= WALK_FRAME_INTERVAL) {

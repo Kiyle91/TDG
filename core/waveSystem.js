@@ -93,7 +93,7 @@ export const waveConfigs = {
   // Wave 5: + 1 voidGoblin
   // ============================================================
   1: [
-    { goblins: 1,  iceGoblins: 10, emberGoblins: 10, ashGoblins: 10},   // Wave 1 - intr
+    { goblins: 40,  iceGoblins: 10, emberGoblins: 10, ashGoblins: 10},   // Wave 1 - intr
     { goblins: 12, worgs: 0 },   // Wave 2
     { goblins: 16, worgs: 0 },   // Wave 3
     { goblins: 18, worgs: 1 },   // Wave 4 - first worg
@@ -129,7 +129,7 @@ export const waveConfigs = {
   // MAP 3 - Pattern Mixing + Elite Ambushes
   // ============================================================
   3: [
-    { goblins: 20, worgs: 2, elites: 0, trolls: 0, ogres: 0 },
+    { goblins: 40,  iceGoblins: 10, emberGoblins: 10, ashGoblins: 10},
     { goblins: 24, worgs: 2, elites: 0, trolls: 0, ogres: 0 },
     { goblins: 26, worgs: 3, elites: 1, trolls: 0, ogres: 0 },
     { goblins: 30, worgs: 3, elites: 1, trolls: 0, ogres: 0 },
