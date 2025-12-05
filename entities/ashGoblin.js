@@ -698,8 +698,11 @@ export function drawGoblins(context) {
     const img = getGoblinSprite(e);
     if (!img) continue;
 
-    const drawX = e.x - GOBLIN_SIZE / 2;
-    const drawY = e.y - GOBLIN_SIZE / 2;
+    // ------- BASE DRAW COORDS (80px base) -------
+    const baseSize = GOBLIN_SIZE;
+    const renderSize = baseSize;
+    const drawX = e.x - renderSize / 2;
+    const drawY = e.y - renderSize / 2;
 
     drawRing(ctx, e, "rgba(160,160,160,0.8)");
 
@@ -709,9 +712,9 @@ export function drawGoblins(context) {
     ctx.beginPath();
     ctx.ellipse(
       e.x,
-      e.y + GOBLIN_SIZE / 2.3,
-      GOBLIN_SIZE * 0.35,
-      GOBLIN_SIZE * 0.15,
+      e.y + baseSize / 2.3,
+      baseSize * 0.35,
+      baseSize * 0.15,
       0, 0, Math.PI * 2
     );
     ctx.fillStyle = "rgba(0,0,0,0.25)";
@@ -734,11 +737,11 @@ export function drawGoblins(context) {
     ctx.drawImage(
       img,
       0, 0,
-      1024, 1024,
+      img.width, img.height,
       drawX,
       drawY,
-      GOBLIN_SIZE,
-      GOBLIN_SIZE
+      renderSize,
+      renderSize
     );
 
     // 🔥 Burn FX (if hit by flame)
@@ -751,7 +754,7 @@ export function drawGoblins(context) {
       ctx.globalAlpha = 0.25 * flicker;
       ctx.fillStyle = "rgba(255,150,80,0.5)";
       ctx.beginPath();
-      ctx.ellipse(e.x, e.y, GOBLIN_SIZE * 0.35, GOBLIN_SIZE * 0.45, 0, 0, Math.PI * 2);
+      ctx.ellipse(e.x, e.y, baseSize * 0.35, baseSize * 0.45, 0, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.globalCompositeOperation = "lighter";
@@ -760,9 +763,9 @@ export function drawGoblins(context) {
       ctx.beginPath();
       ctx.ellipse(
         e.x,
-        e.y - GOBLIN_SIZE * 0.1,
-        GOBLIN_SIZE * 0.55,
-        GOBLIN_SIZE * 0.7,
+        e.y - baseSize * 0.1,
+        baseSize * 0.55,
+        baseSize * 0.7,
         0, 0, Math.PI * 2
       );
       ctx.fill();
@@ -772,16 +775,16 @@ export function drawGoblins(context) {
       ctx.beginPath();
       ctx.ellipse(
         e.x,
-        e.y - GOBLIN_SIZE * 0.25,
-        GOBLIN_SIZE * 0.25,
-        GOBLIN_SIZE * 0.35,
+        e.y - baseSize * 0.25,
+        baseSize * 0.25,
+        baseSize * 0.35,
         0, 0, Math.PI * 2
       );
       ctx.fill();
 
       for (let i = 0; i < 2; i++) {
-        const ox = (Math.random() - 0.5) * GOBLIN_SIZE * 0.2;
-        const oy = -Math.random() * GOBLIN_SIZE * 0.3;
+        const ox = (Math.random() - 0.5) * baseSize * 0.2;
+        const oy = -Math.random() * baseSize * 0.3;
 
         ctx.globalAlpha = 0.15 * Math.random();
         ctx.beginPath();
