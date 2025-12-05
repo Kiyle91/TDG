@@ -890,7 +890,8 @@ function getGoblinSprite(e) {
     const dir = e.attackDir || (e.dir === "left" ? "left" : "right");
     return goblinSprites.attack[dir][e.attackFrame || 0];
   }
-  if (!e.movedThisFrame) return goblinSprites.idle;
+  const betweenAttacks = !e.attacking && (e.attackCooldown > 0);
+  if (betweenAttacks && !e.movedThisFrame) return goblinSprites.idle;
   switch (e.dir) {
     case "up": return goblinSprites.walk.up[e.frame];
     case "down": return goblinSprites.walk.down[e.frame];

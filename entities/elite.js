@@ -488,7 +488,7 @@ export function drawElites(ctx) {
     } else if (e.attacking) {
       const dir = e.dir === "left" ? "left" : "right";
       img = eliteSprites.attack[dir][e.attackFrame];
-    } else if (!e.movedThisFrame) {
+    } else if (!e.movedThisFrame && e.attackCooldown > 0 && !e.attacking) {
       img = eliteSprites.idle;
     } else {
       img = eliteSprites.run[e.dir]?.[e.frame] || eliteSprites.idle;

@@ -495,7 +495,7 @@ export function drawOgres(ctx) {
           ? (o.attackPhase === 0 ? ogreSprites.attack.left : ogreSprites.melee.left)
           : (o.attackPhase === 0 ? ogreSprites.attack.right : ogreSprites.melee.right);
     }
-    else if (!o.movedThisFrame) {
+    else if (!o.movedThisFrame && o.attackCooldown > 0) {
       img = ogreSprites.idle;
     }
     else if (ogreSprites.walk[o.dir]) {

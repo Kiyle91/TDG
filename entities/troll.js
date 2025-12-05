@@ -607,7 +607,7 @@ export function drawTrolls(ctx) {
 function getSprite(t) {
   if (!t.alive) return trollSprites.slain;
   if (t.attacking) return trollSprites.attack[t.attackDir][t.attackFrame];
-  if (!t.movedThisFrame) return trollSprites.idle;
+  if (!t.movedThisFrame && t.attackCooldown > 0 && !t.attacking) return trollSprites.idle;
   if (t.dir && trollSprites.walk[t.dir]) return trollSprites.walk[t.dir][t.frame];
   return trollSprites.idle;
 }

@@ -916,7 +916,8 @@ function getGoblinSprite(e) {
   if (!goblinSprites) return null;
   const idleReady = !e.attacking && ((e.idleTimer || 0) >= IDLE_TRIGGER_DELAY);
   if (!e.alive) return goblinSprites.slain;
-  if (idleReady) return goblinSprites.idle;
+  const betweenAttacks = !e.attacking && e.attackCooldown > 0;
+  if (betweenAttacks && idleReady) return goblinSprites.idle;
   if (e.attacking) {
     const dir = e.attackDir || (e.dir === "left" ? "left" : "right");
     return goblinSprites.attack[dir][e.attackFrame || 0];

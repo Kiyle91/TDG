@@ -549,7 +549,7 @@ export function drawCrossbows(ctx) {
     } else if (c.attacking && crossbowSprites.attack[facing]?.length) {
       const frames = crossbowSprites.attack[facing];
       img = frames[c.attackFrame % frames.length];
-    } else if (!c.movedThisFrame && crossbowSprites.idle[moveDir]) {
+    } else if (!c.movedThisFrame && c.attackTimer > 0 && crossbowSprites.idle[moveDir]) {
       img = crossbowSprites.idle[moveDir];
     } else {
       const walkFrames =

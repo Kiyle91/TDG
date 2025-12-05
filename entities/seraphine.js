@@ -75,6 +75,7 @@ const FRAME_INTERVAL = 220;
 
 // Melee (copied from player timing: 0 → 1 → idle)
 const MELEE_RANGE = 95; // increased so she connects more reliably
+const MELEE_COOLDOWN = 800; // ms between melee swings for idle window
 const MELEE_DAMAGE = 1;
 const MELEE_TOTAL_TIME = 400; // ms
 const MELEE_WINDUP = 180;     // ms (frame 0 → frame 1)
@@ -254,6 +255,7 @@ export function spawnSeraphineBoss(phase = 1, x, y, options = {}) {
     attacking: false,
     meleeFrame: 0,
     meleeTimer: 0,
+    attackCooldown: 0,
 
     castingSpell: false,
     spellFrame: 0,
@@ -419,6 +421,9 @@ export function updateSeraphine(delta = 16) {
       b.spellCooldown -= delta;
       if (b.spellCooldown < 0) b.spellCooldown = 0;
     }
+    if (b.attackCooldown > 0) {
+      b.attackCooldown = Math.max(0, b.attackCooldown - delta);
+    }
 
     // Movement / decision making skipped while animating spell/defeat
     if (b.defeated) continue;
@@ -463,10 +468,11 @@ export function updateSeraphine(delta = 16) {
     }
 
     // Melee attack if close enough
-    if (!b.attacking && dist < MELEE_RANGE) {
-      b.attacking = true;
-      b.meleeFrame = 0;
-      b.meleeTimer = MELEE_TOTAL_TIME;
+  if (!b.attacking && dist < MELEE_RANGE) {
+    b.attacking = true;
+    b.meleeFrame = 0;
+    b.meleeTimer = MELEE_TOTAL_TIME;
+    b.attackCooldown = MELEE_COOLDOWN;
 
       // Switch to strike frame after windup
       setTimeout(() => {
@@ -812,7 +818,7 @@ export function drawSeraphine(ctx) {
     } else if (b.attacking) {
       const dir = b.dir === "left" ? "left" : "right";
       img = sprites.attack[dir][b.meleeFrame];
-    } else if (!b.movedThisFrame) {
+    } else if (!b.movedThisFrame && !b.attacking && b.attackCooldown > 0) {
       img = sprites.idle;
     } else {
       const runSet = sprites.walk[b.dir] || sprites.walk.down;
