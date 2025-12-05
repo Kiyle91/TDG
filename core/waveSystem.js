@@ -421,8 +421,10 @@ if (typeof gameState.victoryPending !== "boolean") {
 
 const SPAWN_INTERVAL = 450;
 const SPAWN_BATCH_SIZE = 4;
+const MAX_ALIVE_ENEMIES = 140;
 let spawnTimer = 0;
 let spawnPlan = null;
+let spawnSeparationGroups = null;
 
 // ============================================================
 // RESET / SNAPSHOT HELPERS
@@ -725,14 +727,8 @@ function spawnNextFromPlan() {
   return false;
 }
 
-function applySpawnSeparation(enemy) {
-  if (!enemy || typeof enemy.x !== "number" || typeof enemy.y !== "number") return;
-
-  // Small random nudge to reduce perfect overlaps before checking
-  enemy.x += (Math.random() - 0.5) * 8;
-  enemy.y += (Math.random() - 0.5) * 8;
-
-  const groups = [
+function getEnemyGroups() {
+  return [
     getGoblins(),
     getIceGoblins(),
     getEmberGoblins(),
@@ -745,6 +741,28 @@ function applySpawnSeparation(enemy) {
     getCrossbows(),
     getSeraphines(),
   ];
+}
+
+function getAliveEnemyCount() {
+  const groups = getEnemyGroups();
+  let alive = 0;
+  for (const group of groups) {
+    if (!Array.isArray(group)) continue;
+    for (const e of group) {
+      if (e && e.alive) alive++;
+    }
+  }
+  return alive;
+}
+
+function applySpawnSeparation(enemy) {
+  if (!enemy || typeof enemy.x !== "number" || typeof enemy.y !== "number") return;
+
+  // Small random nudge to reduce perfect overlaps before checking
+  enemy.x += (Math.random() - 0.5) * 8;
+  enemy.y += (Math.random() - 0.5) * 8;
+
+  const groups = spawnSeparationGroups || getEnemyGroups();
 
   const radius = getSpawnRadiusByType(enemy.type);
   const radiusSq = radius * radius;
@@ -786,19 +804,7 @@ function applySpawnSeparation(enemy) {
 }
 
 function noEnemiesAlive() {
-  const groups = [
-    getGoblins(),
-    getIceGoblins(),
-    getEmberGoblins(),
-    getAshGoblins(),
-    getVoidGoblins(),
-    getWorg(),
-    getOgres(),
-    getElites(),
-    getTrolls(),
-    getCrossbows(),
-    getSeraphines(),
-  ];
+  const groups = getEnemyGroups();
 
   let totalAlive = 0;
   let totalSpawnedSoFar = 0;
@@ -840,10 +846,18 @@ export function updateWaveSystem(delta) {
 
   spawnTimer -= delta;
   if (spawnPlan && spawnTimer <= 0 && hasPendingSpawns()) {
+    if (getAliveEnemyCount() >= MAX_ALIVE_ENEMIES) {
+      // Defer spawns if battlefield is overcrowded
+      spawnTimer = SPAWN_INTERVAL * 0.5;
+      return;
+    }
+
+    spawnSeparationGroups = getEnemyGroups();
     let spawned = 0;
     while (spawned < SPAWN_BATCH_SIZE && spawnNextFromPlan()) {
       spawned++;
     }
+    spawnSeparationGroups = null;
     spawnTimer = SPAWN_INTERVAL;
   }
 

@@ -55,7 +55,7 @@ const MAX_ATTACKS = 50;
 const FIRE_RATE_MS = 800;
 const FADE_SPEED = 2;
 const SPIRE_SIZE = 96;
-const TARGET_UPDATE_INTERVAL = 200; // ms
+const TARGET_UPDATE_INTERVAL = 250; // ms
 const ENEMY_CACHE_INTERVAL = TARGET_UPDATE_INTERVAL; // reuse targeting cadence
 
 // 🌈 Pulse FX (simple internal list, also exposed for debugging)
@@ -351,6 +351,8 @@ export function updateSpires(delta) {
     spire.lastTargetUpdate += delta;
     if (spire.lastTargetUpdate >= TARGET_UPDATE_INTERVAL) {
       spire.lastTargetUpdate = 0;
+      const hasEnemies = combinedEnemiesCache.length > 0;
+      const hasNonVoid = nonVoidEnemiesCache.length > 0;
 
       switch (spire.type) {
 
@@ -359,11 +361,19 @@ export function updateSpires(delta) {
         // ============================================================
 
         case "basic_spire": {
+          if (!hasNonVoid) {
+            spire.cachedTarget = null;
+            break;
+          }
           spire.cachedTarget = findNearestEnemy(spire, nonVoidEnemiesCache, SPIRE_RANGE);
           break;
         }
 
         case "frost_spire": {
+          if (!hasNonVoid) {
+            spire.cachedTarget = null;
+            break;
+          }
           spire.cachedTarget = findNearestEnemyWithPriority(
             spire,
             nonVoidEnemiesCache,
@@ -374,6 +384,10 @@ export function updateSpires(delta) {
         }
 
         case "flame_spire": {
+          if (!hasNonVoid) {
+            spire.cachedTarget = null;
+            break;
+          }
           spire.cachedTarget = findNearestEnemyWithPriority(
             spire,
             nonVoidEnemiesCache,
@@ -384,6 +398,10 @@ export function updateSpires(delta) {
         }
 
         case "arcane_spire": {
+          if (!hasEnemies) {
+            spire.cachedTarget = null;
+            break;
+          }
           spire.cachedTarget = findNearestEnemy(spire, combinedEnemiesCache, SPIRE_RANGE * 1.5);
           break;
         }
@@ -401,6 +419,10 @@ export function updateSpires(delta) {
         }
 
         case "moon_spire": {
+          if (!hasNonVoid) {
+            spire.cachedTarget = null;
+            break;
+          }
           spire.cachedTarget = findNearestEnemy(spire, nonVoidEnemiesCache, SPIRE_RANGE);
           break;
         }
