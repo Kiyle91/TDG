@@ -307,6 +307,14 @@ export function updateCrossbows(delta) {
     // Attack cooldown
     if (c.attackTimer > 0) c.attackTimer -= delta;
 
+    // Push away from player if overlapping (never move the player)
+    if (!player.invincible && dist > 0 && dist < 48) {
+      const overlap = (48 - dist) * 0.6;
+      const inv = 1 / dist;
+      c.x -= dx * inv * overlap;
+      c.y -= dy * inv * overlap;
+    }
+
     // ATTACK LOGIC
     if (
       dist <= ATTACK_RANGE &&

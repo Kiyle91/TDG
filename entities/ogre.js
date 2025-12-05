@@ -267,6 +267,7 @@ export function updateOgres(delta = 16) {
     const dx = px - o.x;
     const dy = py - o.y;
     const distSq = dx * dx + dy * dy;
+    const dist = Math.sqrt(distSq);
 
     // ----------------------------------------------------
     // ⭐ BRAVERY AURA PUSHBACK (works in ALL states)
@@ -274,6 +275,14 @@ export function updateOgres(delta = 16) {
 
     if (p.invincible === true) {
         applyBraveryAuraEffects(o);
+    }
+
+    // Push away from player if overlapping (never move the player)
+    if (!p.invincible && dist > 0 && dist < 68) {
+      const overlap = (68 - dist) * 0.6;
+      const inv = 1 / dist;
+      o.x -= dx * inv * overlap;
+      o.y -= dy * inv * overlap;
     }
 
     

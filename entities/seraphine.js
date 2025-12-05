@@ -440,6 +440,14 @@ export function updateSeraphine(delta = 16) {
       b.dir = dy >= 0 ? "down" : "up";
     }
 
+    // Push away from player if overlapping (never move the player)
+    if (!p.invincible && dist > 0 && dist < 70) {
+      const overlap = (70 - dist) * 0.6;
+      const inv = 1 / dist;
+      b.x -= dx * inv * overlap;
+      b.y -= dy * inv * overlap;
+    }
+
     // ============================================================
     // 🌌 SCREEN EDGE PURPLE FLASH INTENSITY
     // ============================================================

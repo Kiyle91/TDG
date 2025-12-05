@@ -401,8 +401,9 @@ export function updateTrolls(delta = 16) {
       const nx = dxp / distP;
       const ny = dyp / distP;
 
-      player.pos.x += nx * overlap * 0.8;
-      player.pos.y += ny * overlap * 0.8;
+      // Push troll away from player instead of moving the player
+      t.x -= nx * overlap * 0.8;
+      t.y -= ny * overlap * 0.8;
     }
   }
 

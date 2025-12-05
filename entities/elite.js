@@ -275,6 +275,19 @@ export function updateElites(delta = 16) {
       }
     }
 
+    // Push away from player if overlapping (never move the player)
+    if (!player.invincible) {
+      const dxp = p.pos.x - e.x;
+      const dyp = p.pos.y - e.y;
+      const distP = Math.hypot(dxp, dyp);
+      if (distP > 0 && distP < 54) {
+        const overlap = (54 - distP) * 0.6;
+        const inv = 1 / distP;
+        e.x -= dxp * inv * overlap;
+        e.y -= dyp * inv * overlap;
+      }
+    }
+
     // Chase player
     const dx = p.pos.x - e.x;
     const dy = p.pos.y - e.y;

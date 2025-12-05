@@ -574,6 +574,14 @@ export function updateGoblins(delta) {
     sidestepIfStuck(e, delta, dt);
 
     if (e.flashTimer > 0) e.flashTimer -= delta;
+
+    // Push away from player if overlapping (never move the player)
+    if (!player.invincible && distToPlayer > 0 && distToPlayer < 50) {
+      const overlap = (50 - distToPlayer) * 0.6;
+      const inv = 1 / distToPlayer;
+      e.x -= dxp * inv * overlap;
+      e.y -= dyp * inv * overlap;
+    }
   }
 
   // Clean up faded goblins
