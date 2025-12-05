@@ -207,6 +207,7 @@ export function updateProjectiles(delta) {
         }
 
         let dmg = 20; // flame uses fixed 20 base
+        if (t.type === "iceGoblin") dmg *= 2; // bonus vs ice
         if (gameState.echoPowerActive) dmg *= 2;
 
         // 💎 turret upgrade multiplier

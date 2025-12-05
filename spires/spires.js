@@ -263,6 +263,20 @@ function findNearestEnemy(spire, enemies, range) {
   return closest;
 }
 
+// Prefer a priority subset if available, otherwise fall back to the nearest enemy
+function findNearestEnemyWithPriority(spire, enemies, range, priorityFn) {
+  const priorityList = [];
+  for (const e of enemies) {
+    if (priorityFn(e)) priorityList.push(e);
+  }
+
+  const prioritized = priorityList.length
+    ? findNearestEnemy(spire, priorityList, range)
+    : null;
+
+  return prioritized || findNearestEnemy(spire, enemies, range);
+}
+
 // ------------------------------------------------------------
 // 🌈 SPIRE PULSE FX — spawn + update
 // ------------------------------------------------------------
@@ -357,7 +371,12 @@ export function updateSpires(delta) {
 
         case "flame_spire": {
           const filtered = combinedEnemiesCache.filter(e => !e.insideVoidAura);
-          spire.cachedTarget = findNearestEnemy(spire, filtered, SPIRE_RANGE * 0.9);
+          spire.cachedTarget = findNearestEnemyWithPriority(
+            spire,
+            filtered,
+            SPIRE_RANGE * 0.9,
+            (e) => e.type === "iceGoblin"
+          );
           break;
         }
 
