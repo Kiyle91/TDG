@@ -414,7 +414,7 @@ export function updateGoblins(delta) {
           getAshGoblins(),
           getIceGoblins(),
           getEmberGoblins()
-        ], 132);
+        ], 96);
 
         e.frameTimer += delta;
         if (e.frameTimer >= WALK_FRAME_INTERVAL) {

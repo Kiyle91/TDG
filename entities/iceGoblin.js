@@ -426,7 +426,7 @@ export function updateGoblins(delta) {
           getAshGoblins(),
           getEmberGoblins(),
           getVoidGoblins()
-        ], 132); // wider spacing for visual separation
+        ], 96); // moderate spacing for visual separation
 
         e.frameTimer += delta;
         if (e.frameTimer >= WALK_FRAME_INTERVAL) {
