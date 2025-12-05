@@ -43,6 +43,8 @@ const FIRE_TICK_DAMAGE  = 4;         // 4 HP per second
 const FIRE_TICK_RATE    = 500;       // damage every 500ms
 const ASH_HEAL_PER_SEC  = 4;         // heal allies 4 HP per sec
 
+const FX_THROTTLE_MS = 500;          // min gap between aura FX texts
+
 
 // ============================================================
 // 🧩 GET ALL ENEMIES (one unified list)
@@ -99,6 +101,11 @@ export function applyGoblinAuras(delta, context = {}) {
       if (dist < GOBLIN_AURA_RADIUS.iceGoblin) {
         player.slowAuraTimer = 120;            // ms duration resets each frame
         player.slowAuraFactor = PLAYER_SLOW_AMOUNT;
+        const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+        if (!player._lastIceFx || now - player._lastIceFx > FX_THROTTLE_MS) {
+          spawnFloatingText(player.pos.x, player.pos.y - 50, "❄️", "#cfe9ff", 18);
+          player._lastIceFx = now;
+        }
       }
     }
   } else {
@@ -136,6 +143,11 @@ export function applyGoblinAuras(delta, context = {}) {
           "#ff3f1e",
           22
         );
+        const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+        if (!player._lastBurnFx || now - player._lastBurnFx > FX_THROTTLE_MS) {
+          spawnFloatingText(player.pos.x, player.pos.y - 60, "🔥", "#ffa34f", 18);
+          player._lastBurnFx = now;
+        }
 
         updateHUD();
       }
