@@ -698,9 +698,10 @@ export function drawGoblins(context) {
     // ------- BASE DRAW COORDS (80px base, +10% on attacks) -------
     const baseSize = GOBLIN_SIZE;
     const renderSize = baseSize * (e.attacking ? 1.1 : 1);
-    const halfRender = renderSize / 2;
-    const drawX = e.x - halfRender;
-    const drawY = e.y - halfRender;
+    // Keep feet planted when scaling up attack frames
+    const baseBottom = e.y + baseSize / 2;
+    const drawX = e.x - renderSize / 2;
+    const drawY = baseBottom - renderSize;
 
     // ------- AURA RING -------
     drawRing(ctx, e, "rgba(180,240,255,0.8)");
