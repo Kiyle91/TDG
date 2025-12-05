@@ -410,7 +410,7 @@ export function updateTrolls(delta = 16) {
   // ----------------------------------------------------
   // 🧌 Troll ↔ Troll collision
   // ----------------------------------------------------
-  const MIN_DIST = 72;
+  const MIN_DIST = 96;
 
   for (let i = 0; i < trolls.length; i++) {
     const a = trolls[i];

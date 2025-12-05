@@ -575,7 +575,7 @@ export function updateSeraphine(delta = 16) {
         const ddx = b.x - gx;
         const ddy = b.y - gy;
         const d2 = Math.hypot(ddx, ddy);
-        const minDist = 72;
+        const minDist = 96;
 
         if (d2 > 0 && d2 < minDist) {
           const push = (minDist - d2) / 2;
@@ -599,7 +599,7 @@ export function updateSeraphine(delta = 16) {
         const dy2 = b.y - py;
         const d2 = Math.hypot(dx2, dy2);
 
-        const minDist = 72;
+        const minDist = 96;
 
         if (d2 > 0 && d2 < minDist) {
           const push = (minDist - d2) / 2;

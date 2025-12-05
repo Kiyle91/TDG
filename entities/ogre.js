@@ -399,7 +399,7 @@ export function updateOgres(delta = 16) {
       const dx2 = o.x - other.x;
       const dy2 = o.y - other.y;
       const dist = Math.hypot(dx2, dy2);
-      const minDist = 140;
+      const minDist = 170;
 
       if (dist > 0 && dist < minDist) {
         const push = (minDist - dist) / 2;

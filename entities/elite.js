@@ -376,7 +376,7 @@ export function updateElites(delta = 16) {
         const dy2 = e.y - g.y;
         const d2 = Math.hypot(dx2, dy2);
 
-        const minDist = 72;
+        const minDist = 96;
         if (d2 > 0 && d2 < minDist) {
           const push = (minDist - d2) / 2;
           const nx = dx2 / d2;
@@ -398,7 +398,7 @@ export function updateElites(delta = 16) {
         const dy2 = e.y - o.y;
         const d2 = Math.hypot(dx2, dy2);
 
-        const minDist = 72;
+        const minDist = 96;
         if (d2 > 0 && d2 < minDist) {
           const push = (minDist - d2) / 2;
           const nx = dx2 / d2;
