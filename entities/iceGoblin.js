@@ -73,6 +73,7 @@ const BASE_SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;
 const DEFAULT_HP = 140;
+const IDLE_TRIGGER_DELAY =10;
 const HITBOX_OFFSET_Y = 15;
 const ATTACK_RANGE = 80;
 const AGGRO_RANGE = 150;
@@ -505,13 +506,25 @@ export function updateGoblins(delta) {
 
     const movedDist = Math.hypot(e.x - startX, e.y - startY);
     e.movedThisFrame = movedDist > 0.25;
-    if (!e.movedThisFrame && !e.attacking) {
-      e.frameTimer = 0;
-      e.frame = 0;
-    } else if (e.holdingAtRange) {
-      e.movedThisFrame = false;
-      e.frameTimer = 0;
-      e.frame = 0;
+
+    // Delay idling so we don't snap immediately when stopping
+    if (e.movedThisFrame || e.attacking) {
+      e.idleTimer = 0;
+    } else {
+      e.idleTimer = (e.idleTimer || 0) + delta;
+    }
+
+    if (!e.attacking) {
+      if (e.holdingAtRange) {
+        e.movedThisFrame = false;
+        e.frameTimer = 0;
+        e.frame = 0;
+        e.idleTimer = 0;
+      } else if ((e.idleTimer || 0) >= IDLE_TRIGGER_DELAY) {
+        e.movedThisFrame = false;
+        e.frameTimer = 0;
+        e.frame = 0;
+      }
     }
 
     // If stuck while chasing or returning, try a quick sidestep (same logic used by chasers)
@@ -695,10 +708,14 @@ export function drawGoblins(context) {
     const img = getGoblinSprite(e);
     if (!img) continue;
 
-    // ------- BASE DRAW COORDS (80px base, +10% on attacks) -------
+    // ------- BASE DRAW COORDS (80px base, eased scaling) -------
     const baseSize = GOBLIN_SIZE;
-    const renderSize = baseSize * (e.attacking ? 1.1 : 1);
-    // Keep feet planted when scaling up attack frames
+    const targetScale = e.attacking ? 1.1 : (e.movedThisFrame ? 1.03 : 1);
+    e.renderScale = e.renderScale ?? 1;
+    e.renderScale += (targetScale - e.renderScale) * 0.35; // ease to avoid snap between idle/move/attack
+
+    const renderSize = baseSize * e.renderScale;
+    // Keep feet planted when scaling up frames
     const baseBottom = e.y + baseSize / 2;
     const drawX = e.x - renderSize / 2;
     const drawY = baseBottom - renderSize;
@@ -885,12 +902,13 @@ function drawHealthBar(ctx, x, y, hp, maxHp) {
 
 function getGoblinSprite(e) {
   if (!goblinSprites) return null;
+  const idleReady = !e.attacking && ((e.idleTimer || 0) >= IDLE_TRIGGER_DELAY);
   if (!e.alive) return goblinSprites.slain;
+  if (idleReady) return goblinSprites.idle;
   if (e.attacking) {
     const dir = e.attackDir || (e.dir === "left" ? "left" : "right");
     return goblinSprites.attack[dir][e.attackFrame || 0];
   }
-  if (!e.movedThisFrame) return goblinSprites.idle;
   switch (e.dir) {
     case "up": return goblinSprites.walk.up[e.frame];
     case "down": return goblinSprites.walk.down[e.frame];
