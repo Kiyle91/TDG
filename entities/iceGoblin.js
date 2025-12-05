@@ -695,19 +695,25 @@ export function drawGoblins(context) {
     const img = getGoblinSprite(e);
     if (!img) continue;
 
-    const drawX = e.x - GOBLIN_SIZE / 2;
-    const drawY = e.y - GOBLIN_SIZE / 2;
+    // ------- BASE DRAW COORDS (80px base, +10% on attacks) -------
+    const baseSize = GOBLIN_SIZE;
+    const renderSize = baseSize * (e.attacking ? 1.1 : 1);
+    const halfRender = renderSize / 2;
+    const drawX = e.x - halfRender;
+    const drawY = e.y - halfRender;
 
+    // ------- AURA RING -------
     drawRing(ctx, e, "rgba(180,240,255,0.8)");
 
     ctx.save();
 
+    // ------- SHADOW -------
     ctx.beginPath();
     ctx.ellipse(
       e.x,
-      e.y + GOBLIN_SIZE / 2.3,
-      GOBLIN_SIZE * 0.35,
-      GOBLIN_SIZE * 0.15,
+      e.y + baseSize / 2.3,
+      baseSize * 0.35,
+      baseSize * 0.15,
       0, 0, Math.PI * 2
     );
     ctx.fillStyle = "rgba(0,0,0,0.25)";
@@ -716,6 +722,7 @@ export function drawGoblins(context) {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
+    // ------- HIT FLASH -------
     if (e.alive && e.flashTimer > 0) {
       const flashAlpha = e.flashTimer / 150;
       ctx.filter = `contrast(1.2) brightness(${1 + flashAlpha * 0.5}) saturate(${1 + flashAlpha * 1.5})`;
@@ -723,31 +730,22 @@ export function drawGoblins(context) {
       ctx.filter = "none";
     }
 
+    // ------- DEATH FADE -------
     if (!e.alive && e.fading) {
       ctx.globalAlpha = Math.max(0, 1 - e.fadeTimer / FADE_OUT_TIME);
     }
 
-    // ⭐ Scale walk frames by 20%
-    let size = GOBLIN_SIZE;
-    if (e.alive && !e.attacking) {
-      const isWalkFrame =
-        (e.dir === "left"  && (e.frame === 0 || e.frame === 1)) ||
-        (e.dir === "right" && (e.frame === 0 || e.frame === 1));
-
-      if (isWalkFrame) {
-        size = GOBLIN_SIZE * 1.1;  // +20% size
-      }
-    }
-
+    // ------- SPRITE DRAW (512→80px) -------
     ctx.drawImage(
       img,
-      0, 0, 1024, 1024,
-      e.x - size / 2,
-      e.y - size / 2,
-      size,
-      size
+      0, 0, img.width, img.height,
+      drawX,
+      drawY,
+      renderSize,
+      renderSize
     );
 
+    // ------- BURNING VFX -------
     if (e.isBurning && e.alive) {
       ctx.save();
 
@@ -757,7 +755,7 @@ export function drawGoblins(context) {
       ctx.globalAlpha = 0.25 * flicker;
       ctx.fillStyle = "rgba(255,150,80,0.5)";
       ctx.beginPath();
-      ctx.ellipse(e.x, e.y, GOBLIN_SIZE * 0.35, GOBLIN_SIZE * 0.45, 0, 0, Math.PI * 2);
+      ctx.ellipse(e.x, e.y, baseSize * 0.35, baseSize * 0.45, 0, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.globalCompositeOperation = "lighter";
@@ -766,9 +764,9 @@ export function drawGoblins(context) {
       ctx.beginPath();
       ctx.ellipse(
         e.x,
-        e.y - GOBLIN_SIZE * 0.1,
-        GOBLIN_SIZE * 0.55,
-        GOBLIN_SIZE * 0.7,
+        e.y - baseSize * 0.1,
+        baseSize * 0.55,
+        baseSize * 0.7,
         0,
         0,
         Math.PI * 2
@@ -780,9 +778,9 @@ export function drawGoblins(context) {
       ctx.beginPath();
       ctx.ellipse(
         e.x,
-        e.y - GOBLIN_SIZE * 0.25,
-        GOBLIN_SIZE * 0.25,
-        GOBLIN_SIZE * 0.35,
+        e.y - baseSize * 0.25,
+        baseSize * 0.25,
+        baseSize * 0.35,
         0,
         0,
         Math.PI * 2
@@ -790,8 +788,8 @@ export function drawGoblins(context) {
       ctx.fill();
 
       for (let i = 0; i < 2; i++) {
-        const ox = (Math.random() - 0.5) * GOBLIN_SIZE * 0.2;
-        const oy = -Math.random() * GOBLIN_SIZE * 0.3;
+        const ox = (Math.random() - 0.5) * baseSize * 0.2;
+        const oy = -Math.random() * baseSize * 0.3;
 
         ctx.globalAlpha = 0.15 * Math.random();
         ctx.beginPath();
@@ -802,6 +800,7 @@ export function drawGoblins(context) {
       ctx.restore();
     }
 
+    // ------- FROST SLOW VFX -------
     if (e.slowTimer > 0 && e.alive) {
       ctx.save();
 
@@ -811,7 +810,7 @@ export function drawGoblins(context) {
       ctx.globalAlpha = 0.25 * frostPulse;
       ctx.fillStyle = "rgba(160,200,255,0.5)";
       ctx.beginPath();
-      ctx.ellipse(e.x, e.y, GOBLIN_SIZE * 0.38, GOBLIN_SIZE * 0.48, 0, 0, Math.PI * 2);
+      ctx.ellipse(e.x, e.y, baseSize * 0.38, baseSize * 0.48, 0, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.globalCompositeOperation = "lighter";
@@ -820,9 +819,9 @@ export function drawGoblins(context) {
       ctx.beginPath();
       ctx.ellipse(
         e.x,
-        e.y - GOBLIN_SIZE * 0.1,
-        GOBLIN_SIZE * 0.6,
-        GOBLIN_SIZE * 0.75,
+        e.y - baseSize * 0.1,
+        baseSize * 0.6,
+        baseSize * 0.75,
         0,
         0,
         Math.PI * 2
@@ -830,8 +829,8 @@ export function drawGoblins(context) {
       ctx.fill();
 
       for (let i = 0; i < 2; i++) {
-        const ox = (Math.random() - 0.5) * GOBLIN_SIZE * 0.3;
-        const oy = -Math.random() * GOBLIN_SIZE * 0.3;
+        const ox = (Math.random() - 0.5) * baseSize * 0.3;
+        const oy = -Math.random() * baseSize * 0.3;
 
         ctx.globalAlpha = 0.12 * Math.random();
         ctx.fillStyle = "rgba(210,240,255,0.8)";
@@ -846,11 +845,13 @@ export function drawGoblins(context) {
     ctx.filter = "none";
     ctx.globalAlpha = 1;
 
+    // ------- HEALTH BAR -------
     if (e.alive) drawHealthBar(ctx, e.x, e.y, e.hp, e.maxHp);
 
     ctx.restore();
   }
 }
+
 
 
 // ============================================================
