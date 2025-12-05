@@ -202,6 +202,11 @@ export function applyGoblinAuras(delta, context = {}) {
       const dist = Math.hypot(e.x - g.x, e.y - g.y);
       if (dist < GOBLIN_AURA_RADIUS.voidGoblin) {
         e.insideVoidAura = true;
+        const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+        if (!e._lastVoidFx || now - e._lastVoidFx > FX_THROTTLE_MS) {
+          spawnFloatingText(e.x, e.y - 26, "🌀", "#b3c7ff", 16);
+          e._lastVoidFx = now;
+        }
       }
     }
   }
