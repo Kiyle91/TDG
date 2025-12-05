@@ -62,7 +62,7 @@ let crowdCollisionTimer = 0;
 let goblinsSpawned = 0;
 let storyTriggered = false;
 
-const GOBLIN_SIZE = 70;
+const GOBLIN_SIZE = 80;
 const BASE_SPEED = 80;
 const WALK_FRAME_INTERVAL = 220;
 const FADE_OUT_TIME = 900;
@@ -710,15 +710,21 @@ export function drawGoblins(context) {
     const img = getGoblinSprite(e);
     if (!img) continue;
 
-    const spriteRatio = img && img.width ? (img.height / img.width) : 1;
-    const downScale = 0.85; // walk down S1/S2 should be 15% smaller
-    const baseScale = (!e.attacking && e.dir === "down") ? downScale : 1;
-    const renderWidth = GOBLIN_SIZE * (e.attacking ? 1.1 : baseScale); // attack/melee frames are 10% larger
-    const renderHeight = renderWidth * spriteRatio;
-    const downOffset = (!e.attacking && e.dir === "down") ? GOBLIN_SIZE * 0.08 : 0;
-    let drawX = e.x - renderWidth / 2;
-    let drawY = e.y + GOBLIN_SIZE / 2 - renderHeight + downOffset; // nudge S frames down to sit on shadow
+    const SPRITE_NATIVE = 512;
 
+    // Base scale — how big the goblin appears in world space
+    let scale = GOBLIN_SIZE / SPRITE_NATIVE;
+
+    // Attack frames slightly bigger for emphasis
+    if (e.attacking) scale *= 1.10;
+
+    const renderWidth  = SPRITE_NATIVE * scale;
+    const renderHeight = SPRITE_NATIVE * scale;
+
+    // Center horizontally, align feet to ground
+    let drawX = e.x - renderWidth / 2;
+    let drawY = e.y - renderHeight / 2;
+    
     drawRing(ctx, e, "rgba(255,120,60,0.85)");
 
     ctx.save();
