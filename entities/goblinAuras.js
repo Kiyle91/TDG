@@ -161,7 +161,17 @@ export function applyGoblinAuras(delta, context = {}) {
 
       const dist = Math.hypot(e.x - g.x, e.y - g.y);
       if (dist < GOBLIN_AURA_RADIUS.ashGoblin) {
-        e.hp = Math.min(e.maxHp, e.hp + ASH_HEAL_PER_SEC * dt);
+        const healAmount = ASH_HEAL_PER_SEC * dt;
+        const before = e.hp;
+        if (before < e.maxHp) {
+          e.hp = Math.min(e.maxHp, before + healAmount);
+          // Show lightweight heal text, throttled per target to avoid spam
+          const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+          if (!e._lastAshHealFx || now - e._lastAshHealFx > 250) {
+            spawnFloatingText(e.x, e.y - 28, "+HP", "#9cff9c", 14);
+            e._lastAshHealFx = now;
+          }
+        }
       }
     }
   }
