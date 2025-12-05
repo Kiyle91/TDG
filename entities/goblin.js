@@ -407,7 +407,7 @@ export function updateGoblins(delta) {
         e.attacking = false;
 
         if (doSeparation && crowdGrid) {
-          const minDist = 72;
+          const minDist = 88;
           const minDistSq = minDist * minDist;
           const nearby = getNearbyFromGrid(crowdGrid, e.x, e.y);
 

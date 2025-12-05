@@ -601,7 +601,7 @@ function getSpawnRadiusByType(type) {
     case "ashGoblin":
     case "voidGoblin":
     default:
-      return 40;
+      return 48;
   }
 }
 

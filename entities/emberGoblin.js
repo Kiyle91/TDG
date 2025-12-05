@@ -437,7 +437,7 @@ export function updateGoblins(delta) {
 
         // --- Crowd collision (priority gap) using grid neighbours only
         if (doSeparation && separationGrid) {
-          const minDist = 108;
+          const minDist = 124;
           const minDistSq = minDist * minDist;
           const nearby = getNearbyFromGrid(separationGrid, e.x, e.y);
 
