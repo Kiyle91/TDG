@@ -495,7 +495,7 @@ export function updateSpires(delta) {
     }
 
     // 🌈 Extra pulse ONLY while Crystal Echo Power is active
-    if (gameState.echoPowerActive) {
+    if ((gameState.echoDamageMultiplier || 1) > 1) {
       spawnSpirePulse(spire);
     }
 
@@ -641,7 +641,7 @@ export function drawSpires(ctx) {
     ctx.fill();
 
     // Crystal Echo Aura
-    if (gameState.echoPowerActive) {
+    if ((gameState.echoDamageMultiplier || 1) > 1) {
       const auraRadius = size * 0.55;
       const gradient = ctx.createRadialGradient(
         spire.x, spire.y, 0,

@@ -141,6 +141,9 @@ export const gameState = {
   player: null,
   profile: null,
   paused: false,
+  echoPowerActive: false,
+  echoDamageTier: 0,
+  echoDamageMultiplier: 1,
 
   profiles: [],
   activeProfileIndex: 0,
@@ -214,6 +217,8 @@ export function setProfile(profile) {
   }
 
   gameState.echoPowerActive = false;
+  gameState.echoDamageTier = 0;
+  gameState.echoDamageMultiplier = 1;
 
   saveProfiles();
 
@@ -633,6 +638,8 @@ export function getDifficultyEconomyMultiplier() {
 
 export function resetEchoBuff() {
   gameState.echoPowerActive = false;
+  gameState.echoDamageTier = 0;
+  gameState.echoDamageMultiplier = 1;
 
   const icon = document.getElementById("hud-crystals-circle");
   if (icon) icon.classList.remove("echo-power-flash");

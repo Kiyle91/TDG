@@ -571,6 +571,8 @@ export async function initGame(mode = "new") {
   gameState.paused = false;
   gameState.isPaused = false;
   gameState.echoPowerActive = false;
+  gameState.echoDamageTier = 0;
+  gameState.echoDamageMultiplier = 1;
   clearSpeechBubbles();
 
   // Exploration reset ONLY for "new"
@@ -1129,9 +1131,13 @@ export function resetCombatState() {
   updateBraveryBar?.();
 
   gameState.echoPowerActive = false;
+  gameState.echoDamageTier = 0;
+  gameState.echoDamageMultiplier = 1;
 
   const icon = document.getElementById("hud-crystals-circle");
   if (icon) icon.classList.remove("echo-power-flash");
+  const goldEl = document.getElementById("gold-display");
+  if (goldEl) goldEl.classList.remove("gold-glow");
 
   clearOgres();
   clearLoot();

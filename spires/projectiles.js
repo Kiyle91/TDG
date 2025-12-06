@@ -58,6 +58,11 @@ const PROJECTILE_DAMAGE = {
 
 let projectiles = [];
 
+function getEchoDamageMultiplier() {
+  const mult = Number(gameState.echoDamageMultiplier) || 1;
+  return mult > 0 ? mult : 1;
+}
+
 
 // ------------------------------------------------------------
 // 🌱 INITIALIZATION
@@ -157,6 +162,7 @@ export function updateProjectiles(delta) {
 
     // 🎯 IMPACT
     if (dist < 8) {
+      const echoMult = getEchoDamageMultiplier();
 
       // --------------------------------------------------------
       // 💛 HEAL PROJECTILE
@@ -184,7 +190,7 @@ export function updateProjectiles(delta) {
 
         let dmg = PROJECTILE_DAMAGE.frost;
         if (t.type === "emberGoblin") dmg *= 2; // bonus vs ember
-        if (gameState.echoPowerActive) dmg *= 2;
+        dmg *= echoMult;
 
         // 💎 turret upgrade multiplier
         if (p.sourceSpireId != null) {
@@ -209,7 +215,7 @@ export function updateProjectiles(delta) {
 
         let dmg = 20; // flame uses fixed 20 base
         if (t.type === "iceGoblin") dmg *= 2; // bonus vs ice
-        if (gameState.echoPowerActive) dmg *= 2;
+        dmg *= echoMult;
 
         // 💎 turret upgrade multiplier
         if (p.sourceSpireId != null) {
@@ -227,7 +233,7 @@ export function updateProjectiles(delta) {
         spawnFloatingText(t.x, t.y - 60, "🌙", "#ccbbff");
 
         let dmg = PROJECTILE_DAMAGE.moon;
-        if (gameState.echoPowerActive) dmg *= 2;
+        dmg *= echoMult;
 
         // 💎 turret upgrade multiplier
         if (p.sourceSpireId != null) {
@@ -242,7 +248,7 @@ export function updateProjectiles(delta) {
       // --------------------------------------------------------
       else {
         let dmg = PROJECTILE_DAMAGE[p.type] ?? 10;
-        if (gameState.echoPowerActive) dmg *= 2;
+        dmg *= echoMult;
 
         // 💎 turret upgrade multiplier
         if (p.sourceSpireId != null) {

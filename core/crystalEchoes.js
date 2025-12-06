@@ -71,6 +71,8 @@ const COLOR_TO_INDEX = {
   yellow: 4,
 };
 
+const ECHO_DAMAGE_MAX_TIER = 4;
+
 
 // ------------------------------------------------------------
 // 🗺️ MODULE-LEVEL VARIABLES
@@ -134,6 +136,10 @@ function drawStar(ctx, x, y, size, color) {
 export function initCrystalEchoes(mapData) {
   echoes = [];
   sparkleBursts = [];
+
+  gameState.echoDamageTier = 0;
+  gameState.echoDamageMultiplier = 1;
+  gameState.echoPowerActive = false;
 
   if (mapData && Array.isArray(mapData.crystalEchoes)) {
     echoes = structuredClone(mapData.crystalEchoes);
@@ -272,12 +278,15 @@ function collectCrystalEcho(crystal, index) {
     gameState.exploration.found === totalEchoes &&
     !gameState.exploration.bonusGiven
   ) {
+    updateEchoDamageProgress(crystal);
     awardCrystalBonus(crystal);
 
     Events.emit(E.echoComplete, {
       found: gameState.exploration.found,
       total: totalEchoes
     });
+  } else {
+    updateEchoDamageProgress(crystal);
   }
   
 }
@@ -379,6 +388,8 @@ function awardCrystalBonus(lastCrystal) {
 
   // Enable tower double-damage mode
   gameState.echoPowerActive = true;
+  gameState.echoDamageTier = ECHO_DAMAGE_MAX_TIER;
+  gameState.echoDamageMultiplier = 2;
 
   const goldEl = document.getElementById("gold-display");
   if (goldEl) goldEl.classList.add("gold-glow");
@@ -391,9 +402,43 @@ function awardCrystalBonus(lastCrystal) {
   spawnFloatingText(
     lastCrystal.x,
     lastCrystal.y - 40,
-    "Spires Powered Up!",
-    "#FFFFFF"
+    "Echoes Complete! Spire damage x2 + bonus gold!",
+    "#e9d0ff"
   );
+}
+
+function updateEchoDamageProgress(lastCrystal) {
+  const total = gameState.exploration.total || 0;
+  if (total <= 0) {
+    gameState.echoDamageTier = 0;
+    gameState.echoDamageMultiplier = 1;
+    return;
+  }
+
+  const found = Math.min(gameState.exploration.found || 0, total);
+  const prevTier = gameState.echoDamageTier || 0;
+
+  let tier = Math.floor((found / total) * ECHO_DAMAGE_MAX_TIER);
+
+  if (found >= total) {
+    tier = ECHO_DAMAGE_MAX_TIER;
+  }
+
+  const multiplier = 1 + (tier / ECHO_DAMAGE_MAX_TIER);
+
+  gameState.echoDamageTier = tier;
+  gameState.echoDamageMultiplier = multiplier;
+
+  if (tier > prevTier && tier < ECHO_DAMAGE_MAX_TIER && lastCrystal) {
+    const bonusPct = tier * 25;
+    spawnFloatingText(
+      lastCrystal.x,
+      lastCrystal.y - 40,
+      `Echo attuned: +${bonusPct}% spire damage`,
+      "#e9d0ff",
+      18
+    );
+  }
 }
 
 // ============================================================
