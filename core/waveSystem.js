@@ -129,7 +129,7 @@ export const waveConfigs = {
   // MAP 3 - Pattern Mixing + Elite Ambushes
   // ============================================================
   3: [
-    { goblins: 40,  iceGoblins: 10, emberGoblins: 10, ashGoblins: 10, voidGoblins: 10},
+    { voidGoblins: 10},
     { goblins: 24, worgs: 2, elites: 0, trolls: 0, ogres: 0 },
     { goblins: 26, worgs: 3, elites: 1, trolls: 0, ogres: 0 },
     { goblins: 30, worgs: 3, elites: 1, trolls: 0, ogres: 0 },

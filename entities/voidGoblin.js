@@ -740,25 +740,16 @@ export function drawGoblins(context) {
   if (!goblinSprites) return;
   ctx = context;
 
-  const camX = (typeof window !== "undefined" && typeof window.cameraX === "number") ? window.cameraX : 0;
-  const camY = (typeof window !== "undefined" && typeof window.cameraY === "number") ? window.cameraY : 0;
-  const viewW = (typeof window !== "undefined" && typeof window.innerWidth === "number") ? window.innerWidth : 1920;
-  const viewH = (typeof window !== "undefined" && typeof window.innerHeight === "number") ? window.innerHeight : 1080;
-  const offscreenPad = 120;
-
   for (const e of goblins) {
     const doFx = (fxToggle++ & 1) === 0;
 
     const img = getGoblinSprite(e);
     if (!img) continue;
 
-    const onScreen =
-      e.x >= camX - offscreenPad && e.x <= camX + viewW + offscreenPad &&
-      e.y >= camY - offscreenPad && e.y <= camY + viewH + offscreenPad;
-    if (!onScreen) continue;
-
-    const drawX = e.x - GOBLIN_SIZE / 2;
-    const drawY = e.y - GOBLIN_SIZE / 2;
+    const baseSize = GOBLIN_SIZE;
+    const renderSize = baseSize;
+    const drawX = e.x - renderSize / 2;
+    const drawY = e.y - renderSize / 2;
 
     if (doFx) drawRing(ctx, e, "rgba(180,130,255,0.9)");
 
@@ -767,16 +758,16 @@ export function drawGoblins(context) {
     ctx.beginPath();
     ctx.ellipse(
       e.x,
-      e.y + GOBLIN_SIZE / 2.3,
-      GOBLIN_SIZE * 0.35,
-      GOBLIN_SIZE * 0.15,
+      e.y + baseSize / 2.3,
+      baseSize * 0.35,
+      baseSize * 0.15,
       0, 0, Math.PI * 2
     );
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
 
-    ctx.imageSmoothingEnabled = false;
-    ctx.imageSmoothingQuality = "low";
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
 
 
     if (e.alive && e.flashTimer > 0) {
@@ -793,11 +784,11 @@ export function drawGoblins(context) {
     ctx.drawImage(
       img,
       0, 0,
-      1024, 1024,
+      img.width, img.height,
       drawX,
       drawY,
-      GOBLIN_SIZE,
-      GOBLIN_SIZE
+      renderSize,
+      renderSize
     );
 
     // 🔥 Burning FX
