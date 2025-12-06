@@ -419,11 +419,11 @@ export function updateGoblins(delta) {
 
         e.attacking = false;
 
-        // Crowd collision pushback (throttled + neighbor-only)
-        if (doSeparation && separationGrid) {
-          const minDist = 110;
+        // Crowd collision pushback (throttled + neighbor-only); keep very light and only when not on top of the player
+        if (doSeparation && separationGrid && !e.holdingAtRange && !e.attacking && distToPlayer > attackRange * 1.8) {
+          const minDist = 60;
           const minDistSq = minDist * minDist;
-          const maxPush = 8;
+          const maxPush = 2;
           const nearby = getNearbyFromGrid(separationGrid, e.x, e.y);
 
           for (const o of nearby) {
@@ -435,13 +435,12 @@ export function updateGoblins(delta) {
             if (distSq === 0 || distSq >= minDistSq) continue;
 
             const dist = Math.sqrt(distSq);
-            const push = Math.min(maxPush, (minDist - dist) * 0.35);
+            const push = Math.min(maxPush, (minDist - dist) * 0.12);
             const inv = 1 / dist;
 
+            // Only move this goblin to reduce back-and-forth jitter
             e.x += dx * inv * push;
             e.y += dy * inv * push;
-            o.x -= dx * inv * push;
-            o.y -= dy * inv * push;
           }
         }
 
@@ -551,8 +550,10 @@ export function updateGoblins(delta) {
       e.frame = 0;
     }
 
-    // If stuck while chasing or returning, try a quick sidestep (same logic used by chasers)
-    sidestepIfStuck(e, delta, dt);
+    // If stuck while chasing or returning, try a quick sidestep (but avoid jitter near player)
+    if (distToPlayer > ATTACK_RANGE * 1.6) {
+      sidestepIfStuck(e, delta, dt);
+    }
 
     if (e.flashTimer > 0) e.flashTimer -= delta;
 

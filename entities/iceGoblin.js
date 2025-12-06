@@ -308,6 +308,8 @@ function getNearbyFromGrid(grid, x, y) {
 }
 
 function applyCrowdSeparation(e, groups, minDist) {
+  if (e.holdingAtRange || e.attacking) return;
+
   for (const group of groups) {
     if (!group) continue;
     for (const o of group) {
@@ -318,14 +320,12 @@ function applyCrowdSeparation(e, groups, minDist) {
       const dist = Math.hypot(dx, dy);
 
       if (dist > 0 && dist < minDist) {
-        const push = (minDist - dist) / 2;
+        const push = (minDist - dist) * 0.12;
         const nx = dx / dist;
         const ny = dy / dist;
 
         e.x += nx * push;
         e.y += ny * push;
-        o.x -= nx * push;
-        o.y -= ny * push;
       }
     }
   }
@@ -421,12 +421,14 @@ export function updateGoblins(delta) {
 
         e.attacking = false;
 
-        applyCrowdSeparation(e, [
-          goblins,
-          getAshGoblins(),
-          getEmberGoblins(),
-          getVoidGoblins()
-        ], 96); // moderate spacing for visual separation
+        if (distToPlayer > 110) {
+          applyCrowdSeparation(e, [
+            goblins,
+            getAshGoblins(),
+            getEmberGoblins(),
+            getVoidGoblins()
+          ], 70); // reduced spacing to avoid bounce
+        }
 
         e.frameTimer += delta;
         if (e.frameTimer >= WALK_FRAME_INTERVAL) {

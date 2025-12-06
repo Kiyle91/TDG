@@ -406,10 +406,11 @@ export function updateGoblins(delta) {
 
         e.attacking = false;
 
-        if (doSeparation && crowdGrid) {
-          const minDist = 80;
+        // Skip separation when hugging the player to avoid jitter
+        if (doSeparation && crowdGrid && !e.holdingAtRange && !e.attacking && distToPlayer > ATTACK_RANGE * 1.8) {
+          const minDist = 60;
           const minDistSq = minDist * minDist;
-          const maxPush = 6;
+          const maxPush = 2;
           const nearby = getNearbyFromGrid(crowdGrid, e.x, e.y);
 
           for (const o of nearby) {
@@ -421,15 +422,13 @@ export function updateGoblins(delta) {
             if (distSq === 0 || distSq >= minDistSq) continue;
 
             const dist = Math.sqrt(distSq);
-            const push = Math.min(maxPush, (minDist - dist) * 0.35);
+            const push = Math.min(maxPush, (minDist - dist) * 0.12);
             const inv = 1 / dist;
             const nx = dx * inv;
             const ny = dy * inv;
 
             e.x += nx * push;
             e.y += ny * push;
-            o.x -= nx * push;
-            o.y -= ny * push;
           }
         }
 

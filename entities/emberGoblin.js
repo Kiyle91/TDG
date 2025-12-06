@@ -298,6 +298,8 @@ function getNearbyFromGrid(grid, x, y) {
 }
 
 function applyCrowdSeparation(e, groups, minDist) {
+  if (e.holdingAtRange || e.attacking) return;
+
   for (const group of groups) {
     if (!group) continue;
     for (const o of group) {
@@ -308,14 +310,12 @@ function applyCrowdSeparation(e, groups, minDist) {
       const dist = Math.hypot(dx, dy);
 
       if (dist > 0 && dist < minDist) {
-        const push = (minDist - dist) / 2;
+        const push = (minDist - dist) * 0.12;
         const nx = dx / dist;
         const ny = dy / dist;
 
         e.x += nx * push;
         e.y += ny * push;
-        o.x -= nx * push;
-        o.y -= ny * push;
       }
     }
   }
@@ -435,11 +435,11 @@ export function updateGoblins(delta) {
 
         e.attacking = false;
 
-        // --- Crowd collision (priority gap) using grid neighbours only
-        if (doSeparation && separationGrid) {
-          const minDist = 110;
+        // --- Crowd collision (priority gap) using grid neighbours only; skip when hugging player
+        if (doSeparation && separationGrid && !e.holdingAtRange && !e.attacking && distToPlayer > 110) {
+          const minDist = 70;
           const minDistSq = minDist * minDist;
-          const maxPush = 8;
+          const maxPush = 4;
           const nearby = getNearbyFromGrid(separationGrid, e.x, e.y);
 
           for (const o of nearby) {
@@ -451,7 +451,7 @@ export function updateGoblins(delta) {
             if (distSq === 0 || distSq >= minDistSq) continue;
 
             const dist = Math.sqrt(distSq);
-            const push = Math.min(maxPush, (minDist - dist) * 0.35);
+            const push = Math.min(maxPush, (minDist - dist) * 0.15);
             const inv = 1 / dist;
             const nx = dx * inv;
             const ny = dy * inv;
