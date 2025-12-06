@@ -758,9 +758,20 @@ export function drawGoblins(context) {
   if (!goblinSprites) return;
   ctx = context;
 
+  const camX = (typeof window !== "undefined" && typeof window.cameraX === "number") ? window.cameraX : 0;
+  const camY = (typeof window !== "undefined" && typeof window.cameraY === "number") ? window.cameraY : 0;
+  const viewW = (typeof window !== "undefined" && typeof window.innerWidth === "number") ? window.innerWidth : 1920;
+  const viewH = (typeof window !== "undefined" && typeof window.innerHeight === "number") ? window.innerHeight : 1080;
+  const offscreenPad = 120;
+
   for (const e of goblins) {
     const img = getGoblinSprite(e);
     if (!img) continue;
+
+    const onScreen =
+      e.x >= camX - offscreenPad && e.x <= camX + viewW + offscreenPad &&
+      e.y >= camY - offscreenPad && e.y <= camY + viewH + offscreenPad;
+    if (!onScreen) continue;
 
     const SPRITE_NATIVE = 512;
 
@@ -792,8 +803,8 @@ export function drawGoblins(context) {
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
 
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
+    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingQuality = "low";
 
     if (e.alive && e.flashTimer > 0) {
       const flashAlpha = e.flashTimer / 150;

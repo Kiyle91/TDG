@@ -647,8 +647,7 @@ function buildSpawnPlan(wave, hpMult) {
     return {
       hpMult,
       escortsRemaining: wave.goblins || 0,
-      counts: null,
-      order: null,
+      queue: null,
       cursor: 0,
     };
   }
@@ -666,21 +665,38 @@ function buildSpawnPlan(wave, hpMult) {
     crossbow: wave.crossbows || 0,
   };
 
+  const order = [
+    "goblin",
+    "iceGoblin",
+    "emberGoblin",
+    "ashGoblin",
+    "voidGoblin",
+    "worg",
+    "elite",
+    "troll",
+    "ogre",
+    "crossbow",
+  ];
+
+  const queue = [];
+  for (const type of order) {
+    const count = counts[type] || 0;
+    for (let i = 0; i < count; i++) queue.push(type);
+  }
+
+  // Shuffle to avoid deterministic clumps
+  for (let i = queue.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = queue[i];
+    queue[i] = queue[j];
+    queue[j] = tmp;
+  }
+
   return {
     hpMult,
     counts,
-    order: [
-      "goblin",
-      "iceGoblin",
-      "emberGoblin",
-      "ashGoblin",
-      "voidGoblin",
-      "worg",
-      "elite",
-      "troll",
-      "ogre",
-      "crossbow",
-    ],
+    queue,
+    cursor: 0,
     escortsRemaining: 0,
   };
 }
@@ -688,12 +704,8 @@ function buildSpawnPlan(wave, hpMult) {
 function hasPendingSpawns() {
   if (!spawnPlan) return false;
   if (spawnPlan.escortsRemaining > 0) return true;
-  const counts = spawnPlan.counts;
-  if (!counts) return false;
-  for (const key of Object.keys(counts)) {
-    if (counts[key] > 0) return true;
-  }
-  return false;
+  const queue = spawnPlan.queue;
+  return Array.isArray(queue) ? spawnPlan.cursor < queue.length : false;
 }
 
 function spawnNextFromPlan() {
@@ -706,24 +718,16 @@ function spawnNextFromPlan() {
     return true;
   }
 
-  const counts = spawnPlan.counts;
-  const order = spawnPlan.order;
-  if (!counts || !order) {
+  const queue = spawnPlan.queue;
+  if (!queue || spawnPlan.cursor >= queue.length) {
     spawnPlan = null;
     return false;
   }
 
-  const available = order.filter(t => (counts[t] || 0) > 0);
-  if (available.length > 0) {
-    const chosen = available[Math.floor(Math.random() * available.length)];
-    counts[chosen] -= 1;
-    spawnEnemy(chosen, spawnPlan);
-    if (!hasPendingSpawns()) spawnPlan = null;
-    return true;
-  }
-
-  spawnPlan = null;
-  return false;
+  const chosen = queue[spawnPlan.cursor++];
+  spawnEnemy(chosen, spawnPlan);
+  if (!hasPendingSpawns()) spawnPlan = null;
+  return true;
 }
 
 function getEnemyGroups() {
@@ -742,16 +746,18 @@ function getEnemyGroups() {
   ];
 }
 
-function getAliveEnemyCount() {
-  const groups = getEnemyGroups();
+function getEnemyStats(groupsOverride) {
+  const groups = groupsOverride || getEnemyGroups();
   let alive = 0;
+  let totalSpawned = 0;
   for (const group of groups) {
     if (!Array.isArray(group)) continue;
+    totalSpawned += group.length;
     for (const e of group) {
       if (e && e.alive) alive++;
     }
   }
-  return alive;
+  return { groups, alive, totalSpawned };
 }
 
 function applySpawnSeparation(enemy) {
@@ -764,7 +770,6 @@ function applySpawnSeparation(enemy) {
   const groups = spawnSeparationGroups || getEnemyGroups();
 
   const radius = getSpawnRadiusByType(enemy.type);
-  const radiusSq = radius * radius;
   const MAX_CHECKS = 16;
 
   for (let attempts = 0; attempts < 3; attempts++) {
@@ -802,24 +807,11 @@ function applySpawnSeparation(enemy) {
   }
 }
 
-function noEnemiesAlive() {
-  const groups = getEnemyGroups();
-
-  let totalAlive = 0;
-  let totalSpawnedSoFar = 0;
-
-  for (const group of groups) {
-    if (!Array.isArray(group)) continue;
-    totalSpawnedSoFar += group.length;
-    for (const enemy of group) {
-      if (enemy && enemy.alive) totalAlive += 1;
-    }
-  }
-
+function noEnemiesAlive(stats) {
+  const data = stats || getEnemyStats();
   if (hasPendingSpawns()) return false;
-  if (totalSpawnedSoFar === 0) return false;
-
-  return totalAlive === 0;
+  if (data.totalSpawned === 0) return false;
+  return data.alive === 0;
 }
 
 export function updateWaveSystem(delta) {
@@ -839,19 +831,26 @@ export function updateWaveSystem(delta) {
     return;
   }
 
+  let enemyStats = null;
+  const ensureEnemyStats = () => {
+    if (!enemyStats) enemyStats = getEnemyStats();
+    return enemyStats;
+  };
+
   if (waveTransitionInProgress) {
     return;
   }
 
   spawnTimer -= delta;
   if (spawnPlan && spawnTimer <= 0 && hasPendingSpawns()) {
-    if (getAliveEnemyCount() >= MAX_ALIVE_ENEMIES) {
+    const stats = ensureEnemyStats();
+    if (stats.alive >= MAX_ALIVE_ENEMIES) {
       // Defer spawns if battlefield is overcrowded
       spawnTimer = nextSpawnInterval() * 0.5;
       return;
     }
 
-    spawnSeparationGroups = getEnemyGroups();
+    spawnSeparationGroups = stats.groups;
     const groupSize = 1 + Math.floor(Math.random() * 8); // 1-8 enemies per pulse
     let spawned = 0;
     while (spawned < groupSize && spawnNextFromPlan()) {
@@ -868,7 +867,8 @@ export function updateWaveSystem(delta) {
   if (!waves) return;
 
   if (waveActive) {
-    if (!noEnemiesAlive()) return;
+    const stats = ensureEnemyStats();
+    if (!noEnemiesAlive(stats)) return;
 
     if (!waveCleared) {
       waveCleared = true;

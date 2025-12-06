@@ -29,6 +29,7 @@ import { getGoblins as getAshGoblins } from "../entities/ashGoblin.js";
 import { getGoblins as getVoidGoblins } from "../entities/voidGoblin.js";
 import { getWorg } from "../entities/worg.js";
 import { getTrolls } from "../entities/troll.js";
+import { getOgres } from "../entities/ogre.js";
 import { getCrossbows } from "../entities/crossbow.js";
 import { getElites } from "../entities/elite.js";
 import { spawnFloatingText } from "../fx/floatingText.js";
@@ -266,16 +267,32 @@ function findNearestEnemy(spire, enemies, range) {
 
 // Prefer a priority subset if available, otherwise fall back to the nearest enemy
 function findNearestEnemyWithPriority(spire, enemies, range, priorityFn) {
-  const priorityList = [];
+  const maxDistSq = range * range;
+  let bestPriority = null;
+  let bestPriorityDistSq = maxDistSq;
+  let best = null;
+  let bestDistSq = maxDistSq;
+
   for (const e of enemies) {
-    if (priorityFn(e)) priorityList.push(e);
+    if (!e.alive) continue;
+
+    const dx = spire.x - e.x;
+    const dy = spire.y - e.y;
+    const distSq = dx * dx + dy * dy;
+    if (distSq >= maxDistSq) continue;
+
+    if (priorityFn(e)) {
+      if (distSq < bestPriorityDistSq) {
+        bestPriorityDistSq = distSq;
+        bestPriority = e;
+      }
+    } else if (!bestPriority && distSq < bestDistSq) {
+      bestDistSq = distSq;
+      best = e;
+    }
   }
 
-  const prioritized = priorityList.length
-    ? findNearestEnemy(spire, priorityList, range)
-    : null;
-
-  return prioritized || findNearestEnemy(spire, enemies, range);
+  return bestPriority || best;
 }
 
 // ------------------------------------------------------------
@@ -536,6 +553,7 @@ function refreshEnemyCache(delta) {
     getWorg(),
     getElites(),
     getTrolls(),
+    getOgres(),
     getCrossbows(),
   ];
 

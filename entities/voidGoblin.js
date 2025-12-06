@@ -320,6 +320,17 @@ export function updateGoblins(delta) {
   const player = gameState.player;
   if (!player) return;
 
+  crowdCollisionTimer += delta;
+  const doSeparation = crowdCollisionTimer >= CROWD_COLLISION_INTERVAL;
+  let separationGrid = null;
+  if (doSeparation) {
+    crowdCollisionTimer = 0;
+    const ash = getAshGoblins() || [];
+    const ice = getIceGoblins() || [];
+    const ember = getEmberGoblins() || [];
+    separationGrid = buildSpatialGrid([...goblins, ...ash, ...ice, ...ember]);
+  }
+
   const px = player.pos?.x ?? player.x ?? 0;
   const py = player.pos?.y ?? player.y ?? 0;
 
@@ -408,13 +419,31 @@ export function updateGoblins(delta) {
 
         e.attacking = false;
 
-        // Crowd collision pushback
-        applyCrowdSeparation(e, [
-          goblins,
-          getAshGoblins(),
-          getIceGoblins(),
-          getEmberGoblins()
-        ], 96);
+        // Crowd collision pushback (throttled + neighbor-only)
+        if (doSeparation && separationGrid) {
+          const minDist = 110;
+          const minDistSq = minDist * minDist;
+          const maxPush = 8;
+          const nearby = getNearbyFromGrid(separationGrid, e.x, e.y);
+
+          for (const o of nearby) {
+            if (o === e || !o.alive) continue;
+
+            const dx = e.x - o.x;
+            const dy = e.y - o.y;
+            const distSq = dx * dx + dy * dy;
+            if (distSq === 0 || distSq >= minDistSq) continue;
+
+            const dist = Math.sqrt(distSq);
+            const push = Math.min(maxPush, (minDist - dist) * 0.35);
+            const inv = 1 / dist;
+
+            e.x += dx * inv * push;
+            e.y += dy * inv * push;
+            o.x -= dx * inv * push;
+            o.y -= dy * inv * push;
+          }
+        }
 
         e.frameTimer += delta;
         if (e.frameTimer >= WALK_FRAME_INTERVAL) {
@@ -711,11 +740,22 @@ export function drawGoblins(context) {
   if (!goblinSprites) return;
   ctx = context;
 
+  const camX = (typeof window !== "undefined" && typeof window.cameraX === "number") ? window.cameraX : 0;
+  const camY = (typeof window !== "undefined" && typeof window.cameraY === "number") ? window.cameraY : 0;
+  const viewW = (typeof window !== "undefined" && typeof window.innerWidth === "number") ? window.innerWidth : 1920;
+  const viewH = (typeof window !== "undefined" && typeof window.innerHeight === "number") ? window.innerHeight : 1080;
+  const offscreenPad = 120;
+
   for (const e of goblins) {
     const doFx = (fxToggle++ & 1) === 0;
 
     const img = getGoblinSprite(e);
     if (!img) continue;
+
+    const onScreen =
+      e.x >= camX - offscreenPad && e.x <= camX + viewW + offscreenPad &&
+      e.y >= camY - offscreenPad && e.y <= camY + viewH + offscreenPad;
+    if (!onScreen) continue;
 
     const drawX = e.x - GOBLIN_SIZE / 2;
     const drawY = e.y - GOBLIN_SIZE / 2;
@@ -735,8 +775,8 @@ export function drawGoblins(context) {
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fill();
 
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
+    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingQuality = "low";
 
 
     if (e.alive && e.flashTimer > 0) {

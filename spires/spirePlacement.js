@@ -133,17 +133,26 @@ function tryPlaceSpire(num) {
 
 
 // ------------------------------------------------------------
-// 🔁 COOL DOWN TICKER (approx. 60fps)
+// COOL DOWN TICKER - tied to rAF to avoid background CPU churn
 // ------------------------------------------------------------
 
-setInterval(() => {
-  if (gameState.paused) return;
+const scheduleTick = typeof requestAnimationFrame === "function"
+  ? requestAnimationFrame
+  : (fn) => setTimeout(fn, 16);
 
-  if (spirePlaceCooldown > 0) {
-    spirePlaceCooldown -= 16;
-    if (spirePlaceCooldown < 0) spirePlaceCooldown = 0;
+let lastCooldownTick = performance.now();
+function tickSpirePlacementCooldown() {
+  const now = performance.now();
+  const delta = Math.min(100, now - lastCooldownTick);
+  lastCooldownTick = now;
+
+  if (!gameState.paused && spirePlaceCooldown > 0) {
+    spirePlaceCooldown = Math.max(0, spirePlaceCooldown - delta);
   }
-}, 16);
+
+  scheduleTick(tickSpirePlacementCooldown);
+}
+scheduleTick(tickSpirePlacementCooldown);
 
 
 // ------------------------------------------------------------
